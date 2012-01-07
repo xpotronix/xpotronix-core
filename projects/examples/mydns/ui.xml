@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database name="mydns">
+   <table name="contacts" translate="contacts">
+      <panel type="xpForm"/>
+      <panel type="xpGrid"/>
+      <field name="contact_id" translate="contact_id" validate=""/>
+      <field name="contact_first_name" translate="contact_first_name" validate=""/>
+      <field name="contact_last_name" translate="contact_last_name" validate=""/>
+      <field name="contact_order_by" translate="contact_order_by" validate=""/>
+      <field name="contact_title" translate="contact_title" validate=""/>
+      <field name="contact_birthday" translate="contact_birthday" validate=""/>
+      <field name="contact_job" translate="contact_job" validate=""/>
+      <field name="contact_company" translate="contact_company" validate=""/>
+      <field name="contact_department" translate="contact_department" validate=""/>
+      <field name="contact_type" translate="contact_type" validate=""/>
+      <field name="contact_email" translate="contact_email" validate=""/>
+      <field name="contact_email2" translate="contact_email2" validate=""/>
+      <field name="contact_url" translate="contact_url" validate=""/>
+      <field name="contact_phone" translate="contact_phone" validate=""/>
+      <field name="contact_phone2" translate="contact_phone2" validate=""/>
+      <field name="contact_fax" translate="contact_fax" validate=""/>
+      <field name="contact_mobile" translate="contact_mobile" validate=""/>
+      <field name="contact_address1" translate="contact_address1" validate=""/>
+      <field name="contact_address2" translate="contact_address2" validate=""/>
+      <field name="contact_city" translate="contact_city" validate=""/>
+      <field name="contact_state" translate="contact_state" validate=""/>
+      <field name="contact_zip" translate="contact_zip" validate=""/>
+      <field name="contact_country" translate="contact_country" validate=""/>
+      <field name="contact_jabber" translate="contact_jabber" validate=""/>
+      <field name="contact_icq" translate="contact_icq" validate=""/>
+      <field name="contact_msn" translate="contact_msn" validate=""/>
+      <field name="contact_yahoo" translate="contact_yahoo" validate=""/>
+      <field name="contact_aol" translate="contact_aol" validate=""/>
+      <field name="contact_notes" translate="contact_notes" validate=""/>
+      <field name="contact_project" translate="contact_project" validate=""/>
+      <field name="contact_icon" translate="contact_icon" validate=""/>
+      <field name="contact_owner" translate="contact_owner" validate=""/>
+      <field name="contact_private" translate="contact_private" validate=""/>
+   </table>
+   <table name="rr" translate="rr">
+      <panel type="xpForm"/>
+      <panel type="xpGrid"/>
+      <field name="id" translate="id" validate=""/>
+      <field name="zone" translate="zone" validate="" eh="soa"/>
+      <field name="name" translate="name" validate=""/>
+      <field name="type" translate="type" validate=""/>
+      <field name="data" translate="data" validate=""/>
+      <field name="aux" translate="aux" validate=""/>
+      <field name="ttl" translate="ttl" validate=""/>
+   </table>
+   <table name="soa" translate="soa">
+      <panel type="xpGrid"/>
+   	<table name="rr" translate="rr">
+		<panel type="xpGrid"/>
+		<foreign_key>
+			<ref local="zone" remote="id"/>
+		</foreign_key>
+	</table>
+      <field name="id" translate="id" validate=""/>
+      <field name="origin" translate="origin" validate=""/>
+      <field name="ns" translate="ns" validate=""/>
+      <field name="mbox" translate="mbox" validate=""/>
+      <field name="serial" translate="serial" validate=""/>
+      <field name="refresh" translate="refresh" validate=""/>
+      <field name="retry" translate="retry" validate=""/>
+      <field name="expire" translate="expire" validate=""/>
+      <field name="minimum" translate="minimum" validate=""/>
+      <field name="ttl" translate="ttl" validate=""/>
+   </table>
+
+
+	<include path="../../plugins/_acl"/>
+	<include path="../../plugins/_audit"/>
+	<include path="../../plugins/_common"/>
+	<include path="../../plugins/_file"/>
+	<include path="../../plugins/_messages"/>
+	<include path="../../plugins/_sessions"/>
+	<include path="../../plugins/_users"/>
+
+</database>
