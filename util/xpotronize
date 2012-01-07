@@ -1,0 +1,49 @@
+#!/usr/bin/php
+<?
+
+ini_set( 'display_errors', 1 );
+ini_set( 'log_errors', 1 );
+ini_set( 'error_log', 'syslog' );
+
+ini_set( 'include_path', ini_get( 'include_path' ). ':/usr/share/php/adodb' );
+
+$ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
+require_once $ini['paths']['lib']. "xpotronize.class.php";
+require_once $ini['paths']['lib']. "xpdoc.class.php";
+
+$x = new xpotronize;
+$x->check_params_xpotronize();
+
+$xpdoc = new xpdoc( $x->config, $x->feat );
+
+if ( @$x->opts['f'] ) {
+
+	M()->user( "dbdump: aplicacion {$x->feat->application}" );
+
+	$db = new dbdump( $x->ini );
+	$db->get_database_info();
+
+	$pp = $x->transform['params']['project_path'];
+	$db->output( implode( '/', array( $pp, 't.xml' ) ) );
+
+	$y = clone $x;
+
+	$y->argv[1] = 'beautify';
+
+	$y->check_params_xputil();
+
+	$y->transform['xml'] = implode( '/', array( $pp, 't.xml' ) );
+
+	$y->transform( implode( '/', array( $pp, 'tables.xml' ) ) );
+
+	unlink( $y->transform['xml'] );
+}
+
+M()->user( "xpotronize: aplicacion {$x->feat->application}" );
+
+( $x->config->self === true or $x->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
+
+$x->transform();
+exit(0);
+
+?>

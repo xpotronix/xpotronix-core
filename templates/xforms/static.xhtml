@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:ftype="http://xforms.example/xforms/types" xmlns:xpotronix="http://xpotronix.com/namespace/xpotronix/" xmlns:fn="http://www.w3.org/2005/04/xpath-functions" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:f="http://www.w3.org/2002/xforms" xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta name="Description" content="Xpotronix Application"/>
+      <meta name="Version" content="2.0.1"/>
+      <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+      <meta name="Keywords" content="Xpotronix Rocks !!!"/>
+      <title>xpotronix :: 2.0.1| Enjoy you baggage!</title>
+      <link rel="shortcut icon" href="http://quantum.dyndns.tv/bolu/style/default/images/favicon.ico" type="image/ico"/>
+
+      <f:model>
+         <f:instance id="product_instance" src="http://localhost/bolu/?a=dataset&amp;m=product&amp;t=xml">
+         </f:instance>
+         <f:submission id="store" action="product.xml" method="put" indent="true" omit-xml-declaration="true" includenamespaceprefixes="#default"/>
+         <f:submission id="send" action="?a=store" method="post" indent="false" omit-xml-declaration="false" includenamespaceprefixes="#default"/>
+      </f:model>
+
+	<style type="text/css">
+                @namespace f url("http://www.w3.org/2002/xforms");
+                f|*:invalid .xf-value { background-color: #ffc; }
+                *:required:before { content: "*"; color: red; }
+                .boxed {
+                        border: 2px solid black;
+                        padding: 0.5em;
+                }
+                h1 { font-size: 125%; }
+                h2 { font-size: 110%; }
+
+
+    th 
+    { 
+        width: 240px; 
+    }
+
+    f|repeat .xf-repeat-item 
+    {
+        display: table-row;
+        width:   480px;
+    }
+
+    f|repeat f|output, f|repeat f|input
+    {
+       display:          table-cell;
+       border:           thin;
+       border-style:     solid;
+       width:            240px;
+       text-align:       center;
+       background-color: lightgray;  
+    }
+
+        	</style></head>
+   <body><script type="text/javascript">
+		document.title= 'bolu Corporate';
+	</script><table width="100%" border="0">
+         <tr>
+            <td>
+               <table width="100%" cellspacing="0" cellpadding="3" border="0">
+                  <tr>
+                     <th background="static_archivos/titlegrad.jpg" align="left" class="banner"><strong><a style="color: white;" href="http://quantum.dyndns.tv/bolu">bolu Corporate</a></strong></th>
+                  </tr>
+               </table>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               <table width="100%" cellspacing="0" cellpadding="3" border="0">
+                  <tr>
+                     <td width="100%">Bienvenido AdminPerson (admin) en la base de datos bolu-corporate</td>
+                  </tr>
+               </table>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               <table width="100%" cellspacing="0" cellpadding="4" border="0">
+                  <tr>
+                     <td width="98%" valign="top" align="left"/>
+                  </tr>
+               </table>
+            </td>
+         </tr>
+      </table>
+      <div id="main_content">
+         <f:submit submission="save">
+            <f:label>Guardar Datos</f:label>
+         </f:submit>
+         <f:submit submission="send">
+            <f:label>Enviar Datos</f:label>
+         </f:submit><br/>
+	<f:repeat id="product-repeat" nodeset="instance('product_instance')//obj[@name='product']">
+            <f:input ref="attr[@name='ID']"/>
+            <f:input ref="attr[@name='name']"/>
+            <f:input ref="attr[@name='code']"/>
+            <f:input ref="attr[@name='PC']"/>
+	<br/>
+         <f:submit submission="save">
+            <f:label>Guardar</f:label>
+         </f:submit>
+	</f:repeat>
+      </div>
+   </body>
+</html>

@@ -1,0 +1,18 @@
+#!/usr/bin/php
+<?
+
+ini_set( 'display_errors', 1 );
+ini_set( 'log_errors', 1 );
+ini_set( 'error_log', 'syslog' );
+
+
+$ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
+require_once $ini['paths']['lib']. "xpotronize.class.php";
+
+$x = new xpotronize;
+
+$x->check_params_xputil();
+$x->transform();
+exit(0);
+
+?>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+        <table name="user_preferences">
+               <process name="readState" translate="readState" view="json">
+                        <acl action="permit" role="*"/>
+                        <acl action="deny" role="anon"/>
+                        <command name="readState" for="process_start"/>
+                </process>
+               <process name="saveState" translate="saveState" view="json">
+                        <acl action="permit" role="*"/>
+                        <acl action="deny" role="anon"/>
+                        <command name="saveState" for="process_start"/>
+                </process>
+        </table>
+</database>

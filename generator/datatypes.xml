@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<types>
+	<xtype name="xpdate" type="time">
+		<type name="date"/>
+	</xtype>
+	<xtype name="xpdatetime" type="time">
+		<type name="datetime"/>
+		<type name="timestamp"/>
+	</xtype>
+	<xtype name="xptime" type="time">
+		<type name="time"/>
+	</xtype>
+
+	<xtype name="xpenum" type="string">
+		<type name="enum"/>
+	</xtype>
+
+	<xtype name="xpstring" type="string">
+		<type name="char"/>
+		<type name="varchar"/>
+	</xtype>
+	<xtype name="xptext" type="string">
+		<type name="text"/>
+		<type name="tinytext"/>
+		<type name="smalltext"/>
+		<type name="mediumtext"/>
+		<type name="largetext"/>
+		<type name="longtext"/>
+	</xtype>
+	<xtype name="xpblob" type="string">
+		<type name="tinyblob"/>
+		<type name="mediumblob"/>
+		<type name="blob"/>
+		<type name="longblob"/>
+	</xtype>
+	<xtype name="xpboolean" type="numeric">
+		<type name="tinyint"/>
+		<type name="bit"/>
+	</xtype>
+	<xtype name="xpint" type="numeric">
+		<type name="int"/>
+		<type name="smallint"/>
+		<type name="longint"/>
+		<type name="bigint"/>
+		<type name="year"/>
+		<!-- mssql -->
+		<type name="numeric"/>
+	</xtype>
+	<xtype name="xpdecimal" type="numeric">
+		<type name="float"/>
+		<type name="double"/>
+		<type name="decimal"/>
+		<!-- mssql -->
+		<type name="money"/>
+	</xtype>
+</types>

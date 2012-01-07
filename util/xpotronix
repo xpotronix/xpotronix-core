@@ -1,0 +1,26 @@
+#!/usr/bin/php
+<?
+
+ini_set( 'display_errors', 1 );
+ini_set( 'log_errors', 1 );
+ini_set( 'error_log', 'syslog' );
+
+
+$ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
+require_once $ini['paths']['lib']. "xpmessages.class.php";
+require_once $ini['paths']['lib']. "includes/misc_functions.php";
+
+$params = parseParameters();
+
+if ( ! isset( $params['path'] ) ) {
+
+	M()->fatal( "debe especificar el base path de la aplicacion con el parametro --path" );
+	exit( 1 );
+}
+
+chdir( $params['path'] );
+ini_set( 'include_path', ini_get( 'include_path' ). ".:/usr/share/php/adodb:{$ini['paths']['lib']}" );
+
+include_once $ini['paths']['lib']. "main.php";
+
+?>

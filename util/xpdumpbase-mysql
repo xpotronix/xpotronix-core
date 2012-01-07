@@ -1,0 +1,47 @@
+#!/usr/bin/php
+<?
+
+ini_set( 'display_errors', 1 );
+ini_set( 'log_errors', 1 );
+ini_set( 'error_log', 'syslog' );
+
+ini_set( 'include_path', ini_get( 'include_path' ). ':/usr/share/php/adodb' );
+
+$ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
+require_once $ini['paths']['lib']. "xpotronize.class.php";
+require_once $ini['paths']['lib']. "xpdoc.class.php";
+
+
+$x = new xpotronize;
+
+$xpdoc = new xpdoc( $x->config, $x->feat );
+
+if ( count( $x->argv ) < 2 ) {
+	if ( ! ( $db_name = $x->project_config->database ) )
+		M()->fatal( "\nxpdump-base\nGenera el diccionario de datos en xml de la base de datos\n");
+} else $db_name = $x->argv[1];
+
+M()->user( "dbdump: aplicacion {$x->feat->application}" );
+
+$db = new dbdump( $x->ini );
+$db->get_database_info();
+
+$pp = ( $tmp = $x->transform['params']['project_path'] ) ? $tmp: getcwd();
+$db->output( implode( '/', array( $pp, 't.xml' ) ) );
+
+$y = clone $x;
+
+$y->argv[1] = 'beautify';
+
+$y->check_params_xputil();
+
+$y->transform['xml'] = implode( '/', array( $pp, 't.xml' ) );
+
+$of = ( $tmp = @$x->opts['o'] ) ? $tmp : 'tables.xml';
+
+$y->transform( implode( '/', array( $pp, $of ) ) );
+
+unlink( $y->transform['xml'] );
+
+exit(0);
+?>

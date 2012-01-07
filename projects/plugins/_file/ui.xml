@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+	<table name="file_utils"/>
+	<table name="file">
+
+		<field name="mime_type" translate="Tipo de Archivo">
+			<!-- <renderer><![CDATA['<div class="ux-up-icon-file ' + record.data.mime_type +'">&#160;</div>']]></renderer> -->
+		</field>
+
+		<field name="file_name" translate="Nombre del Archivo"/>
+		<field name="file_size" translate="Tamaño"/>
+		<field name="updated" translate="F. Actualización"/>
+		<field name="added" translate="F. Agregado"/>
+
+		<field name="content" translate="Contenido">
+			<renderer><![CDATA['<a href="'+record.data.content+'" target="_blank">Descargar</a>']]></renderer>
+		</field>
+	</table>
+</database>

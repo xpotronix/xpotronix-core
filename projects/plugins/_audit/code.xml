@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+   <table name="audit">
+	<code type="php" mode="class_functions">
+
+	function main_sql() {/*{{{*/
+
+		if ( $this->has_role( 'admin' ) )
+			return;
+		else
+			$this->sql->addWhere('1=0');
+	}/*}}}*/
+
+		function repost( $xml ) {/*{{{*/
+
+			$this->loaded or $this->load( $xml['ID'] );
+
+			if ( ! $this->loaded ) {
+
+				M()->error( 'Sin datos para procesar' );
+				return false;
+			}
+
+			require_once 'xpcurl.class.php';
+
+			$c = new xpCurl();
+
+			$params = array();
+
+			$this->action and $params['action'] = $this->action;
+			$this->module and $params['action'] = $this->module;
+			$this->proc_required and $params['process'] = $this->proc_required;
+
+
+			if ( $this->type == 'POST' ) {
+
+				// print_r( urlencode( unserialize( $this->transac_data ) ) ) );
+
+				$vars = unserialize( ( $this->transac_data ) );
+				$x = $vars['x'];
+				$vars['x'] = stripslashes( $x ); // saco \" a los xml
+
+				$c->setPost( http_build_query( $vars ) ); 
+
+
+
+			} else if ( $this->type == 'GET' ) { 
+
+				// nothing
+
+			} else {
+
+				M()->error( "{$this->type} no se que tipo de request es" );
+				return false;
+			}
+
+			/*
+
+				// $params['x'] = addslashes( $this->transac_data );
+				// $params['j'] = $this->transac_data;
+
+			*/
+
+
+			return $c->request( $this->URL );
+
+		}/*}}}*/
+
+		function record() {/*{{{*/
+
+			global $xpdoc;
+
+			
+
+			$this->fill_primary_key();
+			$this->user_id = $xpdoc->user->user_id;
+			$this->session_id = $xpdoc->session->session_id;
+			$this->xpid = $xpdoc->xpid();
+
+			( ! CLI ) and $this->URL = 'http://'. $_SERVER['SERVER_NAME']. $_SERVER['REQUEST_URI'];
+
+			$this->module = $xpdoc->module;
+			$this->action = $xpdoc->action;
+			$this->type = (CLI) ? 'CLI' : $_SERVER['REQUEST_METHOD'];
+
+			// echo '&lt;pre&gt;', print_r( $_SERVER ); exit;
+
+			$this->source_ip = $xpdoc->http->remote_addr;
+
+			$this->get_attr('when')->now();
+
+			foreach( $xpdoc->process as $process )
+				if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) )
+					return;
+
+			if ( is_array( $xpdoc->process ) )
+				$this->proc_required = implode( ',', $xpdoc->process );
+
+			$this->transac_data = (CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
+
+			$this->messages = $xpdoc->get_messages( true )->messages->asXML();
+
+			/*
+
+			if ( is_array( $xpdoc->json ) ) {
+
+				$this->transac_data = var_export( $this->json, true );
+
+			} 
+
+			if ( is_object( $xpdoc->xml ) ) {
+
+				$this->transac_data = $xpdoc->xml->asXML();
+
+			} 
+
+			*/
+
+			$this->push_privileges( array( 'add' => true ) );
+			$this->store();
+			$this->pop_privileges();
+
+		}/*}}}*/
+
+	</code>
+   </table>
+
+</database>
+<!-- vim600: fdm=marker sw=3 ts=8 ai: 
+-->
+
