@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<feat>
+	<application>xpotronix</application>
+	<page_title>xpotronix Application</page_title>
+	<base_url>http://justamente.net/xpotronix/</base_url>
+	<page_rows type="int">50</page_rows>
+	<default_module>users</default_module>
+
+
+	<auto_load type="bool">true</auto_load>
+
+</feat>

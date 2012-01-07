@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<database>
+   <table name="audit">
+      <field name="ID" max_length="32" type="char" not_null="1" primary_key="1"/>
+      <field name="user_id" max_length="32" type="varchar"/>
+      <field name="session_id" max_length="32" type="varchar"/>
+      <field name="xpid" max_length="32" type="char"/>
+      <field name="when" max_length="-1" type="datetime"/>
+      <field name="source_ip" max_length="50" type="varchar"/>
+      <field name="URL" max_length="-1" type="longtext" not_null="1"/>
+      <field name="module" max_length="255" type="varchar" not_null="1"/>
+      <field name="action" max_length="255" type="varchar"/>
+      <field name="proc_required" max_length="255" type="varchar"/>
+      <field name="transac_data" max_length="-1" type="longtext"/>
+      <field name="type" max_length="4" type="enum" enums="'GET','HEAD','POST','PUT'"
+             not_null="1"/>
+      <field name="messages" max_length="-1" type="text" not_null="1"/>
+      <primary name="ID"/>
+      <index name="user_id">user_id</index>
+      <index name="session_id">session_id</index>
+      <index name="source_ip">source_ip</index>
+      <index name="action">action</index>
+      <index name="process">proc_required</index>
+      <index name="when">when</index>
+      <index name="type">type</index>
+      <index name="module">module</index>
+      <index name="xpid">xpid</index>
+   </table>
+   <table name="gacl_acl">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="section_value" max_length="80" type="varchar" not_null="1"
+             has_default="1"
+             default_value="system"/>
+      <field name="allow" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="enabled" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="return_value" max_length="-1" type="longtext"/>
+      <field name="note" max_length="-1" type="longtext"/>
+      <field name="updated_date" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_enabled_acl">enabled</index>
+      <index name="gacl_section_value_acl">section_value</index>
+      <index name="gacl_updated_date_acl">updated_date</index>
+   </table>
+   <table name="gacl_acl_sections">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1"/>
+      <field name="order_value" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="230" type="varchar" not_null="1"/>
+      <field name="hidden" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_value_acl_sections" unique="1">value</index>
+      <index name="gacl_hidden_acl_sections">hidden</index>
+   </table>
+   <table name="gacl_aco">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="section_value" max_length="80" type="varchar" not_null="1"
+             has_default="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1"/>
+      <field name="order_value" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="255" type="varchar" not_null="1"/>
+      <field name="hidden" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_section_value_value_aco" unique="1">section_value,value</index>
+      <index name="gacl_hidden_aco">hidden</index>
+   </table>
+   <table name="gacl_aco_map">
+      <field name="acl_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="section_value" max_length="80" type="varchar" not_null="1"
+             primary_key="1"
+             has_default="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1" primary_key="1"/>
+      <primary name="acl_id"/>
+      <primary name="section_value"/>
+      <primary name="value"/>
+   </table>
+   <table name="gacl_aco_sections">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1"/>
+      <field name="order_value" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="230" type="varchar" not_null="1"/>
+      <field name="hidden" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_value_aco_sections" unique="1">value</index>
+      <index name="gacl_hidden_aco_sections">hidden</index>
+   </table>
+   <table name="gacl_aro">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="section_value" max_length="80" type="varchar" not_null="1"
+             has_default="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1"/>
+      <field name="order_value" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="255" type="varchar" not_null="1"/>
+      <field name="hidden" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_section_value_value_aro" unique="1">section_value,value</index>
+      <index name="gacl_hidden_aro">hidden</index>
+   </table>
+   <table name="gacl_aro_groups">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="parent_id" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="lft" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="rgt" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="255" type="varchar" not_null="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1" primary_key="1"/>
+      <primary name="id"/>
+      <primary name="value"/>
+      <index name="value" unique="1">value</index>
+      <index name="gacl_value_aro_groups">value</index>
+      <index name="gacl_lft_rgt_aro_groups">lft,rgt</index>
+   </table>
+   <table name="gacl_aro_groups_map">
+      <field name="acl_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="group_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <primary name="acl_id"/>
+      <primary name="group_id"/>
+   </table>
+   <table name="gacl_aro_map">
+      <field name="acl_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="section_value" max_length="80" type="varchar" not_null="1"
+             primary_key="1"
+             has_default="1"/>
+      <field name="value" max_length="230" type="varchar" not_null="1" primary_key="1"/>
+      <primary name="acl_id"/>
+      <primary name="section_value"/>
+      <primary name="value"/>
+   </table>
+   <table name="gacl_aro_sections">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1"/>
+      <field name="order_value" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="230" type="varchar" not_null="1"/>
+      <field name="hidden" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_value_aro_sections" unique="1">value</index>
+      <index name="gacl_hidden_aro_sections">hidden</index>
+   </table>
+   <table name="gacl_axo">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="section_value" max_length="80" type="varchar" not_null="1"
+             has_default="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1"/>
+      <field name="order_value" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="255" type="varchar" not_null="1"/>
+      <field name="hidden" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_section_value_value_axo" unique="1">section_value,value</index>
+      <index name="gacl_hidden_axo">hidden</index>
+   </table>
+   <table name="gacl_axo_groups">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="parent_id" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="lft" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="rgt" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="255" type="varchar" not_null="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1" primary_key="1"/>
+      <primary name="id"/>
+      <primary name="value"/>
+      <index name="gacl_parent_id_axo_groups">parent_id</index>
+      <index name="gacl_value_axo_groups">value</index>
+      <index name="gacl_lft_rgt_axo_groups">lft,rgt</index>
+   </table>
+   <table name="gacl_axo_groups_map">
+      <field name="acl_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="group_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <primary name="acl_id"/>
+      <primary name="group_id"/>
+   </table>
+   <table name="gacl_axo_map">
+      <field name="acl_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="section_value" max_length="80" type="varchar" not_null="1"
+             primary_key="1"
+             has_default="1"/>
+      <field name="value" max_length="230" type="varchar" not_null="1" primary_key="1"/>
+      <primary name="acl_id"/>
+      <primary name="section_value"/>
+      <primary name="value"/>
+   </table>
+   <table name="gacl_axo_sections">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="value" max_length="80" type="varchar" not_null="1"/>
+      <field name="order_value" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="name" max_length="230" type="varchar" not_null="1"/>
+      <field name="hidden" max_length="11" type="int" not_null="1" has_default="1"/>
+      <primary name="id"/>
+      <index name="gacl_value_axo_sections" unique="1">value</index>
+      <index name="gacl_hidden_axo_sections">hidden</index>
+   </table>
+   <table name="gacl_groups_aro_map">
+      <field name="group_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="aro_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <primary name="group_id"/>
+      <primary name="aro_id"/>
+   </table>
+   <table name="gacl_groups_axo_map">
+      <field name="group_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <field name="axo_id" max_length="11" type="int" not_null="1" primary_key="1"
+             has_default="1"/>
+      <primary name="group_id"/>
+      <primary name="axo_id"/>
+   </table>
+   <table name="sessions">
+      <field name="session_id" max_length="40" type="varchar" not_null="1" primary_key="1"/>
+      <field name="session_data" max_length="-1" type="longblob" binary="1"/>
+      <field name="session_cookies" max_length="-1" type="longblob" not_null="1" binary="1"/>
+      <field name="session_updated" max_length="-1" type="timestamp" not_null="1"
+             has_default="1"
+             default_value="CURRENT_TIMESTAMP"/>
+      <field name="session_created" max_length="-1" type="datetime" not_null="1"
+             has_default="1"
+             default_value="0000-00-00 00:00:00"/>
+      <field name="user_id" max_length="32" type="char"/>
+      <primary name="session_id"/>
+      <index name="session_updated">session_updated</index>
+      <index name="session_created">session_created</index>
+   </table>
+   <table name="test">
+      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="a_varchar" max_length="2000" type="varchar" not_null="1"/>
+      <field name="a_text" max_length="-1" type="longtext" not_null="1"/>
+      <field name="a_blob" max_length="-1" type="longblob" not_null="1" binary="1"/>
+      <field name="an_enum" max_length="1" type="enum" enums="'a','b','c','d','e','f'"
+             not_null="1"/>
+      <field name="a_tiny" max_length="4" type="tinyint" not_null="1"/>
+      <field name="an_int" max_length="11" type="int" not_null="1"/>
+      <field name="a_decimal" max_length="10" type="decimal" not_null="1"/>
+      <field name="a_float" max_length="-1" type="float" not_null="1"/>
+      <field name="a_date" max_length="-1" type="date" not_null="1"/>
+      <field name="a_datetime" max_length="-1" type="datetime" not_null="1"/>
+      <field name="a_time" max_length="-1" type="time" not_null="1"/>
+      <primary name="id"/>
+   </table>
+   <table name="user_preferences">
+      <field name="id" max_length="32" type="char" not_null="1" primary_key="1"/>
+      <field name="user_id" max_length="32" type="char" not_null="1"/>
+      <field name="var_name" max_length="255" type="varchar" not_null="1"/>
+      <field name="var_value" max_length="-1" type="text" not_null="1"/>
+      <primary name="id"/>
+      <index name="user_id">user_id</index>
+      <index name="name">var_name</index>
+   </table>
+   <table name="users">
+      <field name="user_id" max_length="11" type="int" not_null="1" primary_key="1"
+             auto_increment="1"/>
+      <field name="user_contact" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="user_username" max_length="255" type="varchar" not_null="1"/>
+      <field name="user_password" max_length="40" type="char"/>
+      <field name="user_parent" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="user_type" max_length="3" type="tinyint" not_null="1" has_default="1"/>
+      <field name="user_company" max_length="11" type="int" has_default="1"/>
+      <field name="user_department" max_length="11" type="int" has_default="1"/>
+      <field name="user_owner" max_length="11" type="int" not_null="1" has_default="1"/>
+      <field name="user_signature" max_length="-1" type="text"/>
+      <field name="t_actor_ID" max_length="11" type="int"/>
+      <field name="actor_ID" max_length="11" type="int"/>
+      <primary name="user_id"/>
+      <index name="idx_uid">user_username</index>
+      <index name="idx_pwd">user_password</index>
+      <index name="idx_user_parent">user_parent</index>
+   </table>
+</database>

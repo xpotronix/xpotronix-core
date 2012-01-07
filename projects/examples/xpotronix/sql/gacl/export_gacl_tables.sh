@@ -1,0 +1,20 @@
+mysqldump \
+--opt \
+patrocinio \
+gacl_acl \
+gacl_acl_sections \
+gacl_aco \
+gacl_aco_map \
+gacl_aco_sections \
+gacl_aro \
+gacl_aro_groups \
+gacl_aro_groups_map \
+gacl_aro_map \
+gacl_aro_sections \
+gacl_axo \
+gacl_axo_groups \
+gacl_axo_groups_map \
+gacl_axo_map \
+gacl_axo_sections \
+gacl_groups_aro_map \
+gacl_groups_axo_map

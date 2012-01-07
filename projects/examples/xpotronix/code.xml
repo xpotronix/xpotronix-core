@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+<file name="index.php"><![CDATA[<? include 'main.php'; ?>]]></file>
+<file name="common.php"><![CDATA[<?
+
+$up = $xpdoc->instance('user_preferences');
+
+$xpdoc->user->attr( 'ui_state' )
+->set('virtual', true )
+->set('value', json_encode( $up->getState() ) );
+
+
+?>]]></file>
+
+<file name="cron/cleanup_sessions"><![CDATA[
+/usr/bin/xpotronix --path=/var/www/sites/xpotronix/xpotronix/ --m=sessions --a=process --p=cleanup
+]]></file>
+
+</database>
