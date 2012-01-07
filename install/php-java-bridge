@@ -1,0 +1,30 @@
+### BEGIN INIT INFO
+# Provides:		php-java-bridge
+# Required-Start:	$mysql-server $apache2
+# Required-Stop:	$mysql-server $apache2
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	Provides java service to php scripts
+# Description:		Provides java brigde to php scripts
+### END INIT INFO
+
+case "$1" in
+  start)
+    echo "Starting JavaBridge "
+    touch /var/log/JavaBridge.log
+    chown www-data.www-data /var/log/JavaBridge.log
+    sudo -u www-data java -Xms32m -Xmx64m -jar /usr/share/xpotronix/lib/JavaBridge.jar SERVLET_LOCAL:8787 3 /var/log/JavaBridge.log&
+    echo $! > /var/run/JavaBridge.pid
+    ;;
+  stop)
+    echo "Stopping JavaBridge"
+    PID=`cat /var/run/JavaBridge.pid`
+    kill -9 $PID
+    ;;
+  *)
+    echo "Usage: /etc/init.d/blah {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0

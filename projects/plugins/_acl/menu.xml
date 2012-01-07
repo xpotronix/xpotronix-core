@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<menu>
+	<menu n="Seguridad y Accesos" acl="role:admin" id="acl">
+                <item n="Modulos" h="?m=gacl_axo_groups" acl="role:admin"/>
+                <item n="Roles" h="?m=gacl_aro_groups" acl="role:admin"/>
+		<item n="Accesos (ACL)" h="?m=gacl_acl" acl="role:admin"/>
+		<item n="Acciones y Permisos" h="?m=gacl_aco" acl="role:admin"/>
+	</menu>
+</menu>
+

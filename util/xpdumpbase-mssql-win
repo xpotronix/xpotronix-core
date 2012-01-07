@@ -1,0 +1,157 @@
+<?
+
+class DB {
+
+	var $host;
+	var $user;
+	var $db;
+	var $pass;
+
+
+	// tablas excluidas para la version 2.0 de dotproject
+	var $exclude = array( "foo", "acl","acl_sections","aco","aco_map","aco_sections","aro","aro_groups","aro_groups_map","aro_map","aro_sections","axo","axo_groups","axo_groups_map","axo_map","axo_sections","billingcode","common_notes","companies","config","config_list","contacts","custom_fields_lists","custom_fields_struct","custom_fields_values","departments","dpversion","event_queue","events","files","files_index","forum_messages","forum_visits","forum_watch","forums","gacl_acl","gacl_acl_sections","gacl_acl_seq","gacl_aco","gacl_aco_map","gacl_aco_sections","gacl_aco_sections_seq","gacl_aco_seq","gacl_aro","gacl_aro_groups","gacl_aro_groups_id_seq","gacl_aro_groups_map","gacl_aro_map","gacl_aro_sections","gacl_aro_sections_seq","gacl_aro_seq","gacl_axo","gacl_axo_groups","gacl_axo_groups_id_seq","gacl_axo_groups_map","gacl_axo_map","gacl_axo_sections","gacl_axo_sections_seq","gacl_axo_seq","gacl_groups_aro_map","gacl_groups_axo_map","gacl_phpgacl","groups_aro_map","groups_axo_map","modules","permissions","phpgacl","project_contacts","project_departments","projects","roles","sessions","syskeys","sysvals","task_contacts","task_departments","task_dependencies","task_log","tasks","tickets","user_access_log","user_events","user_preferences","user_roles","user_task_pin","user_tasks" );
+
+
+	function DB( $database_name ) {
+		$this->host = "localhost";
+		$this->user = "root";
+		$this->db = $database_name;
+		$this->pass = "ewmtlpll";
+	}
+
+	function table_info() {
+		$this->link = mysql_connect($this->host, $this->user, $this->pass);
+
+		$this->link or die('Could not connect: ' . mysql_error());
+
+		mysql_select_db($this->db);
+		$this->table_info = array();
+		$this->load_table_info();
+		$this->xml = &$this->table_def_to_xml() ;
+		// register_shutdown_function($this->close);
+	}
+
+	function query($query) {
+		$result = mysql_query($query, $this->link);
+		return $result;
+	}
+	function close() {
+		mysql_close($this->link);
+	}
+
+	function getPrimaryKeyOf($table) {
+		$keys = Array();
+
+		$query = sprintf("SHOW KEYS FROM `%s`", $table);
+		$result = mysql_query($query) or die(mysql_error());
+
+		while ($row = mysql_fetch_assoc($result)) {
+			if ( $row['Key_name'] == 'PRIMARY' )
+				$keys[$row['Seq_in_index'] - 1] = $row['Column_name'];
+		}
+
+		return $keys;
+	}
+
+	function getIndexOf($table) {
+		$keys = Array();
+
+		$query = sprintf("SHOW KEYS FROM `%s`", $table);
+		$result = mysql_query($query) or die(mysql_error());
+
+		while ($row = mysql_fetch_assoc($result)) {
+			if ( $row['Key_name'] != 'PRIMARY' )
+				$keys[$row['Seq_in_index'] - 1] = $row['Column_name'];
+		}
+
+		return $keys;
+	}
+
+
+	function getTableInformationOf($table) {
+		$information = array(
+				"auto"    => "",
+				"primary" => array(),
+				"fields"  => array()
+				);
+
+		$information['primary'] = $this->getPrimaryKeyOf($table);
+		$information['index'] = $this->getIndexOf($table);
+
+		$result = mysql_query("DESC `$table`");
+		while ( $field = mysql_fetch_assoc($result) ) {
+			$information['fields'][] = $field;
+			if ( $field['Extra'] == "auto_increment" )
+				$information['auto'] = $field['Field'];
+		}
+
+		return $information;
+	}
+
+	function load_table_info() {
+
+		$q = $this->query( "show tables" ) ;
+
+		while ( $result = mysql_fetch_assoc( $q ) ) {
+			$key = array_keys( $result ) ;
+			$this->table_info[$result[$key[0]]] = null ;
+		}
+
+		foreach ( array_keys( $this->table_info ) as $table ) {
+			$this->table_info[$table] = $this->getTableInformationOf($table) ;
+		}
+	}
+
+
+	function table_def_to_xml( $exclude = true ) {
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>'."\n";
+
+		$xml .= sprintf( "<database name=\"%s\">\n", $this->db ) ;
+
+		foreach( $this->table_info as $table_name => $table_data ) {
+
+			if (($exclude && !array_search( $table_name, $this->exclude ) === false)) continue;
+
+			$xml .=sprintf( "<table name=\"%s\">\n", $table_name ); 
+
+			if ( isset( $table_data['auto'] ) )
+				$xml .= sprintf( "<auto name=\"%s\"/>\n", $table_data['auto']) ;
+
+			if ( count( $table_data['primary'] ) > 0 )
+				foreach( $table_data['primary'] as $primary ) 
+					$xml .= sprintf( "<primary name=\"%s\"/>\n", $primary ) ;
+
+			if ( count( $table_data['index'] ) > 0 )
+				foreach( $table_data['index'] as $index ) 
+					$xml .= sprintf( "<index name=\"%s\"/>\n", $index ) ;
+
+			if ( count( $table_data['fields'] ) > 0 )
+				foreach( $table_data['fields'] as $field ) 
+					$xml .= sprintf( "<field name=\"%s\" type=\"%s\" null=\"%s\" key=\"%s\" default=\"%s\" extra=\"%s\"/>\n", 
+							$field['Field'], $field['Type'], $field['Null'], 
+							$field['Key'], $field['Default'], $field['Extra'] ) ;
+
+			$xml .= "</table>\n"; 
+		}
+
+		$xml .= "</database>\n"; 
+		return $xml;
+	}
+
+
+
+}
+
+
+
+//if ( $_SERVER['argc'] < 2 ) { 
+//	die( "\ntable_info.php\nExporta la informacion de la base de datos seleccionada a xml\ntable_info.php {database_name} [> database_name.xml]\n");
+//}
+
+//$db = new DB(  $_SERVER['argv'][1] );
+$db = new DB('fotoshow');
+$db->table_info();
+print $db->xml ;
+
+?>

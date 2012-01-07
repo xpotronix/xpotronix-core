@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="database">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="table" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="feat">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="page_rows" minOccurs="0"/>
+				<xs:element ref="hide_fk"/>
+				<xs:element ref="hide_pk"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="field">
+		<xs:complexType>
+			<xs:attribute name="name" use="required" type="xs:string"/>
+			<xs:attribute name="eh" use="required" type="xs:string"/>
+			<xs:attribute name="translate" type="xs:string"/>
+			<xs:attribute name="validate" type="xs:string"/>
+			<xs:attribute name="display" type="xs:string"/>
+			<xs:attribute name="xtype" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="foreign_key">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ref"/>
+			</xs:sequence>
+			<xs:attribute name="type" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="hide_fk">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="hide_fkSimpleType">
+					<xs:attribute name="type" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="hide_fkSimpleType">
+		<xs:restriction base="xs:boolean">
+			<xs:enumeration value="false"/>
+			<xs:enumeration value="true"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="hide_pk">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:boolean">
+					<xs:attribute name="type" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="layout">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="name" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="page_rows">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:boolean">
+					<xs:attribute name="type" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ref">
+		<xs:complexType>
+			<xs:attribute name="local" type="xs:string" use="required"/>
+			<xs:attribute name="remote" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="table">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="layout" minOccurs="0"/>
+				<xs:element ref="view" minOccurs="0"/>
+				<xs:element ref="table" minOccurs="0"/>
+				<xs:element ref="field"/>
+				<xs:element ref="foreign_key"/>
+				<xs:element ref="table"/>
+				<xs:element ref="feat"/>
+			</xs:choice>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="translate" type="xs:string"/>
+			<xs:attribute name="traslate" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="view">
+		<xs:complexType>
+			<xs:attribute name="type" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:NMTOKEN">
+						<xs:enumeration value="xpForm"/>
+						<xs:enumeration value="xpGrid"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="display" type="xs:string"/>
+			<xs:attribute name="translate" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
