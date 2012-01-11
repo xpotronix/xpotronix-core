@@ -1726,12 +1726,9 @@ class xpDataObject extends xp {
 		if ( is_object( $xpdoc->perms ) and ( ! ( $this->can('list') and $this->can('view') ) ) ) {
 
 			M()->info( "acceso denegado para el objeto {$this->class_name}" );
-
 			$xc['msg']='ACC_DENIED';
 			return $xc;
 		}
-
-
 
                 if ( $this->is_virtual() and ! $this->is_view() ) {
 
@@ -1745,9 +1742,14 @@ class xpDataObject extends xp {
 
 		if ( $any or $normalized or $recursive ) {
 
-			$objs = $this->load_page( $recursive ? $this->get_foreign_key() : null ); 
+			if ( $recursive && is_object( $this->parent ) )
+				$fk = $this->get_foreign_key();
+			else
+				$fk = null;
 
-		} else M()->info( "no se ha definido ni DS_ANY ni DS_NORMALIZED ni DS_RECURSIVE: no hay registros a serializar. Revise directiva 'include_dataset'" );
+			$objs = $this->load_page( $fk ); 
+
+		} else M()->warn( "no se ha definido ni DS_ANY ni DS_NORMALIZED ni DS_RECURSIVE: no hay registros a serializar. Revise directiva 'include_dataset'" );
 
 		$xc['total_records'] = $this->total_records ;
 		$xc['xmlns'] = null;
@@ -1764,20 +1766,13 @@ class xpDataObject extends xp {
 
 			foreach ( $objs as $obj ) {
 
-				// DEBUG: prepare_data deberia ir directamente en el iterador?
-				$obj->prepare_data();
-
+				$obj->prepare_data(); // DEBUG: prepare_data deberia ir directamente en el iterador?
 				simplexml_append( $xc, $obj->serialize_row( $flags ) );
 			} 
-
-		} else if ( $objs and ( $flags & DS_RECURSIVE ) ) { 
-
-			simplexml_append( $xc, $this->serialize_row( $flags ) );
 
 		} else if ( $blank ) {  
 
 			simplexml_append( $xc, $this->serialize_row( $flags ) );
-
 		} 
 
 		return $xc;
@@ -1841,13 +1836,14 @@ class xpDataObject extends xp {
 					M()->warn( "instancia $iname ignorada: no la encuentro");
 				else {
 
+					M()->info( "recursivo, hacia el objeto $iname" );
+
 					if ( is_array( $params ) and is_array( $params['ignore'] ) and ( in_array( $iname, $params['ignore'] ) ) )
 						continue;
 					else
 						simplexml_append( $xobj, $xpdoc->instances[$iname]->serialize( $flags ) );
 
 				} 
-
 			}
 		}
 
