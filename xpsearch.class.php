@@ -263,18 +263,13 @@ class xpsearch {
 
 		} else if ( $c->attr_type == 'xpboolean' ) {
 
-			M()->debug( "es boolean" );
-			$c->value = $attr->unserialize( $value );
+			M()->debug( 'es boolean' );
 
-			if ( !$c->value ) {
-				$c->valid = false;
-				return $c;
-			}
+			$c->value = $attr->unserialize( $value );
 
 		} else if ( $c->attr->get_simple_type() == 'numeric' ) {
 
 			if ( !is_numeric( $value ) ) {
-
 				// por ahora esto
 				$c->valid = false;
 				return $c;

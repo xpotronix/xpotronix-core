@@ -12,7 +12,7 @@
 
 class xpboolean extends xpattr {
 
-	function encode( $value = NULL ) {
+	function encode( $value = NULL ) {/*{{{*/
 	// codifica los valores para la base de datos
 
 		if ( $value === NULL ) $value = $this->value;
@@ -34,19 +34,21 @@ class xpboolean extends xpattr {
 		}
 
 		return $value;
-	}
+	}/*}}}*/
 
-	function decode( $value = NULL ) {
+	function decode( $value = NULL ) {/*{{{*/
 	// decodifica los valores de la base de datos
 		
 		if ( $value === NULL ) $value = $this->value;
 
 		return (boolean) $value ;
-	}
+	}/*}}}*/
 
-	function serialize( $value = NULL ) { 
+	function serialize( $value = NULL ) { /*{{{*/
 	
 		if ( $value === NULL ) $value = $this->value;
+
+		M()->debug( 'value: '. var_export( $value, true ) );
 
 		switch( $value ) {
 
@@ -66,34 +68,39 @@ class xpboolean extends xpattr {
 
 		return $value;
 
-	}
+	}/*}}}*/
 
-	function unserialize( $value = NULL ) { 
+	function unserialize( $value = NULL ) { /*{{{*/
 
 		if ( $value === NULL ) $value = $this->value;
+
+		M()->debug( 'value: '. var_export( $value, true ) );
 
 		switch( $value ) {
 
 			case '1':
 			case 'on':
 			case 'true':
+				M()->debug( 'valor true' );
 				$value = true;
 				break;
 
 			case '0':
 			case 'off':
 			case 'false':
+				M()->debug( 'valor false' );
 				$value = false;
 				break;
 
 			case '':
 			default:
+				M()->debug( 'valor null' );
 				$value = NULL;
-
 		}
 
 		return $value;
-	}
+	}/*}}}*/
+
 }
 
 ?>
