@@ -35,7 +35,7 @@
 	<force_utf8 type="bool">false</force_utf8>
 
 	<!-- locales -->
-	<charset>UTF-8</charset>
+	<encoding>UTF-8</encoding>
 	<host_locale>es_AR</host_locale>
 
 	<date_format>d/m/y</date_format>
