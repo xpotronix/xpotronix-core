@@ -20,19 +20,23 @@ class xptext extends xpattr {
 
 		if ( $value === NULL ) $value = $this->value;
 
-		$e = @$this->obj->get_db()->__encoding;
-		$this->encoding and $e = $this->encoding;
+		$db_enc = @$this->obj->get_db()->__encoding;
+		$this->encoding and $db_enc = $this->encoding;
 
-		$app_e = (string) $xpdoc->feat->encoding;
+		$app_enc = (string) $xpdoc->feat->encoding;
 
-		if ( $e and $e != $app_e  ) {
+		if ( $db_enc and $db_enc != $app_enc  ) {
 
-			$value = mb_convert_encoding( $value, $e, $app_e ); 
-			M()->info( "$this->name a $e de $app_e: $value" );
+			$new_value = mb_convert_encoding( $value, $db_enc, $app_enc ); 
+			M()->info( "$this->name: ($app_enc) [$value] ==>> ($db_enc) [$new_value]" );
+			M()->info( "$this->name a $db_enc de $app_enc: $value" );
 			// M()->line();
+
+			return parent::encode( $new_value );
+
 		}
 
-		return parent::encode( $value );
+			return parent::encode( $value );
 
 	}/*}}}*/
 
@@ -44,19 +48,22 @@ class xptext extends xpattr {
 
 		if ( $value === NULL ) $value = $this->value;
 
-		$e = @$this->obj->get_db()->__encoding;
-		$this->encoding and $e = $this->encoding;
+		$db_enc = @$this->obj->get_db()->__encoding;
+		$this->encoding and $db_enc = $this->encoding;
 
-		$app_e = (string) $xpdoc->feat->encoding;
+		$app_enc = (string) $xpdoc->feat->encoding;
 
-		if ( $e and $e != $app_e  ) {
+		if ( $db_enc and $db_enc != $app_enc  ) {
 
-			$value = mb_convert_encoding( $value, $app_e, $e ); 
-			M()->info( "$this->name a $app_e de $e: $value" );
+			$new_value = mb_convert_encoding( $value, $app_enc, $db_enc ); 
+			M()->info( "$this->name: ($db_enc) [$value] ==>> ($app_enc) [$new_value]" );
 			// M()->line();
-		}
 
-		return parent::decode( $value );
+			return parent::encode( $new_value );
+
+		} else
+
+			return parent::decode( $value );
 
 	}/*}}}*/
 
