@@ -118,7 +118,7 @@ class xpsync {
 			return;
 		}
 
-		M()->user( "iniciando sincronizacion de $this->class_name desde $source_table" );
+		M()->user( "iniciando sincronizacion desde $source_table a {$this->obj->class_name}" );
 
 		// DEBUG: mejor guardar el estado anterior
 		
@@ -163,9 +163,9 @@ class xpsync {
 			return;
 		}
 
-		foreach( $this->obj->attr as $key => $attr ) {
+		foreach( $so->attr as $key => $attr ) {
 
-			if ( ! $so->get_attr( $key ) ) {
+			if ( ! $this->obj->get_attr( $key ) ) {
 				M()->debug('no encuentro al key '.$key );
 				continue;
 			}
