@@ -29,12 +29,11 @@ class xptext extends xpattr {
 
 			$new_value = mb_convert_encoding( $value, $db_enc, $app_enc ); 
 			M()->info( "$this->name: ($app_enc) [$value] ==>> ($db_enc) [$new_value]" );
-			M()->info( "$this->name a $db_enc de $app_enc: $value" );
 			// M()->line();
 
 			return parent::encode( $new_value );
 
-		}
+		} else
 
 			return parent::encode( $value );
 
@@ -59,7 +58,7 @@ class xptext extends xpattr {
 			M()->info( "$this->name: ($db_enc) [$value] ==>> ($app_enc) [$new_value]" );
 			// M()->line();
 
-			return parent::encode( $new_value );
+			return parent::decode( $new_value );
 
 		} else
 
