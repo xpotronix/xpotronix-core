@@ -512,7 +512,17 @@ class xpDataObject extends xp {
 
 	function get_attr( $name ) {/*{{{*/
 
-		return ( isset( $this->attr[(string)$name] ) ) ? $this->attr[$name] : null;
+		if ( !$name )
+			return null;
+
+		if ( isset( $this->attr[(string)$name] ) ) 
+			return $this->attr[$name];
+
+		else if ( array_key_exists( $name, $this->aliases ) )
+			return $this->aliases[$name];
+
+		else 	
+			return null;
 
 	}/*}}}*/
 
