@@ -449,7 +449,7 @@ class gacl {
 			$rs = $this->db->SelectLimit($query, 1);
 
 			if (!is_object($rs)) {
-				$this->debug_db('acl_query');
+				M()->error("error al ejecutar la consulta $query" );
 				return FALSE;
 			}
 
@@ -570,7 +570,7 @@ class gacl {
 			$rs = $this->db->Execute($query);
 
 			if (!is_object($rs)) {
-				$this->debug_db('acl_get_groups');
+				M()->error("error al ejecutar la consulta $query" );
 				return FALSE;
 			}
 
