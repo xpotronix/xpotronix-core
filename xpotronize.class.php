@@ -191,7 +191,6 @@ class dbdump extends xp {
 
 	function __construct( $ini ) {/*{{{*/
 
-		$this->xml = new SimpleXMLElement('<database/>');
 		$this->load_ini();
 
 	}/*}}}*/
@@ -206,6 +205,13 @@ class dbdump extends xp {
 		$this->db_name = $this->instance['name'];
 
 		$this->implementation = (string) $this->instance->implementation;
+
+		if ( ! ( $encoding = (string) $this->instance->encoding ) )
+			$encoding = 'UTF-8';
+
+		M()->info( "codificacion de la base de datos: $encoding" );
+
+		$this->xml = new SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"$encoding\"?><database/>" );
 
 		M()->info( "iniciando dbdump para la base de datos {$this->db_name} con implementacion {$this->implementation}" );
 
@@ -297,12 +303,9 @@ class dbdump extends xp {
 					foreach( $field as $key => $data )
 
 						if ( is_array( $data ) )
-
-							$xfield[$key] = implode( ',', $data );
-
+							$xfield[$key] = utf8_encode( implode( ',', $data ) );
 						else
-
-							$xfield[$key] = $data;
+							$xfield[$key] = utf8_encode( $data );
 				}
 			}
 
