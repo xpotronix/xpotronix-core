@@ -21,6 +21,8 @@ class xpentry_help extends xptext {
 		@$value = $hash[$this->name. '_label'];
 
 		$this->label = $value ? $value : null;
+
+		$value and M()->debug( $this->label );
 		
 		return $this;
 	}/*}}}*/
