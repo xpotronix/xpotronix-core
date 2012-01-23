@@ -112,6 +112,7 @@ class xpdoc extends xp {
 			and ( date_default_timezone_set( $this->feat->default_timezone )
 				and M()->info( "default_timezone: {$this->feat->default_timezone} segundos" ) );
 
+		M()->info( "app encoding: $feat->encoding" );
 
 		$this->http = new xphttp();
 
@@ -628,9 +629,11 @@ class xpdoc extends xp {
 
 	}/*}}}*/
 
-	function content_type( $type = null ) {/*{{{*/
+	function content_type( $type = null, $encoding = null ) {/*{{{*/
 
 		if ( ! $type ) return $this->_content_type;
+
+		if ( $encoding or ( $encoding = (string) $this->feat->encoding ) ) $type .= ";$encoding";
 
 		M()->info( "content_type: $type" );
 		M()->line( 1 );
