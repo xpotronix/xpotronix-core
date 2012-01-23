@@ -133,6 +133,11 @@ class xpsync {
 			$s->feat->page_rows = $page_rows;
 		}
 
+		if ( $limit = (int) $this->obj->metadata->sync['limit'] ) {
+
+			M()->info( "limit: $limit" );
+		}
+
 		$rs = $s->load_set( $this->query, $this->where, $this->order );
 
 		$i = 0;
@@ -141,6 +146,12 @@ class xpsync {
 			$this->sync_obj( $r );
 			( $i % $page_rows ) or M()->mem_stats( "[{$this->obj->class_name}]: procesados $i registros ..." );
 			$i++;
+
+			if ( $limit and $i > $limit ) {
+
+				M()->user( "alcanzado el limite $limit de registros. Fin del proceso" );
+				break;
+			}
 		}
 
 
