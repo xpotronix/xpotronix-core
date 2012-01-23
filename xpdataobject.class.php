@@ -1890,9 +1890,17 @@ class xpDataObject extends xp {
 
 		/* label */
 
-		// DEBUG: hotfix para hacer funcionar con juscaba2
-		// $attr->label and $xattr['label'] = utf8_encode( $attr->serialize( $attr->label ) );
-		$attr->label and $xattr['label'] = $attr->serialize( $attr->label );
+		if ( $attr->label ) {
+
+			// $attr->label and $xattr['label'] = utf8_encode( $attr->serialize( $attr->label ) );
+			// $attr->label and $xattr['label'] = $attr->serialize( $attr->label );
+			// $attr->label and $xattr['label'] = $attr->label;
+			// $attr->label and $xattr['label'] = utf8_decode( $attr->label );
+
+			$xattr->addAttribute( 'label', $attr->label );
+			// M()->user( "label " . $attr->label );
+		}
+
 
 		return $xattr;
 	}/*}}}*/
@@ -2158,7 +2166,7 @@ class xpDataObject extends xp {
 		return $ret;
 
 	}/*}}}*/
-
+//
 	function set_foreign_key() {/*{{{*/
 
 		global $xpdoc;
