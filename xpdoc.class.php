@@ -112,7 +112,7 @@ class xpdoc extends xp {
 			and ( date_default_timezone_set( $this->feat->default_timezone )
 				and M()->info( "default_timezone: {$this->feat->default_timezone} segundos" ) );
 
-		M()->info( "app encoding: $this->feat->encoding" );
+		M()->info( "app encoding: {$this->feat->encoding}" );
 
 		$this->http = new xphttp();
 
