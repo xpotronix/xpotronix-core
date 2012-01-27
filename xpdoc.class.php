@@ -570,22 +570,31 @@ class xpdoc extends xp {
 
 			M()->error( 'No hay instancias definidas' );
 			return null;
+		} 
 
-		} else if ( !$obj_name ) {
+		if ( !$obj_name ) {
 
+			M()->info( "devolviendo la primera instancia del modulo" );
 			reset( $this->instances );
 			return current( $this->instances );
+		} 
 
-		} else if ( $obj_name and !array_key_exists( $obj_name, $this->instances ) ) {
+		if ( array_key_exists( $obj_name, $this->obj_collection ) ) {
 
-			if (  $instance = $this->instance( $obj_name ) ) 
+			M()->info( "devolviendo una instacia existente" );
+			return $this->obj_collection[$obj_name][0];
 
+		} else {
+
+			if (  $instance = $this->instance( $obj_name ) ) {
+
+				M()->info( "creando una nueva instancia para $obj_name" );
 				return $instance;
-			else
+
+			} else
 				M()->fatal( 'No encuentro la instancia '. $obj_name );
 
-		} else return $this->instances[$obj_name];
-
+		}
 
 	}/*}}}*/
 
@@ -1406,11 +1415,11 @@ class xpdoc extends xp {
 
 	// debug
 
-	function debug_obj_collection() {/*{{{*/
+	function debug_obj_collection( $mesg_fn = 'info' ) {/*{{{*/
 
 		foreach( $this->obj_collection as $class_name => $obj_collection ) {
 
-			M()->info( "class_name $class_name count: ". count( $obj_collection ) );
+			M()->$mesg_fn( "class_name $class_name count: ". count( $obj_collection ) );
 		}
 	}/*}}}*/
 

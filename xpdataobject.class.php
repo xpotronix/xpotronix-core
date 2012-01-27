@@ -1373,7 +1373,7 @@ class xpDataObject extends xp {
 		if ( $validate and $this->get_flag( 'check' ) and ( ! $this->check() ) ) {
 
 			M()->info( "el metodo {$this->class_name}::check ha devuelto falso. No puedo guardar" );
-			M()->user( "Datos inválidos o incompletos: no se pueden guardar" );
+			M()->user( "Datos inválidos o incompletos: no se pueden guardar", $this->class_name, 'not_valid' );
 			$this->transac_status = NOT_VALID;
 
 		} else { 
@@ -1676,6 +1676,7 @@ class xpDataObject extends xp {
 
 		// deja el objeto en blanco
 
+		M()->debug( "reset objeto $this->class_name" );
 		
 		if ( ! is_array( $this->attr ) ) {
 
