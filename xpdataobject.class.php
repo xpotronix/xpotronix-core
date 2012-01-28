@@ -622,24 +622,21 @@ class xpDataObject extends xp {
 		// el loadc() vacio carga la consulta actual paginada
 		if ( $key === null ) {
 
-			M()->debug( "recibiendo una clave nula" );
+			M()->debug( "recibiendo una clave nula. no hay criterios definidos. Aplicando la busqueda global" ); 
+			$this->set_search(); // global search
 
-			if ( is_string( $where ) ) {
-
-				M()->debug( "recibiendo una directiva para WHERE: $where" );
-				$this->sql->addWhere( $where );
-
-			} else {
-
-				M()->debug( "no hay criterios definidos. Aplicando la busqueda global" ); 
-				$this->set_search(); // global search
-
-			}
 		} else {
 
 			if ( is_array( $key ) ) {
 
-				M()->debug( 'la clave es un array: '. serialize( $key ) );
+				try { 
+					M()->debug( 'la clave es un array: '. serialize( $key ) ); 
+
+				} catch( Exception $e ) {
+
+					M()->error( "En el array de busqueda hay objetos o valores complejos. NO puedo buscar" );
+					return null;
+				} 
 
 				$search = $key;
 
@@ -652,22 +649,20 @@ class xpDataObject extends xp {
 				if ( count( $this->primary_key ) > 1 ) 
 					M()->warn( 'escalar para una clave compuesta: el resultado puede ser multiple' );
 
-				foreach ( array_keys( $this->primary_key ) as $field ) {
-
-					$search[$field] = $key;
-					break;
-				}
-
-
-			} // else is_array( $key )
+				reset( $this->primary_key );
+				$search[key( $this->primary_key )] = $key;
+			} 
 
 			// M()->debug( 'clave a buscar: '. serialize( $search ) );
-
 			$this->set_const( $this->search->process( $search ) );
-
 
 		} // else !$key
 
+		if ( is_string( $where ) ) {
+
+			M()->debug( "recibiendo una directiva para WHERE: $where" );
+			$this->sql->addWhere( $where );
+		}
 
 		// $this->set_const( $this->set_foreign_key() );
 		// $this->set_const( $this->set_user_key() );
@@ -1681,7 +1676,7 @@ class xpDataObject extends xp {
 		if ( ! is_array( $this->attr ) ) {
 
 			M()->warn( "objeto sin atributos" );
-			return;
+			return $this;
 		}
 
 		unset( $this->data );
@@ -1692,6 +1687,8 @@ class xpDataObject extends xp {
 
 		$this->loaded = false;
 		$this->set_modified( false ); // attrs
+
+		return $this;
 
 	}/*}}}*/
 
