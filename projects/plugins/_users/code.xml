@@ -24,6 +24,9 @@
 		var $filter;
 		var $fallback;
 
+		var $state;
+		var $user_prefs;
+
 	</code>
 
 	<code type="php" mode="class_functions">
