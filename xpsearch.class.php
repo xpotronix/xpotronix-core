@@ -245,7 +245,7 @@ class xpsearch {
 
 			if ( count( $date_time_array ) == 1 ) {
 				M()->debug( 'datetime incompleto' );
-				$c->search_type = 'to_date';
+				$c->search_type = ( $this->obj->db_type() == 'mssql' or $this->obj->db_type() == 'sybase' ) ? 'to_date_mssql' : 'to_date';
 				$attr2 = new xpdate;
 				$c->value = $attr2->human( $value );
 
@@ -341,7 +341,8 @@ class xpsearch {
 		'like' => "%s %s '%s'",
 		'numeric' => "%s %s %s",
 		'match' => "MATCH(%s) AGAINST ('%s' IN BOOLEAN MODE)",
-		'to_date' => "DATE(%s) %s '%s'" );
+		'to_date' => "DATE(%s) %s '%s'",
+		'to_date_mssql' => "DATEADD(dd, 0, DATEDIFF(dd, 0, %s)) %s '%s'" );
 
 	if ( array_key_exists( $c->search_type, $term_syntaxes ) )
 
