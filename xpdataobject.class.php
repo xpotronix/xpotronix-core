@@ -222,7 +222,7 @@ class xpDataObject extends xp {
 
 			if ( is_array( $this->aliases ) and !array_key_exists( $var_name, $this->aliases ) ) { 
 
-				M()->error( "no econtre el atributo [$this->class_name::$var_name]" );
+				M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
 				M()->line(1);
 				return null;
 
@@ -259,7 +259,7 @@ class xpDataObject extends xp {
 
 			$this->aliases[$var_name]->value = $var_value;
 
-		} else M()->error( "no econtre el atributo [$this->class_name::$var_name]" );
+		} else M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
 
 		return $var_value;
 	}/*}}}*/
