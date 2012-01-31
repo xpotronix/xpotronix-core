@@ -99,10 +99,10 @@ class xp {
 	function load_ini() {/*{{{*/
 
 		if ( file_exists( XPOTRONIX_INI_OVERRIDE ) )
-			$this->ini = parse_ini_file( XPOTRONIX_INI_OVERRIDE, true);
-		else if ( file_exists( XPOTRONIX_INI) )
-			$this->ini = parse_ini_file( XPOTRONIX_INI, true);
-		else M()->faltal("No encuentro el archivo de configuracion .ini de xpotronix\n");
+			$this->ini = parse_ini_file( XPOTRONIX_INI_OVERRIDE, true );
+		else if ( file_exists( XPOTRONIX_INI ) )
+			$this->ini = parse_ini_file( XPOTRONIX_INI, true );
+		else M()->faltal( "No encuentro el archivo de configuracion .ini de xpotronix\n" );
 
 		// print_r( $this->config );
 

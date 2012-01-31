@@ -69,7 +69,6 @@ class xpDataObject extends xp {
 	var $modified;
 	var $transac_status;
 	var $record_count;
-	var $insert_ID;
 
 	// consulta del objeto;
 	var $sql;
@@ -1388,12 +1387,6 @@ class xpDataObject extends xp {
 		return $this->transac_status;
 	}/*}}}*/
 
-	function get_insert_ID() {/*{{{*/
-
-		return $this->insert_ID;
-
-	}/*}}}*/
-
 	function insert () {/*{{{*/
 
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
@@ -1462,6 +1455,8 @@ class xpDataObject extends xp {
 		} else {
 
 			if ( $af = $this->get_autonumeric_field() ) {
+
+				/* para autonumerico, actualiza la clave con su valor */
 
 				$attr = $this->get_attr( $af );
 				$attr->value = $this->db->Insert_ID();
