@@ -151,7 +151,14 @@ class xpthumb {
 		} catch (Exception $e) {
 
 			M()->error( "no ecuentro la imagen $file" );
-			$this->image->readImage('image_not_found.png');
+			try { 
+				$this->image->readImage('image_not_found.png');
+
+			} catch (Exception $e) {
+				M()->warn('no encuentro a image_not_found.png');
+				return;
+			}
+
 		}
 
 		$this->get_props();
