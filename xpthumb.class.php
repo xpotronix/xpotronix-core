@@ -151,14 +151,7 @@ class xpthumb {
 		} catch (Exception $e) {
 
 			M()->error( "no ecuentro la imagen $file" );
-			try { 
-				$this->image->readImage('images/image_not_found.png');
-
-			} catch (Exception $e) {
-				M()->warn('no encuentro a image_not_found.png');
-				return;
-			}
-
+			$this->image->readImage('image_not_found.png');
 		}
 
 		$this->get_props();
@@ -281,7 +274,13 @@ class xpthumb {
 
 	function write( $file ) {
 
-		$this->image->writeImage( $file );
+		try {
+			$this->image->writeImage( $file );
+
+		} catch( Exception $e ) {
+
+			M()->error("no puedo guardar la imagen en $file" );
+		}
 	}
 
 
