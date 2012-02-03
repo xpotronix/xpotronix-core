@@ -152,7 +152,7 @@ class xpthumb {
 
 			M()->error( "no ecuentro la imagen $file" );
 			try { 
-				$this->image->readImage('image_not_found.png');
+				$this->image->readImage('images/image_not_found.png');
 
 			} catch (Exception $e) {
 				M()->warn('no encuentro a image_not_found.png');
