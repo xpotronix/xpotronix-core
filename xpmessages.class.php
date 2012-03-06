@@ -298,30 +298,27 @@ class xpmessages {
 	function response( $obj, $node = NULL ) {/*{{{*/
 
 		global $xpdoc;
-		if ( $obj->track_modified ) $this->changes( $obj, $node );
+		// if ( $obj->track_modified ) 
+		$this->changes( $obj, $node );
 	}/*}}}*/
 
-	function changes( $obj, $node = NULL, $attr = NULL ) {/*{{{*/
+	function changes( $obj, $node = NULL, $full = true ) {/*{{{*/
 
-		if ( $attr ) {
+		if ( ! $obj->modified ) return;
 
-			$a = $this->xml_changes->addChild('action', $attr->serialize() );
-			$a['attr'] = $attr->name;
+		// DEBUG: por ahora devuelve todos los atributos, no hay diferencia entre modificados o no.
+		// agregar DS_MODIFIED para poder traer solo los modificados
 
-			if ( $attr->is_entry_help() )
+		if ( $full ) $obj->load();
 
-				$a['label'] = $attr->label; // DEBUG: no funciona: probablemente el objeto no tenga las referencias externas
-		}
-		else 
-			$a = $this->xml_changes->addChild('action');
+		$xo = $obj->serialize_row( DS_ANY );
+		$xo['action'] = $obj->transac_status or M()->warn( 'transac_status vacio' );
+		is_object( $node ) and ( $xobj['uiid'] = $node['uiid'] );
+		$xo['obj'] = $obj->class_name;
 
-		$a['type']	= $obj->transac_status or M()->warn( 'transac_status vacio' );
-		$a['obj'] 	= $obj->class_name;
-		$a['ID'] 	= $obj->pack_primary_key();
-		
-		if ( $node ) $a['uiid'] = $node['uiid'];
+		simplexml_append( $this->xml_changes, $xo );
 
-		return $a;
+		return $xo;
 	}/*}}}*/
 
 	function status( $value = null ) {/*{{{*/
