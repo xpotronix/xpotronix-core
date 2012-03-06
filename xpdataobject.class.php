@@ -1712,6 +1712,19 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
+	function get_modified_attrs() {/*{{{*/
+
+		$ret = array();
+
+		foreach( $this->attr as $attr ) 
+
+			if ( $attr->modified )
+
+				$ret[] = $attr;
+
+		return $ret;
+	}/*}}}*/
+
 	// funciones para la serializacion
 
 	function serialize ( $flags ) {/*{{{*/
