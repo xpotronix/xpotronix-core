@@ -312,10 +312,11 @@ class xpmessages {
 		if ( $full ) $obj->load();
 
 		$xo = $obj->serialize_row( DS_ANY );
-		$xo['action'] = $obj->transac_status or M()->warn( 'transac_status vacio' );
-		is_object( $node ) and ( $xobj['uiid'] = $node['uiid'] );
-		$xo['obj'] = $obj->class_name;
 
+		$xo['action'] = $obj->transac_status or M()->warn( 'transac_status vacio' );
+		$node and $xo['uiid'] = $node['uiid'];
+		$xo['obj'] = $obj->class_name;
+		
 		simplexml_append( $this->xml_changes, $xo );
 
 		return $xo;
