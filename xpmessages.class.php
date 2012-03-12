@@ -304,16 +304,37 @@ class xpmessages {
 
 	function changes( $obj, $node = NULL, $full = true ) {/*{{{*/
 
-		if ( ! $obj->modified ) return;
+		// if ( ! $obj->modified ) return;
 
-		// DEBUG: por ahora devuelve todos los atributos, no hay diferencia entre modificados o no.
-		// agregar DS_MODIFIED para poder traer solo los modificados
+		switch( $obj->transac_status ) {
 
-		if ( $full ) $obj->load();
 
-		$xo = $obj->serialize_row( DS_ANY );
+			case INSERT_OP:
+			case UPDATE_OP:
+				// DEBUG: por ahora devuelve todos los atributos, no hay diferencia entre modificados o no.
+				// agregar DS_MODIFIED para poder traer solo los modificados
 
-		$xo['action'] = $obj->transac_status or M()->warn( 'transac_status vacio' );
+				if ( $full ) $obj->load();
+
+				$xo = $obj->serialize_row( DS_ANY );
+			break;
+
+			case DELETE_OP:
+			case NO_OP:
+			case NOT_VALID:
+			case NOT_FOUND:
+			case NO_PERMS:
+			case DB_ERROR:
+
+				$xo = new SimpleXMLElement( "<$obj->class_name/>" );
+
+			break;
+
+			default:
+				 M()->warn( 'transac_status vacio' );
+		}
+
+		$xo['action'] = $obj->transac_status;
 		$node and $xo['uiid'] = $node['uiid'];
 		$xo['obj'] = $obj->class_name;
 		

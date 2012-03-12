@@ -1,7 +1,7 @@
 #!/bin/bash
 
 XPATH=/usr/share/xpotronix
-EXT_VERSION="3.2.1"
+EXT_VERSION="3.4.0"
 UG_PERMS=www-data.www-data
 
 #http_proxy=http://username:password@host:port/
