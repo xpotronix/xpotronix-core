@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+   <table name="imagen"><!--{{{-->
+
+<code mode="events" type="js"><![CDATA[
+
+function imagen_cambia_imagen() {/*{{{*/
+
+	var img, r;
+
+	if ( ! ( img = Ext.get('xbox_imagen_xpForm') ) ) return;
+
+	if ( r = this.cr() ) {
+
+                img.dom.src 	=  App.feat.uri_imagenes + r.data.dirname + '/' + r.data.basename + '&filtr[]=' + r.data.color + '&wp=900&hl=600&ar=x';
+		img.dom.border 	= 0;
+		img.dom.alt 	= r.data.imagen_ID_label;
+                
+	} else img.dom.src = 'images/encabezado_pedido.jpg';
+
+
+}/*}}}*/
+
+	var imagen_init = function() {/*{{{*/
+
+	var panel;
+
+	if ( panel = Ext.getCmp('imagen_xpForm') ) {
+
+		panel.store.on('changerowindex', imagen_cambia_imagen );
+		panel.store.on('load', imagen_cambia_imagen );
+		panel.on('viewready', imagen_cambia_imagen );
+	}
+
+	panel = Ext.getCmp('imagen_xpThumbs');
+
+	if ( ! panel ) return;
+
+	panel.dv.on('dblclick', function() { 
+
+		if ( panel.obj.get_inspect_panel() ) {
+			panel.obj.inspect_window();
+		}
+
+	}, this );
+
+	var tbar = panel.getTopToolbar();
+
+	if ( !tbar ) return;
+
+	if ( App.store.item('pedido') ) {
+
+		var b_nb = new Ext.Toolbar.Button( {
+			text: '<b>Nueva Búsqueda</b>',
+       		        tooltip: '<b>Nueva busqueda de imagenes</b>',
+			listeners: { click: { scope:panel, fn: function(){
+				App.store.item('pedido').add_blank();
+       		        }, buffer:500 } } 
+		} );
+
+
+        	var b_afp = new Ext.Toolbar.Button({
+
+			text: '<b>Agregar Fotos al Pedido</b>',
+
+	       	        tooltip: '<b>Agregar Fotos al Pedido</b><br/>Agregar las imagenes seleccionadas al Pedido',
+
+			listeners: { click: { scope:panel, fn: function(){
+
+				var pedidos = App.store.item('pedido');
+				var pedido = pedidos.cr();
+				var imagenes = this.dv.getSelectedRecords();
+
+				if ( ! imagenes.length ) {
+
+					Ext.Msg.show({
+	       		                        title: 'Atención',
+        	        	                icon: Ext.Msg.ERROR,
+                	        	        width: 400,
+	                	                buttons: Ext.Msg.OK,
+        	                	        msg: 'Selecciona algunas imagenes antes de agregar'
+	                        		});     
+		                        return;
+				}
+
+				if ( ! pedido || pedido.get('estado') != 'abierto' ) 
+
+					pedidos.add_blank({ 
+						callback:function(pedido_blanco) { 
+							agregar_imagenes_pedido( pedido_blanco, imagenes ); 
+						}, 
+						scope: this });
+				else 
+					agregar_imagenes_pedido( pedido, imagenes );
+
+	       	        }, buffer:500 }} 
+		});
+
+		tbar.insert( tbar.items.length -2, '-' );
+	        tbar.insert( tbar.items.length -2, b_nb ) ;
+		tbar.insert( tbar.items.length -2, '-' );
+		tbar.insert( tbar.items.length -2, b_afp );
+
+		if ( panel.obj.get_inspect_panel() ) {
+
+			var itbar = panel.obj.get_inspect_panel().getTopToolbar();
+
+			itbar.insert( itbar.items.length -2, '-' );
+		        itbar.insert( itbar.items.length -2, b_nb.cloneConfig() ) ;
+			itbar.insert( itbar.items.length -2, '-' );
+			itbar.insert( itbar.items.length -2, b_afp.cloneConfig() );
+		}
+	}
+
+	var imagen_fecha = new fm.DateField({
+
+		id: 'imagen_fecha',
+		format: 'd/m/Y',
+		allowBlank: true
+	});
+
+	imagen_fecha.on( 'change', function(e) { 
+		panel.store.load( panel.store.params ); }, panel );
+	
+
+	var usuario_ID = new Ext.form.ComboBox({
+
+		id:'usuario_ID',
+
+		store: new Ext.data.Store({
+
+			paramNames: {
+				start : 'g[start]',
+				limit : 'g[limit]',
+				sort : 'g[sort]',
+				dir : 'g[dir]'
+			},
+
+			proxy: new Ext.data.HttpProxy({
+       			url: '?v=xml&r=usuario&a=data&f[query_field]=_label&q=usuario_ID&m=usuario'
+			}),
+
+	            	reader: new Ext.data.XmlReader({
+       		    		record: 'usuario',
+				totalProperty: '@total_records'
+          			}, ['@ID','_label']
+          		)
+        	}),
+
+            	fieldLabel: 'usuario_ID',
+
+            	valueField: '@ID',
+            	displayField:'_label',
+		pageSize: 15,
+		loadingText: 'Aguarde ...',
+		typeAhead: true,
+		lazyRender: true,
+		hideTrigger: false,
+		triggerAction: 'all',
+		forceSelection: true,
+		allowBlank: true,            
+		minChars: 4,
+		width: 200
+
+       	});
+	
+	usuario_ID.on( 'select', function(e) { 
+		panel.store.load(); }, panel);
+
+	tbar.insert( tbar.items.length -2, usuario_ID );
+	tbar.insert( tbar.items.length -2, imagen_fecha );
+
+ 	panel.store.on( 'beforeload', function( store, options ) {
+
+		var filter_value;
+
+		if ( filter_value = this.items.item('imagen_fecha').getRawValue()) 
+			Ext.apply( options.params, {'s[imagen][fecha]': filter_value });
+
+		if ( filter_value = this.items.item('usuario_ID').getRawValue() ) 
+	      		Ext.apply( options.params, {'s[imagen][usuario_ID]': filter_value});
+
+
+	}, tbar );
+
+
+	};/*}}}*/
+
+	imagen_init();
+
+]]>
+</code>
+
+	   <code type="php" mode="class_functions">
+
+	   function main_sql() {/*{{{*/
+	   	
+		global $xpdoc;
+
+	      // DEBUG: problema de performance
+	      // $this->sql->addOrder( 'imagen.fecha' );
+	      // $this->sql->addOrder( 'imagen.usuario_ID' );
+	      // $this->sql->addOrder( 'imagen.filename DESC' );
+	      $this->sql->addOrder( 'imagen.filename' );
+
+	   }/*}}}*/
+
+	function source_path() {/*{{{*/
+
+		global $xpdoc;
+		return $this->feat->path_imagenes. '/'.  $this->dirname. '/'. $imagen->basename;
+
+	}/*}}}*/
+
+
+	</code>
+   </table><!--}}}-->
+
+<table name="scan_imagen"><!--{{{-->
+	<code type="php" mode="class_functions"><![CDATA[
+
+function scan_imagen( $scan_imagen_xml ) {/*{{{*/
+
+	global $xpdoc;
+
+	require_once 'xpthumb.class.php';
+	$image = new xpthumb;
+
+	$file_utils = $xpdoc->get_instance('file_utils');
+
+	$this->load( $scan_imagen_xml['ID']);
+
+	if ( !$this->fecha_desde ) {
+      
+		M()->error( "Debes especificar una fecha para escanear las imagenes. No se puede continuar" );
+		return;
+	}
+
+	$this->encontradas = 0;
+	$this->existentes = 0;
+	$this->faltantes = 0;	
+
+ 	set_time_limit( 0 );
+
+	$imagen = $xpdoc->get_instance('imagen');
+
+	$sql = new DBQuery( $this->db );
+	$sql->addTable("imagen");
+	$sql->addUpdate("encontrada", 0);
+	$sql->addWhere("imagen.fecha = '{$this->fecha_desde}'");
+
+	M()->debug( "reset de imagen->encontrada: ". $sql->prepare() ) ;
+	$sql->Exec();
+
+	$base_path = $this->feat->path_imagenes;
+
+	$working_path = $base_path . '/'. str_replace( '-', '/', $this->fecha_desde );
+
+	M()->debug( "escaneando imagenes para la fecha ". $this->fecha_desde. " y el directorio $working_path" );
+
+	$files = $file_utils->list_directory( $working_path, array( "jpg", "JPG" ));
+
+	// por cada entrada ...
+
+	foreach ( $files as $file ) {
+
+		// saca el $base_path
+
+		$full_file = $file;
+
+		$file = str_replace( $base_path.'/', "", $file );
+
+		$params = pathinfo( $file );
+
+		$file_elems = explode( '/', $params['dirname'] );
+
+		if ( count( $file_elems ) < 4 ) continue;
+
+		// completa la informacion de la imagen
+
+		$params['fecha'] = $file_elems[0]. '-'. $file_elems[1]. '-'. $file_elems[2];
+		$params['usuario_ID'] = trim(strtolower($file_elems[3]));
+		$params['imagen'] = $params['basename'];
+
+		// si no existe, la crea
+
+		// $image->load( $full_file );
+
+		if ( !$imagen->load( $params ) ) {
+
+			$imagen->bind( $params, true );
+			$imagen->fill_primary_key();
+			$imagen->encontrada = true;
+			$imagen->filesize = filesize( $full_file );
+			// $imagen->exim_info = (string) $image;
+			$imagen->insert();
+			M()->debug( "encontrada imagen {$params['dirname']}");
+			$this->encontradas ++;
+
+	 	} else {
+
+			$this->existentes ++;
+			$imagen->encontrada = true;
+			$imagen->filesize = filesize( $full_file );
+			// $imagen->exim_info = (string) $image;
+			$imagen->update();
+			M()->debug( "imagen existente {$params['dirname']}");
+		}
+
+		// crea el directorio para cache
+
+		$cache_dir = $base_path.'/'.$params['dirname'].'/cache';
+
+		if ( file_exists( $cache_dir )) {
+
+			M()->debug( "$cache_dir existente.");
+
+		} else {
+
+			M()->debug( "creando directorio $cache_dir");
+			$file_utils->mkdir( $cache_dir );
+		}
+	}
+
+	$sql = new DBQuery( $this->db );
+	$sql->addTable("imagen");
+	$sql->addQuery("count(*) as faltantes");
+	$sql->addWhere("imagen.fecha = '{$this->fecha_desde}'");
+	$sql->addWhere("imagen.encontrada = 0");
+
+
+	$result = $sql->Exec();
+
+	$this->faltantes = $result->fields['faltantes'];
+
+	$this->store_xml_response();
+
+	M()->user( "Fin del proceso. Encontradas: $this->encontradas, existentes: $this->existentes, faltantes: $this->faltantes." );
+
+}/*}}}*/
+
+function cache_imagen( $scan_imagen_xml ) {/*{{{*/
+
+	global $xpdoc;
+
+	$this->load( $scan_imagen_xml['ID']);
+
+	if ( !$this->fecha_desde ) {
+      
+		M()->error( "Debes especificar una fecha. Abortando el proceso de scan_imagen()" );
+		return;
+	}
+
+	set_time_limit( 0 );
+
+	$base_path = $this->feat->path_imagenes;
+
+	$working_path = $base_path . '/'. str_replace( '-', '/', $this->fecha_desde );
+
+	M()->info( "cacheando imagenes para la fecha ". $this->fecha_desde. " y el directorio $working_path" );
+
+	$imagen = $xpdoc->get_instance('imagen');
+
+	$sql = new DBQuery( $this->db );
+	$sql->addTable("imagen");
+	$sql->addQuery("ID");
+	$sql->addOrder("filesize DESC");
+	$sql->addWhere("fecha = '{$this->fecha_desde}' and cache = 0");
+
+      $imagenes = $sql->Exec();
+
+	$cacheadas = 1;
+	$total = $imagenes->_numOfRows;
+
+	foreach( $imagenes as $fimagen ) {
+
+		$imagen_ID = $fimagen['ID'];
+
+		M()->debug( 'id de la imagen '. $imagen_ID ); 
+
+		if ( ! $imagen->load( $imagen_ID ) ) {
+
+			M()->user( 'no encontre la imagen con ID: ' . $imagen_ID );
+			// echo '<pre>'; print_r( $imagen->sql ); exit;
+			continue;
+		}
+
+		$full_path = $imagen->dirname . '/'. $imagen->basename;
+
+		$imagen_url = $this->feat->uri_imagenes . "/imageneshow-imagenes/$full_path&wp=900&hl=600&ar=x";
+
+		M()->info("cacheando imagen $cacheadas de $total del archivo $full_path" );
+
+		if ( ! function_exists( 'curl_init' ) ) {
+
+			M()->error( 'CURL no instalado. Por favor, configurar' );
+			return NULL;
+
+		}
+
+		$ch = curl_init();
+
+		curl_setopt ($ch, CURLOPT_URL, $imagen_url);
+		curl_setopt ($ch, CURLOPT_HEADER, 0);
+		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 0);
+
+		ob_start();
+		$return = curl_exec( $ch );
+		curl_close ($ch);
+		ob_end_clean();
+		
+		if ( $return ) {
+
+			$imagen->cache = true;
+			$imagen->update();
+
+		} else M()->user( 'no pude cachear la imagen '. $full_path );
+
+
+		$cacheadas++;
+
+	}
+
+	M()->user( 'fin de proceso de cacheo para el dia '. $this->fecha_desde );
+
+}/*}}}*/
+
+	]]></code>
+	</table><!--}}}-->
+
+</database>
+<!-- vim600: fdm=marker sw=3 ts=8 ai: 
+-->
+

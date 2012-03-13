@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<feat>
+	<max_file_size type="int">2097152</max_file_size>
+
+	<path_imagenes>/var/www/sites/imageneshow-imagenes/</path_imagenes>
+	<path_lotes>/var/www/sites/lotes/</path_lotes>
+
+	<default_timezone>America/Bogota</default_timezone>
+
+	<uri_imagenes>http://imagenes.imageneshow.com/imageneshow2008/lib/thumb/thumb.php?q=40&amp;ar=x&amp;src=</uri_imagenes>
+
+</feat>
