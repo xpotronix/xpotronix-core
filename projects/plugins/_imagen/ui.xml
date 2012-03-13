@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+<table name="imagen"><!--{{{-->
+
+		<panel type="xpGrid" translate="Fotos"/>
+		<panel type="xpThumbs" translate="Seleccionar Fotos"/>
+
+		<panel type="xpForm" display="inspect" id="imagen_xpForm" translate="Ver Foto"><config>labelWidth:70, defaults:{width: '150px'}</config>
+		<items>
+			<cmp><config>layout:'column',border:false</config>
+			<items>
+				<cmp><config>width:300,layout: 'form',border:false</config>
+					<items>
+						<attr name="usuario_ID" label="usuario"/>
+						<attr name="dirname"/>
+						<attr name="basename"/>
+						<attr name="filename"/>
+						<attr name="extension"/>
+						<attr name="encontrada"/>
+						<attr name="cache"/>
+						<attr name="filesize"/>
+						<attr name="descripcion"/>
+					</items>
+				</cmp>
+				<cmp><config>columnWidth:1,layout: 'form',border:false</config>
+				<items>
+					<cmp><config>xtype: 'box',margins: '5 5 5 5', style: { width: '100px' }, autoScroll: true,
+						autoEl: {
+							id: 'xbox_imagen_xpForm', tag: 'img', src: 'images/encabezado_pedido.jpg'
+							}
+					</config></cmp>
+				</items>
+				</cmp>
+			</items>
+			</cmp>
+		</items>
+		</panel>
+
+		<feat>
+			<hide_pk type="bool">false</hide_pk>
+			<set_time_limit type="int">180</set_time_limit>
+		</feat>
+
+		<field name="imagen"/>
+		<field name="usuario_ID" translate="usuario" match_type="exact"/>
+		<field name="dirname" display="hide"/>
+		<field name="basename" display="hide"/>
+		<field name="filename" display="hide"/>
+		<field name="extension" display="hide"/>
+		<field name="encontrada" display="hide"/>
+		<field name="cache" display="hide"/>
+		<field name="filesize" display="hide"/>
+		<field name="exim_info" display="hide"/>
+		<field name="descripcion" display="hide"/>
+		<field name="ID" display="disabled">
+			<renderer><![CDATA['<img align="center" src="'+ App.feat.uri_imagenes + 
+					record.data.dirname + '/' + record.data.basename +
+					'&wp=100&hl=100&ar=x" border="0" title="" />']]></renderer>
+		</field>
+	</table><!--}}}-->
+
+	<table name="scan_imagen" translate="Escanear Fotos"><!--{{{-->
+		<panel type="xpGrid"/>
+	</table><!--}}}-->
+
+</database>
