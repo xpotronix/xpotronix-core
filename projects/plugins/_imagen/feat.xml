@@ -13,11 +13,13 @@
 <feat>
 	<max_file_size type="int">2097152</max_file_size>
 
+	<!--
 	<path_imagenes>/var/www/sites/imageneshow-imagenes/</path_imagenes>
 	<path_lotes>/var/www/sites/lotes/</path_lotes>
 
 	<default_timezone>America/Bogota</default_timezone>
 
 	<uri_imagenes>http://imagenes.imageneshow.com/imageneshow2008/lib/thumb/thumb.php?q=40&amp;ar=x&amp;src=</uri_imagenes>
+	-->
 
 </feat>

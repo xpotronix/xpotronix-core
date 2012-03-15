@@ -24,7 +24,8 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	if ( r = this.cr() ) {
 
-                img.dom.src 	=  App.feat.uri_imagenes + r.data.dirname + '/' + r.data.basename + '&filtr[]=' + r.data.color + '&wp=900&hl=600&ar=x';
+                /* img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename + '&filtr[]=' + r.data.color + '&wp=900&hl=600&ar=x'; */
+                img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
 		img.dom.border 	= 0;
 		img.dom.alt 	= r.data.imagen_ID_label;
                 
@@ -41,7 +42,7 @@ function imagen_cambia_imagen() {/*{{{*/
 
 		panel.store.on('changerowindex', imagen_cambia_imagen );
 		panel.store.on('load', imagen_cambia_imagen );
-		panel.on('viewready', imagen_cambia_imagen );
+		panel.on('afterlayout', imagen_cambia_imagen, panel.store );
 	}
 
 	panel = Ext.getCmp('imagen_xpThumbs');
@@ -50,150 +51,9 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	panel.dv.on('dblclick', function() { 
 
-		if ( panel.obj.get_inspect_panel() ) {
-			panel.obj.inspect_window();
-		}
+		this.get_inspect_panel() && this.inspect_window();
 
-	}, this );
-
-	var tbar = panel.getTopToolbar();
-
-	if ( !tbar ) return;
-
-	if ( App.store.item('pedido') ) {
-
-		var b_nb = new Ext.Toolbar.Button( {
-			text: '<b>Nueva Búsqueda</b>',
-       		        tooltip: '<b>Nueva busqueda de imagenes</b>',
-			listeners: { click: { scope:panel, fn: function(){
-				App.store.item('pedido').add_blank();
-       		        }, buffer:500 } } 
-		} );
-
-
-        	var b_afp = new Ext.Toolbar.Button({
-
-			text: '<b>Agregar Fotos al Pedido</b>',
-
-	       	        tooltip: '<b>Agregar Fotos al Pedido</b><br/>Agregar las imagenes seleccionadas al Pedido',
-
-			listeners: { click: { scope:panel, fn: function(){
-
-				var pedidos = App.store.item('pedido');
-				var pedido = pedidos.cr();
-				var imagenes = this.dv.getSelectedRecords();
-
-				if ( ! imagenes.length ) {
-
-					Ext.Msg.show({
-	       		                        title: 'Atención',
-        	        	                icon: Ext.Msg.ERROR,
-                	        	        width: 400,
-	                	                buttons: Ext.Msg.OK,
-        	                	        msg: 'Selecciona algunas imagenes antes de agregar'
-	                        		});     
-		                        return;
-				}
-
-				if ( ! pedido || pedido.get('estado') != 'abierto' ) 
-
-					pedidos.add_blank({ 
-						callback:function(pedido_blanco) { 
-							agregar_imagenes_pedido( pedido_blanco, imagenes ); 
-						}, 
-						scope: this });
-				else 
-					agregar_imagenes_pedido( pedido, imagenes );
-
-	       	        }, buffer:500 }} 
-		});
-
-		tbar.insert( tbar.items.length -2, '-' );
-	        tbar.insert( tbar.items.length -2, b_nb ) ;
-		tbar.insert( tbar.items.length -2, '-' );
-		tbar.insert( tbar.items.length -2, b_afp );
-
-		if ( panel.obj.get_inspect_panel() ) {
-
-			var itbar = panel.obj.get_inspect_panel().getTopToolbar();
-
-			itbar.insert( itbar.items.length -2, '-' );
-		        itbar.insert( itbar.items.length -2, b_nb.cloneConfig() ) ;
-			itbar.insert( itbar.items.length -2, '-' );
-			itbar.insert( itbar.items.length -2, b_afp.cloneConfig() );
-		}
-	}
-
-	var imagen_fecha = new fm.DateField({
-
-		id: 'imagen_fecha',
-		format: 'd/m/Y',
-		allowBlank: true
-	});
-
-	imagen_fecha.on( 'change', function(e) { 
-		panel.store.load( panel.store.params ); }, panel );
-	
-
-	var usuario_ID = new Ext.form.ComboBox({
-
-		id:'usuario_ID',
-
-		store: new Ext.data.Store({
-
-			paramNames: {
-				start : 'g[start]',
-				limit : 'g[limit]',
-				sort : 'g[sort]',
-				dir : 'g[dir]'
-			},
-
-			proxy: new Ext.data.HttpProxy({
-       			url: '?v=xml&r=usuario&a=data&f[query_field]=_label&q=usuario_ID&m=usuario'
-			}),
-
-	            	reader: new Ext.data.XmlReader({
-       		    		record: 'usuario',
-				totalProperty: '@total_records'
-          			}, ['@ID','_label']
-          		)
-        	}),
-
-            	fieldLabel: 'usuario_ID',
-
-            	valueField: '@ID',
-            	displayField:'_label',
-		pageSize: 15,
-		loadingText: 'Aguarde ...',
-		typeAhead: true,
-		lazyRender: true,
-		hideTrigger: false,
-		triggerAction: 'all',
-		forceSelection: true,
-		allowBlank: true,            
-		minChars: 4,
-		width: 200
-
-       	});
-	
-	usuario_ID.on( 'select', function(e) { 
-		panel.store.load(); }, panel);
-
-	tbar.insert( tbar.items.length -2, usuario_ID );
-	tbar.insert( tbar.items.length -2, imagen_fecha );
-
- 	panel.store.on( 'beforeload', function( store, options ) {
-
-		var filter_value;
-
-		if ( filter_value = this.items.item('imagen_fecha').getRawValue()) 
-			Ext.apply( options.params, {'s[imagen][fecha]': filter_value });
-
-		if ( filter_value = this.items.item('usuario_ID').getRawValue() ) 
-	      		Ext.apply( options.params, {'s[imagen][usuario_ID]': filter_value});
-
-
-	}, tbar );
+	}, panel.obj );
 
 
 	};/*}}}*/
@@ -203,7 +63,7 @@ function imagen_cambia_imagen() {/*{{{*/
 ]]>
 </code>
 
-	   <code type="php" mode="class_functions">
+	   <code type="php" mode="class_functions"><![CDATA[
 
 	   function main_sql() {/*{{{*/
 	   	
@@ -224,7 +84,115 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	}/*}}}*/
 
+	function cargar_imagenes() {
 
+	global $xpdoc;
+
+	require_once 'xpthumb.class.php';
+	$image = new xpthumb;
+
+	$file_utils = $xpdoc->get_instance('file_utils');
+
+	$legajo_dir = $xpdoc->instance( 'C3_data' );
+
+	if ( ! $xpdoc->user->get_attr( 'legajo' ) ) {
+
+		M()->error( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
+		return;
+	}
+
+
+	if ( !$legajo_dir->load( array( 'legajo_ID' => $xpdoc->user->legajo ) ) ) {
+      
+		M()->error( "No hay asociado una ruta de directorio al legajo. Consulte con el administrador" );
+		return;
+	}
+
+	$encontradas = 0;
+	$existentes = 0;
+	$faltantes = 0;	
+
+ 	set_time_limit( 0 );
+
+	$imagen = $xpdoc->get_instance('imagen');
+
+	$sql = new DBQuery( $this->db );
+	$sql->addTable("imagen");
+	$sql->addUpdate("encontrada", 0);
+	$sql->addWhere("imagen.usuario_ID = '{$xpdoc->user->user_username}'");
+
+	M()->debug( "reset de imagen->encontrada: ". $sql->prepare() ) ;
+	$sql->Exec();
+
+	$base_path = $this->feat->path_imagenes;
+
+	$working_path = $base_path . '/'. $legajo_dir->dirname;
+
+	M()->debug( "escaneando imagenes para el usuario". $this->usuario_ID. " y el directorio $working_path" );
+
+	$files = $file_utils->list_directory( $working_path, array( 'jpg', 'JPG', 'TIF' ));
+
+	// por cada entrada ...
+
+	foreach ( $files as $file ) {
+
+		// saca el $base_path
+
+		$full_file = $file;
+
+		$file = str_replace( $base_path.'/', "", $file );
+
+		$params = pathinfo( $file );
+
+		// completa la informacion de la imagen
+
+		$params['fecha'] = date ("Y-m-d", filemtime($full_file));
+		$params['usuario_ID'] = $this->usuario_ID;
+		$params['basename'] = $params['basename'];
+		$params['dirname'] = $params['dirname'];
+
+		// si no existe, la crea
+
+		if ( !$imagen->load( $params ) ) {
+
+			$imagen->bind( $params, true );
+			$imagen->fill_primary_key();
+			$imagen->encontrada = true;
+			$imagen->filesize = filesize( $full_file );
+			// $imagen->exim_info = (string) $image;
+			$imagen->push_privileges( array( 'add' => 1 ) );
+			$imagen->insert();
+			M()->debug( "encontrada imagen {$params['dirname']}");
+			$encontradas ++;
+
+	 	} else {
+
+			$existentes ++;
+			$encontrada = true;
+			$imagen->filesize = filesize( $full_file );
+			// $imagen->exim_info = (string) $image;
+			$imagen->push_privileges( array( 'edit' => 1 ) );
+			$imagen->update();
+			M()->debug( "imagen existente {$params['dirname']}");
+		}
+
+		$imagen->pop_privileges();
+
+		// crea el directorio para cache
+
+		$cache_dir = $base_path.'/'.$params['dirname'].'/cache';
+
+		if ( file_exists( $cache_dir )) {
+
+			M()->debug( "$cache_dir existente.");
+
+		} else {
+
+			M()->debug( "creando directorio $cache_dir");
+			$file_utils->mkdir( $cache_dir );
+		}
+	}
+	}]]>
 	</code>
    </table><!--}}}-->
 
@@ -399,7 +367,8 @@ function cache_imagen( $scan_imagen_xml ) {/*{{{*/
 
 		$full_path = $imagen->dirname . '/'. $imagen->basename;
 
-		$imagen_url = $this->feat->uri_imagenes . "/imageneshow-imagenes/$full_path&wp=900&hl=600&ar=x";
+		// $imagen_url = $this->feat->uri_thumb . "/imageneshow-imagenes/$full_path&wp=900&hl=600&ar=x";
+		$imagen_url = $this->feat->uri_thumb . "/imageneshow-imagenes/$full_path&wp=900&hl=600&ar=x";
 
 		M()->info("cacheando imagen $cacheadas de $total del archivo $full_path" );
 
