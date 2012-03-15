@@ -12,8 +12,16 @@
 
 include_once '../../xpthumb.class.php';
 
-$x = new xpthumb;
 
+/*
+global $xpdoc;
+
+$x = new xpthumb( (string) $xpdoc->feat->path_imagenes );
+*/
+
+
+// esto esta harcodeado, tiene que haber uno por aplicacion, DEBUG
+$x = new xpthumb( (string) '/var/www/ADD/Legajos', '/tmp/xpotronix/xpay/image' );
 
 if ( $x->get_cache() ) { 
 	$x->output_cached_image();
@@ -34,6 +42,10 @@ if ( $x->http->ar == 'x' )
 if ( $x->http->filtr )
 	foreach( $x->http->filtr as $f ) 
 		$x->filter( $f );
+
+
+// DEBUG: esto tiene que estar en combinacion con el output final y parametrizable
+$x->setImageFormat('jpg');
 
 $x->cache();
 
