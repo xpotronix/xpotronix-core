@@ -53,7 +53,15 @@
 			<set_time_limit type="int">180</set_time_limit>
 		</feat>
 
-		<field name="imagen"/>
+		<field name="ID" display="disabled">
+			<listeners><event name="dblclick"><![CDATA[function(col,grid) {
+				grid.obj.get_inspect_panel() && grid.obj.inspect_window(); 
+                        }]]></event></listeners>
+			<renderer><![CDATA['<img align="center" src="'+ App.feat.uri_thumb + '/' + 
+					record.data.dirname + '/' + record.data.basename +
+					'&wp=100&hl=100&ar=x" border="0" title="" />']]></renderer>
+		</field>
+		<field name="imagen" translate="Descripción"/>
 		<field name="usuario_ID" translate="usuario" match_type="exact"/>
 		<field name="dirname" display="hide"/>
 		<field name="basename" display="hide"/>
@@ -64,11 +72,6 @@
 		<field name="filesize" display="hide"/>
 		<field name="exim_info" display="hide"/>
 		<field name="descripcion" display="hide"/>
-		<field name="ID" display="disabled">
-			<renderer><![CDATA['<img align="center" src="'+ App.feat.uri_imagenes + 
-					record.data.dirname + '/' + record.data.basename +
-					'&wp=100&hl=100&ar=x" border="0" title="" />']]></renderer>
-		</field>
 	</table><!--}}}-->
 
 	<table name="scan_imagen" translate="Escanear Fotos"><!--{{{-->
