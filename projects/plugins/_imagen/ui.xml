@@ -14,37 +14,40 @@
 
 <table name="imagen"><!--{{{-->
 
-		<panel type="xpGrid" translate="Fotos"/>
-		<panel type="xpThumbs" translate="Seleccionar Fotos"/>
-
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" translate="Ver Foto"><config>labelWidth:70, defaults:{width: '150px'}</config>
+		<panel type="Viewport" translate="Imágenes">
 		<items>
-			<cmp><config>layout:'column',border:false</config>
+			<panel type="xpThumbs" translate="Seleccionar Fotos"><config>region: 'west', width:200</config></panel>
+			<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Foto"><config>region:'center',labelWidth:70, defaults:{width: '150px'}</config>
 			<items>
-				<cmp><config>width:300,layout: 'form',border:false</config>
-					<items>
-						<attr name="usuario_ID" label="usuario"/>
-						<attr name="dirname"/>
-						<attr name="basename"/>
-						<attr name="filename"/>
-						<attr name="extension"/>
-						<attr name="encontrada"/>
-						<attr name="cache"/>
-						<attr name="filesize"/>
-						<attr name="descripcion"/>
-					</items>
-				</cmp>
-				<cmp><config>columnWidth:1,layout: 'form',border:false</config>
+				<cmp><config>layout:'column',border:false</config>
 				<items>
-					<cmp><config>xtype: 'box',margins: '5 5 5 5', style: { width: '100px' }, autoScroll: true,
-						autoEl: {
-							id: 'xbox_imagen_xpForm', tag: 'img', src: 'images/encabezado_pedido.jpg'
-							}
-					</config></cmp>
+					<cmp><config>columnWidth:1,layout: 'form',border:false</config>
+						<items>
+							<cmp><config>xtype: 'box',margins: '5 5 5 5', style: { width: '100px' }, autoScroll: true,
+								autoEl: {
+								id: 'xbox_imagen_xpForm', tag: 'img', src: 'images/encabezado_pedido.jpg'
+								}
+							</config></cmp>
+						</items>
+					</cmp>
+					<cmp><config>width:300,layout: 'form',border:false</config>
+						<items>
+							<attr name="usuario_ID" label="usuario"/>
+							<attr name="dirname"/>
+							<attr name="basename"/>
+							<attr name="filename"/>
+							<attr name="extension"/>
+							<attr name="encontrada"/>
+							<attr name="cache"/>
+							<attr name="filesize"/>
+							<attr name="descripcion"/>
+						</items>
+					</cmp>
 				</items>
 				</cmp>
 			</items>
-			</cmp>
+			</panel>
+			<panel type="xpGrid"><config>region:'south',height:200,collapsible:true</config></panel>
 		</items>
 		</panel>
 
