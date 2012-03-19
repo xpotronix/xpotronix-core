@@ -67,13 +67,11 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	   function main_sql() {/*{{{*/
 	   	
-		global $xpdoc;
-
-	      // DEBUG: problema de performance
-	      // $this->sql->addOrder( 'imagen.fecha' );
-	      // $this->sql->addOrder( 'imagen.usuario_ID' );
-	      // $this->sql->addOrder( 'imagen.filename DESC' );
-	      $this->sql->addOrder( 'imagen.filename' );
+                global $xpdoc;
+                if ( $this->has_role( 'mesa', 'altas', 'responsable', 'licencias', 'audit' ) ) {
+                       return;
+                } else if ( $this->has_role( 'empleado' ) )
+                       $this->sql->addWhere( "imagen.usuario_ID = '{$xpdoc->user->legajo}'" );
 
 	   }/*}}}*/
 
@@ -95,18 +93,32 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	$legajo_dir = $xpdoc->instance( 'C3_data' );
 
-	if ( ! $xpdoc->user->get_attr( 'legajo' ) ) {
 
-		M()->error( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
-		return;
+	if ( ! $xpdoc->user->legajo ) {
+
+		if ( $xpdoc->http->usuario_ID ) {
+
+			$xpdoc->user->attr('legajo');
+			$usuario_ID = $xpdoc->http->usuario_ID;
+			$xpdoc->user->legajo = $usuario_ID; 
+
+		} else {
+
+			M()->error( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
+			return;
+
+		}
 	}
 
 
-	if ( !$legajo_dir->load( array( 'legajo_ID' => $xpdoc->user->legajo ) ) ) {
+
+	if ( !$legajo_dir->load( array( 'legajo_ID' => $usuario_ID ) ) ) {
       
 		M()->error( "No hay asociado una ruta de directorio al legajo. Consulte con el administrador" );
 		return;
 	}
+
+	M()->user( 'escaneando para el usuario '. $xpdoc->user->legajo );
 
 	$encontradas = 0;
 	$existentes = 0;
@@ -119,7 +131,7 @@ function imagen_cambia_imagen() {/*{{{*/
 	$sql = new DBQuery( $this->db );
 	$sql->addTable("imagen");
 	$sql->addUpdate("encontrada", 0);
-	$sql->addWhere("imagen.usuario_ID = '{$xpdoc->user->user_username}'");
+	$sql->addWhere("imagen.usuario_ID = '{$xpdoc->user->legajo}'");
 
 	M()->debug( "reset de imagen->encontrada: ". $sql->prepare() ) ;
 	$sql->Exec();
@@ -128,7 +140,7 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	$working_path = $base_path . '/'. $legajo_dir->dirname;
 
-	M()->debug( "escaneando imagenes para el usuario". $this->usuario_ID. " y el directorio $working_path" );
+	M()->debug( "escaneando imagenes para el usuario". $xpdoc->user->legajo. " y el directorio $working_path" );
 
 	$files = $file_utils->list_directory( $working_path, array( 'jpg', 'JPG', 'TIF' ));
 
@@ -146,23 +158,24 @@ function imagen_cambia_imagen() {/*{{{*/
 
 		// completa la informacion de la imagen
 
-		$params['fecha'] = date ("Y-m-d", filemtime($full_file));
-		$params['usuario_ID'] = $this->usuario_ID;
-		$params['basename'] = $params['basename'];
-		$params['dirname'] = $params['dirname'];
+		$params['usuario_ID'] = $xpdoc->user->legajo;
+
+		M()->info( 'params: '. serialize( $params ) );
 
 		// si no existe, la crea
 
-		if ( !$imagen->load( $params ) ) {
+		if ( ! $imagen->load( $params ) ) {
 
 			$imagen->bind( $params, true );
 			$imagen->fill_primary_key();
 			$imagen->encontrada = true;
+			$imagen->usuario_ID = $usuario_ID;
 			$imagen->filesize = filesize( $full_file );
+			$imagen->fecha = date("Y-m-d", filemtime($full_file));
 			// $imagen->exim_info = (string) $image;
 			$imagen->push_privileges( array( 'add' => 1 ) );
 			$imagen->insert();
-			M()->debug( "encontrada imagen {$params['dirname']}");
+			M()->debug( "agregando imagen {$params['basename']}");
 			$encontradas ++;
 
 	 	} else {
@@ -174,10 +187,13 @@ function imagen_cambia_imagen() {/*{{{*/
 			$imagen->push_privileges( array( 'edit' => 1 ) );
 			$imagen->update();
 			M()->debug( "imagen existente {$params['dirname']}");
+
 		}
 
 		$imagen->pop_privileges();
 
+
+		/*
 		// crea el directorio para cache
 
 		$cache_dir = $base_path.'/'.$params['dirname'].'/cache';
@@ -191,223 +207,16 @@ function imagen_cambia_imagen() {/*{{{*/
 			M()->debug( "creando directorio $cache_dir");
 			$file_utils->mkdir( $cache_dir );
 		}
+
+		*/
 	}
+
+	M()->user( "existentes: $existentes, encontradas: $encontradas" );
+
 	}]]>
 	</code>
    </table><!--}}}-->
 
-<table name="scan_imagen"><!--{{{-->
-	<code type="php" mode="class_functions"><![CDATA[
-
-function scan_imagen( $scan_imagen_xml ) {/*{{{*/
-
-	global $xpdoc;
-
-	require_once 'xpthumb.class.php';
-	$image = new xpthumb;
-
-	$file_utils = $xpdoc->get_instance('file_utils');
-
-	$this->load( $scan_imagen_xml['ID']);
-
-	if ( !$this->fecha_desde ) {
-      
-		M()->error( "Debes especificar una fecha para escanear las imagenes. No se puede continuar" );
-		return;
-	}
-
-	$this->encontradas = 0;
-	$this->existentes = 0;
-	$this->faltantes = 0;	
-
- 	set_time_limit( 0 );
-
-	$imagen = $xpdoc->get_instance('imagen');
-
-	$sql = new DBQuery( $this->db );
-	$sql->addTable("imagen");
-	$sql->addUpdate("encontrada", 0);
-	$sql->addWhere("imagen.fecha = '{$this->fecha_desde}'");
-
-	M()->debug( "reset de imagen->encontrada: ". $sql->prepare() ) ;
-	$sql->Exec();
-
-	$base_path = $this->feat->path_imagenes;
-
-	$working_path = $base_path . '/'. str_replace( '-', '/', $this->fecha_desde );
-
-	M()->debug( "escaneando imagenes para la fecha ". $this->fecha_desde. " y el directorio $working_path" );
-
-	$files = $file_utils->list_directory( $working_path, array( "jpg", "JPG" ));
-
-	// por cada entrada ...
-
-	foreach ( $files as $file ) {
-
-		// saca el $base_path
-
-		$full_file = $file;
-
-		$file = str_replace( $base_path.'/', "", $file );
-
-		$params = pathinfo( $file );
-
-		$file_elems = explode( '/', $params['dirname'] );
-
-		if ( count( $file_elems ) < 4 ) continue;
-
-		// completa la informacion de la imagen
-
-		$params['fecha'] = $file_elems[0]. '-'. $file_elems[1]. '-'. $file_elems[2];
-		$params['usuario_ID'] = trim(strtolower($file_elems[3]));
-		$params['imagen'] = $params['basename'];
-
-		// si no existe, la crea
-
-		// $image->load( $full_file );
-
-		if ( !$imagen->load( $params ) ) {
-
-			$imagen->bind( $params, true );
-			$imagen->fill_primary_key();
-			$imagen->encontrada = true;
-			$imagen->filesize = filesize( $full_file );
-			// $imagen->exim_info = (string) $image;
-			$imagen->insert();
-			M()->debug( "encontrada imagen {$params['dirname']}");
-			$this->encontradas ++;
-
-	 	} else {
-
-			$this->existentes ++;
-			$imagen->encontrada = true;
-			$imagen->filesize = filesize( $full_file );
-			// $imagen->exim_info = (string) $image;
-			$imagen->update();
-			M()->debug( "imagen existente {$params['dirname']}");
-		}
-
-		// crea el directorio para cache
-
-		$cache_dir = $base_path.'/'.$params['dirname'].'/cache';
-
-		if ( file_exists( $cache_dir )) {
-
-			M()->debug( "$cache_dir existente.");
-
-		} else {
-
-			M()->debug( "creando directorio $cache_dir");
-			$file_utils->mkdir( $cache_dir );
-		}
-	}
-
-	$sql = new DBQuery( $this->db );
-	$sql->addTable("imagen");
-	$sql->addQuery("count(*) as faltantes");
-	$sql->addWhere("imagen.fecha = '{$this->fecha_desde}'");
-	$sql->addWhere("imagen.encontrada = 0");
-
-
-	$result = $sql->Exec();
-
-	$this->faltantes = $result->fields['faltantes'];
-
-	$this->store_xml_response();
-
-	M()->user( "Fin del proceso. Encontradas: $this->encontradas, existentes: $this->existentes, faltantes: $this->faltantes." );
-
-}/*}}}*/
-
-function cache_imagen( $scan_imagen_xml ) {/*{{{*/
-
-	global $xpdoc;
-
-	$this->load( $scan_imagen_xml['ID']);
-
-	if ( !$this->fecha_desde ) {
-      
-		M()->error( "Debes especificar una fecha. Abortando el proceso de scan_imagen()" );
-		return;
-	}
-
-	set_time_limit( 0 );
-
-	$base_path = $this->feat->path_imagenes;
-
-	$working_path = $base_path . '/'. str_replace( '-', '/', $this->fecha_desde );
-
-	M()->info( "cacheando imagenes para la fecha ". $this->fecha_desde. " y el directorio $working_path" );
-
-	$imagen = $xpdoc->get_instance('imagen');
-
-	$sql = new DBQuery( $this->db );
-	$sql->addTable("imagen");
-	$sql->addQuery("ID");
-	$sql->addOrder("filesize DESC");
-	$sql->addWhere("fecha = '{$this->fecha_desde}' and cache = 0");
-
-      $imagenes = $sql->Exec();
-
-	$cacheadas = 1;
-	$total = $imagenes->_numOfRows;
-
-	foreach( $imagenes as $fimagen ) {
-
-		$imagen_ID = $fimagen['ID'];
-
-		M()->debug( 'id de la imagen '. $imagen_ID ); 
-
-		if ( ! $imagen->load( $imagen_ID ) ) {
-
-			M()->user( 'no encontre la imagen con ID: ' . $imagen_ID );
-			// echo '<pre>'; print_r( $imagen->sql ); exit;
-			continue;
-		}
-
-		$full_path = $imagen->dirname . '/'. $imagen->basename;
-
-		// $imagen_url = $this->feat->uri_thumb . "/imageneshow-imagenes/$full_path&wp=900&hl=600&ar=x";
-		$imagen_url = $this->feat->uri_thumb . "/imageneshow-imagenes/$full_path&wp=900&hl=600&ar=x";
-
-		M()->info("cacheando imagen $cacheadas de $total del archivo $full_path" );
-
-		if ( ! function_exists( 'curl_init' ) ) {
-
-			M()->error( 'CURL no instalado. Por favor, configurar' );
-			return NULL;
-
-		}
-
-		$ch = curl_init();
-
-		curl_setopt ($ch, CURLOPT_URL, $imagen_url);
-		curl_setopt ($ch, CURLOPT_HEADER, 0);
-		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 0);
-
-		ob_start();
-		$return = curl_exec( $ch );
-		curl_close ($ch);
-		ob_end_clean();
-		
-		if ( $return ) {
-
-			$imagen->cache = true;
-			$imagen->update();
-
-		} else M()->user( 'no pude cachear la imagen '. $full_path );
-
-
-		$cacheadas++;
-
-	}
-
-	M()->user( 'fin de proceso de cacheo para el dia '. $this->fecha_desde );
-
-}/*}}}*/
-
-	]]></code>
-	</table><!--}}}-->
 
 </database>
 <!-- vim600: fdm=marker sw=3 ts=8 ai: 
