@@ -60,6 +60,7 @@
 		<field name="encontrada" display="hide"/>
 		<field name="cache" display="hide"/>
 		<field name="filesize" display="hide"/>
+		<field name="fecha"/>
 		<field name="exim_info" display="hide"/>
 		<field name="descripcion" display="hide"/>
 	</table><!--}}}-->
