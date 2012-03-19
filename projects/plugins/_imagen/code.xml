@@ -104,7 +104,7 @@ function imagen_cambia_imagen() {/*{{{*/
 
 		} else {
 
-			M()->error( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
+			M()->user( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
 			return;
 
 		}
@@ -114,7 +114,7 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	if ( !$legajo_dir->load( array( 'legajo_ID' => $usuario_ID ) ) ) {
       
-		M()->error( "No hay asociado una ruta de directorio al legajo. Consulte con el administrador" );
+		M()->user( "No hay asociado una ruta de directorio de las imagenes al legajo. Consulte con el administrador" );
 		return;
 	}
 
