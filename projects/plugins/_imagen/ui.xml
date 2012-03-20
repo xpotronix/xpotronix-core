@@ -13,10 +13,11 @@
 <database>
 
 <table name="imagen"><!--{{{-->
+		<layout>
 
 		<panel type="Viewport" translate="Imágenes" id="imagen_Viewport">
 		<items>
-			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>region: 'west', width:200</config></panel>
+			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>region: 'west', width:200,collapseMode:'mini',split:true,minWidth:50</config></panel>
 			<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>region:'center',labelWidth:70, defaults:{width: '150px'}</config>
 			<items>
 				<cmp><config>layout:'column',border:false</config>
@@ -34,9 +35,10 @@
 				</cmp>
 			</items>
 			</panel>
-			<panel type="xpGrid"><config>region:'south',height:200,collapsible:true</config></panel>
+			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
 		</items>
 		</panel>
+		</layout>
 
 		<feat>
 			<hide_pk type="bool">false</hide_pk>
