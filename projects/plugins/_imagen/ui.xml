@@ -26,7 +26,7 @@
 						<items>
 							<cmp><config>xtype: 'box',margins: '5 5 5 5', style: { width: '100px' }, autoScroll: true,
 								autoEl: {
-								id: 'xbox_imagen_xpForm', tag: 'img', src: 'images/encabezado_pedido.jpg'
+								id: 'xbox_imagen_xpForm', tag: 'img', src: '/ext/resources/images/default/grid/loading.gif'
 								}
 							</config></cmp>
 						</items>
