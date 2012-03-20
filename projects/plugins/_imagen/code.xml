@@ -120,7 +120,7 @@ function imagen_cambia_imagen() {/*{{{*/
 
 	M()->user( 'escaneando para el usuario '. $xpdoc->user->legajo );
 
-	$encontradas = 0;
+	$nuevas = 0;
 	$existentes = 0;
 	$faltantes = 0;	
 
@@ -176,12 +176,12 @@ function imagen_cambia_imagen() {/*{{{*/
 			$imagen->push_privileges( array( 'add' => 1 ) );
 			$imagen->insert();
 			M()->debug( "agregando imagen {$params['basename']}");
-			$encontradas ++;
+			$nuevas ++;
 
 	 	} else {
 
 			$existentes ++;
-			$encontrada = true;
+			$imagen->encontrada = true;
 			$imagen->filesize = filesize( $full_file );
 			// $imagen->exim_info = (string) $image;
 			$imagen->push_privileges( array( 'edit' => 1 ) );
@@ -211,7 +211,7 @@ function imagen_cambia_imagen() {/*{{{*/
 		*/
 	}
 
-	M()->user( "existentes: $existentes, encontradas: $encontradas" );
+	M()->user( "existentes: $existentes, nuevas: $nuevas" );
 
 	}]]>
 	</code>
