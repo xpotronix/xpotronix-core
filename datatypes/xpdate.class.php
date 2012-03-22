@@ -76,6 +76,8 @@ class xpdate extends xpattr {
 		global $xpdoc;
 
 		$tz = new DateTimeZone( $xpdoc->feat->default_timezone );
+
+
 		$date = $dt->createFromFormat( $this->format_str(), $value, $tz );
 		$this->errors( $value );
 
@@ -83,14 +85,19 @@ class xpdate extends xpattr {
 
 			$date = $dt->createFromFormat( $this->format_long_str(), $value, $tz );
 			$this->errors( $value );
-		} 
 
-		if ( !$date ) {
+			if ( !$date ) {
 
-			// echo '<pre>'; print_r( $this->errors( $value ) );
+				$date = $dt->createFromFormat( $this->db_format_str(), $value, $tz );
+				$this->errors( $value );
 
-			M()->debug( "no puedo decodificar la fecha $value" );
-			return null;
+				if ( !$date ) {
+
+					// echo '<pre>'; print_r( $this->errors( $value ) );
+					M()->debug( "no puedo decodificar la fecha $value" );
+					return null;
+				} 
+			} 
 		} 
 
 		return $date->format( $this->db_format_str() );
