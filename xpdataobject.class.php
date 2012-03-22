@@ -1121,7 +1121,11 @@ class xpDataObject extends xp {
 			} else {
 
 				$sql_code = array( $this->sql->prepare() );
-				M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'FROM' ) );
+
+				if ( $this->feat->full_sql_log )
+					M()->debug( $sql_code[0] );
+				else 
+					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'FROM' ) );
 
 			}
 		}
@@ -1674,7 +1678,7 @@ class xpDataObject extends xp {
 		
 		if ( ! is_array( $this->attr ) ) {
 
-			M()->warn( "objeto sin atributos" );
+			M()->warn( "$this->class_name: objeto sin atributos" );
 			return $this;
 		}
 
