@@ -29,7 +29,7 @@ function imagen_cambia_imagen() {/*{{{*/
 		img.dom.border 	= 0;
 		img.dom.alt 	= r.data.imagen_ID_label;
                 
-	} else img.dom.src = '/ext/resources/images/default/grid/loading.gif';
+	} else img.dom.src = '/ext/resources/images/default/s.gif';
 
 
 }/*}}}*/
