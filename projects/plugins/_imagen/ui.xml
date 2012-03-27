@@ -15,10 +15,55 @@
 <table name="imagen"><!--{{{-->
 		<layout>
 
-		<panel type="Viewport" translate="Imágenes" id="imagen_Viewport">
+		<cmp type="Panel" translate="Imágenes" id="imagen_Viewport">
 		<items>
-			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>region: 'west', width:200,collapseMode:'mini',split:true,minWidth:50</config></panel>
-			<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>region:'center',labelWidth:70, defaults:{width: '150px'}</config>
+			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config><![CDATA[region: 'west', width:200,collapseMode:'mini',split:true,minWidth:50, listeners{ render: function(){
+
+	this.dv.on('dblclick', function() { 
+
+		this.get_inspect_panel() && this.inspect_window();
+
+	}, panel.obj );
+
+
+},this }]]></config></panel>
+			<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config><![CDATA[listeners: { render: function(){
+
+	this.imagen_cambia_imagen = function() {/*{{{*/
+
+	var img, r;
+
+	if ( ! ( img = Ext.get('xbox_imagen_xpForm') ) ) return;
+
+	if ( r = this.cr() ) {
+
+                /* img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename + '&filtr[]=' + r.data.color + '&wp=900&hl=600&ar=x'; */
+                img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
+		img.dom.border 	= 0;
+		img.dom.alt 	= r.data.imagen_ID_label;
+                
+	} else img.dom.src = '/ext/resources/images/default/s.gif';
+
+
+}/*}}}*/
+
+
+	this.store.on('changerowindex', this.imagen_cambia_imagen );
+	this.store.on('load', this.imagen_cambia_imagen );
+	this.on('afterlayout', this.imagen_cambia_imagen, this.store );
+
+
+
+	};/*}}}*/
+
+	imagen_init();
+
+
+}, this }
+
+
+
+region:'center',labelWidth:70, defaults:{width: '150px'}]]></config>
 			<items>
 				<cmp><config>layout:'column',border:false</config>
 				<items>
@@ -37,7 +82,7 @@
 			</panel>
 			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
 		</items>
-		</panel>
+		</cmp>
 		</layout>
 
 		<feat>

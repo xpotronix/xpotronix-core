@@ -15,12 +15,12 @@
 	<table name="gacl_axo_groups" translate="Grupos de Módulos del Sistema"><!--{{{-->
 
 		<layout name="default">
-			<cmp type="Viewport"><config>layout:'border', deferredRender: true</config>
+			<cmp type="Panel"><config>layout:'border', deferredRender: true, id:'xpApp_layout'</config>
 				<items>
-					<cmp><config>layout: 'fit', width: '100%', region: 'north', tbar: App.menu</config></cmp>
+					<!-- <cmp><config>layout: 'fit', width: '100%', region: 'north', tbar: App.menu</config></cmp> -->
 					<cmp type="TabPanel"><config>titleCollapse: false, 
 					height: 400, 
-					margins: '32 0 0 0', 
+					margins: '0 0 0 0', 
 					split: true, 
 					region:'north', 
 					deferredRender: true, 
