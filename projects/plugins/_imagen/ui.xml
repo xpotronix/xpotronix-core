@@ -15,55 +15,41 @@
 <table name="imagen"><!--{{{-->
 		<layout>
 
-		<cmp type="Panel" translate="Imágenes" id="imagen_Viewport">
+		<cmp type="Panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border'</config>
 		<items>
-			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config><![CDATA[region: 'west', width:200,collapseMode:'mini',split:true,minWidth:50, listeners{ render: function(){
+			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config><![CDATA[region: 'west', width:200,collapseMode:'mini',split:true,minWidth:50, listeners:{ render: { fn: function(){
 
-	this.dv.on('dblclick', function() { 
+				this.dv.on('dblclick', function() { 
 
-		this.get_inspect_panel() && this.inspect_window();
+					this.obj.get_inspect_panel() && this.obj.inspect_window();
+				});
+			}
+		}}]]></config></panel>
+		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config><![CDATA[region:'center',labelWidth:70, defaults:{width: '150px'},
+		listeners: { render: { fn: function(){
 
-	}, panel.obj );
+			this.imagen_cambia_imagen = function() {
 
+				var img, r;
 
-},this }]]></config></panel>
-			<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config><![CDATA[listeners: { render: function(){
+				if ( ! ( img = Ext.get('xbox_imagen_xpForm') ) ) return;
 
-	this.imagen_cambia_imagen = function() {/*{{{*/
+				if ( r = this.cr() ) {
 
-	var img, r;
-
-	if ( ! ( img = Ext.get('xbox_imagen_xpForm') ) ) return;
-
-	if ( r = this.cr() ) {
-
-                /* img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename + '&filtr[]=' + r.data.color + '&wp=900&hl=600&ar=x'; */
-                img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
-		img.dom.border 	= 0;
-		img.dom.alt 	= r.data.imagen_ID_label;
+                			img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
+					img.dom.border 	= 0;
+					img.dom.alt 	= r.data.imagen_ID_label;
                 
-	} else img.dom.src = '/ext/resources/images/default/s.gif';
+				} else img.dom.src = '/ext/resources/images/default/s.gif';
+			};
 
+			this.store.on('changerowindex', this.imagen_cambia_imagen );
+			this.store.on('load', this.imagen_cambia_imagen );
+			this.on('afterlayout', this.imagen_cambia_imagen, this.store );
 
-}/*}}}*/
-
-
-	this.store.on('changerowindex', this.imagen_cambia_imagen );
-	this.store.on('load', this.imagen_cambia_imagen );
-	this.on('afterlayout', this.imagen_cambia_imagen, this.store );
-
-
-
-	};/*}}}*/
-
-	imagen_init();
-
-
-}, this }
-
-
-
-region:'center',labelWidth:70, defaults:{width: '150px'}]]></config>
+		}}
+	}
+	]]></config>
 			<items>
 				<cmp><config>layout:'column',border:false</config>
 				<items>
