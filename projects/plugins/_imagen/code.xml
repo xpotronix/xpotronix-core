@@ -14,55 +14,6 @@
 
    <table name="imagen"><!--{{{-->
 
-<code mode="events" type="js"><![CDATA[
-
-function imagen_cambia_imagen() {/*{{{*/
-
-	var img, r;
-
-	if ( ! ( img = Ext.get('xbox_imagen_xpForm') ) ) return;
-
-	if ( r = this.cr() ) {
-
-                /* img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename + '&filtr[]=' + r.data.color + '&wp=900&hl=600&ar=x'; */
-                img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
-		img.dom.border 	= 0;
-		img.dom.alt 	= r.data.imagen_ID_label;
-                
-	} else img.dom.src = '/ext/resources/images/default/s.gif';
-
-
-}/*}}}*/
-
-	var imagen_init = function() {/*{{{*/
-
-	var panel;
-
-	if ( panel = Ext.getCmp('imagen_xpForm') ) {
-
-		panel.store.on('changerowindex', imagen_cambia_imagen );
-		panel.store.on('load', imagen_cambia_imagen );
-		panel.on('afterlayout', imagen_cambia_imagen, panel.store );
-	}
-
-	panel = Ext.getCmp('imagen_xpThumbs');
-
-	if ( ! panel ) return;
-
-	panel.dv.on('dblclick', function() { 
-
-		this.get_inspect_panel() && this.inspect_window();
-
-	}, panel.obj );
-
-
-	};/*}}}*/
-
-	imagen_init();
-
-]]>
-</code>
-
 	   <code type="php" mode="class_functions"><![CDATA[
 
 	   function main_sql() {/*{{{*/

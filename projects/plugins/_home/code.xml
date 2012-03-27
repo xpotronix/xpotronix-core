@@ -50,6 +50,7 @@ Ext.onReady(function() {
 
 	showDetail('home');
 
+
 	function showDetail(ex) {
 		if(!detailEl) {
 			detailEl = Ext.getCmp('detail').body.createChild({tag:'div'});
@@ -66,6 +67,13 @@ Ext.onReady(function() {
 
 	tree.on({
 		click:{stopEvent:true, fn:function(n, e) {
+
+			if ( App.getModifiedStores && App.getModifiedStores().length ) {
+
+				App.showSaveChanges();
+				return;
+			}
+
 			e.stopEvent();
 			// handle detail
 
@@ -86,7 +94,22 @@ Ext.onReady(function() {
 				}
 				else {
 					var src = n.attributes.href;
-					iframe.setSrc.defer(350, iframe, [src, true]);
+					// iframe.setSrc.defer(350, iframe, [src, true]);
+
+					var layout = Ext.getCmp('xpApp_layout');
+					layout && layout.destroy();
+
+					App.close_objs();
+					App.close_stores();
+
+					Ext.Loader.load( [src + '&v=ext/loader&UNNORMALIZED=1'], function() { 
+
+						var layout = Ext.getCmp('xpApp_layout');
+						iframe.add( layout );
+						iframe.doLayout();
+	
+
+					});
 				}
 			}
 
@@ -103,6 +126,16 @@ Ext.onReady(function() {
 
 				App.user_node = this.getNodeById('user');
 				App.user_node && App.user_node.setText( App.user_node.text + ' <b>' + App.user.user_username + '</b>' );
+
+				Ext.Loader.load( [App.feat.defaultSrc + '&v=ext/loader&UNNORMALIZED=1'], function() { 
+
+						var layout = Ext.getCmp('xpApp_layout');
+						iframe.add( layout );
+						iframe.doLayout();
+	
+
+					});
+
 			}
 		}}
 	});
