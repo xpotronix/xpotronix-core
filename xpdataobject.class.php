@@ -1123,9 +1123,9 @@ class xpDataObject extends xp {
 				$sql_code = array( $this->sql->prepare() );
 
 				if ( $this->feat->full_sql_log )
-					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'FROM' ) );
-				else 
 					M()->debug( $sql_code[0] );
+				else 
+					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );
 
 			}
 		}
@@ -1184,7 +1184,7 @@ class xpDataObject extends xp {
 
 			// print_r( $this->primary_key ); exit;
 			$this->loaded = false;
-			M()->info( 'no encontre registros en: '. $this->sql->prepare() ) ;
+			// M()->info( 'no encontre registros en: '. $this->sql->prepare() ) ;
 			return null;
 
 		} else {
