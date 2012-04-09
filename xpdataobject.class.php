@@ -1127,6 +1127,9 @@ class xpDataObject extends xp {
 				else 
 					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );
 
+				global $xpdoc;
+
+				$xpdoc->feat->log_sql and M()->write_log( $sql_code[0] );
 			}
 		}
 

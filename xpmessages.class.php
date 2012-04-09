@@ -357,7 +357,7 @@ class xpmessages {
 
 	function stats( $text ) {/*{{{*/
 		return $this->m( $text, MSG_STATS );
-	}/*}}}*/
+	}/*}}}*/ 
 
 	function mem_max_stats( $text = null ) {/*{{{*/
 
@@ -406,6 +406,27 @@ class xpmessages {
 	}/*}}}*/
 
 
+	function write_log( $content ) {
+
+		global $xpdoc;
+
+		if ( !$xpdoc ) return;
+
+		if ( ! file_exists( $path_name = $xpdoc->get_log_dir( 'log' ) ) )
+			mkdir( $path_name );
+
+		$file_name = $path_name. $xpdoc->xpid(). '.log';
+
+		if ( $xpdoc ) {
+
+			file_put_contents( $file_name, '/* '. microtime(). " */\n" );
+			file_put_contents( $file_name, $content."\n", FILE_APPEND | LOCK_EX );
+		} 
+
+		return $file_name;
+
+		
+	}
 
 }
 
