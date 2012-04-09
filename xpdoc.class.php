@@ -488,6 +488,14 @@ class xpdoc extends xp {
 
 	}/*}}}*/
 
+	function get_log_dir( $suffix = null ) {/*{{{*/
+
+		$suffix and $suffix = "$suffix/";
+
+		return "{$this->config->log_dir}/{$this->feat->application}/$suffix";
+
+	}/*}}}*/
+
 	// head
 
 	function headers_do() {/*{{{*/
@@ -664,9 +672,9 @@ class xpdoc extends xp {
 			M()->info( "via parametro" );
 			$this->view = $view;
 
-		} else if ( $this->http->v ) {
+		} else if ( (string) $this->http->v ) {
 
-			M()->info( "via &v=" );
+			M()->info( "via &v={$this->http->v}" );
 			$this->view = $this->http->v;
 
 		} else if ( $v = $this->get_instance()->metadata['layout'] ) {

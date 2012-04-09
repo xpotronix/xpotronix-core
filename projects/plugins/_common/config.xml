@@ -31,6 +31,7 @@
 	<clean_xpdoc type="bool">true</clean_xpdoc>
 
 	<cache_dir>/tmp/xpotronix/</cache_dir>
+	<log_dir>/tmp/xpotronix/</log_dir>
 
 	<app_cache_time type="int">0</app_cache_time>
 	<gacl_cache_time type="int">600</gacl_cache_time>
