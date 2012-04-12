@@ -256,8 +256,17 @@ function metadata() {/*{{{*/
 
    function bind( $hash ) {/*{{{*/
 
-       if ( isset( $hash[ $this->name ] ) ) 
+	if ( isset( $hash[ $this->name ] ) ) 
 		$this->value = $this->decode( $hash[ $this->name ] );
+
+	if ( $this->is_entry_help() ) {
+
+		@$value = $hash[$this->name. '_label'];
+
+		$this->label = $value ? $value : null;
+
+		$value and M()->debug( $this->label );
+	}
 
    }/*}}}*/
 
