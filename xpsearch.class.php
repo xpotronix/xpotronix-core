@@ -218,6 +218,8 @@ class xpsearch {
 
 		$value = ( $value == "''" or $value == '""') ? null : $value;
 
+		M()->debug( 'simple_type: '. $attr->get_simple_type(). ', type: '. $attr->type );
+
 		if ( $value === null ) {
 
 			M()->debug( "el valor es nulo" );
@@ -329,7 +331,7 @@ class xpsearch {
 
 		} else {
 
-			M()->info( 'busqueda por default' );
+			M()->warn( 'no pude identificar el tipo de busqueda: por default' );
 		}
 
 
