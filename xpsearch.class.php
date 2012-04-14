@@ -331,7 +331,7 @@ class xpsearch {
 
 		} else {
 
-			M()->warn( 'no pude identificar el tipo de busqueda: por default' );
+			M()->info( 'no pude identificar el tipo de busqueda: por default' );
 		}
 
 
