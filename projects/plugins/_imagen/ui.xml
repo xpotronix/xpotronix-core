@@ -25,7 +25,7 @@
 				});
 			}
 		}}]]></config></panel>
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config><![CDATA[region:'center',labelWidth:70, defaults:{width: '150px'},
+		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>region:'center',labelWidth:70, defaults:{width: '150px'},
 		listeners: { render: { fn: function(){
 
 			this.imagen_cambia_imagen = function() {
@@ -48,8 +48,7 @@
 			this.on('afterlayout', this.imagen_cambia_imagen, this.store );
 
 		}}
-	}
-	]]></config>
+	}</config>
 			<items>
 				<cmp><config>layout:'column',border:false</config>
 				<items>
