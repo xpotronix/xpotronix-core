@@ -67,7 +67,7 @@ class DBQuery {
 		if ( $db_handle ) 
 			$this->db = $db_handle;
 		else 
-			M()->fatal('No encuentro la base de datos');
+			M()->error('No encuentro la base de datos');
 
 		if (isset($prefix))
 			$this->_table_prefix = $prefix;
@@ -916,6 +916,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
                 if (! $this->exec(ADODB_FETCH_ASSOC)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
+			M()->error( $this->prepare() );
                         $this->clear();
                         return null;
                 }
@@ -935,6 +936,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 		if (! $this->exec(ADODB_FETCH_ASSOC)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
+			M()->error( $this->prepare() );
                         $this->clear();
                         return null;
 		}
@@ -959,6 +961,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 		if (! $this->exec(ADODB_FETCH_ASSOC)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
+			M()->error( $this->prepare() );
                         $this->clear();
                         return null;
 		}
@@ -971,6 +974,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 		if (! $this->exec(ADODB_FETCH_NUM)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
+			M()->error( $this->prepare() );
                         $this->clear();
                         return null;
 		}
@@ -985,8 +989,12 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function loadColumn() {/*{{{*/
 
-		if (! $this->exec(ADODB_FETCH_NUM)) 
-			M()->fatal( "Error en la consulta: ".$this->db->ErrorMsg() );
+		if (! $this->exec(ADODB_FETCH_NUM)) {
+
+			M()->error( "Error en la consulta: ".$this->db->ErrorMsg() );
+			M()->error( $this->prepare() );
+			return null;
+		}
 		
 		$result = array();
 
@@ -999,8 +1007,12 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function loadObject( &$object, $bindAll=false , $strip = true) {/*{{{*/
 
-		if (! $this->exec(ADODB_FETCH_NUM)) 
-			M()->fatal( "Error en la consulta: ".$this->db->ErrorMsg() );
+		if (! $this->exec(ADODB_FETCH_NUM)) {
+
+			M()->error( "Error en la consulta: ".$this->db->ErrorMsg() );
+			M()->error( $this->prepare() );
+			return;
+		}
 
 		if ($object != null) {
 			$hash = $this->fetchRow();
@@ -1038,6 +1050,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 		if (($sql = $scheme->ParseSchemaString($xml)) == false) {
 
 			M()->error( 'Error in XML Schema', $this->db->ErrorMsg());
+			M()->error( $this->prepare() );
 			return false;
 		}
 
@@ -1056,6 +1069,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 		if (! $this->exec(ADODB_FETCH_NUM)) {
 
 			M()->error( $this->db->ErrorMsg());
+			M()->error( $this->prepare() );
 
 		} else if ($data = $this->fetchRow()) {
 
