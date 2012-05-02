@@ -1926,6 +1926,8 @@ class xpDataObject extends xp {
 
 	function init_xml_obj( $node ) {/*{{{*/
 
+		/* DEBUG: hay que arreglar esta funcion las condiciones de key_str y new */
+
 		global $xpdoc;
 
 		if ( !count( $this->primary_key ) ) {
@@ -1942,6 +1944,9 @@ class xpDataObject extends xp {
 		$key_str = (string) $node['ID'];
 		$new = (string) $node['new'];
 		$complete_key = pow( 2, count( $this->primary_key ) );
+
+
+		// print $node->asXML(); exit;
 
 		/*
 
@@ -1966,7 +1971,7 @@ class xpDataObject extends xp {
 
 		if ( $new == '1' ) {
 
-			$this->__new == true;
+			$this->__new = true;
 
 			if ( $this->check_key( $tmp = $this->unpack_primary_key( $key_str ) ) == $complete_key ) {
 
@@ -2020,12 +2025,14 @@ class xpDataObject extends xp {
 			M()->debug('undefined new and key_str undefined');
 			$this->load( $this->get_primary_key_node( $node ) );
 
-			if ( !$this->loaded ) 
+			if ( $this->loaded ) 
+				$this->__new = true;
+			else
 				$this->fill_primary_key();
 
 		}
 
-		$this->__new == !$this->loaded;
+		// $this->__new == !$this->loaded;
 		$this->set_primary_key();
 		$this->assign_foreign_key();
 

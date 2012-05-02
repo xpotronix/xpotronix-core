@@ -274,7 +274,7 @@ class xpmessages {
 		return $this->m( $text, MSG_FATAL );
 	}/*}}}*/
 
-	function user( $text, $id = null, $tag = null ) {/*{{{*/
+	function user( $text = null, $id = null, $tag = null ) {/*{{{*/
 		return $this->m( $text, MSG_USER, $id, $tag );
 	}/*}}}*/
 
