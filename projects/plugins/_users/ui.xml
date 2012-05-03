@@ -71,8 +71,8 @@
 
 <table name="login" translate="Ingresar a Patrocinio"><!--{{{-->
 
-	<layout var_name="App.login_w">
-		<cmp type="Window"><config>
+	<layout>
+		<cmp type="Window" id="xpApp_layout"><config>
 		layout:'fit',
         	width:500,
         	height:300,
@@ -91,9 +91,9 @@
 				activeTab:0
 				</config>
 			<items>
-				<cmp ref="login_Form"/>
-				<cmp ref="forgot_password_Form"/>
-				<cmp ref="register_Form"/>
+				<cmp include="login_xpForm"/>
+				<cmp ref="forgot_password_xpForm"/>
+				<cmp ref="register_xpForm"/>
 				<cmp type="ux.GMapPanel3">
 				<config>
 				title:'Mapa!', 
@@ -110,7 +110,7 @@
 					geoCodeAddr: 'Vicente López y Planes 1160, La Lucila, Provincia de Buenos Aires',
 					*/
 					geoCodeAddr: 'Av Leandro N. Alem 685, San Nicolás, Ciudad Autónoma de Buenos Aires, Capital Federal, Argentina',
-					marker: {title: 'CMCABA -- Sede Alem'}
+					marker: {title: 'CMCABA Sede Alem'}
 				},
 				markers: [{
 					lat:-34.587287, lng:-58.40902,
@@ -127,9 +127,9 @@
 			</cmp>
 		</items>
 		</cmp>
-	</layout>
+	</layout> 
 
-	<panel type="Form"><config>
+	<panel type="xpForm"><config>
 		labelWidth:80,
 		url:'?m=users&amp;a=login', 
 		frame:true, 
@@ -160,12 +160,12 @@
         <field name="loginPassword" validate="empty" translate="Clave" display="password"/>
 
         <table name="forgot_password">
-		<panel type="Form">
+		<panel type="xpForm">
 		</panel>
 	</table>
 
         <table name="register">
-		<panel type="Form" title="Registrese">
+		<panel type="xpForm" title="Registrese">
 		</panel>
 	</table>
 
