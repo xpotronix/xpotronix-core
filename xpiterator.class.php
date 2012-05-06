@@ -18,16 +18,24 @@ class xpIterator implements Iterator {
 	private $page = 1;
 	private $offset;
 
+	private $key;
+	private $where;
+	private $order;
+
 	private $can_jump = true;
 
 	private $valid = false; 
 
-	function __construct( $obj, $data, $can_jump = false ) {/*{{{*/
+	function __construct( $obj, $key, $where, $order, $can_jump = false ) {/*{{{*/
 
-		M()->info( "obj: {$obj->class_name}, data: ". count( $data ). " can_jump: " . ( $can_jump ? 'true' : 'false' ) );
+		M()->info( "obj: {$obj->class_name}, key: $key, where: $where, order: $order, can_jump: " . ( $can_jump ? 'true' : 'false' ) );
 
 		$this->obj = $obj;
-		$this->data = $data;
+		$this->key = $key;
+		$this->where = $where;
+		$this->order = $order;
+
+		$this->data = $this->obj->loadc( $this->key, $this->where, $this->order );
 		$this->can_jump = $can_jump;
 	} /*}}}*/
 
@@ -111,7 +119,8 @@ class xpIterator implements Iterator {
 
 			unset( $this->data );
 
-			$this->data = $this->obj->page( ++ $this->page );
+			// $this->data = $this->obj->page( ++ $this->page );
+			$this->data = $this->obj->loadc( $this->key, $this->where, $this->order, ++ $this->page );
 
 			M()->info( count( $this->data ). " registros cargdos." );
 

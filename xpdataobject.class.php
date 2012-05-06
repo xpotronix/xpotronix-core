@@ -613,7 +613,7 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function loadc( $key = null, $where = null, $order = null ) {/*{{{*/
+	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
 
 		$this->sql->clear();
 
@@ -672,7 +672,7 @@ class xpDataObject extends xp {
 
 		$this->set_order( $order );
 		$this->main_sql();
-		return $this->page();
+		return $this->page( $page );
 
 	}/*}}}*/
 
@@ -707,13 +707,13 @@ class xpDataObject extends xp {
 
 	function load_page( $key = null, $where = null ) {/*{{{*/
 
-		return new xpIterator( $this, $this->loadc( $key, $where ), false );
+		return new xpIterator( $this, $key, $where, null, false );
 
 	}/*}}}*/
 
 	function load_set( $key = null, $where = null, $order = null ) {/*{{{*/
 
-		return new xpIterator( $this, $this->loadc( $key, $where, $order ), true );
+		return new xpIterator( $this, $key, $where, $order, true );
 
 	}/*}}}*/
 
@@ -1122,7 +1122,7 @@ class xpDataObject extends xp {
 
 				$sql_code = array( $this->sql->prepare() );
 
-				if ( $this->feat->full_sql_log )
+				if ( true or $this->feat->full_sql_log )
 					M()->debug( $sql_code[0] );
 				else 
 					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );
