@@ -60,8 +60,8 @@
 			return;
 
 		}
-	}
 
+	} else $usuario_ID = $xpdoc->user->legajo;
 
 
 	if ( !$legajo_dir->load( array( 'legajo_ID' => $usuario_ID ) ) ) {
@@ -70,29 +70,31 @@
 
 			$xc3s = simplexml_load_file( $xpdoc->feat->path_imagenes.'/C3_data.xml' );
 
-			$tmp = $xc3s->xpath('//C3_data[Nro_legajo='.trim($usuario_ID).']');
-
-			if ( ! count( $tmp ) ) {
-
-				M()->user('no encuentro el usuario en el directorio de imagenes');
-				return;
-			}
-
-			$xc3 = array_shift( $tmp );
-
-			$legajo_dir->legajo_ID = $xc3->legajo_ID;
-			$legajo_dir->
-
-
 		} catch(Exception $e) {
 
 			M()->user( 'No encuentro el archivo de directorios y legajos. Consulte con el administrador' );
 			return;
 		}
 
-      
-		M()->user( "No hay asociado una ruta de directorio de las imagenes al legajo. Consulte con el administrador" );
-		return;
+		$tmp = $xc3s->xpath('//C3_data[Nro_legajo='.trim($usuario_ID).']');
+
+		if ( ! count( $tmp ) ) {
+
+			M()->user('no encuentro el usuario en el directorio de imagenes');
+			return;
+		}
+
+		$xc3 = array_shift( $tmp );
+
+		$legajo_dir->legajo_ID = $usuario_ID;
+		$legajo_dir->Doc_id = (string) $xc3->Doc_id;
+		$legajo_dir->Batch_id = (string) $xc3->Batch_id;
+
+		$legajo_dir->insert();
+
+		$legajo_dir->dirname = $legajo_dir->Batch_id. '/'. $legajo_dir->Doc_id;
+
+		// $legajo_dir->debug_object(); exit;
 	}
 
 	M()->user( 'escaneando para el usuario '. $xpdoc->user->legajo );
@@ -135,7 +137,7 @@
 
 		// completa la informacion de la imagen
 
-		$params['usuario_ID'] = $xpdoc->user->legajo;
+		// $params['usuario_ID'] = $xpdoc->user->legajo;
 
 		M()->info( 'params: '. serialize( $params ) );
 
