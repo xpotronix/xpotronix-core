@@ -856,16 +856,15 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 		if ( !$order_clause ) return;
 
-		$result = null;
-		$clause = ' ORDER BY ';
+		is_array( $order_clause ) or $order_clause = array( $order_clause ); 
 
-		if ( is_array( $order_clause ) )
-			$result = $clause. implode( ',', $order_clause );
+		$ra = array();
 
-		else if ( $order_clause )
-			$result = $clause. $order_clause;
+		foreach( $order_clause as $oc )
 
-		return $result;
+			$ra[] = $oc;
+
+		return ' ORDER BY '. implode( ',', $ra );
 
 	}/*}}}*/
 
