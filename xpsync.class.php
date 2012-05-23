@@ -123,7 +123,8 @@ class xpsync {
 		// DEBUG: mejor guardar el estado anterior
 		
 		$s->feat->load_full_query = false;
-		$this->obj->feat->load_full_query = false;
+		$this->obj->feat->load_full_query = true;
+
 		$this->obj->set_flag( 'check', false );
 		$this->obj->set_flag( 'validate', false );
 

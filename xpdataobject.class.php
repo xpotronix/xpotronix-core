@@ -1243,7 +1243,7 @@ class xpDataObject extends xp {
 			if ( $sql->make_order_clause() )
 				$q[] = $sql->make_order_clause();
 			else
-				$q[] = $sql->make_order_clause( $this->get_primary_key_array() );
+				$q[] = $sql->make_order_clause( $this->get_primary_key_array( true ) );
 
 			$q[] = ") AS __RowNumber,";
 
@@ -2180,12 +2180,15 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function get_primary_key_array() {/*{{{*/
+	function get_primary_key_array( $full = false ) {/*{{{*/
 
 		$ret = array();
 
 		if ( count( $this->primary_key ) )  
 			foreach( array_keys( $this->primary_key ) as $name ) 
+				if ( $full )
+					$ret[] = "{$this->table_name}.$name";
+				else 
 					$ret[] = (string) $name;
 		return $ret;
 
