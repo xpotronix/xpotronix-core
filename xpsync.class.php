@@ -17,10 +17,13 @@ class xpsync {
 	var $query;
 	var $where;
 	var $order;
+	var $sync;
 
 	function __construct( $obj ) {/*{{{*/
 
 		$this->obj = $obj;
+		$this->sync = $obj->metadata->sync;
+
 		return $this;
 	}/*}}}*/
 
@@ -46,7 +49,7 @@ class xpsync {
 
 		global $xpdoc;
 
-		if ( ! ( $source_table = $this->obj->metadata->sync['from'] ) ) {
+		if ( ! ( $source_table = (string) $this->sync['from'] ) ) {
 
 			M()->user( "la clase $source_table no tiene definida la directiva de <sync/> para realizar la sincronizacion." );
 			return;
@@ -104,7 +107,7 @@ class xpsync {
 
 		set_time_limit(0);
 
-		if ( ! ( $source_table = $this->obj->metadata->sync['from'] ) ) {
+		if ( ! ( $source_table = (string) $this->sync['from'] ) ) {
 
 			M()->user( "la clase $source_table no tiene definida la directiva de <sync/> para realizar la sincronizacion." );
 			return;
@@ -128,13 +131,13 @@ class xpsync {
 		$this->obj->set_flag( 'check', false );
 		$this->obj->set_flag( 'validate', false );
 
-		if ( $page_rows = (int) $this->obj->metadata->sync['page_rows'] ) {
+		if ( $page_rows = (int) $this->sync['page_rows'] ) {
 
 			M()->info( "page_rows: $page_rows" );
 			$s->feat->page_rows = $page_rows;
 		}
 
-		if ( $limit = (int) $this->obj->metadata->sync['limit'] ) {
+		if ( $limit = (int) $this->sync['limit'] ) {
 
 			M()->info( "limit: $limit" );
 		}
