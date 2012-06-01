@@ -13,7 +13,7 @@
 <feat>
         <!-- nombre de la aplicacion -->
         <application></application>
-        <generator>xgenerator</generator>
+        <generator>xpotronix2</generator>
 
 	<!-- datos de la organizacion -->
 	<company_name>xpotronix Corporation</company_name>
