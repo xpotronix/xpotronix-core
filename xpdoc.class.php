@@ -86,7 +86,7 @@ class xpdoc extends xp {
 	var $perms;
 	var $roles = array();
 
-	var $obj_collection;
+	var $obj_collection = array();
 
 	// construct
 
@@ -187,13 +187,17 @@ class xpdoc extends xp {
 
 		M()->info('***** Proceso xpotronix iniciado con xpid: *****'. $this->xpid( $this->get_hash() ) );
 
-		$this->init_db_instances();
+		if ( ! $this->init_db_instances() )
+			return false;
+
 		$this->load_session();
 		$this->load_acl();
 
 		M()->info('OK');
 
 		is_object( $this->session ) and $this->session->configure();
+
+		return true;
 
 	}/*}}}*/ 
 
@@ -258,8 +262,13 @@ class xpdoc extends xp {
 
 			M()->info( $function = $instance->persistent ? 'PConnect' : 'Connect' );
 
-			$this->db_instance( $in )->$function( $host, $user, $password, $database ) 
-				or M()->fatal( "No puedo conectarme con la base de datos {$database}" ) ;
+			if ( ! $this->db_instance( $in )->$function( $host, $user, $password, $database ) ) {
+
+				M()->error( "No puedo conectarme con la base de datos {$database}" ) ;
+				return false;
+
+			}
+			 
 
 			$instance->fetch_mode and $this->db_instance( $in )->SetFetchMode( (string) $instance->fetch_mode ) and M()->info( "fetch_mode: $instance->fetch_mode" );
 
@@ -268,7 +277,7 @@ class xpdoc extends xp {
 			$instance->encoding and $this->db_instance( $in )->__encoding = (string) $instance->encoding and M()->info( "encoding: $instance->encoding" );
 		}
 
-		M()->info('OK');
+		return true;
 
 	}/*}}}*/
 

@@ -1122,7 +1122,7 @@ class xpDataObject extends xp {
 
 				$sql_code = array( $this->sql->prepare() );
 
-				if ( true or $this->feat->full_sql_log )
+				if ( $this->feat->full_sql_log )
 					M()->debug( $sql_code[0] );
 				else 
 					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );

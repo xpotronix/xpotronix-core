@@ -30,25 +30,26 @@ $t_start = microtime_float();
 
 include_once "xpdoc.class.php";
 
-
-$xpdoc = new xpdoc;
-$xpdoc->init();
-
 M()->stats( '*** inicio de ejecucion de xpotronix ***' ); 
 M()->mem_stats();
 
-$xpdoc->params_process();
+$xpdoc = new xpdoc;
 
-if ( file_exists( 'common.php' ) ) {
-	include_once( 'common.php' );
-}
+if ( $xpdoc->init() ) {
 
-$xpdoc->load_model();
-$xpdoc->set_view();
-$xpdoc->action_do();
+	$xpdoc->params_process();
+
+	file_exists( $f = 'common.php' ) and
+		include_once( $f );
+
+	$xpdoc->load_model();
+	$xpdoc->set_view();
+	$xpdoc->action_do();
+} else 
+	$xpdoc->set_xdoc( $xpdoc->get_messages() );
+
 $xpdoc->transform();
 $xpdoc->output();
-
 $xpdoc->close();
 
 M()->mem_stats();
