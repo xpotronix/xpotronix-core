@@ -667,6 +667,11 @@ class xpdoc extends xp {
 		return $this->_content_type = $type;
 	}/*}}}*/
 
+	function get_view() {/*{{{*/
+
+		return $this->view;
+	}/*}}}*/
+
 	function set_view( $view = null ) {/*{{{*/
 
 		$this->headers_do(); // esta funcion esta pegada aca nomas, tiene que estar en sincronia con el set_view: por ahora como default
@@ -697,15 +702,14 @@ class xpdoc extends xp {
 			$this->view = $this->feat->default_view;
 		}
 
-		M()->info( "vista {$this->view}" );
-
 		foreach ( $this->views->xpath( "//view[@name='*']" ) as $view ) 
 			$this->content_type( (string) $view['type'] );
 
 		foreach ( $this->views->xpath( "//view[@name='{$this->view}']" ) as $view ) 
 			$this->content_type( (string) $view['type'] );
 
-		M()->info( "OK" );
+		M()->info( "vista {$this->view}, content_type: {$this->content_type}, OK" );
+		M()->line( 1 );
 
 	}/*}}}*/
 
@@ -763,7 +767,7 @@ class xpdoc extends xp {
 
 
 		// default view
-		$this->set_view( ( CLI ) ? 'text' : 'xml' );
+		$this->get_view() or $this->set_view( ( CLI ) ? 'text' : 'xml' );
 
 		$obj = $this->get_instance( $this->module );
 		$instances = $this->instances;
