@@ -14,7 +14,7 @@
 	<table name="*">
 
 		<!-- store y delete para todos los objetos -->
-		<process name="store" translate="Guardar">
+		<process name="store" translate="Guardar" view="xml">
 			<acl action="permit" role="*"/>
 			<!-- esqueleto completo de los comandos disponibles -->
 			<command name="start_db_transaction" for="process_start"/>
@@ -26,7 +26,7 @@
 			<!-- <command name="" for="container_stop"/> -->
 			<command name="complete_db_transaction" for="process_stop"/>
 		</process>
-		<process name="delete" translate="Borrar">
+		<process name="delete" translate="Borrar" view="xml">
 			<acl action="permit" role="*"/>
 			<command name="start_db_transaction" for="process_start"/>
 			<command name="init_xml_obj" for="obj_start"/>
