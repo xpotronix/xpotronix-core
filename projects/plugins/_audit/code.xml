@@ -110,7 +110,7 @@
 
 			$this->transac_data = (CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
 
-			$this->messages = $xpdoc->get_messages( true )->messages->asXML();
+			$this->messages = $xpdoc->get_messages( true )->asXML();
 
 			/*
 
