@@ -1211,9 +1211,9 @@ class xpdoc extends xp {
 
 		$tmp_file = null;
 
-		if ( $view != null ) 
+		$view and $this->set_view( $view );
 
-			$this->set_view( $view );
+		$this->get_view() or $this->set_view( 'xml' );
 
 		if ( $this->config->app_cache_time and $cache ) {
 
