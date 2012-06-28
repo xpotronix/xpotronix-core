@@ -204,6 +204,7 @@ class xpDataProcess extends xp {
 		global $xpdoc;
 
 		if ( @$process_xml['view'] ) $xpdoc->set_view( (string) $process_xml['view'] );
+		else $xpdoc->set_view( 'xml' );
 
 	}/*}}}*/
 
