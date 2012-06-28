@@ -1215,6 +1215,8 @@ class xpdoc extends xp {
 
 		$this->get_view() or $this->set_view( 'xml' );
 
+		M()->info( 'transform view: ' . $this->get_view() );
+
 		if ( $this->config->app_cache_time and $cache ) {
 
 			if ( ! is_object( $this->cache ) ) 

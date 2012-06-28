@@ -11,5 +11,6 @@
 -->
 
 <config>
-	<audit_ignore_proc>/(State|repost)/s</audit_ignore_proc>
+	<audit_ignore_proc>/(State)/s</audit_ignore_proc>
+	<!-- <audit_ignore_proc>/(State|repost)/s</audit_ignore_proc> -->
 </config>

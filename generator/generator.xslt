@@ -224,6 +224,12 @@
 
 		-->
 
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="processes_collection.xml">
+			<xsl:sequence select="$processes_collection"/>
+			</xsl:result-document>
+
+
+
 		<!-- <xsl:message terminate="yes"><xsl:sequence select="$database_collection"/></xsl:message> -->
 		<!-- <xsl:message terminate="yes">code: <xsl:value-of select="count($code_collection//code)"/></xsl:message> -->
 		<!-- <xsl:message terminate="yes"><xsl:sequence select="$queries_collection"/></xsl:message> -->
