@@ -1596,8 +1596,11 @@ class xpDataObject extends xp {
 
 		if ( !$this->sql->Exec() ) {
 
-			if ( $this->ErrorNo() == 1062 )
+			if ( $this->ErrorNo() == 1062 ) {
+
 				M()->user( 'Datos duplicados en el ingreso, no se puede guardar' );
+				M()->user( sprintf( "Error al actualizar (%d): %s en %s", $this->ErrorNo(), $this->ErrorMsg(), $this->sql->prepare())) ;
+			}
 			else
 				M()->user( sprintf( "Error al actualizar (%d): %s en %s", $this->ErrorNo(), $this->ErrorMsg(), $this->sql->prepare())) ;
 
@@ -1750,6 +1753,9 @@ class xpDataObject extends xp {
 		$xc = new SimpleXMLElement( "<$e/>" ); 
 		$xc['name'] = $this->class_name;
 
+
+		if ( ! $this->has_role( 'kiwi' ) ) /* DEBUG: solo por hoy ... */
+
 		if ( is_object( $xpdoc->perms ) and ( ! ( $this->can('list') and $this->can('view') ) ) ) {
 
 			M()->info( "acceso denegado para el objeto {$this->class_name}" );
@@ -1901,7 +1907,7 @@ class xpDataObject extends xp {
 
 			} catch (Exception $e)  { 
 
-				M()->fatal( "No puedo serializar el objeto {$this->class_name} con la clave [". $this->pack_primary_key(). "] en el atributo [$attr_name] con el valor [$value]. Motivo: ". $e->getMessage() );
+				M()->warn( "No puedo serializar el objeto {$this->class_name} con la clave [". $this->pack_primary_key(). "] en el atributo [$attr_name] con el valor [$value]. Motivo: ". $e->getMessage() );
 			}
 		}
 
