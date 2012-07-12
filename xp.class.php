@@ -60,6 +60,9 @@ class xp {
 			$this->debug_backtrace();
 		}
 
+		if ( ! $this->__xml_data ) /* DEBUG: no esta inicializado todavia el objeto? */
+			return null;
+
 		$tmp = $this->__xml_data->$var_name;
 
 		$tmp_type = $tmp['type'];
