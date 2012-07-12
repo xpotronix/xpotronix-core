@@ -975,6 +975,8 @@ class xpDataObject extends xp {
 
 	function set_order( $order = null ) {/*{{{*/
 
+		M()->info( 'order: '. serialize( $order ) );
+
 		global $xpdoc;
 
 		is_array( $order ) or @$order = $xpdoc->order[$this->class_name]; 
