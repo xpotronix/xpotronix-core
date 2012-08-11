@@ -25,7 +25,7 @@
 				});
 			}
 		}}]]></config></panel>
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>region:'center',labelWidth:70, defaults:{width: '150px'},
+		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
 		listeners: { render: { fn: function(){
 
 			this.imagen_cambia_imagen = function() {
@@ -37,7 +37,8 @@
 				if ( r = this.cr() ) {
 
                 			img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
-					img.dom.border 	= 0;
+					img.dom.style 	= "border:2px solid black;"
+					// img.dom.border 	= 0;
 					img.dom.alt 	= r.data.imagen_ID_label;
                 
 				} else img.dom.src = '/ext/resources/images/default/s.gif';
@@ -81,20 +82,22 @@
                         }]]></event></listeners>
 			<renderer><![CDATA['<img align="center" src="'+ App.feat.uri_thumb + '/' + 
 					record.data.dirname + '/' + record.data.basename +
-					'&wp=32&hl=32&ar=x" border="0" title="" />']]></renderer>
+					'&wp=32&hl=32&ar=x" style = "border:1px solid black;" title="" />']]></renderer>
 		</field>
-		<field name="imagen" translate="Descripción"/>
-		<field name="usuario_ID" translate="usuario" match_type="exact"/>
-		<field name="dirname" display="hide"/>
-		<field name="basename" display="hide"/>
-		<field name="filename" display="hide"/>
-		<field name="extension" display="hide"/>
-		<field name="encontrada" display="hide"/>
-		<field name="cache" display="hide"/>
-		<field name="filesize" display="hide"/>
-		<field name="fecha"/>
-		<field name="exim_info" display="hide"/>
-		<field name="descripcion" display="hide"/>
+
+		<field name="usuario_ID" translate="Empleado" match_type="exact" eh="Legajo"/>
+		<field name="filename" translate="Foja"/>
+		<field name="fecha" translate="Fecha"/>
+		<field name="descripcion" translate="Descripción"/>
+
+		<field name="imagen" translate="Imagen" display="hide"/>
+		<field name="dirname" translate="Directorio" display="hide"/>
+		<field name="basename" translate="Nombre Archivo" display="hide"/>
+		<field name="extension" translate="Extensión" display="hide"/>
+		<field name="encontrada" translate="Encontrada?" display="hide"/>
+		<field name="cache" translate="En Caché?" display="hide"/>
+		<field name="filesize" translate="Tamaño" display="hide"/>
+		<field name="exim_info" translate="Info EXIF" display="hide"/>
 	</table><!--}}}-->
 
 	<table name="scan_imagen" translate="Escanear Imágenes"><!--{{{-->
