@@ -29,7 +29,7 @@
 			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
 			</items>
 			</cmp>
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>layout:'fit', show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
+		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
 		listeners: { render: { fn: function(){
 
 			this.imagen_cambia_imagen = function() {
