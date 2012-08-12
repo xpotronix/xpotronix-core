@@ -15,9 +15,10 @@
 <table name="imagen"><!--{{{-->
 		<layout>
 
-		<cmp type="Panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border'</config>
+		<cmp type="Panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border',split:true</config>
 		<items>
-			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config><![CDATA[region: 'west', width:200,collapseMode:'mini',split:true,minWidth:50, listeners:{ render: { fn: function(){
+			<cmp type="Panel"><config>region: 'west',layout:'border', width: 250, split:true</config><items>
+			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config><![CDATA[region: 'center', width:200,collapseMode:'mini',split:true,minWidth:50, listeners:{ render: { fn: function(){
 
 				this.dv.on('dblclick', function() { 
 
@@ -25,7 +26,10 @@
 				});
 			}
 		}}]]></config></panel>
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
+			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
+			</items>
+			</cmp>
+		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>layout:'fit', show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
 		listeners: { render: { fn: function(){
 
 			this.imagen_cambia_imagen = function() {
@@ -38,7 +42,7 @@
 
                 			img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
 					img.dom.style 	= "border:2px solid black;"
-					// img.dom.border 	= 0;
+					/* img.dom.border 	= 0; */
 					img.dom.alt 	= r.data.imagen_ID_label;
                 
 				} else img.dom.src = '/ext/resources/images/default/s.gif';
@@ -49,7 +53,7 @@
 			this.on('afterlayout', this.imagen_cambia_imagen, this.store );
 
 		}}
-	}</config>
+		}</config>
 			<items>
 				<cmp><config>layout:'column',border:false</config>
 				<items>
@@ -65,11 +69,10 @@
 				</items>
 				</cmp>
 			</items>
-			</panel>
-			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
+		</panel>
 		</items>
 		</cmp>
-		</layout>
+	</layout>
 
 		<feat>
 			<hide_pk type="bool">false</hide_pk>
