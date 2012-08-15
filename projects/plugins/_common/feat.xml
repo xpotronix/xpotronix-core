@@ -24,7 +24,7 @@
 	<!-- sitio -->
 	<page_title>xpotronix Application</page_title>
 	<site_domain>red.justamente.net</site_domain>
-	<base_url>http://xpotronix.com/xpotronix/</base_url>
+	<!-- <base_url>http://xpotronix.com/xpotronix/</base_url> -->
 	<crypt_url type="bool">false</crypt_url>
         <login_window type="bool">true</login_window>
 	<menu_bar type="bool">true</menu_bar>
