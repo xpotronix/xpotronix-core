@@ -303,9 +303,9 @@ class dbdump extends xp {
 					foreach( $field as $key => $data )
 
 						if ( is_array( $data ) )
-							$xfield[$key] = utf8_encode( implode( ',', $data ) );
+							$xfield[$key] = implode( ',', $data );
 						else
-							$xfield[$key] = utf8_encode( $data );
+							$xfield[$key] = $data;
 				}
 			}
 
