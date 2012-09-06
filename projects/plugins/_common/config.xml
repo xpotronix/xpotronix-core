@@ -34,6 +34,6 @@
 	<log_dir>/tmp/xpotronix/</log_dir>
 
 	<app_cache_time type="int">0</app_cache_time>
-	<gacl_cache_time type="int">600</gacl_cache_time>
+	<!-- <gacl_cache_time type="int">600</gacl_cache_time> -->
 
 </config>
