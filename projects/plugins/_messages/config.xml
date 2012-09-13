@@ -26,7 +26,7 @@
         <mailer_smtp_debug type="int">0</mailer_smtp_debug>
         <mailer_smtp_auth type="bool">false</mailer_smtp_auth>
         <mailer_smtp_port>25</mailer_smtp_port>
-        <mailer_host>mail.justamente.net</mailer_host>
+        <mailer_host>localhost</mailer_host>
         <mailer_username></mailer_username>
         <mailer_password></mailer_password>
  
