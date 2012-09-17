@@ -792,16 +792,29 @@ class xpdoc extends xp {
 
 		$arr_role = is_array( $arr_role[0] ) ? $arr_role[0]: $arr_role;
 
+		M()->debug( serialize( $arr_role ) );
+
 		if ( is_array( $this->roles ) ) 
 
 			foreach( $this->roles as $user_role )
 
 				foreach( $arr_role as $role )
 
-					if ( $user_role['value'] == trim( $role ) )
+					if ( strpos( $role, ',' ) === false )
 
-					return true;
+						if ( $user_role['value'] == trim( $role ) )
 
+							return true;
+
+						else 
+							foreach( explode( ',', $role ) as $r ) 
+
+								if ( $user_role['value'] == trim( $r ) )
+
+									return true;
+
+								else
+									return false;
 		return false;
 
 	}/*}}}*/
