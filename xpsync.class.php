@@ -169,7 +169,8 @@ class xpsync {
 
  	function sync_obj( $so ) {/*{{{*/
 
-		$this->obj->load( $key = $so->get_primary_key() );
+		$this->obj->load( $key = $so->get_primary_key() ) or $this->obj->fill_primary_key();
+
 		M()->info( "objeto: {$this->obj->class_name} clave: ". serialize( $key ) );
 
 		if ( ! count( $so->get_primary_key() ) ) {
@@ -209,7 +210,9 @@ class xpsync {
 		// $this->obj->debug_object(); exit;
 
 		// $this->obj->replace( 'DELAYED' );
+
 		$this->obj->store();
+
 	}/*}}}*/
 
 }
