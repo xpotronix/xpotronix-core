@@ -65,13 +65,13 @@ class xpDataProcess extends xp {
 		else
 			$this->commands = $commands;
 
-		$this->call_command( 'process_start', $container, $obj );
+		$this->call_commands( 'process_start', $container, $obj );
 
 		if ( $this->halt ) return;	
 
 		$container and $this->recurse( $container ) ;
 
-		return $this->call_command( 'process_stop', $container, $obj );
+		return $this->call_commands( 'process_stop', $container, $obj );
 
  	}/*}}}*/
 
@@ -88,7 +88,7 @@ class xpDataProcess extends xp {
 
 		M()->info( 'container name: '. $container['name'] );
 
-		$this->call_command( 'container_start', $container ); 
+		$this->call_commands( 'container_start', $container ); 
 
 		if ( $this->halt ) return;	
 
@@ -106,7 +106,7 @@ class xpDataProcess extends xp {
 			}
 
 
-			$this->call_command( 'obj_start', $obj_xml, $obj );
+			$this->call_commands( 'obj_start', $obj_xml, $obj );
 			if ( $this->halt ) return;	
 
 			// por cada atributo (!= container)
@@ -118,51 +118,58 @@ class xpDataProcess extends xp {
 					$attr = $obj->get_attr( $attr_xml->getName()) ;
 					if ( !$attr ) continue;
 
-					$this->call_command( 'attr_each', $attr_xml, $attr ); 
+					$this->call_commands( 'attr_each', $attr_xml, $attr ); 
 					if ( $this->halt ) return;
 				}
 
-			$this->call_command( 'obj_stop_down', $obj_xml, $obj );
+			$this->call_commands( 'obj_stop_down', $obj_xml, $obj );
 			if ( $this->halt ) return;
 
 			foreach( $obj_xml->xpath("*[name()='$ct']") as $child )
 				
 				$this->recurse( $child ) ;
 
-			$this->call_command( 'obj_stop_up', $obj_xml, $obj );
+			$this->call_commands( 'obj_stop_up', $obj_xml, $obj );
 			if ( $this->halt ) return;
 		}
 
-		$this->call_command( 'container_stop', $container );
+		$this->call_commands( 'container_stop', $container );
 
 	}/*}}}*/
 
-	function call_command( $command, $xml, $data = NULL ) {/*{{{*/
-	
+	function call_commands( $section, $xml, $data = NULL ) {/*{{{*/
+
 		// DEBUG: deberia existir la posibilidad de pasar un comando a cada objeto
 		// por ahora es el mismo comando para todos
 		// aplica a procesos uniformes (ej. store) o a procesos planos (sin recursividad)
 
 		// $data puede ser un obj, attr o cualquier otro objeto que aplique
 
-		if ( !@$method = $this->commands[$command] ) return;
-		
 		if ( !$data ) $data = $this;
 
-		if ( is_object( $xml ) ) 
+		M()->debug( "section: $section" );
 
-			M()->info( "node name: ". $xml->getName() );
+		// if ( !@$method = $this->commands[$section] ) return;
 
-		if ( method_exists( $data, $method ) ) {
+		foreach( $this->commands[$section] as $method ) {
+
+			if ( is_object( $xml ) ) 
+
+				M()->info( "node name: ". $xml->getName() );
+
+			if ( method_exists( $data, $method ) ) {
 			
-			M()->info( "$command: ". get_class($data) . '::method '. $method );
-			$data->$method( $xml );
+				M()->info( "$method: ". get_class($data) . '::method '. $method );
+				$data->$method( $xml );
 		
-		} else {
-			M()->error( "no encuentro el metodo ". get_class($data) . "::$method para el comando $command" );
-			// $this->debug_backtrace(); exit;
-			return NULL;
+			} else {
+				M()->error( "no encuentro el metodo ". get_class($data) . "::$method para la seccion $section" );
+				// $this->debug_backtrace(); exit;
+				return NULL;
+			}
+
 		}
+
 	}/*}}}*/
 
 	function get_processes() {/*{{{*/
@@ -186,14 +193,9 @@ class xpDataProcess extends xp {
 
 			$this->set_view( $processes_xml );
 
-			if ( $count = count( $this->commands[$process_name] = $this->get_commands( $processes_xml ) ) )
-				M()->info( "econtre $count comandos validos para ejecutar" );
-			else
-				M()->error( 'no econtre comandos validos para ejecutar' );
+			$this->commands[$process_name] = $this->get_commands( $processes_xml );
 
-			M()->info( 'fin del proceso '. $process_name ) ;
-
-
+			M()->info( 'comandos para el proceso $process_name: '. serialize( $this->commands[$process_name] ) );
 		}
 
 		return $count;
@@ -259,7 +261,7 @@ class xpDataProcess extends xp {
 					} else { 
 
 						M()->info( 'encontre el comando '. (string) $command_xml['name']. ' para la seccion '. $command_xml['for'] ) ;
-						$commands[$section] = $method;
+						$commands[$section][] = $method;
 					}
 				}
 
