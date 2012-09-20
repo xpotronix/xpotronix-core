@@ -518,7 +518,7 @@ class xpDataObject extends xp {
 		if ( !$name )
 			return null;
 
-		if ( isset( $this->attr[(string)$name] ) ) 
+		else if ( isset( $this->attr[(string)$name] ) ) 
 			return $this->attr[$name];
 
 		else if ( array_key_exists( $name, $this->aliases ) )
@@ -1385,13 +1385,15 @@ class xpDataObject extends xp {
 
 		} else { 
 
-			$this->transac_status = $this->loaded ? $this->update() : $this->insert();
+			$this->transac_status = ( $this->loaded ) ? $this->update() : $this->insert();
 
 			$this->loaded = true;
 			$this->set_primary_key();
 
 			$this->post_check();
 		}
+
+		$this->feat->load_after_store and $this->load();
 
 		return $this->transac_status;
 	}/*}}}*/
@@ -1723,6 +1725,26 @@ class xpDataObject extends xp {
 		foreach( $this->attr as $key => $attr ) $attr->modified = $value;
 
 	}/*}}}*/
+
+	function set_props( $prop, $value, $attr_names = null ) {/*{{{*/
+
+		if ( $attr_names ) {
+
+			$attrs = split( ',', $attr_names );
+
+			foreach( $attrs as $key => $attr ) 
+				$this->get_attr( trim( $key ) )->$prop = $value;
+
+		} else {
+
+			foreach( $this->attr as $key => $attr ) 
+			$attr->$prop = $value;
+		}
+
+		return $this;
+
+	}/*}}}*/
+
 
 	function get_modified_attrs() {/*{{{*/
 
