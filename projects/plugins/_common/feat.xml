@@ -70,6 +70,7 @@
 	<sql_page_model>page</sql_page_model>
 	<page_rows type="int">50</page_rows>
 	<query_action>data</query_action>
+	<load_after_store type="bool">false</load_after_store>
 	<!-- <query_action>datab</query_action> -->
 	<remote_sort type="bool">true</remote_sort>
 	<include_dataset type="int">0</include_dataset>
