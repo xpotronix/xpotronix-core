@@ -502,7 +502,7 @@ class xpacl extends gacl_api {
 		}
 
 		if (empty($id)) {
-			M()->error("ID ($id) is empty, this is required");
+			M()->warn("ID ($id) is empty, this is required");
 			return FALSE;
 		}
 
