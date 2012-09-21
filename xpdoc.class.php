@@ -919,7 +919,9 @@ class xpdoc extends xp {
 
 		$obj_name = $this->req_object ? $this->req_object : $this->module;
 
-		if ( ! ( $obj = $this->get_instance( $obj_name ) ) ) return null;
+		$instance_fn = ( $obj_name == 'users' or $obj_name == 'sessions' ) ? 'instance' : 'get_instance';
+
+		if ( ! ( $obj = $this->$instance_fn( $obj_name ) ) ) return null;
 
 		if ( $this->query ) $obj->add_query( $this->query );
 
