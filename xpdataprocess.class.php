@@ -149,7 +149,7 @@ class xpDataProcess extends xp {
 
 		M()->debug( "section: $section" );
 
-		// if ( !@$method = $this->commands[$section] ) return;
+		if ( !@$this->commands[$section] ) return;
 
 		foreach( $this->commands[$section] as $method ) {
 
