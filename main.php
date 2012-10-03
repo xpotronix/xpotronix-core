@@ -39,11 +39,11 @@ $xpdoc->params_process();
 
 if ( $xpdoc->init() ) {
 
+	$xpdoc->load_model();
 
 	file_exists( $f = 'common.php' ) and
 		include_once( $f );
 
-	$xpdoc->load_model();
 	$xpdoc->set_view();
 	$xpdoc->action_do();
 } else 
