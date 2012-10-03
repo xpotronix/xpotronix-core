@@ -264,7 +264,7 @@ class xpdoc extends xp {
 
 			if ( ! $this->db_instance( $in )->$function( $host, $user, $password, $database ) ) {
 
-				M()->error( "No puedo conectarme con la base de datos {$database}" ) ;
+				M()->user( "No puedo conectarme con la base de datos {$database}" ) ;
 				return false;
 
 			}
@@ -800,21 +800,10 @@ class xpdoc extends xp {
 
 				foreach( $arr_role as $role )
 
-					if ( strpos( $role, ',' ) === false )
+					if ( $user_role['value'] == trim( $role ) )
 
-						if ( $user_role['value'] == trim( $role ) )
+					return true;
 
-							return true;
-
-						else 
-							foreach( explode( ',', $role ) as $r ) 
-
-								if ( $user_role['value'] == trim( $r ) )
-
-									return true;
-
-								else
-									return false;
 		return false;
 
 	}/*}}}*/
