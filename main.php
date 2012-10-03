@@ -35,9 +35,10 @@ M()->mem_stats();
 
 $xpdoc = new xpdoc;
 
+$xpdoc->params_process();
+
 if ( $xpdoc->init() ) {
 
-	$xpdoc->params_process();
 
 	file_exists( $f = 'common.php' ) and
 		include_once( $f );
