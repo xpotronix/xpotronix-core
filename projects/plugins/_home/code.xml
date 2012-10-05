@@ -122,7 +122,7 @@ Ext.onReady(function() {
 		load: { fn:function( node ) {
 
 
-			if ( App.user_node == undefined && App.user.user_username && App.user.user_username!= 'anon' ) {
+			if ( App.user_node == undefined && App.user.user_username && ! App.user._anon ) {
 
 				App.user_node = this.getNodeById('user');
 				App.user_node && App.user_node.setText( App.user_node.text + ' <b>' + App.user.user_username + '</b>' );
