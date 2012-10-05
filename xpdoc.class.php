@@ -367,6 +367,7 @@ class xpdoc extends xp {
 		}
 		
 		$this->user->load( $this->session->user_id );
+		$this->user->attr( '_anon' )->set( 'virtual', true )->set( 'type' , 'int' )->set( 'value', $this->user->user_id == $this->config->anonymous_user_id );
 
 		M()->info( 'Cargada Sesion con Usuario ID '. $this->user->user_id );
 		M()->info('OK');
