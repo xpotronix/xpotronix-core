@@ -83,7 +83,7 @@ class xpIterator implements Iterator {
 
 		M()->info();
 		$this->obj->reset();
-	}/*}}}*/
+	}/*}}}*/ 
 
 	function current() {/*{{{*/
 
@@ -98,6 +98,27 @@ class xpIterator implements Iterator {
 		M()->info();
 		return key($this->data); 
 	} /*}}}*/
+
+	function index( $pos = 0 ) {/*{{{*/
+
+		$count = $this->count();
+
+		if ( $pos >= $count ) 
+			return null;
+
+		$this->rewind();
+
+		for ( $i = 0; $i <= $pos; $i++ )
+			$this->next();
+
+		return $this->obj;
+
+	}/*}}}*/
+
+	function rand() {/*{{{*/
+
+		return $this->index( mt_rand(0, $this->count() ) );
+	}/*}}}*/
 
 	function next() {/*{{{*/
 
