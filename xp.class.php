@@ -251,6 +251,89 @@ class xp {
 		}
 	}/*}}}*/
 
+	function fop_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
+
+		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
+
+		try {
+
+			require_once "/usr/share/xpotronix/lib/Java.inc";
+			// java_require( "/usr/share/java/fop.jar;/usr/share/java/xmlgraphics-commons.jar;/usr/share/java/avalon-framework.jar;/usr/share/java/commons-logging.jar" );
+			java_require( "/usr/share/java/" );
+
+			$oXmlSource = new java("javax.xml.transform.stream.StreamSource", $xml_file);
+			$oXslSource = new java("javax.xml.transform.stream.StreamSource", $xsl_file);
+
+			$oResultStringWriter = new java("java.io.StringWriter");
+			$oResultStream = new java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
+
+
+	            	// configure fopFactory as desired
+
+			// org.apache.fop.configuration.Configuration.put("baseDir",appPath);
+
+			$cfopFactory = new JavaClass("org.apache.fop.apps.FopFactory");
+			$fopFactory = $cfopFactory->newInstance();
+
+			$foUserAgent = $fopFactory->newFOUserAgent();
+
+			// Setup output
+
+			$baseDir = new Java( "java.io.File", '/tmp' );
+			$outDir = new Java( "java.io.File", $baseDir, 'fop-out' );
+
+			$outDir->mkdirs();
+
+			$pdffile = new Java( "java.io.File", $outDir, 'test.pdf' );
+
+			$tmp = new Java( "java.io.FileOutputStream", $pdffile );
+			$out = new Java( 'java.io.BufferedOutputStream', $tmp );
+
+
+		} catch (java_ConnectException $e) {
+
+			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
+		}
+
+		try {
+
+
+			// Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);	
+
+			$mimeConstants = new JavaClass( "org.apache.fop.apps.MimeConstants" );
+
+			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
+			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
+
+			$cfactory = new JavaClass( 'javax.xml.transform.TransformerFactory' );
+
+			$factory = $cfactory->newInstance();
+
+			$transformer = $factory->newTransformer( $oXslSource );
+
+			$transformer->setParameter("versionParam", "2.0");
+
+			$res = new Java( 'javax.xml.transform.sax.SAXResult', $fop->getDefaultHandler() );
+
+			$transformer->transform( $oXmlSource, $res );
+
+			$out->close();
+
+			print "hola";
+
+			return java_cast($out->toString(), "string");
+
+		}
+
+			catch(JavaException $e) {
+			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> ". java_cast($e->getCause()->toString(), "string") );
+			return null;
+		}
+	
+
+
+	}/*}}}*/
+
         function get_hash() {/*{{{*/
         
                 return md5(uniqid(rand(), true));
