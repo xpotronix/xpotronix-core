@@ -2538,7 +2538,7 @@ function main_sql () {/*{{{*/
 
 	// transaccion
 
-	function start_db_transaction( $param ) {/*{{{*/
+	function start_db_transaction( $param = null ) {/*{{{*/
 
 		
 		M()->mem_stats();
@@ -2547,13 +2547,23 @@ function main_sql () {/*{{{*/
 	
 	}/*}}}*/
 
-	function complete_db_transaction( $param ) {/*{{{*/
+	function complete_db_transaction( $param = null ) {/*{{{*/
 	
 		M()->mem_stats();
 		M()->info( 'completando transacciones de base de datos' );
 		$this->db->CompleteTrans();
 
 	}/*}}}*/
+
+	function commit_db_transaction( $param = null ) {/*{{{*/
+	
+		M()->mem_stats();
+		M()->info( 'completando transacciones de base de datos' );
+		$this->db->CommitTrans( true );
+
+	}/*}}}*/
+
+
 
 	function ErrorNo() {/*{{{*/
 		return $this->db->ErrorNo();
