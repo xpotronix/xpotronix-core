@@ -258,8 +258,8 @@ class xp {
 		try {
 
 			require_once "/usr/share/xpotronix/lib/Java.inc";
-			// java_require( "/usr/share/java/fop.jar;/usr/share/java/xmlgraphics-commons.jar;/usr/share/java/avalon-framework.jar;/usr/share/java/commons-logging.jar" );
-			java_require( "/usr/share/java/" );
+			java_require( "/usr/share/java/fop.jar;/usr/share/java/xmlgraphics-commons.jar;/usr/share/java/avalon-framework.jar;/usr/share/java/commons-logging.jar;/usr/share/java/commons-io.jar;" );
+			// java_require( "/usr/share/java/" );
 
 			$oXmlSource = new java("javax.xml.transform.stream.StreamSource", $xml_file);
 			$oXslSource = new java("javax.xml.transform.stream.StreamSource", $xsl_file);

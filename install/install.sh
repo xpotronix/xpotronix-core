@@ -39,6 +39,10 @@ apt-get install php5-gd php5-imagick
 #apt-get install php5-ldap
 apt-get install apg
 
+# fop
+apt-get install fop
+apt-get install libservlet2.4-java
+
 mkdir -p $XPATH
 
 mkdir -p /etc/xpotronix
