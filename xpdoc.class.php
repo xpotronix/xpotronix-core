@@ -1319,6 +1319,26 @@ class xpdoc extends xp {
 
 			switch ( $transform_type ) {
 
+				case 'fo':
+
+					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
+					$this->fop_transform( $xml_file, $view_file, $params );
+					$this->content_type( 'application/pdf' );
+
+					if ( $handle = fopen( '/tmp/fop-out/test.pdf', 'r' ) ) {
+
+						$this->output_buffer = fread( $handle, filesize(  '/tmp/fop-out/test.pdf' ) );
+						fclose( $handle);
+					}
+
+					if ( $this->output_buffer === null ) {
+
+						$this->content_type() or $this->content_type( 'text/html' );
+						$this->output_buffer = $this->get_messages()->asXML(); 
+					}
+
+				break;
+
 				case 'bridge':
 
 					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
