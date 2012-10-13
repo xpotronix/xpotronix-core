@@ -91,7 +91,7 @@ class xpIterator implements Iterator {
 		$this->bind( current( $this->data ) );
 		return $this->obj;
 
-	} /*}}}*/
+	} /*}}}*/ 
 
 	function key() {/*{{{*/
 
@@ -117,7 +117,12 @@ class xpIterator implements Iterator {
 
 	function rand() {/*{{{*/
 
-		return $this->index( mt_rand(0, $this->count() -1 ) );
+		$count = $this->count();
+
+		if ( $count == 0 ) return null;
+		else if ( $count == 1 ) return $this->current();
+		else return $this->index( mt_rand(0, $this->count() -1 ) );
+
 	}/*}}}*/
 
 	function next() {/*{{{*/

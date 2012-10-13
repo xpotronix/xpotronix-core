@@ -334,9 +334,9 @@ class xp {
 
 	}/*}}}*/
 
-        function get_hash() {/*{{{*/
-        
-                return md5(uniqid(rand(), true));
+        function get_hash( $seed = null ) {/*{{{*/
+
+                return md5(uniqid(rand().$seed, true));
         
         }/*}}}*/
 
