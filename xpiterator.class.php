@@ -117,7 +117,7 @@ class xpIterator implements Iterator {
 
 	function rand() {/*{{{*/
 
-		return $this->index( mt_rand(0, $this->count() ) );
+		return $this->index( mt_rand(0, $this->count() -1 ) );
 	}/*}}}*/
 
 	function next() {/*{{{*/
