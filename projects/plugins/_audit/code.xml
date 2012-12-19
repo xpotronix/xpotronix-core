@@ -17,7 +17,7 @@
 
 	function main_sql() {/*{{{*/
 
-		if ( $this->has_role( 'admin' ) or $this->has_role( 'kiwi' ) )
+		if ( $this->has_role( 'admin' ) )
 			return;
 		else
 			$this->sql->addWhere('1=0');
