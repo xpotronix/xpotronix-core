@@ -1778,8 +1778,6 @@ class xpDataObject extends xp {
 		$xc['name'] = $this->class_name;
 
 
-		if ( ! $this->has_role( 'kiwi' ) ) /* DEBUG: solo por hoy ... */
-
 		if ( is_object( $xpdoc->perms ) and ( ! ( $this->can('list') and $this->can('view') ) ) ) {
 
 			M()->info( "acceso denegado para el objeto {$this->class_name}" );
