@@ -15,7 +15,7 @@
 		<host>mysql-server</host>
 		<database>mydns</database>
 		<user>root</user>
-		<password>mephalmdg</password>
+		<password></password>
                 <implementation>mysqli</implementation>
 	</db_instance>
 </config>
