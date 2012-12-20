@@ -663,7 +663,6 @@ class xpdoc extends xp {
 		if ( $encoding or ( $encoding = (string) $this->feat->encoding ) ) $type .= ";$encoding";
 
 		M()->info( "content_type: $type" );
-		M()->line( 1 );
 
 		return $this->_content_type = $type;
 	}/*}}}*/
@@ -704,13 +703,13 @@ class xpdoc extends xp {
 		}
 
 		foreach ( $this->views->xpath( "//view[@name='*']" ) as $view ) 
-			$this->content_type( (string) $view['type'] );
+			$ct = $this->content_type( (string) $view['type'] );
 
 		foreach ( $this->views->xpath( "//view[@name='{$this->view}']" ) as $view ) 
-			$this->content_type( (string) $view['type'] );
+			$ct = $this->content_type( (string) $view['type'] );
 
-		M()->info( "vista {$this->view}, content_type: {$this->content_type}, OK" );
-		M()->line( 1 );
+		M()->info( "vista {$this->view}, content_type: $ct, OK" );
+		M()->line( 0 );
 
 	}/*}}}*/
 
@@ -1450,7 +1449,12 @@ class xpdoc extends xp {
 
 	function output() {/*{{{*/
 
-		header( 'Content-type: '. $this->content_type() );
+		$ct = $this->content_type();
+		$tmp = "Content-type: $ct";
+
+		M()->info( $tmp );
+
+		header( $tmp );
 		// DEBUG: estaria bueno hacerlo mejor por tipo de archivo en el manejo de view ... 
 
 		if ( $this->view == 'csv' ) 
