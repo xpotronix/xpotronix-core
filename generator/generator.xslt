@@ -2,6 +2,7 @@
 <xsl:stylesheet version="2.0" 
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 		xmlns:saxon="http://saxon.sf.net/" 
+		xmlns:xp="http://xpotronix.com/namespace/xpotronix/functions/"
 		extension-element-prefixes="saxon">
 
 	<!-- -->
@@ -10,8 +11,7 @@
 
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
-
-
+	<xsl:param name="xpotronix_path"/>
 	<xsl:param name="project_path"/>
 	<xsl:param name="config_path"/>
 	<xsl:param name="application_path"/>
@@ -57,10 +57,10 @@
 
 	<!-- collections -->
 
-	<xsl:variable name="table_collection"><!--{{{-->
+	 <xsl:variable name="table_collection"><!--{{{-->
 		<xsl:sequence select="document($tables_file)/database/table"/>
 		<xsl:for-each select="document($ui_file)//include">
-			<xsl:for-each select="document(concat($project_path,'/',@path,'/tables.xml'))/database/table">
+			<xsl:for-each select="xp:get_document(@path,'tables.xml')/database/table">
 				<xsl:variable name="name" select="@name"/>
 				<xsl:if test="count(document($tables_file)/database/table[@name=$name])=0">
 					<xsl:sequence select="."/>
@@ -72,7 +72,7 @@
 	<xsl:variable name="database_collection"><!--{{{-->
 		<xsl:sequence select="document($database_file)/database/table"/>
 		<xsl:for-each select="document($ui_file)//include">
-			<xsl:for-each select="document(concat($project_path,'/',@path,'/database.xml'))/database/table">
+			<xsl:for-each select="xp:get_document(@path,'database.xml')/database/table">
 				<xsl:variable name="name" select="@name"/>
 				<xsl:if test="count(document($database_file)/database/table[@name=$name])=0">
 					<xsl:sequence select="."/>
@@ -84,7 +84,7 @@
 	<xsl:variable name="ui_collection"><!--{{{-->
 		<xsl:sequence select="document($ui_file)/database/table"/>
 		<xsl:for-each select="document($ui_file)//include">
-			<xsl:for-each select="document(concat($project_path,'/',@path,'/ui.xml'))/database/table">
+			<xsl:for-each select="xp:get_document(@path,'ui.xml')/database/table">
 				<xsl:variable name="name" select="@name"/>
 				<xsl:if test="count(document($ui_file)/database/table[@name=$name])=0">
 					<xsl:sequence select="."/>
@@ -102,7 +102,7 @@
 				<xsl:sequence select="@name"/>
 				<xsl:sequence select="document($code_file)/database/table[@name=$name]/code"/>
 				<xsl:for-each select="document($ui_file)//include">
-					<xsl:sequence select="document(concat($project_path,'/',@path,'/code.xml'))/database/table[@name=$name]/code"/>
+					<xsl:sequence select="xp:get_document(@path,'/code.xml')/database/table[@name=$name]/code"/>
 				</xsl:for-each>
 			</xsl:copy>
 		</xsl:for-each>
@@ -111,7 +111,7 @@
 	<xsl:variable name="file_collection"><!--{{{-->
 		<xsl:sequence select="document($code_file)//file"/>
 		<xsl:for-each select="document($ui_file)//include">
-			<xsl:sequence select="document(concat($project_path,'/',@path,'/code.xml'))/database/file"/>
+			<xsl:sequence select="xp:get_document(@path,'code.xml')/database/file"/>
 		</xsl:for-each>			
 	</xsl:variable><!--}}}-->
 
@@ -119,13 +119,11 @@
 		<queries>
 		<xsl:sequence select="document($queries_file)//query"/>
 		<xsl:for-each select="document($ui_file)//include">
-			<xsl:variable name="include_path" select="@path"/>
-			<xsl:variable name="include_qf" select="concat($project_path,'/',@path,'/queries.xml')"/>
-			<xsl:for-each select="document($include_qf)//query">
+			<xsl:for-each select="xp:get_document(@path,'queries.xml')//query">
 				<xsl:variable name="query_name" select="@name"/>
 				<xsl:choose>
 					<xsl:when test="document($queries_file)//query[@name=$query_name]">
-						<xsl:message>query <xsl:value-of select="$query_name"/> repetido en <xsl:value-of select="$include_path"/>: No se incluye</xsl:message>
+						<xsl:message>query <xsl:value-of select="$query_name"/> repetido en <xsl:value-of select="@path"/>: No se incluye</xsl:message>
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:sequence select="."/>
@@ -140,7 +138,7 @@
 		<xsl:sequence select="document($processes_file)//table"/>
 		<xsl:variable name="table_name" select="@name"/>
 		<xsl:for-each select="document($ui_file)//include">
-			<xsl:for-each select="document(concat($project_path,'/',@path,'/processes.xml'))/database/table">
+			<xsl:for-each select="xp:get_document(@path,'processes.xml')/database/table">
 				<xsl:if test="count(document($processes_file)//table[@name=$table_name])=0">
 					<xsl:sequence select="."/>
 				</xsl:if>
@@ -153,7 +151,7 @@
 			<xsl:sequence select="document($menu_file)/menu/@*"/>
 			<xsl:sequence select="document($menu_file)/menu/*"/>
 			<xsl:for-each select="document($ui_file)//include">
-				<xsl:sequence select="document(concat($project_path,'/',@path,'/menu.xml'))/menu/*"/>
+				<xsl:sequence select="xp:get_document(@path,'menu.xml')/menu/*"/>
 			</xsl:for-each>
 		</xsl:element>
 	</xsl:variable><!--}}}-->
@@ -161,7 +159,7 @@
 	<xsl:variable name="views_collection"><!--{{{-->
 		<xsl:sequence select="document($views_file)//table"/>
 		<xsl:for-each select="document($ui_file)//include">
-			<xsl:sequence select="document(concat($project_path,'/',@path,'/views.xml'))/database/table"/>
+			<xsl:sequence select="xp:get_document(@path,'views.xml')/database/table"/>
 		</xsl:for-each>
 	</xsl:variable><!--}}}-->
 
@@ -169,7 +167,7 @@
 		<xsl:element name="feat">
 			<xsl:sequence select="document($feat_file)/feat/*"/>
 			<xsl:for-each select="document($ui_file)//include">
-				<xsl:for-each select="document(concat($project_path,'/',@path,'/feat.xml'))/feat/*">
+				<xsl:for-each select="xp:get_document(@path,'feat.xml')/feat/*">
 					<xsl:variable name="node_name" select="name()"/>
 					<xsl:if test="count(document($feat_file)/feat/*[name()=$node_name])=0">
 						<xsl:sequence select="."/>
@@ -183,7 +181,7 @@
 		<xsl:element name="config">
 			<xsl:sequence select="document($config_file)/config/*"/>
 			<xsl:for-each select="document($ui_file)//include">
-				<xsl:for-each select="document(concat($project_path,'/',@path,'/config.xml'))/config/*">
+				<xsl:for-each select="xp:get_document(@path,'config.xml')/config/*">
 					<xsl:variable name="node_name" select="name()"/>
 					<xsl:variable name="name" select="@name"/>
 					<xsl:choose>
@@ -203,6 +201,23 @@
 	<!-- -->
 	<!-- Plantilla Principal -->
 	<!-- -->
+
+	<xsl:function name="xp:get_document">
+		<xsl:param name="path"/>
+		<xsl:param name="file"/>
+		<xsl:choose>
+			<xsl:when test="unparsed-text-available(concat($project_path,'/',$path,'/',$file))">
+				<xsl:sequence select="document(concat($project_path,'/',$path,'/',$file))"/>
+			</xsl:when>
+			<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',$path,'/',$file))">
+				<xsl:sequence select="document(concat($xpotronix_path,'/',$path,'/',$file))"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:message>No encuentro al archivo <xsl:value-of select="concat($path,'/',$file)"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
+			</xsl:otherwise>
+		</xsl:choose>
+        </xsl:function>
+
 
 	<xsl:template match="/"><!--{{{-->
 
