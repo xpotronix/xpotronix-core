@@ -94,7 +94,7 @@
 				<cmp include="login_xpForm"/>
 				<cmp ref="forgot_password_xpForm"/>
 				<cmp ref="register_xpForm"/>
-				<cmp type="ux.GMapPanel3">
+				<!-- <cmp type="ux.GMapPanel3">
 				<config>
 				title:'Mapa!', 
 				/* xtype: 'gmappanel3', */
@@ -122,7 +122,7 @@
 					}
 				}]
 				</config>
-				</cmp>
+				</cmp>-->
 			</items>
 			</cmp>
 		</items>
