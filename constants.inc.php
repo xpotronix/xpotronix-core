@@ -26,9 +26,9 @@ defined( 'MSG_STATS' ) or define( 'MSG_STATS', MSG_INFO << 6 );
 // control de mensajes al syslog y al cliente web
 
 // defined( 'DEFAULT_SYSLOG_FLAGS' ) or define( 'DEFAULT_SYSLOG_FLAGS', MSG_DEBUG | MSG_INFO | MSG_WARN | MSG_ERROR | MSG_FATAL | MSG_STATS );
-defined( 'DEFAULT_SYSLOG_FLAGS' ) or define( 'DEFAULT_SYSLOG_FLAGS', MSG_USER | MSG_WARN | MSG_ERROR | MSG_FATAL );
+defined( 'DEFAULT_SYSLOG_FLAGS' ) or define( 'DEFAULT_SYSLOG_FLAGS', MSG_USER | MSG_WARN | MSG_ERROR | MSG_FATAL | MSG_STATS );
 defined( 'DEFAULT_MESSAGES_FLAGS' ) or define( 'DEFAULT_MESSAGES_FLAGS', MSG_USER );
-// defined( 'LOG_FUNCTION' ) or define( 'LOG_FUNCTION', '/(page)/si');
+// defined( 'LOG_FUNCTION' ) or define( 'LOG_FUNCTION', '/(page|insert|update)/si');
 // defined( 'LOG_CLASS' ) or define( 'LOG_CLASS', '/(xpdoc)/si');
 
 // class prefix namespace (php)
