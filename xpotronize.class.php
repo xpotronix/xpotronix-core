@@ -59,6 +59,9 @@ class xpotronize extends xp {
 		// uso:
 		// xpotronize [project_path] --app_path <application_path> --tables_file <tables_file> --module <module> -d -f
 
+
+		$this->transform['params']['xpotronix_path'] = $this->ini['paths']['lib'];
+
 		$projects_dir = $this->ini['paths']['projects'];
 
 		if ( count( $this->argv ) > 1 ) {
@@ -72,6 +75,7 @@ class xpotronize extends xp {
 			$project_path = $tmp;
 		else
 			M()->fatal( "la ruta de origen de la aplicacion {$this->argv[1]} es invalida" );
+
 
 		$this->transform['params']['project_path'] = $project_path;
 
