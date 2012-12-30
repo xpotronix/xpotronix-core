@@ -239,8 +239,10 @@ class xpthumb {
 
 	function compress( $index ) {/*{{{*/
 
-		$this->image->setCompression(Imagick::COMPRESSION_JPEG);
-		$this->image->setCompressionQuality($index);
+		$this->image->setImageCompression(Imagick::COMPRESSION_JPEG);
+		$this->image->setImageCompressionQuality($index);
+		$this->image->stripImage();
+
 	}/*}}}*/
 
 	function adjust_orientation() {/*{{{*/
