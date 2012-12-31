@@ -171,7 +171,11 @@ class xpthumb {
 		} catch (Exception $e) {
 
 			M()->error( "no ecuentro la imagen $file" );
-			$this->image->readImage('image_not_found.png');
+
+			if ( file_exists( $err_img = 'images/warning.jpg' ) ) 
+				M()->error( "no encuentro $err_img en ". getcwd() );
+			else
+				$this->image->readImage( $err_img );
 		}
 
 		$this->get_props();
