@@ -893,7 +893,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 			if (isset($this->limit)) {
 				$this->_query_id = $this->db->SelectLimit($q, $this->limit, $this->offset);
 			} else {
-				$this->_query_id =  $this->db->Execute(&$q);
+				$this->_query_id =  $this->db->Execute($q);
 			}
 			if (! $this->_query_id) {
 				$error = $this->db->ErrorMsg();
