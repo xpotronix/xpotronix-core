@@ -102,14 +102,7 @@ Ext.onReady(function() {
 					App.close_objs();
 					App.close_stores();
 
-					Ext.Loader.load( [src + '&v=ext/loader&UNNORMALIZED=1'], function() { 
-
-						var layout = Ext.getCmp('xpApp_layout');
-						iframe.add( layout );
-						iframe.doLayout();
-	
-
-					});
+					Ext.Loader.load( [src + '&v=ext/loader&UNNORMALIZED=1'] );
 				}
 			}
 
@@ -127,15 +120,7 @@ Ext.onReady(function() {
 				App.user_node = this.getNodeById('user');
 				App.user_node && App.user_node.setText( App.user_node.text + ' <b>' + App.user.user_username + '</b>' );
 
-				Ext.Loader.load( [App.feat.defaultSrc + '&v=ext/loader&UNNORMALIZED=1'], function() { 
-
-						var layout = Ext.getCmp('xpApp_layout');
-						iframe.add( layout );
-						iframe.doLayout();
-	
-
-					});
-
+				Ext.Loader.load( [App.feat.defaultSrc + '&v=ext/loader&UNNORMALIZED=1'] );
 			}
 		}}
 	});
