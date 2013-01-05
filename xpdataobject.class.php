@@ -576,7 +576,10 @@ class xpDataObject extends xp {
 		return false;
 	}/*}}}*/
 
-	function protect_all( $not_these = null ) {/*{{{*/
+	function change_attr( $attr_attr, $value, $not_these = null ) {/*{{{*/
+
+		if ( ! is_array( $not_these ) )
+			$not_these = explode( ',', $not_these );
 
 		array_unique( $not_these );
 
@@ -584,9 +587,21 @@ class xpDataObject extends xp {
 
 			if ( in_array( $key, $not_these ) ) continue;
 
-			$this->attr[$key]->display = 'protect';
+			$this->attr[$key]->$attr_attr = $value;
 
 			}
+
+	}/*}}}*/
+
+	function hide_all( $not_these = null ) {/*{{{*/
+
+		$this->change_attr( 'display', 'hide', $not_these );
+
+	}/*}}}*/
+
+	function protect_all( $not_these = null ) {/*{{{*/
+
+		$this->change_attr( 'display', 'protect', $not_these );
 
 	}/*}}}*/
 
