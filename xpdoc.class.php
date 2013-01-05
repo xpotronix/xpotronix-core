@@ -895,8 +895,15 @@ class xpdoc extends xp {
 		$d = new DOMDocument;
 		$x = simplexml_import_dom( $d->createElementNs(XPOTRONIX_NAMESPACE_URI, "xpotronix:metadata") );
 
-		foreach( $this->instances as $name => $obj )
+		$obj_name = $this->req_object ? $this->req_object : $this->module;
+
+		foreach( $this->instances as $name => $obj ) {
+
+			if ( $obj_name == $name and ( $do = $this->feat->display_only ) )
+				$obj->hide_all( $do );
+
 			simplexml_append( $x, $obj->metadata() );
+		}
 
 		return $x;
 
@@ -913,6 +920,9 @@ class xpdoc extends xp {
 		if ( ! ( $obj = $this->$instance_fn( $obj_name ) ) ) return null;
 
 		if ( $this->query ) $obj->add_query( $this->query );
+
+		if ( $do = $this->feat->display_only ) 
+			$obj->hide_all( $do );
 
 		$dataset = $obj->serialize( $flags );
 
