@@ -120,6 +120,8 @@ class xpsearch {
 						array_shift( $token_array2 ):
 						'=';
 
+					M()->debug( "operador: [$operator]" );
+
 					$value = array_shift( $token_array2 );
 
 					$c = $this->clasify( $key, $value, $operator );
@@ -146,7 +148,7 @@ class xpsearch {
 				else 
 					$result[$c->clause][] = $sql_clause;
 
-			} else M()->debug( "la consulta para la clave $key no es valida" );
+			} else M()->debug( "la consulta para la clave [$key] no es valida" );
 		}
 
 		// print "<pre>condition: $condition<br/>";print_r( $result );
@@ -204,18 +206,15 @@ class xpsearch {
 				$c->sql_var = $attr->name;
 				$c->clause = 'having';
 			}
-
 		} 
 
-		if ( $attr->is_key() ) {
+		// es clave => la busqueda es exacta
+		$attr->is_key() and $c->match_type = 'exact' and M()->debug( "$attr->name es clave" );
 
-			M()->debug( "$attr->name es clave" );
-			$c->match_type = 'exact';
-
-		} else M()->debug( "$attr->name no es clave" );
 
 		// $this->obj->debug_object();
 
+		// simboliza un nulo?
 		$value = ( $value == "''" or $value == '""') ? null : $value;
 
 		M()->debug( 'simple_type: '. $attr->get_simple_type(). ', type: '. $attr->type );
@@ -230,9 +229,21 @@ class xpsearch {
 			$value = trim( $value );
 
 			M()->debug( "es date" );
-			$c->value = $attr->human( $value );
 
-			if ( !$c->value ) {
+			if ( strstr( $value, '*' ) ) {
+
+				M()->debug( "busqueda por comodines" );
+
+				$c->match_type = 'anywhere';
+				$c->search_type = 'like';
+				$c->operator = 'LIKE';
+				$value = str_replace('*','%', $value );
+
+				$date_parts = array_reverse( preg_split( '#/#', $value , -1 ) );
+
+				$c->value = implode( '-', $date_parts );
+
+			} else if ( !$c->value = $attr->human( $value ) ) {
 
 				$c->valid = false;
 				return $c;
@@ -245,7 +256,22 @@ class xpsearch {
 			M()->debug( "es datetime" );
 			$date_time_array = explode( ' ', $value );
 
-			if ( count( $date_time_array ) == 1 ) {
+			if ( strstr( $value, '*' ) ) {
+
+				M()->debug( "busqueda por comodines" );
+
+				$c->match_type = 'anywhere';
+				$c->search_type = 'like';
+				$c->operator = 'LIKE';
+				$value = str_replace('*','%', $value );
+
+				list( $date, $time ) = explode( ' ', $value );
+
+				$date_parts = array_reverse( preg_split( '#/#', $date, -1 ) );
+
+				$c->value = implode( '-', $date_parts ). ' '. $time;
+
+			} else if ( count( $date_time_array ) == 1 ) {
 				M()->debug( 'datetime incompleto' );
 				$c->search_type = ( $this->obj->db_type() == 'mssql' or $this->obj->db_type() == 'sybase' ) ? 'to_date_mssql' : 'to_date';
 				$attr2 = new xpdate;
