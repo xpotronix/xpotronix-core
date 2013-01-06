@@ -132,7 +132,7 @@ class xpthumb {
 
 		M()->info( 'cache_pathname: '. $this->cache_pathname() );
 
-		file_exists( $cache_pathname ) or mkdir( $cache_pathname, 0777, true );
+		file_exists( $cache_pathname ) or mkdir( $cache_pathname, 0777, true ) or M()->warn( "no se pudo crear el directorio de cache $cache_pathname" );
 
                 $this->cache_options = array(
                         'caching' => true,
