@@ -16,16 +16,6 @@
 
 	   <code type="php" mode="class_functions"><![CDATA[
 
-	   function main_sql() {/*{{{*/
-	   	
-                global $xpdoc;
-                if ( $this->has_role( 'mesa', 'altas', 'responsable', 'licencias', 'audit' ) ) {
-                       return;
-                } else if ( $this->has_role( 'empleado' ) )
-                       $this->sql->addWhere( "imagen.usuario_ID = '{$xpdoc->user->legajo}'" );
-
-	   }/*}}}*/
-
 	function source_path() {/*{{{*/
 
 		global $xpdoc;
