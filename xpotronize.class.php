@@ -327,11 +327,15 @@ class dbdump extends xp {
 
 				foreach( $table_data['index'] as $index => $keys ) {
 
-					$xindex = $xtable->addChild('index', implode(',', $keys['columns'] ));
-					$xindex['name'] = str_replace(' ', '_',$index );
+					if ( count( $keys['columns'] ) ) {
+						$xindex = $xtable->addChild('index', implode(',', $keys['columns'] ));
+						$xindex['name'] = str_replace(' ', '_',$index );
 
-					if ( $keys['unique'] )
-						$xindex['unique'] = 1;
+						if ( $keys['unique'] )
+							$xindex['unique'] = 1;
+
+					} else M()->warn( "indice $index sin columnas en la tabla $table_name" );
+
 				}
 			}
 

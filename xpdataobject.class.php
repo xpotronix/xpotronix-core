@@ -576,16 +576,16 @@ class xpDataObject extends xp {
 		return false;
 	}/*}}}*/
 
-	function change_attr( $attr_attr, $value, $not_these = null ) {/*{{{*/
+	function change_attr( $attr_attr, $value, $except = null ) {/*{{{*/
 
-		if ( ! is_array( $not_these ) )
-			$not_these = explode( ',', $not_these );
+		if ( ! is_array( $except ) )
+			$except = explode( ',', $except );
 
-		array_unique( $not_these );
+		array_unique( $except );
 
 		foreach( $this->attr as $key => $attr ) {
 
-			if ( in_array( $key, $not_these ) ) continue;
+			if ( in_array( $key, $except ) ) continue;
 
 			$this->attr[$key]->$attr_attr = $value;
 
@@ -593,15 +593,15 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function hide_all( $not_these = null ) {/*{{{*/
+	function hide_all( $except = null ) {/*{{{*/
 
-		$this->change_attr( 'display', 'hide', $not_these );
+		$this->change_attr( 'display', 'hide', $except );
 
 	}/*}}}*/
 
-	function protect_all( $not_these = null ) {/*{{{*/
+	function protect_all( $except = null ) {/*{{{*/
 
-		$this->change_attr( 'display', 'protect', $not_these );
+		$this->change_attr( 'display', 'protect', $except );
 
 	}/*}}}*/
 
@@ -917,6 +917,9 @@ class xpDataObject extends xp {
 
 
 		// cargo los campos desde los atributos del objeto
+		if ( ! count( $this->attr ) ) 
+			M()->warn( "clase $this->class_name sin atributos" );
+		else
 		foreach( $this->attr as $key => $attr ) {
 
 			if ( ( $attr->virtual and !$attr->alias_of ) or ( $this->attr == 'ignore' ) ) continue;
@@ -1703,7 +1706,7 @@ class xpDataObject extends xp {
 		
 		if ( ! is_array( $this->attr ) ) {
 
-			M()->warn( "$this->class_name: objeto sin atributos" );
+			M()->warn( "clase $this->class_name sin atributos" );
 			return $this;
 		}
 

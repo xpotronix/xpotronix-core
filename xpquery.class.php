@@ -163,7 +163,7 @@ class DBQuery {
 
 	function addClause( $clause, $value, $check_array = true ) {/*{{{*/
 
-		M()->debug("Adding '$value' to $clause clause");
+		M()->debug("Adding [". serialize( $value ) ."] to ". $clause. "clause");
 
 		isset( $this->$clause ) or $this->$clause = array();
 
