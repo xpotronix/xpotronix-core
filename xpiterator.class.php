@@ -28,7 +28,7 @@ class xpIterator implements Iterator {
 
 	function __construct( $obj, $key, $where, $order, $can_jump = false ) {/*{{{*/
 
-		M()->info( "obj: {$obj->class_name}, key: $key, where: $where, order: $order, can_jump: " . ( $can_jump ? 'true' : 'false' ) );
+		M()->info( "obj: {$obj->class_name}, key: ". serialize( $key ). ", where: ". serialize( $where ). ", order: ". serialize( $order ). ", can_jump: " . ( $can_jump ? 'true' : 'false' ) );
 
 		$this->obj = $obj;
 		$this->key = $key;
