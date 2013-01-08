@@ -263,7 +263,7 @@
 		<feat><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>
 		<field name="acl_id" translate="acl_id" validate="empty"  eh="acl_id"/>
 		<field name="section_value" translate="section_value" validate="empty" eh="axo_section_value"/>
-		<field name="value" translate="value" validate="empty" eh="axo_id"/>
+		<field name="value" translate="value" validate="empty" eh="axo_value"/>
 	</table><!--}}}-->
 
 	<table name="gacl_axo_sections" translate="gacl_axo_sections"><!--{{{-->

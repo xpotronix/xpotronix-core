@@ -58,6 +58,13 @@
          <from>gacl_axo_groups</from>
    </query>
 
+   <query name="aco_id">
+         <id>gacl_aco.id</id>
+         <label>gacl_aco.name</label>
+         <from>gacl_aco</from>
+         <order_by>order_value</order_by>
+   </query>
+
    <query name="aro_id">
          <id>gacl_aro.value</id>
          <label>gacl_aro.value</label>
@@ -72,11 +79,25 @@
          <order_by>value</order_by>
    </query>
 
-   <query name="aco_id">
-         <id>gacl_aco.id</id>
-         <label>gacl_aco.name</label>
+   <query name="aro_value">
+         <id>gacl_aro.value</id>
+         <label>gacl_aro.value</label>
+         <from>gacl_aro</from>
+         <order_by>value</order_by>
+   </query>
+
+   <query name="axo_value">
+         <id>gacl_axo.value</id>
+         <label>gacl_axo.value</label>
+         <from>gacl_axo</from>
+         <order_by>value</order_by>
+   </query>
+
+   <query name="aco_value">
+         <id>gacl_aco.value</id>
+         <label>gacl_aco.value</label>
          <from>gacl_aco</from>
-         <order_by>order_value</order_by>
+         <order_by>value</order_by>
    </query>
 
    <query name="aco_value">
