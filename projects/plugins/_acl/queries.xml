@@ -59,17 +59,17 @@
    </query>
 
    <query name="aro_id">
-         <id>gacl_aro.id</id>
-         <label>gacl_aro.name</label>
+         <id>gacl_aro.value</id>
+         <label>gacl_aro.value</label>
          <from>gacl_aro</from>
-         <order_by>order_value</order_by>
+         <order_by>value</order_by>
    </query>
 
    <query name="axo_id">
-         <id>gacl_axo.id</id>
-         <label>gacl_axo.name</label>
+         <id>gacl_axo.value</id>
+         <label>gacl_axo.value</label>
          <from>gacl_axo</from>
-         <order_by>order_value</order_by>
+         <order_by>value</order_by>
    </query>
 
    <query name="aco_id">
