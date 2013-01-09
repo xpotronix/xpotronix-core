@@ -1040,15 +1040,19 @@ class xpDataObject extends xp {
 
 		if ( ! count( $const ) ) return;
 
+		M()->debug( 'constraints: '. serialize( $const ) );
+
 		if ( @$this->foreign_key['@set'] == 'variables' ) {
 
-			$comma = array();
+			$set = array();
 
 			foreach( $const as $key => $vars )
 
-				$comma = array_merge( $comma, $vars );
+				$set = array_merge( $set, $vars );
 
-			$sql = "SET ". implode( ',', $comma );
+			$sql = "SET @". implode( ',@', $set );
+
+			M()->debug( "$sql" );
 
 			$this->db->Execute( $sql );
 
@@ -2174,15 +2178,20 @@ class xpDataObject extends xp {
 				$local = (string) $ref['local'];
 				$remote = (string) $ref['remote'];
 
-				if ( ! isset( $this->foreign_key['@set'] ) )
-					if ( ! $attr = $this->get_attr( $local ) ) M()->warn( "atributo 'local' {$this->name}::$local no existe" );
+				if ( ! isset( $this->foreign_key['@set'] ) ) 
 
-				if ( ! $this->parent->get_attr( $remote ) ) M()->warn( "atributo 'remote' {$this->parent->name}::$remote no existe" );
+					if ( $attr = $this->get_attr( $local ) ) 
+						$attr->foreign = true;
+					else
+						M()->warn( "atributo 'local' {$this->name}::$local no existe" );
 
-				$attr->foreign = true;
+				if ( $this->parent->get_attr( $remote ) ) {
 
-				$this->foreign_key[$local] = new xpkey( $this->parent->table_name, $remote );
-				M()->debug( "local: $local, remote: $remote, set: ". @$this->foreign_key['@set'] );
+					$this->foreign_key[$local] = new xpkey( $this->parent->table_name, $remote );
+					M()->debug( "local: $local, remote: $remote, set: ". @$this->foreign_key['@set'] );
+				} else
+					M()->warn( "atributo 'remote' {$this->parent->name}::$remote no existe" );
+
 			}
 		}
 
