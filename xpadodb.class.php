@@ -45,11 +45,13 @@ class xpadodb {
 
 		$encoding or $encoding = 'utf8';
 
-		$conn_str = sprintf( "%s:host=%s;dbname=%s;charset=%s", $this->implementation, $host, $database, $encoding );
+		$conn_str = sprintf( "%s:host=%s;dbname=%s", $this->implementation, $host, $database );
 
 		M()->debug( $conn_str );
 
 		$this->pdo = new PDO( $conn_str, $user, $password, array(PDO::ATTR_PERSISTENT => $persist ) );
+
+		$this->pdo->exec("set names $encoding");
 
 		// Default fetch mode
 		$this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
