@@ -621,7 +621,8 @@ class DBQuery {
 
 		$q = array();
 
-		$count and $this->addModifiers( 'SQL_CALC_FOUND_ROWS' );
+		if ( $count and $this->db->databaseType == 'mysql' )
+			$this->addModifiers( 'SQL_CALC_FOUND_ROWS' );
 
 		if ( $this->sql ) {
 
@@ -1092,6 +1093,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 			case 'mssql':
 			case 'sybase':
+			case 'dblib':
 
 				$ldelim = '[';
 				$rdelim = ']';

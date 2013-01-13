@@ -196,7 +196,7 @@ class xpsearch {
 			if ( $attr->get_simple_type() == 'string' )
 				$c->match_type = 'anywhere';
 
-			if ( $this->obj->db_type() == 'mssql' or $this->obj->db_type() == 'sybase' ) {
+			if ( $this->obj->db_type() == 'dblib' ) {
 
 				$c->sql_var = $attr->alias_of;
 				$c->clause = 'where';
@@ -273,7 +273,7 @@ class xpsearch {
 
 			} else if ( count( $date_time_array ) == 1 ) {
 				M()->debug( 'datetime incompleto' );
-				$c->search_type = ( $this->obj->db_type() == 'mssql' or $this->obj->db_type() == 'sybase' ) ? 'to_date_mssql' : 'to_date';
+				$c->search_type = ( $this->obj->db_type() == 'dblib' ) ? 'to_date_mssql' : 'to_date';
 				$attr2 = new xpdate;
 				$c->value = $attr2->human( $value );
 

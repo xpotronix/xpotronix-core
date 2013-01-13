@@ -24,6 +24,7 @@ class xpadodb {
 	function __construct( $implem ) {/*{{{*/
 
 		if ( $implem == 'mysqli' ) $implem = 'mysql';
+		if ( $implem == 'mssql' ) $implem = 'dblib';
 
 		$this->databaseType = $implem;
 		$this->implementation = $implem;
@@ -49,15 +50,22 @@ class xpadodb {
 
 		M()->debug( $conn_str );
 
-		$this->pdo = new PDO( $conn_str, $user, $password, array(PDO::ATTR_PERSISTENT => $persist ) );
+		if ( $this->databaseType == 'mysql' ) {
+			$this->pdo = new PDO( $conn_str, $user, $password, array(PDO::ATTR_PERSISTENT => $persist ) );
+			$this->pdo->exec("SET NAMES $encoding");
+		}
+		else if ( $this->databaseType == 'dblib' )
+			$this->pdo = new PDO( $conn_str, $user, $password );
+		else 
+			$this->pdo = new PDO( $conn_str, $user, $password, array(PDO::ATTR_PERSISTENT => $persist ) );
 
-		$this->pdo->exec("set names $encoding");
 
 		// Default fetch mode
 		$this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 		// Error handling
 		$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 
 		return $this;
 	}/*}}}*/
@@ -90,13 +98,13 @@ class xpadodb {
 
 	function ErrorNo() {/*{{{*/
 
-		return $this->errorCode();
+		return $this->pdo->errorCode();
 
 	}/*}}}*/
 
 	function ErrorMsg() {/*{{{*/
 
-		return $this->errorInfo();
+		return $this->pdo->errorInfo();
 	}/*}}}*/
 
 	function quote( $str ) {/*{{{*/
