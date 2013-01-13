@@ -16,8 +16,8 @@ require_once 'xpmessages.class.php';
 require_once 'xpacl.class.php';
 require_once 'xpdataprocess.class.php';
 require_once 'xphttp.class.php';
+require_once 'xpadodb.class.php';
 
-require_once 'adodb.inc.php';
 require_once 'Cache/Lite.php';
 
 class xpdoc extends xp {
@@ -205,12 +205,6 @@ class xpdoc extends xp {
 
 		is_object( $this->session ) and $this->session->close();
 
-		foreach( $this->obj_collection as $class_name => $obj_collection )
-			foreach( $obj_collection as $obj )
-				if ( is_object( $obj->recordset ) )
-					$obj->recordset->free();
-
-					
 		$this->debug_obj_collection();
 
 		unset( $this->obj_collection );
@@ -219,12 +213,9 @@ class xpdoc extends xp {
 
 	function init_db_instances() {/*{{{*/
 
-		global $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC; // default
-
-		global $ADODB_CACHE_DIR;
-		$ADODB_CACHE_DIR = $this->get_cache_dir( 'data' );
-
+		/* cache de datos, desactivado
+		$this->get_cache_dir( 'data' );
+		*/
 
 		foreach( $this->config->db_instance as $instance ) {
 
@@ -236,12 +227,15 @@ class xpdoc extends xp {
 
 			// parametros acumulativos entre instancias de base de datos
 			// shorthands
+
+			$encoding = 'utf8';
  
 			$instance->database and $database = (string) $instance->database;
 			$instance->host and $host = (string) $instance->host;
 			$instance->user and $user = (string) $instance->user;
 			$instance->password and $password = (string) $instance->password;
 			$instance->implementation and $implem = (string) $instance->implementation;
+			$instance->encoding and $encoding = (string) $instance->encoding;
 
 			// check de parametros;
 
@@ -256,13 +250,15 @@ class xpdoc extends xp {
 			( $implem and M()->info( "implementation: $implem" ) ) 
 				or M()->warn( 'debe especificar una implementacion de la base de datos' );
 
-			$this->db_instance( $in, NewADOConnection( $implem ) );
+			// $this->db_instance( $in, NewADOConnection( $implem ) );
+			
+			$this->db_instance( $in, new xpadodb( $implem ) );
 
 			( $instance->table_prefix ) and ( $this->db_instance( $in )->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
 
 			M()->info( $function = $instance->persistent ? 'PConnect' : 'Connect' );
 
-			if ( ! $this->db_instance( $in )->$function( $host, $user, $password, $database ) ) {
+			if ( ! $this->db_instance( $in )->$function( $host, $user, $password, $database, $encoding ) ) {
 
 				M()->user( "No puedo conectarme con la base de datos {$database}" ) ;
 				return false;
@@ -274,7 +270,6 @@ class xpdoc extends xp {
 
 			$instance->force_utf8 and $this->db_instance( $in )->force_utf8 = true and M()->info( "force_utf8" );
 
-			$instance->encoding and $this->db_instance( $in )->__encoding = (string) $instance->encoding and M()->info( "encoding: $instance->encoding" );
 		}
 
 		return true;

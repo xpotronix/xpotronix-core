@@ -72,6 +72,7 @@ class xpDataObject extends xp {
 
 	// consulta del objeto;
 	var $sql;
+	var $xsql;
 
 	// recordset de la ultima consulta
 	var $recordset;
@@ -463,9 +464,11 @@ class xpDataObject extends xp {
 		return $this->metadata['virtual'];
 	}/*}}}*/
 
-	function is_view() {/*{{{*/
+	function count_views() {/*{{{*/
 
-		return (boolean) count( $this->model->xpath( "queries//query[@name='main_sql']/sql" ));
+		$fq = $this->feat->query_name;
+		$query_name = $fq ? $this->feat->query_name : 'main_sql';
+		return (boolean) count( $this->model->xpath( "queries//query[@name='$query_name']/sql" ));
 	}/*}}}*/
 
 	// attr
@@ -630,12 +633,10 @@ class xpDataObject extends xp {
 
 	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
 
-		$this->sql->clear();
-
 		if ( !$this->acl ) 
 			$this->set_acl();
 
-		$this->sql_prepare();
+		$this->sql = $this->sql_prepare();
 
 		// el loadc() vacio carga la consulta actual paginada
 		if ( $key === null ) {
@@ -685,8 +686,10 @@ class xpDataObject extends xp {
 		// $this->set_const( $this->set_foreign_key() );
 		// $this->set_const( $this->set_user_key() );
 
+
 		$this->set_order( $order );
 		$this->main_sql();
+
 		return $this->page( $page );
 
 	}/*}}}*/
@@ -696,17 +699,13 @@ class xpDataObject extends xp {
 			$objs = array();
 			$objs_count = 0;
 
-			while ( !$this->recordset->EOF ) {
+			while ( $row = $this->recordset->fetch() ) {
 
 				$this->reset();
-				$this->bind_data( $this->recordset->fields );
+				$this->bind_data( $row );
 
 				$this->set_primary_key();
 				$objs[$this->guess_primary_key()] = $this->data;
-				
-				$this->recordset->MoveNext();
-				$objs_count ++;
-
 			} 
 
 			// echo '<pre>'; print_r( $objs ); echo '</pre>';
@@ -756,7 +755,7 @@ class xpDataObject extends xp {
 
 	function sql_prepare () {/*{{{*/
 
-		$this->sql->clear();
+		$sql = new DBQuery( $this->db );
 
 		// para que no se repitan las tablas entre table y alias
 		// print $this->model->asXML(); ob_flush(); 
@@ -767,21 +766,30 @@ class xpDataObject extends xp {
 		// busca la consulta principal
 		$fq = $this->feat->query_name;
 		$query_name = $fq ? $this->feat->query_name : 'main_sql';
-		@$main_sql = array_shift ( $this->model->xpath( "queries//query[@name='$query_name']" ) );
 
-		$main_sql or M()->fatal( "no encuentro la query $query_name para el objeto {$this->class_name}" );
+		@$this->xsql = array_shift ( $this->model->xpath( "queries//query[@name='$query_name']" ) );
 
-		if ( $main_sql->sql ) {
-
-			M()->info( "este objeto tiene definida una vista" );
-			return;
-		}
+		$this->xsql or M()->fatal( "no encuentro la query $query_name para el objeto {$this->class_name}" );
 
 		M()->info( "query $query_name para el objeto {$this->class_name}" );
 
+		// echo '<pre>'; var_dump ( count( $this->xsql->sql ) ); exit;
+
+		if ( count( $this->xsql->sql ) == 1 ) {
+
+			M()->info( "el objeto $this->class_name tiene definida una vista sql" );
+			$sql->addSql( (string) $this->xsql->sql );
+			return $sql;
+
+		} else if ( count( $this->xsql->sql ) > 1 ) {
+
+			M()->info( "el objeto $this->class_name tiene multiples sentencias sql" );
+			return $sql;
+
+		} else 	M()->info( "el objeto $this->class_name no tiene sentencias sql definidas" );
+
 		// busco los atributos con su entry help
 		// y arma la vista
-
 
 		if ( $this->feat->load_full_query ) {
 
@@ -789,7 +797,7 @@ class xpDataObject extends xp {
 
 				// el query que se corresponde al entry_help
 				$query_name = (string) $attr['entry_help'];
-				foreach( $main_sql->xpath( ".//query[@name='$query_name']" ) as $query )  {
+				foreach( $this->xsql->xpath( ".//query[@name='$query_name']" ) as $query )  {
 
 					// agrego los label para cada uno de los entry helpers
 
@@ -800,11 +808,10 @@ class xpDataObject extends xp {
 						$_attr->alias_of = (string) $query->label;
 						$_attr->display = 'sql'; // solo para ser accedido al momento de la consulta
 
-						// $this->sql->addQuery( sprintf( "%s as %s", $query->label, $this->quote_name( $attr_name ) ) );
 					}
 
 					// agrego el join del from
-					$this->uniq_tables($query->from, $query->alias) or $this->sql->addJoin( 
+					$this->uniq_tables($query->from, $query->alias) or $sql->addJoin( 
 							(string) $query->from, 
 							$this->quote_name( (string) $query->alias ),
 							sprintf( "%s=%s", $this->quote_name( "{$this->table_name}.{$attr['name']}" ), $this->quote_name( $query->id ) ).
@@ -813,7 +820,7 @@ class xpDataObject extends xp {
 
 					// agrego el resto de los joins del query
 					foreach ( $query->xpath( "join" ) as $join )
-						$this->uniq_tables( $join['table'], $join['alias'] ) or $this->sql->addJoin( 
+						$this->uniq_tables( $join['table'], $join['alias'] ) or $sql->addJoin( 
 								(string) $join['table'], 
 								$this->quote_name( (string) $join['alias'] ),
 								(string) $join->where, 
@@ -840,20 +847,20 @@ class xpDataObject extends xp {
 					M()->debug( "encontre query {$query_xml['name']}" );
 
 					foreach ( $query_xml->xpath( "join" ) as $join )
-						$this->uniq_tables( $join['table'], $join['alias'] ) or $this->sql->addJoin( 
+						$this->uniq_tables( $join['table'], $join['alias'] ) or $sql->addJoin( 
 								(string) $join['table'], 
 								$this->quote_name( (string) $join['alias'] ),
 								$this->replace_table_name( $r_alias, $r_table, (string) $join->where), 
 								(string) $join['type'] );
 
 					foreach( $query_xml->xpath( "on" ) as $on ) 
-						$this->sql->addWhere( $this->replace_table_name( $r_alias, $r_table, (string) $on ) );
+						$sql->addWhere( $this->replace_table_name( $r_alias, $r_table, (string) $on ) );
 
 					foreach ( $query_xml->xpath( "where" ) as $where )
-						$this->sql->addWhere( $this->replace_table_name( $r_alias, $r_table, (string) $where ) );
+						$sql->addWhere( $this->replace_table_name( $r_alias, $r_table, (string) $where ) );
 
 					foreach ( $query_xml->xpath( "order_by" ) as $order )
-						$this->sql->addOrder( $this->quote_order( $this->replace_table_name( $r_alias, $r_table,  (string) $order ) ) );
+						$sql->addOrder( $this->quote_order( $this->replace_table_name( $r_alias, $r_table,  (string) $order ) ) );
 
 					// atributos de la consulta
 
@@ -902,18 +909,18 @@ class xpDataObject extends xp {
 		// crea la consulta principal
 		// agrego la tabla y su alias, si esta definido
 
-		if ( $alias = (string) $main_sql->alias ) 
-			$this->sql->addTable( $this->table_name, $alias );
+		if ( $alias = (string) $this->xsql->alias ) 
+			$sql->addTable( $this->table_name, $alias );
 		else
-			$this->sql->addTable( $this->table_name );
+			$sql->addTable( $this->table_name );
 
 		// agrego el where del main_sql
-		if ( $main_sql->where )
-			$this->sql->addWhere( (string) $main_sql->where );
+		if ( $this->xsql->where )
+			$sql->addWhere( (string) $this->xsql->where );
 
 		// agrego el order_by 
-		if ( $main_sql->order_by )
-			$this->sql->addOrder( $this->quote_order( $this->replace_table_name( (string) $main_sql->alias, $this->table_name,  (string) $order ) ) );
+		if ( $this->xsql->order_by )
+			$sql->addOrder( $this->quote_order( $this->replace_table_name( (string) $this->xsql->alias, $this->table_name,  (string) $order ) ) );
 
 
 		// cargo los campos desde los atributos del objeto
@@ -927,15 +934,17 @@ class xpDataObject extends xp {
 			$field_name = $this->quote_name( sprintf( "%s.%s", $this->table_name, $attr->name ) );
 
 			if ( $attr->alias_of ) 
-				$this->sql->addQuery( sprintf( "%s as %s", $attr->alias_of, $this->quote_name( $attr->name ) ) );
+				$sql->addQuery( $attr->alias_of, $this->quote_name( $attr->name ) );
 			else
-				$this->sql->addQuery( $field_name );
+				$sql->addQuery( $field_name );
 		}
 
 		// comentados para debug
 		// if ( $this->class_name == 'dtNotificacionActor' ) { $this->metadata(); exit; }
-		// if ( $this->class_name == 'REMPLES' ) { echo '<pre>'; $this->debug_object(); print_r( $this->sql ) ; echo '</pre>'; exit; }
+		// if ( $this->class_name == 'REMPLES' ) { echo '<pre>'; $this->debug_object(); print_r( $sql ) ; echo '</pre>'; exit; }
 		// $this->debug_object(); ob_flush(); exit;
+
+		return $sql;
 
 	}/*}}}*/
 
@@ -999,6 +1008,7 @@ class xpDataObject extends xp {
 
 		is_array( $order ) or @$order = $xpdoc->order[$this->class_name]; 
 
+
 		if ( is_array( $order ) ) 
 
 			foreach ( $order as $key => $data ) 
@@ -1016,9 +1026,9 @@ class xpDataObject extends xp {
 
 				// si es un alias, el nombre no lleva el prefijo de la tabla
 
-				$field = ( !$this->attr[$key]->alias_of ) ? 
-					$this->attr[$key]->table. '.'. $this->attr[$key]->name : 
-					$this->attr[$key]->name;
+				$field = ( $this->attr[$key]->alias_of or $this->count_views() ) ? 
+					$this->attr[$key]->name:
+					$this->attr[$key]->table. '.'. $this->attr[$key]->name;
 
 				if ( $this->attr[$key]->is_entry_help() ) 
 
@@ -1103,7 +1113,9 @@ class xpDataObject extends xp {
 
 		*/
 
-		global $xpdoc, $ADODB_COUNTRECS;
+		// a) configura el rango de la paginacion
+
+		global $xpdoc;
 
 		if ( ! $this->pager )
 			$this->pager = array( 'pr' => 0, 'cp' => 1 );
@@ -1124,17 +1136,12 @@ class xpDataObject extends xp {
 
 		M()->info( "object: {$this->class_name}, page_rows: $pr, current_page: $cp" );
 
-		$savec = $ADODB_COUNTRECS;
+		// b) obtiene el fuente sql a ejecutar
 
-		if ( $this->feat->count_recs ) 
-			$ADODB_COUNTRECS = true;
+		if ( ( $c = count( $this->xsql->sql ) ) > 1 ) {
 
-		if ( $sql_code = $this->model->xpath( "queries//query[@name='main_sql']/sql" ) ) {
-
-			M()->info( 'ejecutando '. count( $sql_code ). ' fragmentos de codigo SQL para la vista '. $this->class_name );
-
-			// DEBUG: para que las vistas puedan ser paginadas, ordenadas, etc, deben tomar la parte de WHERE/HAVING/ORDER de sql->prepare()
-			// Debe ser aplicada solamente sobre la ultima
+			$sql_code = $this->xsql->sql;
+			M()->info( " ejecutando $c fragmentos de codigo SQL para la vista $this->class_name" );
 
 		} else { 
 
@@ -1144,19 +1151,20 @@ class xpDataObject extends xp {
 
 			} else {
 
-				$sql_code = array( $this->sql->prepare() );
+				$sql_code = array( $xpdoc->feat->count_recs ? 
+						$this->sql->prepareCount() : 
+						$this->sql->prepare() 
+						);
 
-				if ( $this->feat->full_sql_log )
-					M()->debug( $sql_code[0] );
-				else 
+				( $this->feat->full_sql_log ) ? 
+					M()->debug( $sql_code[0] ) :
 					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );
-
-				global $xpdoc;
 
 				$xpdoc->feat->log_sql and M()->write_log( $sql_code[0] );
 			}
 		}
 
+		// c) por cada fragmento, lo ejecuta
 
 		foreach( $sql_code as $sql_p ) {
 
@@ -1165,49 +1173,52 @@ class xpDataObject extends xp {
 				if ( $this->db_type() == 'mssql' or $this->db_type() == 'sybase' ) {
 
 					// hace la paginacion via consulta para los motores que no tienen LIMIT (mssql)
-					$ADODB_COUNTRECS = false;
-					$this->recordset = $this->paged_query( $sql_p, $pr, $cp, $this->feat->db_cache_time );
+					$this->recordset = $this->paged_query( $sql_p, $pr, $cp );
 
 				} else {
-
-					if ($this->feat->db_cache_time)
-						$this->recordset = $this->db->CachePageExecute( $this->feat->db_cache_time, (string) $sql_p, $pr, $cp );
-					else
-						$this->recordset = $this->db->PageExecute( (string) $sql_p, $pr, $cp );
+					$this->recordset = $this->db->PageExecute( (string) $sql_p, $pr, $cp );
 				}
 
 			} else {
-
-				if ($this->feat->db_cache_time)
-					$this->recordset = $this->db->CacheExecute( $this->feat->db_cache_time, $sql_p );
-				else
-					$this->recordset = $this->db->Execute( (string) $sql_p );
+				$this->recordset = $this->db->Execute( (string) $sql_p );
 			}
 		}
 
-		$ADODB_COUNTRECS = $savec;
 
+		// d) calcula el record count
 
+		$this->total_records = null;
 
 		if ( $this->recordset ) {
-			if ( $this->db_type() == 'mssql' or $this->db_type() == 'sybase' )
-				$this->total_records = $this->recordset->fields['__TotalRows'];
-			else
-				$this->total_records = $pr ? $this->recordset->MaxRecordCount() : $this->recordset->RecordCount();
-			}
-		else
-			$this->total_records = -1;
+
+			if ( $xpdoc->feat->count_recs ) {
+
+				// $this->total_records = $this->recordset->rowCount();
+
+				if ( $this->db_type() == 'mssql' or $this->db_type() == 'sybase' )
+					$this->total_records = $this->recordset->fields['__TotalRows'];
+				else {
+	
+					$r = $this->db->Execute( 'SELECT FOUND_ROWS()' )->fetch( PDO::FETCH_NUM );
+					$this->total_records = $r[0];
+				}
+
+			} 
+
+		} else $this->total_records = -1;
 
 		M()->debug('total_records: '. $this->total_records );
 
-		if ( $this->total_records == -1 ) {
+		// e) prepara el return: si hay datos devuelve un recordset con los datos, si no, null
+
+		if ( ! $this->recordset ) {
 
 			$this->loaded = false;
 
 			M()->error( sprintf( "Error al seleccionar (%d): %s", $this->ErrorNo(), $this->ErrorMsg(), $this->sql->prepare() )) ;
 			return null;
 
-		} else if ( $this->total_records == 0 ) {
+		} else if ( $this->total_records === 0 ) {
 
 			// print_r( $this->primary_key ); exit;
 			$this->loaded = false;
@@ -1217,12 +1228,11 @@ class xpDataObject extends xp {
 		} else {
 
 			return $this->load_array_recordset();
-
 		}
 
 	}/*}}}*/
 
-	function paged_query( $sql, $pr, $cp, $time ) {/*{{{*/
+	function paged_query( $sql, $pr, $cp ) {/*{{{*/
 
 		/*
 		
@@ -1289,10 +1299,7 @@ class xpDataObject extends xp {
 
 		M()->info( $query );
 
-		if ( $time )
-			return $this->db->CacheExecute( $time, $query );
-		else
-			return $this->db->Execute( $query );
+		return $this->db->Execute( $query );
 
 	}/*}}}*/
 
@@ -1807,7 +1814,7 @@ class xpDataObject extends xp {
 			return $xc;
 		}
 
-                if ( $this->is_virtual() and ! $this->is_view() ) {
+                if ( $this->is_virtual() and ! $this->count_views() ) {
 
                         M()->info( "no puedo serializar el objeto virtual {$this->class_name}" );
 			$xc['total_records'] = 0;
@@ -2614,12 +2621,6 @@ function main_sql () {/*{{{*/
 
 		return $this->transac_status;
 
-	}/*}}}*/
-
-	// funciones utilitarias
-
-	function escape( $str ) {/*{{{*/
-		return substr($this->db->qstr( $str ), 1, -1);
 	}/*}}}*/
 
 	function xpdoc() {/*{{{*/
