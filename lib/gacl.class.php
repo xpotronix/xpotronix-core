@@ -143,6 +143,9 @@ class gacl {
 		if (is_object($this->_db)) {
 			$this->db = &$this->_db;
 		} else {
+
+			// DEBUG: esto por ahora no se usa por que comparte la sesion con xpotronix
+
 			$this->db = ADONewConnection($this->_db_type);
 			//Use NUM for slight performance/memory reasons.
 			$this->db->SetFetchMode(ADODB_FETCH_NUM);
@@ -301,10 +304,18 @@ class gacl {
 		$retarr = $this->get_cache($cache_id);
 
 		if (!$retarr) {
+
+			M()->debug( "no hay un ACL cacheado para esta sesion" );
 			/*
 			 * Grab all groups mapped to this ARO/AXO
 			 */
 			$aro_group_ids = $this->acl_get_groups($aro_section_value, $aro_value, $root_aro_group, 'ARO');
+
+			M()->debug( 'aro_group_ids: '. serialize( $aro_group_ids ) );
+
+			// DEBUG: 
+
+			// print_r( $aro_group_ids ); exit;
 
 			if (is_array($aro_group_ids) AND !empty($aro_group_ids)) {
 				$sql_aro_group_ids = implode(',', $aro_group_ids);
@@ -312,6 +323,9 @@ class gacl {
 
 			if ($axo_section_value != '' AND $axo_value != '') {
 				$axo_group_ids = $this->acl_get_groups($axo_section_value, $axo_value, $root_axo_group, 'AXO');
+
+				
+				M()->debug( 'axo_group_ids: '. serialize( $axo_group_ids ) );
 
 				if (is_array($axo_group_ids) AND !empty($axo_group_ids)) {
 					$sql_axo_group_ids = implode(',', $axo_group_ids);
@@ -445,15 +459,19 @@ class gacl {
 					ORDER BY	'. implode (',', $order_by) . '
 					';
 
+			$rs = $this->db->Execute( $query. ' LIMIT 1' );
+
+			/*
 			// we are only interested in the first row
 			$rs = $this->db->SelectLimit($query, 1);
+			*/
 
 			if (!is_object($rs)) {
 				M()->error("error al ejecutar la consulta $query" );
 				return FALSE;
 			}
 
-			$row = $rs->FetchRow();
+			$row = $rs->fetch( PDO::FETCH_NUM );
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
@@ -523,7 +541,7 @@ class gacl {
 
 		$retarr = $this->get_cache($cache_id);
 
-		if (!$retarr) {
+		if ( true or !$retarr) {
 
 			// Make sure we get the groups
 			$query = '
@@ -576,11 +594,11 @@ class gacl {
 
 			$retarr = array();
 
-			//Unbuffered query?
-			while (!$rs->EOF) {
-				$retarr[] = reset($rs->fields);
-				$rs->MoveNext();
-			}
+			// DEBUG: devuelve dos arrays 
+			//  Unbuffered query?
+
+			while ( $row = $rs->fetch( PDO::FETCH_NUM ) )
+				$retarr[] = $row[0];
 
 			//Cache data.
 			$this->put_cache($retarr, $cache_id);

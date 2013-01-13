@@ -28,7 +28,7 @@ class xpIterator implements Iterator {
 
 	function __construct( $obj, $key, $where, $order, $can_jump = false ) {/*{{{*/
 
-		M()->info( "obj: {$obj->class_name}, key: ". serialize( $key ). ", where: ". serialize( $where ). ", order: ". serialize( $order ). ", can_jump: " . ( $can_jump ? 'true' : 'false' ) );
+		M()->debug( "obj: {$obj->class_name}, key: ". serialize( $key ). ", where: ". serialize( $where ). ", order: ". serialize( $order ). ", can_jump: " . ( $can_jump ? 'true' : 'false' ) );
 
 		$this->obj = $obj;
 		$this->key = $key;
@@ -57,13 +57,13 @@ class xpIterator implements Iterator {
 
 		if ( ( is_array( $this->data ) ) and ( $new_key = reset( $this->data ) ) ) {
 
-			M()->info( 'valid: true' );
+			M()->debug( 'valid: true' );
 			$this->bind( $new_key );
 			$this->valid = true;
 		}
 
 		else {
-			M()->info( 'valid: false' );
+			M()->debug( 'valid: false' );
 			$this->valid = false;
 			$this->obj->reset();
 		}
@@ -125,6 +125,11 @@ class xpIterator implements Iterator {
 
 	}/*}}}*/
 
+	function last_page() {
+
+
+	}
+
 	function next() {/*{{{*/
 
 		M()->info();
@@ -133,35 +138,35 @@ class xpIterator implements Iterator {
 
 		if ( $this->valid = ( $new_key !== false ) ) {
 
-			M()->info( "valid: {$this->valid}" );
+			M()->debug( "valid: {$this->valid}" );
 
 			$this->bind( $new_key );
 
-		} else if ( $this->can_jump and $this->obj->recordset->AtLastPage() == false ) {
+		} else if ( $this->can_jump and $this->last_page() == false ) {
 
 			$this->valid = true;
 
-			M()->info( "jumping" );
+			M()->debug( "jumping" );
 
 			unset( $this->data );
 
 			// $this->data = $this->obj->page( ++ $this->page );
 			$this->data = $this->obj->loadc( $this->key, $this->where, $this->order, ++ $this->page );
 
-			M()->info( count( $this->data ). " registros cargdos." );
+			M()->debug( count( $this->data ). " registros cargdos." );
 
 			$this->rewind();
 
 		} else {
 
-			M()->info( "not jumping" );
+			M()->debug( "not jumping" );
 			$this->reset();
 		}
 	} /*}}}*/
 
 	function valid() {/*{{{*/
 
-		M()->info( $this->valid ? 'true' : 'false' );
+		M()->debug( $this->valid ? 'true' : 'false' );
 		return $this->valid; 
 
 	} /*}}}*/

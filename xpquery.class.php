@@ -1,23 +1,7 @@
 <?
 
 /*Copyright 2003,2004 Adam Donnison <adam@saki.com.au>
-
-  This file is part of the collected works of Adam Donnison.
-
-  This is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
+*/
 
 /*
 
@@ -40,36 +24,40 @@
 
 class DBQuery {
 
+	var $sql; // literal
+
 	var $db;
 	var $query;
-	var $modifiers;
+	var $aliases; // fix para counts
+
+	private $modifiers;
 	var $table_list;
 	var $where;
 	var $having;
 	var $order_by;
 	var $group_by;
+
 	var $limit;
 	var $offset;
+
 	var $join;
 	var $type;
+
 	var $update_list;
 	var $value_list;
+
 	var $create_table;
 	var $create_definition;
 	var $_table_prefix = null;
-	var $_query_id = null;
-	var $fetch_mode = null;
+	var $stmt = null;
 
 	function DBQuery( $db_handle, $prefix = null) {/*{{{*/
 
 		global $xpdoc;
 
-		if ( $db_handle ) 
-			$this->db = $db_handle;
-		else 
-			M()->error('No encuentro la base de datos');
+		$db_handle and $this->db = $db_handle or M()->error('No encuentro la base de datos');
 
-		if (isset($prefix))
+		if ( isset($prefix) )
 			$this->_table_prefix = $prefix;
 		else if (isset($xpdoc->config->table_prefix))
 			$this->_table_prefix = $xpdoc->config->prefix;
@@ -77,16 +65,11 @@ class DBQuery {
 			$this->_table_prefix = null;
 
 		$this->clear();
+
 		return $this;
 	}/*}}}*/
 
 	function clear() {/*{{{*/
-
-		if ( isset( $this->fetch_mode ) ) {
-
-			$this->db->SetFetchMode( $this->fetch_mode );
-			$this->fetch_mode = null;
-		}
 
 		$this->type = 'select';
 		$this->query = null;
@@ -108,8 +91,8 @@ class DBQuery {
 
 	function clearQuery() {/*{{{*/
 
-		$this->_query_id and $this->_query_id->Close();
-		$this->_query_id = null;
+		$this->stmt and $this->stmt->closeCursor();
+		$this->stmt = null;
 		return $this;
 
 	}/*}}}*/
@@ -156,6 +139,7 @@ class DBQuery {
 
 	}/*}}}*/
 
+
 	/**
 	 * Add a clause to an array.  Checks to see variable exists first.
 	 * then pushes the new data onto the end of the array.
@@ -163,11 +147,11 @@ class DBQuery {
 
 	function addClause( $clause, $value, $check_array = true ) {/*{{{*/
 
-		M()->debug("Adding [". serialize( $value ) ."] to ". $clause. "clause");
+		M()->debug("Adding [". serialize( $value ) ."] to $clause clause");
 
 		isset( $this->$clause ) or $this->$clause = array();
 
-		if ( $check_array && is_array( $value ) )
+		if ( $check_array and is_array( $value ) )
 			foreach ( $value as $v )
 				array_push( $this->$clause, $v );
 		else 
@@ -185,12 +169,31 @@ class DBQuery {
 	 * @param	string	$query	Query string to use.
 	 */
 
-	function addQuery($query) {/*{{{*/
+	function addQuery( $query, $alias = null ) {/*{{{*/
 
-		$this->addClause('query', $query);
+		$alias and $query .= " AS $alias";
+		$this->addClause('query', $query );
 		return $this;
 
 	}/*}}}*/
+
+	function addSql( $query ) {/*{{{*/
+
+		$this->addClause('sql', $query );
+		return $this;
+
+	}/*}}}*/
+
+
+
+	function addModifiers( $query ) {/*{{{*/
+
+		$this->addClause('modifiers', $query );
+		return $this;
+
+	}/*}}}*/
+
+
 
 	function addInsert($field, $value, $set = false, $func = false) {/*{{{*/
 
@@ -502,18 +505,22 @@ class DBQuery {
 
 	/* prepare */
 
-	function prepare($clear = false) {/*{{{*/
+	function prepareCount() {
+
+		return $this->prepare( false, true );
+	}
+
+
+	function prepare( $clear = false, $count = false ) {/*{{{*/
 
 		// ES: esto es para que no repita los joins que siempre
 		// van a dar un error en el mysql;
-		// otros filtros de este estilo se pueden aplicar donde el 
-		// mysql no resista una duplicacion en la sentencia sql
 
 		$this->join = array_unique2( $this->join );
 
 		switch ($this->type) {
 			case 'select':
-				$q = $this->prepareSelect();
+				$q = $this->prepareSelect( $count );
 				break;
 			case 'update':
 				$q = $this->prepareUpdate();
@@ -549,7 +556,7 @@ class DBQuery {
 				break;
 		}
 
-		if ($clear) $this->clear();
+		$clear and $this->clear();
 
 		// M()->debug( 'query: '. $q );
 
@@ -610,18 +617,29 @@ class DBQuery {
 		return implode( ' ', $q );
 	}/*}}}*/
 
-	function prepareSelect() {/*{{{*/
+	function prepareSelect( $count = false ) {/*{{{*/
 
 		$q = array();
 
-		$q[] = $this->prepareSelectCommand();
-		$q[] = $this->prepareSelectFields();
-		$q[] = $this->prepareSelectFrom();
-		$q[] = $this->make_join();
-		$q[] = $this->make_where_clause();
-		$q[] = $this->make_group_clause();
-		$q[] = $this->make_having_clause();
-		$q[] = $this->make_order_clause();
+		$count and $this->addModifiers( 'SQL_CALC_FOUND_ROWS' );
+
+		if ( $this->sql ) {
+
+			$q[] = array_shift( $this->sql );
+			$q[] = $this->make_order_clause();
+
+		} else {
+
+
+			$q[] = $this->prepareSelectCommand();
+			$q[] = $this->prepareSelectFields();
+			$q[] = $this->prepareSelectFrom();
+			$q[] = $this->make_join();
+			$q[] = $this->make_where_clause();
+			$q[] = $this->make_group_clause();
+			$q[] = $this->make_having_clause();
+			$q[] = $this->make_order_clause();
+		}
 
 		return implode( ' ', $q );
 	}/*}}}*/
@@ -870,50 +888,45 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	/* Execute the query and return a handle.  Supplants the db_exec query */
 
-	function &exec($style = ADODB_FETCH_ASSOC, $debug = false) {/*{{{*/
+	function explain( $q ) {/*{{{*/
 
-		if (! isset($this->fetch_mode ) )
-			$this->fetch_mode = $this->db->fetchMode;
-		$this->db->SetFetchMode( $style );
-		$this->clearQuery();
-		if ($q = $this->prepare()) {
-			// M()->debug( "executing query($q)" );
-			if ($debug) {
-				// Before running the query, explain the query and return the details.
-				$qid = $this->db->Execute('EXPLAIN ' . $q);
-				if ($qid) {
-					$res = array();
-					while ($row = $this->fetchRow()) {
-						$res[] = $row;
-					}
-					M()->debug( "QUERY DEBUG: " . var_export($res, true));
-					$qid->Close();
-				}
+		// Before running the query, explain the query and return the details.
+		$qid = $this->db->Execute('EXPLAIN ' . $q);
+
+		if ($qid) {
+			$res = array();
+			while ($row = $this->fetchRow( $style )) {
+				$res[] = $row;
 			}
-			if (isset($this->limit)) {
-				$this->_query_id = $this->db->SelectLimit($q, $this->limit, $this->offset);
-			} else {
-				$this->_query_id =  $this->db->Execute($q);
-			}
-			if (! $this->_query_id) {
-				$error = $this->db->ErrorMsg();
-				return $this->_query_id;
-			}
+			M()->debug( "QUERY DEBUG: " . var_export($res, true));
+			$qid->Close();
 		}
-		return $this->_query_id;
+	}/*}}}*/
+
+	function exec( $style = PDO::FETCH_ASSOC, $debug = false ) {/*{{{*/
+
+		$this->clearQuery();
+
+		if ( $q = $this->prepare() ) {
+			// M()->debug( "executing query($q)" );
+			$this->stmt = ( $this->limit ) ? 
+				$this->db->PageExecute($q, $this->offset, $this->limit ):
+				$this->db->Execute( $q );
+		}
+		return $this->stmt;
 	}/*}}}*/
 
 	function fetchRow() {/*{{{*/
 
-		if (! $this->_query_id) {
+		if (! $this->stmt) {
 			return false;
 		}
-		return $this->_query_id->FetchRow();
+		return $this->stmt->fetch();
 	}/*}}}*/
 
         function loadList($maxrows = null) {/*{{{*/
 
-                if (! $this->exec(ADODB_FETCH_ASSOC)) {
+                if (! $this->exec(PDO::FETCH_ASSOC)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
 			M()->error( $this->prepare() );
                         $this->clear();
@@ -924,7 +937,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
                 $cnt = 0;
                 while ($hash = $this->fetchRow()) {
                         $list[] = $hash;
-                        if ($maxrows && $maxrows == $cnt++)
+                        if ($maxrows and $maxrows == $cnt++)
                                 break;
                 }
                 $this->clear();
@@ -933,7 +946,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function loadHashList($index = null) {/*{{{*/
 
-		if (! $this->exec(ADODB_FETCH_ASSOC)) {
+		if (! $this->exec(PDO::FETCH_ASSOC)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
 			M()->error( $this->prepare() );
                         $this->clear();
@@ -958,7 +971,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function loadHash() {/*{{{*/
 
-		if (! $this->exec(ADODB_FETCH_ASSOC)) {
+		if (! $this->exec(PDO::FETCH_ASSOC)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
 			M()->error( $this->prepare() );
                         $this->clear();
@@ -971,7 +984,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function loadArrayList($index = 0) {/*{{{*/
 
-		if (! $this->exec(ADODB_FETCH_NUM)) {
+		if (! $this->exec(PDO::FETCH_NUM)) {
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg());
 			M()->error( $this->prepare() );
                         $this->clear();
@@ -988,7 +1001,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function loadColumn() {/*{{{*/
 
-		if (! $this->exec(ADODB_FETCH_NUM)) {
+		if (! $this->exec(PDO::FETCH_NUM)) {
 
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg() );
 			M()->error( $this->prepare() );
@@ -1006,7 +1019,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function loadObject( &$object, $bindAll=false , $strip = true) {/*{{{*/
 
-		if (! $this->exec(ADODB_FETCH_NUM)) {
+		if (! $this->exec(PDO::FETCH_NUM)) {
 
 			M()->error( "Error en la consulta: ".$this->db->ErrorMsg() );
 			M()->error( $this->prepare() );
@@ -1022,7 +1035,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 			$this->bindHashToObject( $hash, $object, null, $strip, $bindAll );
 			return true;
 		} else {
-			if ($object = $this->_query_id->FetchNextObject(false)) {
+			if ($object = $this->stmt->FetchNextObject(false)) {
 				$this->clear();
 				return true;
 			} else {
@@ -1030,31 +1043,6 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 				return false;
 			}
 		}
-	}/*}}}*/
-
-	/**
-	 * Using an XML string, build or update a table.
-	 */
-
-	function execXML($xml, $mode = 'REPLACE') {/*{{{*/
-
-		include_once 'adodb-xmlschema.inc.php';
-		$schema = new adoSchema($this->db);
-		$schema->setUpgradeMode($mode);
-		if (isset($this->_table_prefix) && $this->_table_prefix) {
-			$schema->setPrefix($this->_table_prefix, false);
-		}
-		$schema->ContinueOnError(true);
-
-		if (($sql = $scheme->ParseSchemaString($xml)) == false) {
-
-			M()->error( 'Error in XML Schema', $this->db->ErrorMsg());
-			M()->error( $this->prepare() );
-			return false;
-		}
-
-		return (bool) $schema->ExecuteSchema($sql, true);
-
 	}/*}}}*/
 
 	/** function loadResult
@@ -1065,7 +1053,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 		$result = false;
 
-		if (! $this->exec(ADODB_FETCH_NUM)) {
+		if (! $this->exec(PDO::FETCH_NUM)) {
 
 			M()->error( $this->db->ErrorMsg());
 			M()->error( $this->prepare() );
@@ -1084,7 +1072,7 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function quote($string) {/*{{{*/
 
-		return $this->db->qstr($string, get_magic_quotes_runtime());
+		return $this->db->quote($string);
 	}/*}}}*/
 
 	function quote_name($string) {/*{{{*/

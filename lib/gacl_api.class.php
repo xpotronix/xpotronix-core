@@ -1308,7 +1308,7 @@ class gacl_api extends gacl {
 		 */
 		$sorted_groups = array();
 
-		while ($row = $rs->FetchRow()) {
+		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
 			$id = &$row[0];
 			$parent_id = &$row[1];
 			$name = &$row[2];
@@ -1461,7 +1461,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row_count = $rs->RecordCount();
+		$row_count = $rs->rowCount();
 
 		if ($row_count > 1) {
 			M()->debug("Returned $row_count rows, can only return one. Please make your names unique.");
@@ -1473,7 +1473,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row = $rs->FetchRow();
+		$row = $rs->fetch(PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -1614,7 +1614,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row_count = $rs->RecordCount();
+		$row_count = $rs->rowCount();
 
 		if ($row_count > 1) {
 			M()->debug("Returned $row_count rows, can only return one. Please make your names unique.");
@@ -1626,7 +1626,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row = $rs->FetchRow();
+		$row = $rs->fetch(PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -1666,11 +1666,11 @@ class gacl_api extends gacl {
 			return FALSE;
 		}
 
-		$row_count = $rs->RecordCount();
+		$row_count = $rs->rowCount();
 
 		switch ($row_count) {
 			case 1:
-				$row = $rs->FetchRow();
+				$row = $rs->fetch(PDO::FETCH_NUM);
 				// Return the ID.
 				return $row[0];
 			case 0:
@@ -1908,7 +1908,7 @@ class gacl_api extends gacl {
 		$retarr = array();
 
 		//format return array.
-		while ($row = $rs->FetchRow()) {
+		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
 			$section = &$row[0];
 			$value = &$row[1];
 
@@ -1971,12 +1971,12 @@ class gacl_api extends gacl {
 			return FALSE;
 		}
 
-		if ($rs->RecordCount() != 1) {
+		if ($rs->rowCount() != 1) {
 			M()->error('add_group_object(): Value ('. $object_value .') OR Section value ('. $object_section_value .') is invalid. Does this object exist?');
 			return FALSE;
 		}
 
-		$row = $rs->FetchRow();
+		$row = $rs->fetch(PDO::FETCH_NUM);
 
 		if ($row[1] != $group_id) {
 			M()->error('add_group_object(): Group ID ('. $group_id .') is invalid. Does this group exist?');
@@ -2272,7 +2272,7 @@ class gacl_api extends gacl {
 		// the right value of this node is the left value + 1
 		$right = $left + 1;
 
-		while ($row = $rs->FetchRow()) {
+		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
 			// recursive execution of this function for each
 			// child of this node
 			// $right is the current right value, which is
@@ -2731,7 +2731,7 @@ class gacl_api extends gacl {
 
 		$retarr = array();
 
-		while ($row = $rs->FetchRow()) {
+		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
 			$retarr[$row[0]][] = $row[1];
 		}
 
@@ -2789,7 +2789,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		if ($rs->RecordCount() < 1) {
+		if ($rs->rowCount() < 1) {
 			M()->debug('get_object_data(): Returned  '. $row_count .' rows');
 			return FALSE;
 		}
@@ -2852,7 +2852,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row_count = $rs->RecordCount();
+		$row_count = $rs->rowCount();
 
 		if ($row_count > 1) {
 			M()->debug("Returned $row_count rows, can only return one. This should never happen, the database may be missing a unique key.");
@@ -2864,7 +2864,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row = $rs->FetchRow();
+		$row = $rs->fetch(PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -2920,7 +2920,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row_count = $rs->RecordCount();
+		$row_count = $rs->rowCount();
 
 		if ($row_count > 1) {
 			M()->debug("Returned $row_count rows, can only return one.");
@@ -2932,7 +2932,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$row = $rs->FetchRow();
+		$row = $rs->fetch(PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -2999,7 +2999,7 @@ class gacl_api extends gacl {
 
 		$retarr = array();
 
-		while ($row = $rs->FetchRow()) {
+		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
 			$retarr[] = $row[0];
 		}
 
@@ -3084,13 +3084,13 @@ class gacl_api extends gacl {
 			return FALSE;
 		}
 
-		if ($rs->RecordCount() != 1) {
+		if ($rs->rowCount() != 1) {
 			// Section is invalid
 			M()->error("Section Value: $section_value Object Type ($object_type) does not exist, this is required");
 			return false;
 		}
 
-		$row = $rs->FetchRow();
+		$row = $rs->fetch(PDO::FETCH_NUM);
 
 		if ($row[0] == 1) {
 			M()->info( 'el objeto ya existe' );
@@ -3494,12 +3494,12 @@ class gacl_api extends gacl {
 			return FALSE;
 		}
 
-		$row_count = $rs->RecordCount();
+		$row_count = $rs->rowCount();
 
 		// If only one row is returned
 		if ($row_count == 1) {
 			// Return only the ID in the first row.
-			$row = $rs->FetchRow();
+			$row = $rs->fetch(PDO::FETCH_NUM);
 			return $row[0];
 		}
 
