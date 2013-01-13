@@ -219,22 +219,18 @@ class xpDataObject extends xp {
 
 		*/
 
-		if ( $this->check_vars and !array_key_exists( $var_name, $this->data ) ) {
-
-			if ( is_array( $this->aliases ) and !array_key_exists( $var_name, $this->aliases ) ) { 
-
-				M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
-				M()->line(1);
-				return null;
-
-			} else {
-
+		if ( is_array( $this->aliases ) and array_key_exists( $var_name, $this->aliases ) )  
 				$var_name = $this->aliases[$var_name]->name;
-			}
-		}
-			
 
-		return @$this->data[$var_name] ;
+		if ( array_key_exists( $var_name, $this->data ) )
+			return $this->data[$var_name];
+
+		if ( $this->check_vars ) {
+
+			M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
+			M()->line(1);
+			return null;
+		}
 
 	}/*}}}*/
 
@@ -1073,7 +1069,7 @@ class xpDataObject extends xp {
 
 			if ( is_array ( @$const['OR'] ) and count( $or_array = $const['OR'] ) ) {
 
-				$constraint_fn = ( $this->db_type() == 'mssql' or $this->db_type() == 'sybase' ) ? 'addWhere' : 'addHaving' ;
+				$constraint_fn = ( $this->db_type() == 'dblib' ) ? 'addWhere' : 'addHaving' ;
 
 				$this->sql->$constraint_fn( '( '. implode( ' OR ', $or_array ). ' )' );
 			}
@@ -1145,7 +1141,7 @@ class xpDataObject extends xp {
 
 		} else { 
 
-			if ( $this->db_type() == 'mssql' or $this->db_type() == 'sybase' ) {
+			if ( $this->db_type() == 'dblib' ) {
 
 				$sql_code = array( $this->sql );
 
@@ -1170,9 +1166,9 @@ class xpDataObject extends xp {
 
 			if ( $pr ) {
 
-				if ( $this->db_type() == 'mssql' or $this->db_type() == 'sybase' ) {
+				if ( $this->db_type() == 'dblib' ) {
 
-					// hace la paginacion via consulta para los motores que no tienen LIMIT (mssql)
+					// hace la paginacion via consulta para los motores que no tienen LIMIT (dblib)
 					$this->recordset = $this->paged_query( $sql_p, $pr, $cp );
 
 				} else {
@@ -1195,7 +1191,7 @@ class xpDataObject extends xp {
 
 				// $this->total_records = $this->recordset->rowCount();
 
-				if ( $this->db_type() == 'mssql' or $this->db_type() == 'sybase' )
+				if ( $this->db_type() == 'dblib' )
 					$this->total_records = $this->recordset->fields['__TotalRows'];
 				else {
 	
