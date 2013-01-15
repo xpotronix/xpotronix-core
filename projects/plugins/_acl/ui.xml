@@ -170,7 +170,7 @@
 		<panel type="xpGrid"/>
 		<feat><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>
 		<field name="group_id" translate="group_id" validate="empty" eh="aro_groups"/>
-		<field name="aro_id" translate="aro_id" validate="empty" eh="aro_id"/>
+		<field name="aro_id" translate="aro_id" validate="empty" eh="aro_name"/>
 	</table><!--}}}-->
 
 	<table name="gacl_aco" translate="Accion"><!--{{{-->

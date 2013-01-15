@@ -72,6 +72,14 @@
          <order_by>value</order_by>
    </query>
 
+   <query name="aro_name">
+         <id>gacl_aro.id</id>
+         <label>gacl_aro.name</label>
+         <from>gacl_aro</from>
+         <order_by>name</order_by>
+   </query>
+
+
    <query name="axo_id">
          <id>gacl_axo.value</id>
          <label>gacl_axo.value</label>
