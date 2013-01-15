@@ -14,15 +14,7 @@
 
    <table name="audit">
 	<code type="php" mode="class_functions">
-
-	function main_sql() {/*{{{*/
-
-		if ( $this->has_role( 'admin' ) )
-			return;
-		else
-			$this->sql->addWhere('1=0');
-	}/*}}}*/
-
+	
 		function repost( $xml ) {/*{{{*/
 
 			$this->loaded or $this->load( $xml['ID'] );
@@ -133,6 +125,15 @@
 			$this->pop_privileges();
 
 		}/*}}}*/
+
+	function prepare_data( $obj ) {
+
+		global $xpdoc;
+
+		// solo visible por admin por que por aqui van los passwords
+		if ( $xpdoc->user->user_username != 'admin' )
+			$obj->transac_data = '------';
+	}
 
 	</code>
    </table>
