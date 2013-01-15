@@ -278,6 +278,8 @@
 
 				M()->info( "login exitoso" );
 
+		                $this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+
 				if ( $this->user_exists( $username ) ) {
 
 					M()->info( "el usuario existe. Actualizando la clave" );
@@ -297,10 +299,10 @@
 
 					$ret = (bool) $this->create( $username, $password );
 
-					$this->pop_privileges();
-
 					return $ret;
 				}
+
+				$this->pop_privileges();
 
 			} else {
 
