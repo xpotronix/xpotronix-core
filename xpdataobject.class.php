@@ -1415,10 +1415,13 @@ class xpDataObject extends xp {
 			$this->loaded = true;
 			$this->set_primary_key();
 
+			M()->debug( "llamando a $this->class_name::post_check()" );
 			$this->post_check();
+			M()->debug( "volviendo de  $this->class_name::post_check()" );
 		}
 
 		$this->feat->load_after_store and $this->load();
+
 
 		return $this->transac_status;
 	}/*}}}*/
@@ -1846,7 +1849,7 @@ class xpDataObject extends xp {
 
 			foreach ( $objs as $obj ) {
 
-				$obj->prepare_data(); // DEBUG: prepare_data deberia ir directamente en el iterador?
+				$obj->prepare_data( $obj ); // DEBUG: prepare_data deberia ir directamente en el iterador?
 				simplexml_append( $xc, $obj->serialize_row( $flags ) );
 			} 
 

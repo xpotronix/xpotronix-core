@@ -23,6 +23,7 @@ class xpadodb extends PDO {
 	function __construct( $implem ) {/*{{{*/
 
 		if ( $implem == 'mysqli' ) $implem = 'mysql';
+		if ( $implem == 'mssql' ) $implem = 'dblib';
 
 		$this->databaseType = $implem;
 		$this->implementation = $implem;
@@ -48,12 +49,18 @@ class xpadodb extends PDO {
 
 		M()->debug( $conn_str );
 
-		parent::__construct( $conn_str, $user, $password, array( PDO::ATTR_PERSISTENT => $persist ) );
+		parent::__construct( $conn_str, $user, $password );
 
 		$this->setAttribute( PDO::ATTR_STATEMENT_CLASS, array('xpadostatement', array( $this ) ) );
 		$this->setAttribute( PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC );
 		$this->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 
+		if ( $this->implementation == 'mysql' ) {
+
+			$this->setAttribute( PDO::ATTR_PERSISTENT, $persist );
+			$this->Execute( "SET NAMES $encoding" );
+
+		}
 
 		return $this;
 	}/*}}}*/
@@ -92,6 +99,7 @@ class xpadodb extends PDO {
 		return $this->errorInfo();
 	}/*}}}*/
 
+	function BeginTrans() { return $this->beginTransaction(); }
 	function StartTrans() { return $this->beginTransaction(); }
 	function CommitTrans() { return $this->commit(); }
 	function CompleteTrans() { return $this->commit(); }
@@ -99,13 +107,13 @@ class xpadodb extends PDO {
 	function Insert_ID() { return $this->lastInsertId(); }
 
 	function GetCol( $query = null ) {
-		return $this->query( $query )->fetchColumn();
+		return $this->query( $query )->fetchColumn( PDO::FETCH_NUM );
 	}
 	function GetOne( $query = null ) {
-		return $this->query( $query )->fetch();
+		return $this->query( $query )->fetch( PDO::FETCH_NUM );
 	}
 	function GetRow( $query = null ) {
-		return $this->query( $query )->fetch();
+		return $this->query( $query )->fetch( PDO::FETCH_NUM );
 	}
 } 
 
@@ -119,7 +127,7 @@ class xpadostatement extends PDOStatement {
 	}
 
 	function GetRows() {
-		return $this->fetchAll();
+		return $this->fetchAll( PDO::FETCH_NUM );
 	}
 }
 
