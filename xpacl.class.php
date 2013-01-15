@@ -127,12 +127,14 @@ class xpacl extends gacl_api {
 	}/*}}}*/
 
 	function addLogin($login, $username) {/*{{{*/
+		M()->debug( "login: $login, username: $username" );
 		$res = $this->add_object("user", $username, $login, 1, 0, "aro");
 		if (! $res) M()->warn("Failed to add user permission object");
 		return $res;
 	}/*}}}*/
 
 	function updateLogin($login, $username) {/*{{{*/
+		M()->debug( "login: $login, username: $username" );
 		$id = $this->get_object_id("user", $login, "aro");
 		if (! $id)
 			return $this->addLogin($login, $username);
