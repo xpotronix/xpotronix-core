@@ -10,21 +10,19 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-class xpadodb {
+class xpadodb extends PDO {
 
-	var $instance;
-	var $pdo;
-	var $database;
-	var $host;
-	var $user;
-	var $password;
+	private $database;
+	private $host;
+	private $user;
+	private $password;
+
 	var $implem;
 	var $databaseType;
 
 	function __construct( $implem ) {/*{{{*/
 
 		if ( $implem == 'mysqli' ) $implem = 'mysql';
-		if ( $implem == 'mssql' ) $implem = 'dblib';
 
 		$this->databaseType = $implem;
 		$this->implementation = $implem;
@@ -46,78 +44,83 @@ class xpadodb {
 
 		$encoding or $encoding = 'utf8';
 
-		$conn_str = sprintf( "%s:host=%s;dbname=%s", $this->implementation, $host, $database );
+		$conn_str = sprintf( "%s:host=%s;dbname=%s;charset=%s", $this->implementation, $host, $database, $encoding );
 
 		M()->debug( $conn_str );
 
-		if ( $this->databaseType == 'mysql' ) {
-			$this->pdo = new PDO( $conn_str, $user, $password, array(PDO::ATTR_PERSISTENT => $persist ) );
-			$this->pdo->exec("SET NAMES $encoding");
-		}
-		else if ( $this->databaseType == 'dblib' )
-			$this->pdo = new PDO( $conn_str, $user, $password );
-		else 
-			$this->pdo = new PDO( $conn_str, $user, $password, array(PDO::ATTR_PERSISTENT => $persist ) );
+		parent::__construct( $conn_str, $user, $password, array( PDO::ATTR_PERSISTENT => $persist ) );
 
+		$this->setAttribute( PDO::ATTR_STATEMENT_CLASS, array('xpadostatement', array( $this ) ) );
+		$this->setAttribute( PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC );
+		$this->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 
-		// Default fetch mode
-		$this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-		// Error handling
-		$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 
 		return $this;
 	}/*}}}*/
 
 	function SetFetchMode( $fm ) {/*{{{*/
 
-		$this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fm );
+		$this->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fm );
 		return $this;
 	}/*}}}*/
 
 	function Execute( $sql ) {/*{{{*/
 
 		// M()->user( $sql );
-
-		return $this->pdo->query( $sql );
+		return $this->query( $sql );
 
 	}/*}}}*/
 
 	function PageExecute( $sql, $pr, $cp ) {/*{{{*/
-
-		$limit = array();
 
 		$limit = $pr;
 		$offset = $pr * ( $cp -1 );
 
 		M()->debug( "limit: $limit, offset: $offset" );
 
-		return $this->pdo->query( $sql. " LIMIT $offset, $limit" );
+		return $this->query( $sql. " LIMIT $offset, $limit" );
 	}/*}}}*/
 
 	function ErrorNo() {/*{{{*/
 
-		return $this->pdo->errorCode();
+		return $this->errorCode();
 
 	}/*}}}*/
 
 	function ErrorMsg() {/*{{{*/
 
-		return $this->pdo->errorInfo();
+		return $this->errorInfo();
 	}/*}}}*/
 
-	function quote( $str ) {/*{{{*/
+	function StartTrans() { return $this->beginTransaction(); }
+	function CommitTrans() { return $this->commit(); }
+	function CompleteTrans() { return $this->commit(); }
+	function RollbackTrans() { return $this->rollBack(); }
+	function Insert_ID() { return $this->lastInsertId(); }
 
-		return $this->pdo->quote( $str );
+	function GetCol( $query = null ) {
+		return $this->query( $query )->fetchColumn();
+	}
+	function GetOne( $query = null ) {
+		return $this->query( $query )->fetch();
+	}
+	function GetRow( $query = null ) {
+		return $this->query( $query )->fetch();
+	}
+} 
 
-	}/*}}}*/
+class xpadostatement extends PDOStatement {
 
-	function StartTrans() { return $this->pdo->beginTransaction(); }
-	function CommitTrans() { return $this->pdo->commit(); }
-	function CompleteTrans() { return $this->pdo->commit(); }
-	function RollbackTrans() { return $this->pdo->rollBack(); }
-	function Insert_ID() { return $this->pdo->lastInsertId(); }
+	public $db;
+	
+	private function __construct( $db ) {
+
+		$this->db = $db;
+	}
+
+	function GetRows() {
+		return $this->fetchAll();
+	}
 }
 
 ?>
