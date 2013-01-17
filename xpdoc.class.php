@@ -25,6 +25,8 @@ class xpdoc extends xp {
 	protected $db = array();
 	private $_xpid;
 
+	var $db_driver;
+
 	var $config;
 	var $feat;
 
@@ -92,6 +94,8 @@ class xpdoc extends xp {
 
 	function  __construct( $config_file = null, $feat_file = null ) {/*{{{*/
 
+		$this->db_driver = 'PDO';
+
 		M()->info("current working directory: ". getcwd() );
 
 		$this->load_ini();	
@@ -139,6 +143,12 @@ class xpdoc extends xp {
 		return $this;
 
 	}/*}}}*/
+
+	function db_driver( $driver = null ) {
+
+		$driver and $this->db_driver = $driver;
+		return $this->db_driver;
+	}
 
 	function set_model( $model = null ) {/*{{{*/
 
@@ -227,15 +237,13 @@ class xpdoc extends xp {
 
 			// parametros acumulativos entre instancias de base de datos
 			// shorthands
-
-			$encoding = 'utf8';
  
 			$instance->database and $database = (string) $instance->database;
 			$instance->host and $host = (string) $instance->host;
 			$instance->user and $user = (string) $instance->user;
 			$instance->password and $password = (string) $instance->password;
 			$instance->implementation and $implem = (string) $instance->implementation;
-			$instance->encoding and $encoding = (string) $instance->encoding;
+			$encoding = (string) $instance->encoding or $encoding = 'utf8';
 
 			// check de parametros;
 
@@ -250,9 +258,17 @@ class xpdoc extends xp {
 			( $implem and M()->info( "implementation: $implem" ) ) 
 				or M()->warn( 'debe especificar una implementacion de la base de datos' );
 
-			// $this->db_instance( $in, NewADOConnection( $implem ) );
+
+			switch( $this->db_driver ) {
+
+				case 'ADODB':
+					require_once 'adodb.inc.php';
+					$this->db_instance( $in, NewADOConnection( $implem ) );
+					break;
+				default:
+					$this->db_instance( $in, new xpadodb( $implem ) );
+			}
 			
-			$this->db_instance( $in, new xpadodb( $implem ) );
 
 			( $instance->table_prefix ) and ( $this->db_instance( $in )->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
 
@@ -270,6 +286,7 @@ class xpdoc extends xp {
 
 			$instance->force_utf8 and $this->db_instance( $in )->force_utf8 = true and M()->info( "force_utf8" );
 
+			$instance->encoding and $this->db_instance( $in )->__encoding = (string) $instance->encoding and M()->info( "encoding: $instance->encoding" );
 		}
 
 		return true;
