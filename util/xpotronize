@@ -1,7 +1,13 @@
 #!/usr/bin/php
 <?
 
-ini_set( 'display_errors', 1 );
+// ini_set( 'xdebug.profiler_enable_trigger', 0 );
+// ini_set( 'xdebug.collect_params', 2 );
+// ini_set( 'xdebug.show_mem_delta', 1); 
+// xdebug_start_trace('/tmp/xpotronix-trace.xt');
+
+
+ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
 ini_set( 'error_log', 'syslog' );
 
@@ -15,6 +21,7 @@ $x = new xpotronize;
 $x->check_params_xpotronize();
 
 $xpdoc = new xpdoc( $x->config, $x->feat );
+$xpdoc->db_driver( 'ADODB' );
 
 if ( @$x->opts['f'] ) {
 
@@ -44,6 +51,9 @@ M()->user( "xpotronize: aplicacion {$x->feat->application}" );
 ( $x->config->self === true or $x->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
 
 $x->transform();
+
+// xdebug_stop_trace();
+
 exit(0);
 
 ?>

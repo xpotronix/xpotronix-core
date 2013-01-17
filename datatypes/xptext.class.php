@@ -12,7 +12,9 @@
 
 class xptext extends xpattr {
 
-	function encode( $value = NULL ) {/*{{{*/
+	/*
+
+	function encode( $value = NULL ) {
 
 		// codifica los valores para la base de datos
 
@@ -42,9 +44,9 @@ class xptext extends xpattr {
 
 			return parent::encode( $value );
 
-	}/*}}}*/
+	}
 
-	function decode( $value = NULL ) {/*{{{*/
+	function decode( $value = NULL ) {
 
 		// decodifica los valores de la base de datos
 
@@ -72,7 +74,9 @@ class xptext extends xpattr {
 
 			return parent::decode( $value );
 
-	}/*}}}*/
+	}
+
+	*/
 
 }
 

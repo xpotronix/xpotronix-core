@@ -97,14 +97,14 @@ class xpconfig {
 
 		if ( count( $tmp->children() ) ) {
 
-			M()->info( "var_name: $var_name, type: XML" );
+			// M()->info( "var_name: $var_name, type: XML" );
 			return $tmp;
 
 		} else {
 
 			$tmp_type = (string) ( $tmp['type'] ? $tmp['type'] : 'string' );
 
-			M()->info( "var_name: $var_name, type: $tmp_type, value: $tmp" );
+			// M()->info( "var_name: $var_name, type: $tmp_type, value: $tmp" );
 
 			if ( $tmp_type == 'bool' or $tmp_type == 'boolean' )
 			
@@ -125,7 +125,7 @@ class xpconfig {
 			return null;
 		}
 
-		M()->info( "var_name: $var_name, value: $var_value" );
+		// M()->info( "var_name: $var_name, value: $var_value" );
 
 		$this->data->$var_name = (string) $var_value;
 		$var =& $this->data->$var_name;

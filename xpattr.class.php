@@ -97,7 +97,7 @@ class xpattr extends xp {
 		if ( $this->obj->track_modified ) {
       	 		$this->modified = true;
 	 		$this->obj->modified = true;
-			M()->debug("modificado $this->name");
+			// M()->debug("modificado $this->name");
 		}
 	 	return $this->obj->data[$this->name] = $var_value;
 
@@ -241,13 +241,13 @@ function metadata() {/*{{{*/
 
 		$value = $this->unserialize( (string) $xml );
 
-		M()->info( "prev value: $value" );
+		// M()->info( "prev value: $value" );
 
 		if ( $this->value != $value ) {
 
 			$this->value = $value;
 			$this->obj->modified = true;
-			M()->info($this->obj->class_name.'::'.$this->name.' = '.$this->value );
+			// M()->info($this->obj->class_name.'::'.$this->name.' = '.$this->value );
 		}
 
 		// $this->debug_object(); exit;
@@ -265,7 +265,7 @@ function metadata() {/*{{{*/
 
 		$this->label = $value ? $value : null;
 
-		$value and M()->debug( $this->label );
+		// $value and M()->debug( $this->label );
 	}
 
    }/*}}}*/
