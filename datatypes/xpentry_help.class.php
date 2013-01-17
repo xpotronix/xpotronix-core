@@ -22,7 +22,7 @@ class xpentry_help extends xptext {
 
 		$this->label = $value ? $value : null;
 
-		$value and M()->debug( $this->label );
+		// $value and M()->debug( $this->label );
 		
 		return $this;
 	}/*}}}*/

@@ -45,7 +45,7 @@ class xpdatetime extends xpdate {
 
 		$value = trim( $value );
 
-		M()->info( "value: $value" );
+		// M()->info( "value: $value" );
 
 		$dt = new DateTime();
 

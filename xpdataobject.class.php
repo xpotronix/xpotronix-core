@@ -223,7 +223,7 @@ class xpDataObject extends xp {
 			return $this->data[$var_name];
 
 		if ( is_array( $this->aliases ) and array_key_exists( $var_name, $this->aliases ) )  
-				$var_name = $this->aliases[$var_name]->name;
+			$var_name = $this->aliases[$var_name]->name;
 
 		if ( $this->check_vars ) {
 
@@ -243,7 +243,6 @@ class xpDataObject extends xp {
 
 			$this->$var_name = $var_value;
 			( $var_name == 'data' ) or M()->warn( "asignando una tipo complejo a un dato simple $this->class_name::$var_name" );
-
 		}
 
 		else if ( $attr = $this->get_attr( $var_name ) ) {

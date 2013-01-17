@@ -41,14 +41,14 @@ class xpdate extends xpattr {
 
 		if ( ! $value ) return null;
 
-		M()->debug( 'valor previo: '. $value );
+		// M()->debug( 'valor previo: '. $value );
 
 		if ( $p = strpos( $value, '(' ) ) 
 			$value = substr( $value, 0, $p ); // elimina el () al final
 
 		$value = trim( $value );
 
-		M()->debug( 'valor nuevo: '. $value );
+		// M()->debug( 'valor nuevo: '. $value );
 
 
 		if ( $date = $this->create( $value ) ) 
@@ -61,7 +61,7 @@ class xpdate extends xpattr {
 
 		$value = trim( $value );
 
-		M()->info( "value: $value" );
+		// M()->info( "value: $value" );
 
 		$dt = new DateTime();
 
@@ -109,7 +109,7 @@ class xpdate extends xpattr {
 		if ( $value === NULL ) 
 			$value = $this->value;
 
-		M()->debug( 'valor: '. $value );
+		// M()->debug( 'valor: '. $value );
 
 		if ( $value === NULL or $value == $this->db_null_str() ) 
 			return NULL;
@@ -125,7 +125,7 @@ class xpdate extends xpattr {
 		if ( $value === NULL ) 
 			$value = $this->value;
 
-		M()->debug( 'valor: '. $value );
+		// M()->debug( 'valor: '. $value );
 
 		if ( $value ) {
 
