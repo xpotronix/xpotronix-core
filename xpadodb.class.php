@@ -29,7 +29,7 @@ class xpadodb extends PDO {
 		$this->implementation = $implem;
 
 		return $this;
-	}/*}}}*/
+	}/*}}}*/ 
 
 	function PConnect( $host, $user, $password, $database, $encoding = null ) {/*{{{*/
 
@@ -53,6 +53,7 @@ class xpadodb extends PDO {
 
 		$this->setAttribute( PDO::ATTR_STATEMENT_CLASS, array('xpadostatement', array( $this ) ) );
 		$this->setAttribute( PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC );
+		// $this->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 		$this->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 
 		if ( $this->implementation == 'mysql' ) {
@@ -88,15 +89,27 @@ class xpadodb extends PDO {
 		return $this->query( $sql. " LIMIT $offset, $limit" );
 	}/*}}}*/
 
+
+	function ErrorNoSQL() {/*{{{*/
+
+		$r = $this->errorInfo();
+		return $r[0];
+
+	}/*}}}*/
+
+
 	function ErrorNo() {/*{{{*/
 
-		return $this->errorCode();
+		$r = $this->errorInfo();
+		return $r[1];
 
 	}/*}}}*/
 
 	function ErrorMsg() {/*{{{*/
 
-		return $this->errorInfo();
+		$r = $this->errorInfo();
+		return $r[2];
+
 	}/*}}}*/
 
 	function BeginTrans() { return $this->beginTransaction(); }
@@ -114,6 +127,12 @@ class xpadodb extends PDO {
 	}
 	function GetRow( $query = null ) {
 		return $this->query( $query )->fetch( PDO::FETCH_NUM );
+	}
+
+	public static function closeCursor($oStm) { 
+	    if ( $oStm->db->implementation == 'mysql' )
+	    do $oStm->fetchAll( PDO::FETCH_NUM ); 
+	    while ( $oStm->nextRowSet() ); 
 	}
 } 
 

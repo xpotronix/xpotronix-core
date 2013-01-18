@@ -10,14 +10,15 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-define( 'NO_OP',     'n' );
-define( 'INSERT_OP', 'i' );
-define( 'UPDATE_OP', 'u' );
-define( 'DELETE_OP', 'd' );
-define( 'NOT_VALID', 'v' );
-define( 'NOT_FOUND', 'f' );
-define( 'NO_PERMS',  'p' );
-define( 'DB_ERROR',  'e' );
+define( 'NO_OP',      'n' );
+define( 'INSERT_OP',  'i' );
+define( 'UPDATE_OP',  'u' );
+define( 'REPLACE_OP', 'r' );
+define( 'DELETE_OP',  'd' );
+define( 'NOT_VALID',  'v' );
+define( 'NOT_FOUND',  'f' );
+define( 'NO_PERMS',   'p' );
+define( 'DB_ERROR',   'e' );
 
 require_once 'xpattr.class.php';
 require_once 'xpquery.class.php';
@@ -73,6 +74,7 @@ class xpDataObject extends xp {
 	// consulta del objeto;
 	var $sql;
 	var $xsql;
+	var $affected_records;
 
 	// recordset de la ultima consulta
 	var $recordset;
@@ -694,6 +696,8 @@ class xpDataObject extends xp {
 			$objs = array();
 			$objs_count = 0;
 
+			// M()->mem_stats( 'entro a load_array_recordset' );
+
 			while ( $row = $this->recordset->fetch() ) {
 
 				$this->reset();
@@ -710,6 +714,11 @@ class xpDataObject extends xp {
 			if ( count( $objs ) < $objs_count ) 
 
 				M()->warn( 'en '. $this->class_name .' se han cargado menos items que los que se contaron. Revise la clave primaria (que deben ser valores unicos)' );
+			// $this->db->closeCursor( $this->recordset );
+
+			unset( $this->recordset );
+
+			// M()->mem_stats('salgo de load_array_recordset');
 
 			return $objs;
 	}/*}}}*/
@@ -1059,8 +1068,14 @@ class xpDataObject extends xp {
 
 			M()->debug( "$sql" );
 
-			$this->db->Execute( $sql );
+			try {
 
+				$this->db->Execute( $sql );
+
+			} catch ( PDOException $e ) {
+
+				M()->db_error( $this->db, 'set_variables', $sql );
+			}
 
 		} else { 
 
@@ -1161,22 +1176,33 @@ class xpDataObject extends xp {
 
 		// c) por cada fragmento, lo ejecuta
 
-		foreach( $sql_code as $sql_p ) {
+		try {
 
-			if ( $pr ) {
+			foreach( $sql_code as $sql_p ) {
 
-				if ( $this->db_type() == 'dblib' ) {
+				if ( $pr ) {
 
-					// hace la paginacion via consulta para los motores que no tienen LIMIT (dblib)
-					$this->recordset = $this->paged_query( $sql_p, $pr, $cp );
+					if ( $this->db_type() == 'dblib' ) {
+
+						// hace la paginacion via consulta para los motores que no tienen LIMIT (dblib)
+						$this->recordset = $this->paged_query( $sql_p, $pr, $cp );
+
+					} else {
+						$this->recordset = $this->db->PageExecute( (string) $sql_p, $pr, $cp );
+					}
 
 				} else {
-					$this->recordset = $this->db->PageExecute( (string) $sql_p, $pr, $cp );
+					$this->recordset = $this->db->Execute( (string) $sql_p );
 				}
-
-			} else {
-				$this->recordset = $this->db->Execute( (string) $sql_p );
 			}
+
+		} catch ( PDOException $e ) {
+
+			$this->total_records = -1;
+			$this->loaded = false;
+
+			M()->db_error( $this->db, 'select', $sql );
+			return null;
 		}
 
 
@@ -1184,36 +1210,20 @@ class xpDataObject extends xp {
 
 		$this->total_records = null;
 
-		if ( $this->recordset ) {
+		if ( $xpdoc->feat->count_recs ) {
 
-			if ( $xpdoc->feat->count_recs ) {
-
-				// $this->total_records = $this->recordset->rowCount();
-
-				if ( $this->db_type() == 'dblib' )
-					$this->total_records = $this->recordset->fields['__TotalRows'];
-				else {
-	
-					$r = $this->db->Execute( 'SELECT FOUND_ROWS()' )->fetch( PDO::FETCH_NUM );
-					$this->total_records = $r[0];
-				}
-
-			} 
-
-		} else $this->total_records = -1;
+			// $this->total_records = $this->recordset->rowCount();
+			if ( $this->db_type() == 'dblib' )
+				$this->total_records = $this->recordset->fields['__TotalRows'];
+			else 
+				$this->total_records = $this->db->Execute( 'SELECT FOUND_ROWS() as found_rows' )->fetch( PDO::FETCH_LAZY )->found_rows;
+		} 
 
 		M()->debug('total_records: '. $this->total_records );
 
 		// e) prepara el return: si hay datos devuelve un recordset con los datos, si no, null
 
-		if ( ! $this->recordset ) {
-
-			$this->loaded = false;
-
-			M()->error( sprintf( "Error al seleccionar (%d): %s", $this->ErrorNo(), $this->ErrorMsg(), $this->sql->prepare() )) ;
-			return null;
-
-		} else if ( $this->total_records === 0 ) {
+		if ( $this->total_records === 0 ) {
 
 			// print_r( $this->primary_key ); exit;
 			$this->loaded = false;
@@ -1300,21 +1310,20 @@ class xpDataObject extends xp {
 
 	function execute( $sql = null ) {/*{{{*/
 
-		// DEBUG: habria que hacer una funcion para poder detectar si hace un INSERT_OP, UPDATE_OP, etc.
-		// probablemente con una regexp
-
 		$sql or $sql = $this->sql->prepare();
 
-		if ( ( $rs = $this->db->Execute( (string) $sql ) ) ) {
-
+		try {
 			M()->info( "ejecutado $sql" );
-			return $rs;
+			$rs = $this->db->Execute( (string) $sql );
 
-		} else {
+		} catch ( PDOException $e ) {
 
-			M()->error( sprintf( "Error al ejecutar (%d): %s %s", $this->ErrorNo(), $this->ErrorMsg(), $this->sql->prepare() )) ;
+			M()->error( sprintf( "Error al ejecutar (%d): %s %s", $this->ErrorNo(), $this->ErrorMsg(), $sql )) ;
 			return null;
 		}
+
+		return $rs;
+
 	}/*}}}*/
 
 	function add_query( $query ) {/*{{{*/
@@ -1469,7 +1478,10 @@ class xpDataObject extends xp {
 
 		M()->debug( 'insertando ' . $this->sql->prepare() );
 
-		if ( !$this->sql->Exec() ) {
+		try {
+			$r = $this->sql->Exec();
+
+		} catch( PDOException $e ) {
 
 			if ( $this->ErrorNo() == 1062 and $this->feat->try_update_on_fail ) {
 
@@ -1481,28 +1493,21 @@ class xpDataObject extends xp {
 
 			} else {
 
-				// DEBUG: por ahora le manda el mensaje sql al usuario para que se entretenga ... :)
-				// pero hay que poner una funcion de un handler sql serio con mensajes traducidos de acuerdo a la implementacion
-				// aunque sea traducir los m[as significativos en una funcion M()->db_error
-
-				M()->user( sprintf( "Error al agregar (%d): %s", $tmp = $this->ErrorNo(), $this->ErrorMsg())) ;
+				M()->user( sprintf( "Error al agregar (%d): %s", $tmp = $this->ErrorNo(), $this->ErrorMsg()));
 				return ( $this->transac_status = DB_ERROR );
 			}
-
-
-		} else {
-
-			if ( $af = $this->get_autonumeric_field() ) {
-
-				/* para autonumerico, actualiza la clave con su valor */
-
-				$attr = $this->get_attr( $af );
-				$attr->value = $this->db->Insert_ID();
-				M()->debug( $attr->name. ": ". $attr->value );
-			}
-
-			return ( $this->transac_status = INSERT_OP );
 		}
+
+		if ( $af = $this->get_autonumeric_field() ) {
+
+			/* para autonumerico, actualiza la clave con su valor */
+
+			$attr = $this->get_attr( $af );
+			$attr->value = $this->db->Insert_ID();
+			M()->debug( $attr->name. ": ". $attr->value );
+		}
+
+		return ( $this->transac_status = INSERT_OP );
 	}/*}}}*/
 
 	function replace( $modifiers = null ) {/*{{{*/
@@ -1549,32 +1554,32 @@ class xpDataObject extends xp {
 
 		}
 
-		M()->debug( 'reemplazando ' . $this->sql->prepare() );
+		$sql = $this->sql->prepare();
 
-		if ( !$this->sql->Exec() ) {
-	
-				unset( $this->sql->modifiers );
+		M()->debug( "reemplazando: $sql" );
 
-				// DEBUG: por ahora le manda el mensaje sql al usuario para que se entretenga ... :)
-				// pero hay que poner una funcion de un handler sql serio con mensajes traducidos de acuerdo a la implementacion
-				// aunque sea traducir los m[as significativos en una funcion M()->db_error
+		try {
+			$this->sql->Exec( $sql );
 
-				M()->user( sprintf( "Error al agregar (%d): %s", $tmp = $this->ErrorNo(), $this->ErrorMsg())) ;
-				return ( $this->transac_status = DB_ERROR );
-
-		} else {
+		} catch ( PDOException $e ) {
 
 			unset( $this->sql->modifiers );
 
-			if ( $af = $this->get_autonumeric_field() ) {
-
-				$attr = $this->get_attr( $af );
-				$attr->value = $this->db->Insert_ID();
-				M()->debug( $attr->name. ": ". $attr->value );
-			}
-
-			return ( $this->transac_status = INSERT_OP );
+			M()->db_error( $this->db, 'replace', $sql );
+			return ( $this->transac_status = DB_ERROR );
 		}
+
+		unset( $this->sql->modifiers );
+
+		if ( $af = $this->get_autonumeric_field() ) {
+
+			$attr = $this->get_attr( $af );
+			$attr->value = $this->db->Insert_ID();
+			M()->debug( $attr->name. ": ". $attr->value );
+		}
+
+		return ( $this->transac_status = REPLACE_OP );
+
 	}/*}}}*/
 
 	function update () {/*{{{*/
@@ -1604,7 +1609,6 @@ class xpDataObject extends xp {
 
 		}
 		
-
 		/* registra el where en la consulta con los valores de la clave primaria */
 
 		foreach ( $this->primary_key as $key => $value ) {
@@ -1617,30 +1621,24 @@ class xpDataObject extends xp {
 				$this->sql->addWhere( $key . '=\''. $attr->encode( $value ). '\'' );  
 		}
 
-		// DEBUG: comentado por que le manda 'LOCK IN SHARE MODE' y no debe ...
-		// por el bugfix del adodb
-		// $this->sql->setLimit( 1 );
+		$sql = $this->sql->prepare();
 
-		M()->debug( 'update ' . $this->sql->prepare() );
+		M()->debug( 'update ' . $sql );
 
 		// $this->debug_object( $this->sql ); exit; }
 
-		if ( !$this->sql->Exec() ) {
+		try {
+			$this->sql->Exec( $sql );
 
-			if ( $this->ErrorNo() == 1062 ) {
+		} catch ( PDOException $e ) {
 
+			if ( $this->ErrorNo() == 1062 )
 				M()->user( 'Datos duplicados en el ingreso, no se puede guardar' );
-				M()->user( sprintf( "Error al actualizar (%d): %s en %s", $this->ErrorNo(), $this->ErrorMsg(), $this->sql->prepare())) ;
-			}
-			else
-				M()->user( sprintf( "Error al actualizar (%d): %s en %s", $this->ErrorNo(), $this->ErrorMsg(), $this->sql->prepare())) ;
 
+			M()->db_error( $this->db, 'update', $sql );
 			return ( $this->transac_status = DB_ERROR );
-
-		} else {
-
-			return ( $this->transac_status = UPDATE_OP );
 		}
+
 	}/*}}}*/
 
 	function delete() {/*{{{*/
@@ -1682,26 +1680,26 @@ class xpDataObject extends xp {
 
 			foreach( $childs->load_set( $cond ) as $child )
 				$child->delete(); 
-
 		}
 
+		$sql = $this->sql->prepare();
 
-		if ( $this->sql->Exec() ) {
+		try {
+			$this->sql->Exec( $sql );
 
-			M()->info( "objeto {$this->class_name} borrado(s)" );
+		} catch ( PDOException $e ) {  
 
-			$this->post_delete();
-
-			$this->reset(); // el reset lo hago despues del post delete para que esten las variables disponibles al momento del metodo
-
-			return ( $this->transac_status = DELETE_OP );
-
-		} else {
-
-			M()->error( sprintf( "No puedo eliminar. Error (%d): %s ", $this->ErrorNo(), $this->ErrorMsg() ) ); 
-			return null;
+			M()->db_error( $this->db, 'delete', $sql ); 
+			return ( $this->transac_status = DB_ERROR );
 		}
 
+		M()->info( "objeto {$this->class_name} borrado(s)" );
+
+		$this->post_delete();
+
+		$this->reset(); // el reset lo hago despues del post delete para que esten las variables disponibles al momento del metodo
+
+		return ( $this->transac_status = DELETE_OP );
 
 	}/*}}}*/
 
@@ -2253,7 +2251,9 @@ class xpDataObject extends xp {
 		return $ret;
 
 	}/*}}}*/
+
 //
+
 	function set_foreign_key() {/*{{{*/
 
 		global $xpdoc;
@@ -2592,8 +2592,6 @@ function main_sql () {/*{{{*/
 		$this->db->CommitTrans( true );
 
 	}/*}}}*/
-
-
 
 	function ErrorNo() {/*{{{*/
 		return $this->db->ErrorNo();

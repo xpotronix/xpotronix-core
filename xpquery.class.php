@@ -91,8 +91,8 @@ class DBQuery {
 
 	function clearQuery() {/*{{{*/
 
-		$this->stmt and $this->stmt->closeCursor();
-		$this->stmt = null;
+		$this->stmt and $this->db->closeCursor( $this->stmt );
+		unset( $this->stmt );
 		return $this;
 
 	}/*}}}*/

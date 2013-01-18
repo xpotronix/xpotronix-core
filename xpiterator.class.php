@@ -125,11 +125,6 @@ class xpIterator implements Iterator {
 
 	}/*}}}*/
 
-	function last_page() {
-
-
-	}
-
 	function next() {/*{{{*/
 
 		M()->info();
@@ -170,6 +165,9 @@ class xpIterator implements Iterator {
 		return $this->valid; 
 
 	} /*}}}*/
+
+	function last_page() {}
+
 }
 
 ?>
