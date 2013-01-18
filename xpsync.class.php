@@ -147,6 +147,8 @@ class xpsync {
 		$i = 0;
 		foreach( $rs as $r ) {
 
+			M()->mem_stats( 'en sync_data' );
+
 			$this->sync_obj( $r );
 			( $i % $page_rows ) or M()->mem_stats( "[{$this->obj->class_name}]: procesados $i registros ..." );
 			$i++;
@@ -158,6 +160,7 @@ class xpsync {
 			}
 		}
 
+		unset( $rs );
 
 		$this->obj->set_flag( 'check', true );
 		$this->obj->set_flag( 'validate', true );

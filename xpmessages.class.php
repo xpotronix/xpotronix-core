@@ -71,11 +71,10 @@ class xpmessage {
 		return $this;
 	}/*}}}*/
 
-
-	function get() {
+	function get() {/*{{{*/
 
 		return $this->text;
-	}
+	}/*}}}*/
 
 	function serialize() {/*{{{*/
 
@@ -253,7 +252,7 @@ class xpmessages {
 		return $this->m( $text, MSG_ERROR );
 	}/*}}}*/
 
-	function db_error( $db ) {/*{{{*/
+	function db_error( $db, $op, $sql = null ) {/*{{{*/
 
 		if ( ! $db ) {
 			M()->error( 'no hay base de datos activa!' );
@@ -266,7 +265,10 @@ class xpmessages {
 		$errmsg = $db->ErrorMsg();
 
 		$this->status('ERR');
-		return $this->m( "[$errno]: $errmsg", MSG_ERROR );
+
+		$msg = "Error al $op [$errno]: $errmsg" . ($sql) ? " en $sql" : null;
+
+		return $this->m( $msg, MSG_ERROR );
 
 	}/*}}}*/
 
