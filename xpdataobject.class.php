@@ -634,6 +634,8 @@ class xpDataObject extends xp {
 		if ( !$this->acl ) 
 			$this->set_acl();
 
+		unset( $this->sql );
+
 		$this->sql = $this->sql_prepare();
 
 		// el loadc() vacio carga la consulta actual paginada

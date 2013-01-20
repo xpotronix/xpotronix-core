@@ -151,8 +151,8 @@ class xpmessage {
 		@$class = $trace[$caller]['class'];
 		@$function = $trace[$caller]['function'];
 
-		return array( 'file' => $file, 'line' => $line, 'class' => $class, 'function' => $function, 'nest' => count($trace) - $index );
-		//return array( 'file' => $file, 'line' => $line, 'class' => $class, 'function' => $function, 'nest' => 0 );
+		// return array( 'file' => $file, 'line' => $line, 'class' => $class, 'function' => $function, 'nest' => count($trace) - $index );
+		return array( 'file' => $file, 'line' => $line, 'class' => $class, 'function' => $function, 'nest' => 0 );
 	}/*}}}*/
 
 }
