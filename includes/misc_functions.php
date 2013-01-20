@@ -1,7 +1,6 @@
 <?
 
    function M() {/*{{{*/
-
 	static $mess;
 	$mess or $mess = new xpmessages;
 	return $mess;

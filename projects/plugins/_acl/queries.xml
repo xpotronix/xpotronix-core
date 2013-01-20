@@ -81,7 +81,7 @@
 
 
    <query name="axo_id">
-         <id>gacl_axo.value</id>
+         <id>gacl_axo.id</id>
          <label>gacl_axo.value</label>
          <from>gacl_axo</from>
          <order_by>value</order_by>

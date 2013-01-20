@@ -1326,12 +1326,14 @@ class xpdoc extends xp {
 				$tmp_file_uri = "$tmp_uri/$tmp_basename";
 			}
 
-			if ( $handle = fopen($tmp_file, "w") ) {
+			if ( @$handle = fopen($tmp_file, "w") ) {
 
 				fwrite($handle, $xdoc->asXML() );
 				fclose($handle);
 
-			} else M()->fatal( "No puedo crear el archivo temporal $tmp_file" );
+			} else { 
+				M()->error( "No puedo crear el archivo temporal $tmp_file" ); 
+			}
 
 			$view_file = $this->get_template_file( $this->view. '.xsl' );
 			M()->info( 'template seleccionado para la transformacion: '. $view_file );
@@ -1461,7 +1463,8 @@ class xpdoc extends xp {
 
 		}
 
-		if ( $tmp_file and $this->config->clean_xpdoc ) unlink( $tmp_file );
+		if ( $tmp_file and $this->config->clean_xpdoc ) 
+			@unlink( $tmp_file );
 
 		M()->info('OK');	
 

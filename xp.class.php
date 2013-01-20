@@ -134,14 +134,12 @@ class xp {
 
 	function debug_backtrace( $data = NULL ) {/*{{{*/
 
-		$debugb = debug_backtrace();
+		$debugb = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
 		array_shift( $debugb );
 
 		echo '<pre>';
 
 		foreach( $debugb as $trace ) {
-
-
 
 			$class = ( isset( $trace['class'] ) ) ? $trace['class'] : 'N/A';
 			echo "file: {$trace['file']}, line: {$trace['line']}, class: $class, function: {$trace['function']}\r";

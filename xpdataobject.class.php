@@ -231,6 +231,7 @@ class xpDataObject extends xp {
 
 			M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
 			M()->line(1);
+			// print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ); exit;
 			return null;
 		}
 
@@ -714,8 +715,6 @@ class xpDataObject extends xp {
 			if ( count( $objs ) < $objs_count ) 
 
 				M()->warn( 'en '. $this->class_name .' se han cargado menos items que los que se contaron. Revise la clave primaria (que deben ser valores unicos)' );
-			// $this->db->closeCursor( $this->recordset );
-
 			unset( $this->recordset );
 
 			// M()->mem_stats('salgo de load_array_recordset');
@@ -938,7 +937,7 @@ class xpDataObject extends xp {
 			$field_name = $this->quote_name( sprintf( "%s.%s", $this->table_name, $attr->name ) );
 
 			if ( $attr->alias_of ) 
-				$sql->addQuery( $attr->alias_of, $this->quote_name( $attr->name ) );
+				$this->feat->load_full_query and $sql->addQuery( $attr->alias_of, $this->quote_name( $attr->name ) );
 			else
 				$sql->addQuery( $field_name );
 		}
@@ -976,8 +975,9 @@ class xpDataObject extends xp {
 	function quote_name( $name = null ) {/*{{{*/
 
 		if ( $name ) 
-			return $this->sql->quote_name( $name );
+			return $this->db->quote_name( $name );
 		else return null;
+
 	}/*}}}*/
 
 	function quote_order( $order ) {/*{{{*/
@@ -1125,6 +1125,9 @@ class xpDataObject extends xp {
 
 		// a) configura el rango de la paginacion
 
+		// $this->class_name == '_licencia' and xdebug_start_trace('/tmp/xpotronix-trace.xt');
+
+		// M()->mem_stats( 'entro a page' );
 		global $xpdoc;
 
 		if ( ! $this->pager )
@@ -1214,9 +1217,12 @@ class xpDataObject extends xp {
 
 			// $this->total_records = $this->recordset->rowCount();
 			if ( $this->db_type() == 'dblib' )
-				$this->total_records = $this->recordset->fields['__TotalRows'];
-			else 
-				$this->total_records = $this->db->Execute( 'SELECT FOUND_ROWS() as found_rows' )->fetch( PDO::FETCH_LAZY )->found_rows;
+				$r = $this->recordset->fetch( PDO::FETCH_NUM );
+			else {
+				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( PDO::FETCH_NUM );
+			}
+
+			$this->total_records = $r[0];
 		} 
 
 		M()->debug('total_records: '. $this->total_records );
@@ -1232,8 +1238,11 @@ class xpDataObject extends xp {
 
 		} else {
 
+			// M()->mem_stats( 'salgo de page' );
 			return $this->load_array_recordset();
 		}
+
+		// $this->class_name == '_licencia' and xdebug_stop_trace();
 
 	}/*}}}*/
 
@@ -1479,7 +1488,7 @@ class xpDataObject extends xp {
 		M()->debug( 'insertando ' . $this->sql->prepare() );
 
 		try {
-			$r = $this->sql->Exec();
+			$this->affected_records = $this->sql->Exec();
 
 		} catch( PDOException $e ) {
 
@@ -1559,7 +1568,7 @@ class xpDataObject extends xp {
 		M()->debug( "reemplazando: $sql" );
 
 		try {
-			$this->sql->Exec( $sql );
+			$this->affected_records = $this->sql->Exec( $sql );
 
 		} catch ( PDOException $e ) {
 
@@ -1628,7 +1637,7 @@ class xpDataObject extends xp {
 		// $this->debug_object( $this->sql ); exit; }
 
 		try {
-			$this->sql->Exec( $sql );
+			$this->affected_records = $this->sql->Exec( $sql );
 
 		} catch ( PDOException $e ) {
 
@@ -1685,7 +1694,7 @@ class xpDataObject extends xp {
 		$sql = $this->sql->prepare();
 
 		try {
-			$this->sql->Exec( $sql );
+			$this->affected_records = $this->sql->Exec( $sql );
 
 		} catch ( PDOException $e ) {  
 
@@ -1709,7 +1718,7 @@ class xpDataObject extends xp {
 
 		// deja el objeto en blanco
 
-		M()->debug( "reset objeto $this->class_name" );
+		// M()->debug( "reset objeto $this->class_name" );
 		
 		if ( ! is_array( $this->attr ) ) {
 

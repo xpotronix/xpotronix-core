@@ -38,7 +38,7 @@ class xphttp {
 
 			if ( isset( $params['path'] ) ) {
 
-				$xpdoc->config->base_path = $params['path'];
+				@$xpdoc->config->base_path = $params['path'];
 				unset( $params['path'] );
 			}
 

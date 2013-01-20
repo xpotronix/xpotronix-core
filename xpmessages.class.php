@@ -136,7 +136,7 @@ class xpmessage {
 	function get_file_line( $index = 0 ) {/*{{{*/
 
 
-		// print '<pre>'; print_r( debug_backtrace() ); exit;
+		// print '<pre>'; print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ); exit;
 
 		$stack = 3 + $index;
 		$caller = 4 + $index;
@@ -144,7 +144,7 @@ class xpmessage {
 		// DEBUG: debug_backtrace copia el valor de los atributos, duplicandolos en memoria! con blobs se queda sin memoria el programa
 		// return;
 
-		$trace = debug_backtrace();
+		$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
 		$file = $trace[$stack]['file'];
 		$line = $trace[$stack]['line'];
 
@@ -152,6 +152,7 @@ class xpmessage {
 		@$function = $trace[$caller]['function'];
 
 		return array( 'file' => $file, 'line' => $line, 'class' => $class, 'function' => $function, 'nest' => count($trace) - $index );
+		//return array( 'file' => $file, 'line' => $line, 'class' => $class, 'function' => $function, 'nest' => 0 );
 	}/*}}}*/
 
 }
@@ -363,12 +364,14 @@ class xpmessages {
 
 	function mem_max_stats( $text = null ) {/*{{{*/
 
-		return $this->stats( sprintf( "Uso maximo de memoria: %01.2f MB %s", memory_get_peak_usage() / (1024 * 1024), $text ) );
+		// return $this->stats( sprintf( "Uso maximo de memoria: %01.2f MB %s", memory_get_peak_usage() / (1024 * 1024), $text ) );
+		return $this->stats( sprintf( "Uso maximo de memoria: %01.2f MB %s", memory_get_peak_usage() , $text ) );
 	}/*}}}*/
 
 	function mem_stats( $text = null ) {/*{{{*/
 
-		return $this->stats( sprintf( "Uso de memoria: %01.2f MB %s", memory_get_usage() / (1024 * 1024), $text ) );
+		// return $this->stats( sprintf( "Uso de memoria: %01.2f MB %s", memory_get_usage() / (1024 * 1024), $text ) );
+		return $this->stats( sprintf( "Uso de memoria: %01.0f:%s", memory_get_usage(), $text ) );
 	}/*}}}*/
 
 	function serialize( $all = false ) {/*{{{*/

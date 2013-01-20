@@ -147,18 +147,23 @@ class xpsync {
 		$i = 0;
 		foreach( $rs as $r ) {
 
-			M()->mem_stats( 'en sync_data' );
+			// xdebug_start_trace('/tmp/xpotronix-trace.xt');
+			// M()->mem_stats( "$i:$r->ID" );
 
 			$this->sync_obj( $r );
 			( $i % $page_rows ) or M()->mem_stats( "[{$this->obj->class_name}]: procesados $i registros ..." );
 			$i++;
 
-			if ( $limit and $i > $limit ) {
+			if ( $limit and $i >= $limit ) {
 
 				M()->user( "alcanzado el limite $limit de registros. Fin del proceso" );
 				break;
 			}
+
+			// xdebug_stop_trace();
+			// exit;
 		}
+
 
 		unset( $rs );
 
@@ -209,6 +214,7 @@ class xpsync {
 				}
 			}
 		}
+
 
 		// $this->obj->debug_object(); exit;
 

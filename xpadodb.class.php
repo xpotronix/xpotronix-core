@@ -51,7 +51,8 @@ class xpadodb extends PDO {
 
 		parent::__construct( $conn_str, $user, $password );
 
-		$this->setAttribute( PDO::ATTR_STATEMENT_CLASS, array('xpadostatement', array( $this ) ) );
+		// produce memory leaks!!
+		// $this->setAttribute( PDO::ATTR_STATEMENT_CLASS, array('xpadostatement', array( $this ) ) );
 		$this->setAttribute( PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC );
 		// $this->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 		$this->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
@@ -75,7 +76,10 @@ class xpadodb extends PDO {
 	function Execute( $sql ) {/*{{{*/
 
 		// M()->user( $sql );
-		return $this->query( $sql );
+		// M()->mem_stats( 'antes del query' );
+		$r = $this->query( $sql );
+		// M()->mem_stats( 'despues del query' );
+		return $r;
 
 	}/*}}}*/
 
@@ -86,9 +90,11 @@ class xpadodb extends PDO {
 
 		M()->debug( "limit: $limit, offset: $offset" );
 
-		return $this->query( $sql. " LIMIT $offset, $limit" );
+		// M()->mem_stats( 'antes del query' );
+		$r = $this->query( $sql. " LIMIT $offset, $limit" );
+		// M()->mem_stats( 'despues del query' );
+		return $r;
 	}/*}}}*/
-
 
 	function ErrorNoSQL() {/*{{{*/
 
@@ -96,7 +102,6 @@ class xpadodb extends PDO {
 		return $r[0];
 
 	}/*}}}*/
-
 
 	function ErrorNo() {/*{{{*/
 
@@ -129,11 +134,46 @@ class xpadodb extends PDO {
 		return $this->query( $query )->fetch( PDO::FETCH_NUM );
 	}
 
-	public static function closeCursor($oStm) { 
-	    if ( $oStm->db->implementation == 'mysql' )
-	    do $oStm->fetchAll( PDO::FETCH_NUM ); 
-	    while ( $oStm->nextRowSet() ); 
-	}
+	function quote_name($string) {/*{{{*/
+
+		$ldelim = null;
+		$rdelim = null;
+
+		switch( $this->databaseType ) {
+	
+			case 'mysql':
+			case 'mysqli':
+
+				$ldelim = '`';
+				$rdelim = '`';
+
+				break;
+
+			case 'mssql':
+			case 'sybase':
+			case 'dblib':
+
+				$ldelim = '[';
+				$rdelim = ']';
+
+				break;
+		}
+
+		if ( strstr( $string, '.' ) ) {
+
+			$ret = array();
+
+			foreach( explode( '.', $string ) as $token )
+
+				$ret[] = "$ldelim$token$rdelim";
+
+			return implode( '.', $ret );
+
+		} else return "$ldelim$string$rdelim";
+
+	}/*}}}*/
+
+
 } 
 
 class xpadostatement extends PDOStatement {
