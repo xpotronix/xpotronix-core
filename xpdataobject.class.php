@@ -225,7 +225,7 @@ class xpDataObject extends xp {
 			return $this->data[$var_name];
 
 		if ( is_array( $this->aliases ) and array_key_exists( $var_name, $this->aliases ) )  
-			$var_name = $this->aliases[$var_name]->name;
+			return $var_name = $this->aliases[$var_name]->name;
 
 		if ( $this->check_vars ) {
 
