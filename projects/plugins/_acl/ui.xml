@@ -279,7 +279,7 @@
 		<panel type="xpGrid"/>
 		<feat><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>
 		<field name="group_id" translate="group_id" validate="empty"  eh="axo_groups"/>
-		<field name="axo_id" translate="axo_id" validate="empty" eh="axo_id"/>
+		<field name="axo_id" translate="axo_id" validate="empty" eh="axo_value"/>
 	</table><!--}}}-->
 
 </database>

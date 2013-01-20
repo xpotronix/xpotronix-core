@@ -51,6 +51,8 @@ class DBQuery {
 	var $_table_prefix = null;
 	var $stmt = null;
 
+	var $databaseType;
+
 	function DBQuery( $db_handle, $prefix = null) {/*{{{*/
 
 		global $xpdoc;
@@ -63,6 +65,8 @@ class DBQuery {
 			$this->_table_prefix = $xpdoc->config->prefix;
 		else
 			$this->_table_prefix = null;
+
+		$this->databaseType = $this->db->databaseType;
 
 		$this->clear();
 
@@ -84,6 +88,7 @@ class DBQuery {
 		$this->update_list = null;
 		$this->create_table = null;
 		$this->create_definition = null;
+		$this->stmt = null;
 
 		return $this->clearQuery();
 
@@ -91,8 +96,7 @@ class DBQuery {
 
 	function clearQuery() {/*{{{*/
 
-		$this->stmt and $this->db->closeCursor( $this->stmt );
-		unset( $this->stmt );
+		if ( $this->stmt ) unset( $this->stmt );
 		return $this;
 
 	}/*}}}*/
@@ -147,7 +151,7 @@ class DBQuery {
 
 	function addClause( $clause, $value, $check_array = true ) {/*{{{*/
 
-		M()->debug("Adding [". serialize( $value ) ."] to $clause clause");
+		// M()->debug("Adding [". serialize( $value ) ."] to $clause clause");
 
 		isset( $this->$clause ) or $this->$clause = array();
 
@@ -621,7 +625,7 @@ class DBQuery {
 
 		$q = array();
 
-		if ( $count and $this->db->databaseType == 'mysql' )
+		if ( $count and $this->databaseType == 'mysql' )
 			$this->addModifiers( 'SQL_CALC_FOUND_ROWS' );
 
 		if ( $this->sql ) {
@@ -1076,45 +1080,11 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 		return $this->db->quote($string);
 	}/*}}}*/
 
-	function quote_name($string) {/*{{{*/
+	function quote_name( $string ) {/*{{{*/
 
-		$ldelim = null;
-		$rdelim = null;
-
-		switch( $this->db->databaseType ) {
-	
-			case 'mysql':
-			case 'mysqli':
-
-				$ldelim = '`';
-				$rdelim = '`';
-
-				break;
-
-			case 'mssql':
-			case 'sybase':
-			case 'dblib':
-
-				$ldelim = '[';
-				$rdelim = ']';
-
-				break;
-		}
-
-		if ( strstr( $string, '.' ) ) {
-
-			$ret = array();
-
-			foreach( explode( '.', $string ) as $token )
-
-				$ret[] = "$ldelim$token$rdelim";
-
-			return implode( '.', $ret );
-
-		} else return "$ldelim$string$rdelim";
+		return $this->db->quote_name( $string );
 
 	}/*}}}*/
-
 }
 
 // vim600: fdm=marker sw=2 ts=8 ai:

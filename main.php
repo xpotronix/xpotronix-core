@@ -10,14 +10,15 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-ini_set( 'xdebug.profiler_enable_trigger', 0 );
+// ini_set( 'xdebug.profiler_enable_trigger', 1 );
+// ini_set( 'xdebug.profiler_enable', 1 );
+// ini_set( 'xdebug.show_mem_delta', 1); 
+// xdebug_start_trace('/tmp/xpotronix-trace.xt');
+
+
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
 ini_set( 'error_log', 'syslog' );
-
-// ini_set( 'xdebug.show_mem_delta', 1); 
-
-// xdebug_start_trace('/tmp/xpotronix-trace.xt');
 
 global $xpdoc;
 

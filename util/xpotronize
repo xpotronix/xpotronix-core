@@ -3,8 +3,8 @@
 
 // ini_set( 'xdebug.profiler_enable_trigger', 0 );
 // ini_set( 'xdebug.collect_params', 2 );
-// ini_set( 'xdebug.show_mem_delta', 1); 
-// xdebug_start_trace('/tmp/xpotronix-trace.xt');
+ini_set( 'xdebug.show_mem_delta', 1); 
+xdebug_start_trace('/tmp/xpotronix-trace.xt');
 
 
 ini_set( 'display_errors', 0 );
@@ -52,7 +52,7 @@ M()->user( "xpotronize: aplicacion {$x->feat->application}" );
 
 $x->transform();
 
-// xdebug_stop_trace();
+xdebug_stop_trace();
 
 exit(0);
 
