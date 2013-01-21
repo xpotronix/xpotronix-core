@@ -36,7 +36,7 @@ $imagick->rotateImage(new ImagickPixel(), 90)
 require_once 'includes/misc_functions.php';
 require_once 'xphttp.class.php';
 require_once 'xpmessages.class.php';
-require_once 'Cache/Lite.php';
+require_once 'xpcache.class.php';
 
 class xpthumb {
 
@@ -145,7 +145,7 @@ class xpthumb {
                         'automaticSerialization' => FALSE
                 );
 
-		$this->cache = new Cache_Lite($this->cache_options);
+		$this->cache = new xpcache($this->cache_options);
 		
 
 	}/*}}}*/

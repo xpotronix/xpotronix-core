@@ -2181,7 +2181,10 @@ class xpDataObject extends xp {
 
 		/* carga la configuracion para la clave foranea desde el modelo */
 
-		$xfk = array_shift( $this->model->xpath( "foreign_key" ) );
+		if ( ! count( $xp = $this->model->xpath( "foreign_key" ) ) )
+			return;
+
+		$xfk = array_shift( $xp );
 
 		if ( isset( $xfk['set'] ) )
 			$this->foreign_key['@set'] = (string) $xfk['set'];
@@ -2499,8 +2502,8 @@ function main_sql () {/*{{{*/
 		return $this;
 	}/*}}}*/
 
-	function prepare_data() {/*{{{*/
-		return $this;
+	function prepare_data( $obj ) {/*{{{*/
+		return $obj;
 	}/*}}}*/
 
 	function check() {/*{{{*/

@@ -155,7 +155,7 @@ class gacl {
 
 		if ( $this->_caching == TRUE ) {
 
-			require_once('Cache/Lite.php');
+			require_once('xpcache.class.php');
 
 			/*
 			 * Cache options. We default to the highest performance. If you run in to cache corruption problems,
@@ -172,7 +172,7 @@ class gacl {
 				'memoryCaching' => TRUE,
 				'automaticSerialization' => FALSE				
 			);
-			$this->Cache_Lite = new Cache_Lite($cache_options);
+			$this->Cache_Lite = new xpcache($cache_options);
 		}
 
 		return true;
