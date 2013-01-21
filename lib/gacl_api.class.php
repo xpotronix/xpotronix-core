@@ -729,7 +729,7 @@ class gacl_api extends gacl {
 		$query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aco_map a, ".$this->_db_table_prefix."aco b, ".$this->_db_table_prefix."aco_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
-		$rows = $rs->GetRows();
+		$rows = $rs->fetchAll( PDO::FETCH_NUM );
 
 		$retarr['aco'] = array();
 		while (list(,$row) = @each($rows)) {
@@ -745,7 +745,7 @@ class gacl_api extends gacl {
 		$query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aro_map a, ".$this->_db_table_prefix."aro b, ".$this->_db_table_prefix."aro_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
-		$rows = $rs->GetRows();
+		$rows = $rs->fetchAll( PDO::FETCH_NUM );
 
 		$retarr['aro'] = array();
 		while (list(,$row) = @each($rows)) {
@@ -761,7 +761,7 @@ class gacl_api extends gacl {
 		$query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."axo_map a, ".$this->_db_table_prefix."axo b, ".$this->_db_table_prefix."axo_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
-		$rows = $rs->GetRows();
+		$rows = $rs->fetchAll( PDO::FETCH_NUM );
 
 		$retarr['axo'] = array();
 		while (list(,$row) = @each($rows)) {
@@ -2795,7 +2795,7 @@ class gacl_api extends gacl {
 		}
 
 		// Return all objects
-		return $rs->GetRows();
+		return $rs->fetchAll( PDO::FETCH_NUM );
 	}/*}}}*/
 
 	/**
