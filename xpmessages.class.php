@@ -133,8 +133,7 @@ class xpmessage {
 
 	}/*}}}*/
 
-	function get_file_line( $index = 0 ) {/*{{{*/
-
+	public static function get_file_line( $index = 0 ) {/*{{{*/
 
 		// print '<pre>'; print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ); exit;
 
@@ -309,11 +308,14 @@ class xpmessages {
 
 		// if ( ! $obj->modified ) return;
 
+		$xo = new SimpleXMLElement( "<$obj->class_name/>" );
+
 		switch( $obj->transac_status ) {
 
 
 			case INSERT_OP:
 			case UPDATE_OP:
+			case REPLACE_OP:
 				// DEBUG: por ahora devuelve todos los atributos, no hay diferencia entre modificados o no.
 				// agregar DS_MODIFIED para poder traer solo los modificados
 
@@ -328,8 +330,6 @@ class xpmessages {
 			case NOT_FOUND:
 			case NO_PERMS:
 			case DB_ERROR:
-
-				$xo = new SimpleXMLElement( "<$obj->class_name/>" );
 
 			break;
 

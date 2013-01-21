@@ -194,7 +194,7 @@ if ( file_grid ) {
 
 	}/*}}}*/
 
-	function mkdir( $dirName ){/*{{{*/
+	public static function mkdir( $dirName ){/*{{{*/
 
 		foreach(explode('/',$dirName) as $dirPart) 
 			@mkdir($newDir="$newDir$dirPart/");

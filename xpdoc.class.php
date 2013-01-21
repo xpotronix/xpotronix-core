@@ -17,8 +17,7 @@ require_once 'xpacl.class.php';
 require_once 'xpdataprocess.class.php';
 require_once 'xphttp.class.php';
 require_once 'xpadodb.class.php';
-
-require_once 'Cache/Lite.php';
+require_once 'xpcache.class.php';
 
 class xpdoc extends xp {
 
@@ -1247,7 +1246,7 @@ class xpdoc extends xp {
 
 			if ( ! is_object( $this->cache ) ) 
 
-				if ( is_object( $this->cache = new Cache_Lite( $this->cache_options ) ) )
+				if ( is_object( $this->cache = new xpcache( $this->cache_options ) ) )
 					M()->info( 'Cache habilitada par la aplicacion' );
 				else
 					M()->info( 'No se pudo habilitar la cache para la aplicacion' );
