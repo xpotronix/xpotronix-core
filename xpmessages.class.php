@@ -266,9 +266,12 @@ class xpmessages {
 
 		$this->status('ERR');
 
-		$msg = "Error al $op [$errno]: $errmsg" . ($sql) ? " en $sql" : null;
+		$msg = array();
 
-		return $this->m( $msg, MSG_ERROR );
+		$msg[] = "Error al $op [$errno]: $errmsg";
+		$sql and $msg[] = "en $sql";
+
+		return $this->m( implode( ' ', $msg ), MSG_ERROR );
 
 	}/*}}}*/
 
