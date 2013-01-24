@@ -343,6 +343,8 @@ class xpmessages {
 		$xo['action'] = $obj->transac_status;
 		$node and $xo['uiid'] = $node['uiid'];
 		$xo['obj'] = $obj->class_name;
+
+		M()->debug( "obj: {$xo['obj']}, transac_status: {$xo['action']}, uiid: {$xo['uiid']}" );
 		
 		simplexml_append( $this->xml_changes, $xo );
 
