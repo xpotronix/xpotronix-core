@@ -1487,10 +1487,12 @@ class xpDataObject extends xp {
 
 		}
 
-		M()->debug( 'insertando ' . $this->sql->prepare() );
+		$sql = $this->sql->prepare();
+
+		// M()->debug( "insertando: $sql"  );
 
 		try {
-			$this->affected_records = $this->sql->Exec();
+			$this->affected_records = $this->db->Execute( $sql );
 
 		} catch( PDOException $e ) {
 
@@ -1499,12 +1501,11 @@ class xpDataObject extends xp {
 				// DEBUG: debe chequear si la clave primaria esta completa (ej. autonumeric) si no, no lo puede hacer
 
 				M()->info( 'Probando un update on key fail' );
-
 				return $this->update();
 
 			} else {
 
-				M()->user( sprintf( "Error al agregar (%d): %s", $tmp = $this->ErrorNo(), $this->ErrorMsg()));
+				M()->db_error( $this->db, 'insert', $sql );
 				return ( $this->transac_status = DB_ERROR );
 			}
 		}
@@ -1570,7 +1571,7 @@ class xpDataObject extends xp {
 		M()->debug( "reemplazando: $sql" );
 
 		try {
-			$this->affected_records = $this->sql->Exec( $sql );
+			$this->affected_records = $this->db->Execute( $sql );
 
 		} catch ( PDOException $e ) {
 
@@ -1639,7 +1640,7 @@ class xpDataObject extends xp {
 		// $this->debug_object( $this->sql ); exit; }
 
 		try {
-			$this->affected_records = $this->sql->Exec( $sql );
+			$this->affected_records = $this->db->Execute( $sql );
 
 		} catch ( PDOException $e ) {
 
@@ -1649,6 +1650,8 @@ class xpDataObject extends xp {
 			M()->db_error( $this->db, 'update', $sql );
 			return ( $this->transac_status = DB_ERROR );
 		}
+
+		return ( $this->transac_status = UPDATE_OP );
 
 	}/*}}}*/
 
@@ -1696,7 +1699,7 @@ class xpDataObject extends xp {
 		$sql = $this->sql->prepare();
 
 		try {
-			$this->affected_records = $this->sql->Exec( $sql );
+			$this->affected_records = $this->db->Execute( $sql );
 
 		} catch ( PDOException $e ) {  
 
@@ -1780,7 +1783,6 @@ class xpDataObject extends xp {
 		return $this;
 
 	}/*}}}*/
-
 
 	function get_modified_attrs() {/*{{{*/
 

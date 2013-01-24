@@ -910,15 +910,14 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 
 	function exec( $style = PDO::FETCH_ASSOC, $debug = false ) {/*{{{*/
 
-		$this->clearQuery();
-
 		if ( $q = $this->prepare() ) {
-			// M()->debug( "executing query($q)" );
+			$debug and M()->debug( "executing query($q)" );
 			$this->stmt = ( $this->limit ) ? 
 				$this->db->PageExecute($q, $this->offset, $this->limit ):
 				$this->db->Execute( $q );
-		}
-		return $this->stmt;
+
+			return $this->stmt;
+		} else return null;
 	}/*}}}*/
 
 	function fetchRow() {/*{{{*/
