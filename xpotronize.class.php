@@ -161,7 +161,7 @@ class xpotronize extends xp {
 			exit;
 		}
 
-		( $this->config->self === true or $this->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
+		( @$this->config->self === true or @$this->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
 
 		$out = $this->saxon_transform( $this->transform['xml'], $this->transform['xsl'], $this->transform['params'] );
 
