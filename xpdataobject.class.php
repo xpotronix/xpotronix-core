@@ -1496,13 +1496,18 @@ class xpDataObject extends xp {
 
 		} catch( PDOException $e ) {
 
-			if ( $this->ErrorNo() == 1062 and $this->feat->try_update_on_fail ) {
+			if ( $this->ErrorNo() == 1062  ) {
+				if ( $this->feat->try_update_on_fail ) {
 
-				// DEBUG: debe chequear si la clave primaria esta completa (ej. autonumeric) si no, no lo puede hacer
+					// DEBUG: debe chequear si la clave primaria esta completa (ej. autonumeric) si no, no lo puede hacer
+					M()->info( 'Haciendo update() con try_update_on_fail' );
+					return $this->update();
+				}
 
-				M()->info( 'Probando un update on key fail' );
-				return $this->update();
-
+				else {
+					M()->user( "Datos duplicados en el ingreso, no se puede guardar" );
+					return ( $this->transac_status = DB_ERROR );
+				}
 			} else {
 
 				M()->db_error( $this->db, 'insert', $sql );
