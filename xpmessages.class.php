@@ -198,7 +198,12 @@ class xpmessages {
 
 			global $xpdoc;
 
-			is_object( $xpdoc ) and get_class( $xpdoc ) == 'xpDoc' and  $m->xpid = $xpdoc->xpid() and $m->ip = $xpdoc->http->remote_addr;
+			if ( is_object( $xpdoc )  ) {
+
+				// echo '<pre>'; var_dump( $xpdoc ); print_r( debug_backtrace( false ) ); exit;
+				$m->xpid = $xpdoc->xpid();
+				$m->ip = $xpdoc->http->remote_addr;
+			}
 
 			$m->f();
 
@@ -367,16 +372,24 @@ class xpmessages {
 		return $this->m( $text, MSG_STATS );
 	}/*}}}*/ 
 
+	function sys_load() {/*{{{*/
+
+		if ( ! function_exists( 'sys_getloadavg' ) ) 
+			return null;
+
+		$load = ProcStats();
+
+		return $this->m( "Carga: $load[0], $load[1], $load[2]" );
+	}/*}}}*/
+
 	function mem_max_stats( $text = null ) {/*{{{*/
 
-		// return $this->stats( sprintf( "Uso maximo de memoria: %01.2f MB %s", memory_get_peak_usage() / (1024 * 1024), $text ) );
-		return $this->stats( sprintf( "Uso maximo de memoria: %01.2f MB %s", memory_get_peak_usage() , $text ) );
+		return $this->stats( sprintf( "Uso maximo de memoria: %01.2f MB %s", memory_get_peak_usage() / (1024 * 1024), $text ) );
 	}/*}}}*/
 
 	function mem_stats( $text = null ) {/*{{{*/
 
-		// return $this->stats( sprintf( "Uso de memoria: %01.2f MB %s", memory_get_usage() / (1024 * 1024), $text ) );
-		return $this->stats( sprintf( "Uso de memoria: %01.0f:%s", memory_get_usage(), $text ) );
+		return $this->stats( sprintf( "Uso de memoria: %01.2f MB %s", memory_get_usage() / (1024 * 1024), $text ) );
 	}/*}}}*/
 
 	function serialize( $all = false ) {/*{{{*/

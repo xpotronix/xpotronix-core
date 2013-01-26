@@ -57,7 +57,7 @@ class DBQuery {
 
 		global $xpdoc;
 
-		$db_handle and $this->db = $db_handle or M()->error('No encuentro la base de datos');
+		$db_handle and $this->db = $db_handle or M()->error( 'No hay una base de datos asociada a la consulta' );
 
 		if ( isset($prefix) )
 			$this->_table_prefix = $prefix;
@@ -66,7 +66,7 @@ class DBQuery {
 		else
 			$this->_table_prefix = null;
 
-		$this->databaseType = $this->db->databaseType;
+		@$this->databaseType = $this->db->databaseType;
 
 		$this->clear();
 

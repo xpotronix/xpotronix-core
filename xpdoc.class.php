@@ -196,9 +196,9 @@ class xpdoc extends xp {
 
 		M()->info('***** Proceso xpotronix iniciado con xpid: *****'. $this->xpid( $this->get_hash() ) );
 
-		if ( ! $this->init_db_instances() )
-			return false;
+		// DEBUG: algo tiene que devolver false?
 
+		$this->init_db_instances();
 		$this->load_session();
 		$this->load_acl();
 
@@ -222,27 +222,37 @@ class xpdoc extends xp {
 
 	function init_db_instances() {/*{{{*/
 
-		/* cache de datos, desactivado
-		$this->get_cache_dir( 'data' );
-		*/
+		$database = null;
+		$host = null;
+		$user = null;
+		$password = null;
+		$implementation = null;
 
 		foreach( $this->config->db_instance as $instance ) {
 
 			// por cara uno de los elementos db_instance en config.xml
 
-			$in = (string) $instance['name'];
-
-			M()->info( "abriendo la instancia $in con la base de datos {$instance->database}" );
-
 			// parametros acumulativos entre instancias de base de datos
-			// shorthands
+
+			if ( $instance->database )
+				$database = $instance->database;
+			else	$instance->database = $database;
  
-			$instance->database and $database = (string) $instance->database;
-			$instance->host and $host = (string) $instance->host;
-			$instance->user and $user = (string) $instance->user;
-			$instance->password and $password = (string) $instance->password;
-			$instance->implementation and $implem = (string) $instance->implementation;
-			$encoding = (string) $instance->encoding or $encoding = 'utf8';
+			if ( $instance->host ) 
+				$host = $instance->host;
+			else	$instance->host = $host;
+
+			if ( $instance->user ) 
+				$user = $instance->user;
+			else	$instance->user = $user;
+
+			if ( $instance->password ) 
+				$password = $instance->password;
+			else	$instance->password = $password;
+
+			if ( $instance->implementation ) 
+				$implementation = $instance->implementation;
+			else	$instance->implementation = $implementation;
 
 			// check de parametros;
 
@@ -254,43 +264,70 @@ class xpdoc extends xp {
 				or M()->warn( "debe especificar un usuario de base de datos" );
 			( $password and M()->info( "password: $password" ) ) 
 				or M()->warn( "debe especificar un password de usuario de base de datos" );
-			( $implem and M()->info( "implementation: $implem" ) ) 
+			( $implementation and M()->info( "implementation: $implementation" ) ) 
 				or M()->warn( 'debe especificar una implementacion de la base de datos' );
 
+			$lazy = $instance->lazy or $lazy = false;
 
-			switch( $this->db_driver ) {
+			$lazy or $this->open_db_instance( $instance );
+		}
+	}/*}}}*/
 
-				case 'ADODB':
-					require_once 'adodb.inc.php';
-					$this->db_instance( $in, NewADOConnection( $implem ) );
-					break;
-				default:
-					$this->db_instance( $in, new xpadodb( $implem ) );
-			}
-			
+	function open_db_instance( $i ) {
 
-			( $instance->table_prefix ) and ( $this->db_instance( $in )->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
+		if ( is_string( $i ) ) {
 
-			M()->info( $function = $instance->persistent ? 'PConnect' : 'Connect' );
+			if ( ! ( $instance = array_shift( $this->config->get_xml()->xpath( "db_instance[@name='$i']" ) ) ) ) {
+				M()->error( "no encuentro la instancia $i" );
+				return null;
+			} 
 
-			if ( ! $this->db_instance( $in )->$function( $host, $user, $password, $database, $encoding ) ) {
+		} else $instance = $i;
 
-				M()->user( "No puedo conectarme con la base de datos {$database}" ) ;
-				return false;
+		// shorthands
+		$in = (string) $instance['name'];
 
-			}
-			 
+		$database = (string) $instance->database;
+		$host = (string) $instance->host;
+		$user = (string) $instance->user;
+		$password = (string) $instance->password;
+		$implementation = (string) $instance->implementation;
 
-			$instance->fetch_mode and $this->db_instance( $in )->SetFetchMode( (string) $instance->fetch_mode ) and M()->info( "fetch_mode: $instance->fetch_mode" );
+		M()->info( "abriendo la instancia $in con la base de datos {$instance->database}" );
+	
+		$encoding = (string) $instance->encoding or $encoding = 'utf8';
 
-			$instance->force_utf8 and $this->db_instance( $in )->force_utf8 = true and M()->info( "force_utf8" );
+		switch( $this->db_driver ) {
 
-			$instance->encoding and $this->db_instance( $in )->__encoding = (string) $instance->encoding and M()->info( "encoding: $instance->encoding" );
+			case 'ADODB':
+				require_once 'adodb.inc.php';
+				$this->db_instance( $in, NewADOConnection( $implementation ) );
+				break;
+			default:
+				$this->db_instance( $in, new xpadodb( $implementation ) );
+		}
+	
+
+		( $instance->table_prefix ) and ( $this->db_instance( $in )->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
+
+		M()->info( $function = $instance->persistent ? 'PConnect' : 'Connect' );
+
+		if ( ! ( $dbi = $this->db_instance( $in )->$function( $host, $user, $password, $database, $encoding ) ) ) {
+
+			M()->user( "No puedo conectarme con la base de datos {$database}" ) ;
+			return null;
+
 		}
 
-		return true;
+		$instance->fetch_mode and $dbi->SetFetchMode( (string) $instance->fetch_mode ) and M()->info( "fetch_mode: $instance->fetch_mode" );
 
-	}/*}}}*/
+		$instance->force_utf8 and $dbi->force_utf8 = true and M()->info( "force_utf8" );
+
+		$instance->encoding and $dbi->__encoding = (string) $instance->encoding and M()->info( "encoding: $instance->encoding" );
+
+		return $dbi;
+
+	}
 
 	function init_acl_db() {/*{{{*/
 
@@ -314,8 +351,6 @@ class xpdoc extends xp {
 	}/*}}}*/
 
 	function db_instance( $name = null, $db_handler = null ) {/*{{{*/
-
-
 
 		if ( !$name )
 			foreach( $this->db as $ret )
@@ -354,27 +389,57 @@ class xpdoc extends xp {
 
 		if ( CLI ) {
 
+			// sesion CLI
+
 			M()->debug('CLI: cargando trusted_host_user_id con id '. $this->config->trusted_host_user_id );
 			$this->session->user_id = $this->config->trusted_host_user_id;
 
-		} else if ( $this->session->user_id === NULL or $this->session->user_id === '' ) {
+		} else {
 
-			M()->info('no existe la sesion. remote_addr: '. $this->http->remote_addr );
-			M()->info('trusted_host: '. $this->config->trusted_host );
-			M()->info('trusted_host_user_id: '. $this->config->trusted_host_user_id );
-			M()->info('remote_host_name: '. $this->http->remote_host );
+			// sesion WEB
 
-			if ( ( $this->config->trusted_host_user_id !== NULL ) and
-				( $this->http->remote_host == (string) $this->config->trusted_host ) ) {
+			M()->info('remote_addr: '. $this->http->remote_addr );
 
-				M()->debug('cargando trusted_host_user_id con id '. $this->config->trusted_host_user_id );
-				$this->session->user_id = $this->config->trusted_host_user_id;
+			if ( $this->session->user_id === NULL or $this->session->user_id === '' ) {
 
-			} else {
+				// no hay sesion
 
-				M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
-				$this->session->user_id = $this->config->anonymous_user_id;
-			}
+				M()->info('no existe la sesion' );
+
+				$t = $this->config->trusted_host and M()->warn( "trusted_host (deprecated): $t" );
+				$t = $this->config->trusted_host_ip and M()->info( "trusted_host_ip: $t" );
+				$t = $this->config->trusted_host_name and M()->info( "trusted_host_name: $t" );
+
+				if ( ( $this->config->trusted_host_user_id !== NULL ) ) {
+
+					M()->debug( "trusted_host_user_id: {$this->config->trusted_host_user_id}" );
+
+					if ( $this->config->trusted_host_ip == $this->http->remote_addr ) {
+
+						M()->info( "trusted_host_ip machea remote_addr: {$this->http->remote_addr}" );
+						$this->session->user_id = $this->config->trusted_host_user_id;
+
+					} else if ( $this->config->trusted_host_name !== NULL ) {
+
+						if ( $this->http->remote_host_name() == $this->config->trusted_host_name ) {
+							M()->info( "trusted_host_name machea remote_host: {$this->http->remote_host}" );
+							$this->session->user_id = $this->config->trusted_host_user_id;
+						} else {
+							M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
+							$this->session->user_id = $this->config->anonymous_user_id;
+						}
+					} else {
+
+						M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
+						$this->session->user_id = $this->config->anonymous_user_id;
+					}
+				} else {
+
+					M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
+					$this->session->user_id = $this->config->anonymous_user_id;
+				}
+			} else 
+				M()->info( "la sesion existe" );
 		}
 		
 		$this->user->load( $this->session->user_id );
@@ -549,9 +614,12 @@ class xpdoc extends xp {
 		isset( $this->module ) or $this->set_model();
 		$file = "modules/{$this->module}/{$this->module}.model.xml";
 
-		( $this->model = simplexml_load_file( $file )
+		( @$this->model = simplexml_load_file( $file )
 			and M()->info( "cargando el modelo para el modulo {$this->module} desde $file" ) )
-		or M()->fatal( "no puedo encontrar la descripcion del modelo en $file" );
+		or M()->error( "no puedo encontrar la descripcion del modelo en $file" );
+
+		if ( ! $this->model ) 
+			return false;
 
 		$this->load_metadata();
 
@@ -563,9 +631,19 @@ class xpdoc extends xp {
 
 		// chequeos varios del modelo y los objetos
 
-		foreach( $this->instances as $name => $obj ) 
+		foreach( $this->instances as $name => $obj ) {
+
+			if ( ! is_object( $obj ) ) {
+
+				unset( $this->instances[$name] );
+				M()->error( "objeto $name eliminado del modelo" );
+				continue;
+			}
+
 			if ( !$obj->constructed ) 
 				M()->error( "el objeto $name no fue inicializado correctamente. Incluya el llamado ::__construct() para este objeto" );
+
+		}
 
 		M()->info( "OK" );
 
