@@ -135,9 +135,11 @@ class xpDataObject extends xp {
 
 		global $xpdoc; 
 
-		$this->set_model( $model );
+		if ( ! $this->set_model( $model ) ) 
+			return null;
+
 		$this->set_metadata( $metadata );
-		$this->db( (string) $this->metadata['dbi'] );
+		// $this->db( (string) $this->metadata['dbi'] );
 
 		$this->name or $this->name = $this->class_name;
 
@@ -159,8 +161,6 @@ class xpDataObject extends xp {
 			$this->acl['delete'] = false;
 		}
 		
-		$this->sql = new DBQuery( $this->db );
-
 		// control consulta
 
 		$this->primary_key = array();
@@ -297,11 +297,16 @@ class xpDataObject extends xp {
 
 		global $xpdoc;
 
-		if ( is_object( $db_handler ) ) $this->db = $db_handler;
+		if ( is_object( $db_handler ) ) 
+			$this->db = $db_handler;
 
-		else if ( $dbi = $xpdoc->db_instance( $db_handler ) ) $this->db = $dbi;
+		else if ( $dbi = $xpdoc->db_instance( $db_handler ) ) 
+			$this->db = $dbi;
 
-		else M()->fatal('No encuentro la base de datos'); 
+		else {
+			$this->db = $xpdoc->open_db_instance( $db_handler ) or
+				M()->error( "No encuentro la base de datos para la clase $this->class_name" ); 
+		}
 
 		return $this->db;
 
@@ -340,9 +345,13 @@ class xpDataObject extends xp {
 
 		$file = $this->get_module_path( $this->class_name . '.model.xml' );
 
-		( $this->model = simplexml_load_file( $file ) 
+		$model = null;
+
+		( @$model = simplexml_load_file( $file ) 
 			and M()->info('cargado el modelo para la clase '. $this->class_name ) )
-		or M()->fatal("No puedo cargar la descripcion del modelo del achivo $file" );
+		or M()->error("No puedo cargar la descripcion del modelo del achivo $file" );
+
+		return $model;
 
 	}/*}}}*/ 
 
@@ -356,7 +365,7 @@ class xpDataObject extends xp {
 			$tmp = $xpdoc->model->xpath( "//obj[@name='{$this->class_name}']" ) and
 			$this->model = array_shift( $tmp ) 
 		) or
-			$this->load_model(); 
+			$this->model = $this->load_model(); 
 
 		$this->name = (string) $this->model['name'];
 		$this->type = (string) $this->model['type'];
@@ -366,6 +375,8 @@ class xpDataObject extends xp {
 			and $this->parent = $xpdoc->instances[$this->parent_name];
 
 		M()->info('OK');
+
+		return $this->model;
 
 	}/*}}}*/ 
 
@@ -630,6 +641,14 @@ class xpDataObject extends xp {
 	}/*}}}*/
 
 	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
+
+		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+
+		if ( !$this->db ) {
+
+			$this->total_records = -2;
+			return;
+		}
 
 		if ( !$this->acl ) 
 			$this->set_acl();
@@ -1162,7 +1181,7 @@ class xpDataObject extends xp {
 
 			if ( $this->db_type() == 'dblib' ) {
 
-				$sql_code = array( $this->sql );
+				$sql_code = array( $this->sql->prepare() );
 
 			} else {
 
@@ -1190,7 +1209,7 @@ class xpDataObject extends xp {
 					if ( $this->db_type() == 'dblib' ) {
 
 						// hace la paginacion via consulta para los motores que no tienen LIMIT (dblib)
-						$this->recordset = $this->paged_query( $sql_p, $pr, $cp );
+						$this->recordset = $this->paged_query( (string) $sql_p, $pr, $cp );
 
 					} else {
 						$this->recordset = $this->db->PageExecute( (string) $sql_p, $pr, $cp );
@@ -1206,7 +1225,7 @@ class xpDataObject extends xp {
 			$this->total_records = -1;
 			$this->loaded = false;
 
-			M()->db_error( $this->db, 'select', $sql );
+			M()->db_error( $this->db, 'select', $sql_p );
 			return null;
 		}
 
@@ -1218,13 +1237,14 @@ class xpDataObject extends xp {
 		if ( $xpdoc->feat->count_recs ) {
 
 			// $this->total_records = $this->recordset->rowCount();
-			if ( $this->db_type() == 'dblib' )
-				$r = $this->recordset->fetch( PDO::FETCH_NUM );
+			if ( $this->db_type() == 'dblib' ) {
+				$r = $this->recordset->fetch( PDO::FETCH_ASSOC );
+			}
 			else {
-				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( PDO::FETCH_NUM );
+				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( PDO::FETCH_ASSOC );
 			}
 
-			$this->total_records = $r[0];
+			$this->total_records = $r['__TotalRows'];
 		} 
 
 		M()->debug('total_records: '. $this->total_records );
@@ -1249,6 +1269,10 @@ class xpDataObject extends xp {
 	}/*}}}*/
 
 	function paged_query( $sql, $pr, $cp ) {/*{{{*/
+
+		// esto tiene que ir en DBQuery
+
+		$sql = $this->sql;
 
 		/*
 		
@@ -1419,6 +1443,8 @@ class xpDataObject extends xp {
 
 		// $this->debug_object();
 
+		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
 		if ( $validate and $this->get_flag( 'check' ) and ( ! $this->check() ) ) {
@@ -1447,6 +1473,8 @@ class xpDataObject extends xp {
 
 	function insert () {/*{{{*/
 
+		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
 		global $xpdoc;
@@ -1457,7 +1485,7 @@ class xpDataObject extends xp {
 			return $this->transac_status = NO_PERMS;
 		}
 
-		$this->sql->clear();
+		$this->sql = new DBQuery( $this->db );;
 
 		$this->sql->addTable ( $this->table_name ) ;
 
@@ -1529,6 +1557,8 @@ class xpDataObject extends xp {
 
 	function replace( $modifiers = null ) {/*{{{*/
 
+		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
 		global $xpdoc;
@@ -1539,7 +1569,7 @@ class xpDataObject extends xp {
 			return $this->transac_status = NO_PERMS;
 		}
 
-		$this->sql->clear();
+		$this->sql = new DBQuery( $this->db );;
 
 		$modifiers and $this->sql->modifiers = $modifiers;
 
@@ -1601,6 +1631,8 @@ class xpDataObject extends xp {
 
 	function update () {/*{{{*/
 
+		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
 		global $xpdoc;
@@ -1611,7 +1643,7 @@ class xpDataObject extends xp {
 			return $this->transac_status = NO_PERMS;
 		}
 
-		$this->sql->clear();
+		$this->sql = new DBQuery( $this->db );;
 
 		$this->sql->addTable ( $this->table_name ) ;
 
@@ -1664,6 +1696,8 @@ class xpDataObject extends xp {
 
 		global $xpdoc;
 
+		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+
 		if ( ! $this->has_access( 'delete' ) ) {
 
 			M()->user( 'No tiene permisos para elminar el objeto '. $this->class_name );
@@ -1676,7 +1710,7 @@ class xpDataObject extends xp {
 			return $this->transac_status = NOT_VALID;
 		}
 
-		$this->sql->clear();
+		$this->sql = new DBQuery( $this->db );;
 
 		$this->sql->setDelete( $this->table_name );
 
@@ -2591,7 +2625,8 @@ function main_sql () {/*{{{*/
 
 	function start_db_transaction( $param = null ) {/*{{{*/
 
-		
+		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+
 		M()->mem_stats();
 		M()->info( 'iniciando transacciones de base de datos' );
 		$this->db->StartTrans();

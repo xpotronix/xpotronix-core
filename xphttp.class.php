@@ -86,6 +86,17 @@ class xphttp {
 
 	}/*}}}*/
 
+	function remote_host_name( $ip = null ) {/*{{{*/
+
+		if ( ! function_exists( 'gethostbyaddr' ) ) 
+			return null;
+		else if ( $ip ) 
+			return gethostbyaddr( $ip );
+		else 
+			return gethostbyaddr( $this->remote_addr );
+
+	}/*}}}*/
+
    function __get( $var_name ) {/*{{{*/
 
    	if ( isset( $this->var[ $var_name ] ) )  

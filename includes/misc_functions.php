@@ -6,6 +6,20 @@
 	return $mess;
 }/*}}}*/
 
+function ProcStats() 
+   {    
+       $fp=fopen("/proc/stat","r"); 
+       if(false===$fp) 
+               return false; 
+       $a=explode(' ',fgets($fp)); 
+       array_shift($a); //get rid of 'cpu' 
+       while(!$a[0]) 
+           array_shift($a); //get rid of ' ' 
+       var_dump($a); 
+       fclose($fp); 
+       return $a; 
+   }
+
    function crypto($source) {/*{{{*/
         $salt[0] = "something  here!";   // Limit this to 16 characters
         $salt[1] = "abcd";             // Limit this to 8 characters

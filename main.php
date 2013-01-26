@@ -33,6 +33,7 @@ include_once "xpdoc.class.php";
 
 M()->stats( '*** inicio de ejecucion de xpotronix ***' ); 
 M()->mem_stats();
+// M()->sys_load();
 
 $xpdoc = new xpdoc;
 
@@ -40,13 +41,16 @@ $xpdoc->params_process();
 
 if ( $xpdoc->init() ) {
 
-	$xpdoc->load_model();
+	if ( $xpdoc->load_model() ) {
 
-	file_exists( $f = 'common.php' ) and
-		include_once( $f );
+		file_exists( $f = 'common.php' ) and
+			include_once( $f );
 
-	$xpdoc->set_view();
-	$xpdoc->action_do();
+		$xpdoc->set_view();
+		$xpdoc->action_do();
+
+	} else 
+		$xpdoc->set_xdoc( $xpdoc->get_messages() );
 } else 
 	$xpdoc->set_xdoc( $xpdoc->get_messages() );
 

@@ -47,7 +47,7 @@ uso: saxonb-xslt tables.xml ../../util/check-tables.xsl base_dir=`pwd` base_url=
 
 	<xsl:template match="table">
 		<xsl:variable name="table_name" select="@name"/>
-		<xsl:variable name="href" select="concat($base_url,'?a=data&amp;v=xml&amp;m=',@name,'&amp;r=',@name)"/>
+		<xsl:variable name="href" select="concat($base_url,'?a=data&amp;v=xml&amp;m=',@name,'&amp;r=',@name,'&amp;f[page_rows]=1')"/>
 
 		<xsl:element name="table">
 			<xsl:attribute name="name" select="@name"/>
