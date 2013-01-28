@@ -340,6 +340,10 @@ class xpsearch {
 						$c->value = "%$value%"; 
 						break;
 
+					case 'like': 
+						$c->value = "$value"; 
+						break;
+
 					default: 
 						M()->warn( "match_type $attr_match_type desconocido" );
 				}
