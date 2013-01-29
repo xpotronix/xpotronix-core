@@ -60,6 +60,7 @@ class xpadodb extends PDO {
 		if ( $this->implementation == 'mysql' ) {
 
 			$this->setAttribute( PDO::ATTR_PERSISTENT, $persist );
+			$this->setAttribute( PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true );
 			$this->Execute( "SET NAMES $encoding" );
 
 		}

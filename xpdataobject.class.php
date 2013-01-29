@@ -306,6 +306,7 @@ class xpDataObject extends xp {
 		else {
 			$this->db = $xpdoc->open_db_instance( $db_handler ) or
 				M()->error( "No encuentro la base de datos para la clase $this->class_name" ); 
+			return null;
 		}
 
 		return $this->db;
@@ -561,7 +562,7 @@ class xpDataObject extends xp {
 
 		global $xpdoc;
 
-		M()->debug( "Solicitando tipo {$node['type']} del attr {$node['table']}::{$node['name']}" );
+		// M()->debug( "Solicitando tipo {$node['type']} del attr {$node['table']}::{$node['name']}" );
 
 		if ( ! $node['type'] ) return 'xpstring'; 
 		if ( $node['entry_help'] ) return 'xpentry_help';
@@ -642,9 +643,7 @@ class xpDataObject extends xp {
 
 	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
 
-		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
-
-		if ( !$this->db ) {
+		if ( !$this->db() ) {
 
 			$this->total_records = -2;
 			return;
@@ -1345,6 +1344,11 @@ class xpDataObject extends xp {
 
 	function execute( $sql = null ) {/*{{{*/
 
+		if ( !$this->db() ) {
+			$this->total_records = -2;
+			return null;
+		}
+
 		$sql or $sql = $this->sql->prepare();
 
 		try {
@@ -1443,7 +1447,10 @@ class xpDataObject extends xp {
 
 		// $this->debug_object();
 
-		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+		if ( ! $this->db() ) {
+			$this->total_records = -2;
+			return $this->transact_status = DB_ERROR;
+		}
 
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
@@ -1473,7 +1480,10 @@ class xpDataObject extends xp {
 
 	function insert () {/*{{{*/
 
-		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+		if ( ! $this->db() ) {
+			$this->total_records = -2;
+			return null;
+		}
 
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
@@ -1557,7 +1567,11 @@ class xpDataObject extends xp {
 
 	function replace( $modifiers = null ) {/*{{{*/
 
-		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+		if ( ! $this->db() ) {
+			$this->total_records = -2;
+			return $this->transact_status = DB_ERROR;
+		}
+
 
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
@@ -1631,7 +1645,10 @@ class xpDataObject extends xp {
 
 	function update () {/*{{{*/
 
-		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+		if ( ! $this->db() ) {
+			$this->total_records = -2;
+			return $this->transact_status = DB_ERROR;
+		}
 
 		if ( !$this->modified ) return $this->transac_status = NO_OP;
 
@@ -1693,6 +1710,11 @@ class xpDataObject extends xp {
 	}/*}}}*/
 
 	function delete() {/*{{{*/
+
+		if ( ! $this->db() ) {
+			$this->total_records = -2;
+			return $this->transact_status = DB_ERROR;
+		}
 
 		global $xpdoc;
 
@@ -1864,7 +1886,7 @@ class xpDataObject extends xp {
 
                 if ( $this->is_virtual() and ! $this->count_views() ) {
 
-                        M()->info( "no puedo serializar el objeto virtual {$this->class_name}" );
+                        M()->warn( "no puedo serializar el objeto virtual {$this->class_name}, count_views: ". $this->count_views() );
 			$xc['total_records'] = 0;
                         $xc['msg']='IS_VIRTUAL';
                         return $xc;
@@ -2625,7 +2647,10 @@ function main_sql () {/*{{{*/
 
 	function start_db_transaction( $param = null ) {/*{{{*/
 
-		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
+		if ( ! $this->db() ) {
+			$this->total_records = -2;
+			return null;
+		}
 
 		M()->mem_stats();
 		M()->info( 'iniciando transacciones de base de datos' );
