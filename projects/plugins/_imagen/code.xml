@@ -97,7 +97,7 @@
 
 	$imagen = $xpdoc->get_instance('imagen');
 
-	$sql = new DBQuery( $this->db );
+	$sql = new DBQuery( $this->db() );
 	$sql->addTable("imagen");
 	$sql->addUpdate("encontrada", 0);
 	$sql->addWhere("imagen.usuario_ID = '{$xpdoc->user->legajo}'");
