@@ -55,7 +55,7 @@
 
 	function check() {/*{{{*/
 
-		$this->get_attr( 'user_username' )->modified and $this->user_username = filter_var($this->user_username, FILTER_SANITIZE_EMAIL);
+		$this->get_attr( 'user_username' )->modified and $this->user_username = $this->user_username; // DEBUG: falta sanitize
 		$this->get_attr( 'user_password' )->modified and strlen( $this->user_password ) != 32 and $this->user_password = $this->crypt( $this->user_password ) ;
 		return $this;
 
@@ -520,7 +520,7 @@
 
 		// DEBUG: no anda esto por ahora
 		// return trim( filter_var( $string, FILTER_SANITIZE_EMAIL) );
-		return trim( $string, FILTER_SANITIZE_EMAIL );
+		return trim( $string );
 
 	}/*}}}*/
 
