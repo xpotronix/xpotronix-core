@@ -25,7 +25,12 @@ if ( ! isset( $params['path'] ) ) {
 	exit( 1 );
 }
 
-chdir( $params['path'] );
+if ( ! @chdir( $params['path'] ) ) {
+
+	M()->fatal( "No puedo acceder al directorio {$params['path']}. Proceso cancelado" );
+	exit(1);
+}
+
 ini_set( 'include_path', ini_get( 'include_path' ). ".:/usr/share/php/adodb:{$ini['paths']['lib']}" );
 
 
