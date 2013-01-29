@@ -245,7 +245,8 @@ class xpDataObject extends xp {
 		if ( is_object( $var_value ) or is_array( $var_value ) ) {
 
 			$this->$var_name = $var_value;
-			( $var_name == 'data' ) or M()->warn( "asignando una tipo complejo a un dato simple $this->class_name::$var_name" );
+			( $var_name == 'data' or $var_name == 'sql' or $var_name == 'recordset' ) 
+				or M()->warn( "asignando una tipo complejo a un dato simple $this->class_name::$var_name" );
 		}
 
 		else if ( $attr = $this->get_attr( $var_name ) ) {
