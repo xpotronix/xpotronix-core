@@ -300,19 +300,19 @@ class xpdoc extends xp {
 		switch( $this->db_driver ) {
 
 			case 'ADODB':
-				require_once 'adodb.inc.php';
-				$this->db_instance( $in, NewADOConnection( $implementation ) );
+				require_once 'adodb.inc.php'; // DEBUG: el factory tiene que estar en xpadodb
+				$dbi = $this->db_instance( $in, NewADOConnection( $implementation ) );
 				break;
 			default:
-				$this->db_instance( $in, new xpadodb( $implementation ) );
+				$dbi = $this->db_instance( $in, new xpadodb( $in, $implementation ) );
 		}
 	
 
-		( $instance->table_prefix ) and ( $this->db_instance( $in )->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
+		( $instance->table_prefix ) and ( $dbi->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
 
 		M()->info( $function = $instance->persistent ? 'PConnect' : 'Connect' );
 
-		if ( ! ( $dbi = $this->db_instance( $in )->$function( $host, $user, $password, $database, $encoding ) ) ) {
+		if ( ! $dbi->$function( $host, $user, $password, $database, $encoding ) ) {
 
 			M()->user( "No puedo conectarme con la base de datos {$database}" ) ;
 			return null;

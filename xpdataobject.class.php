@@ -110,7 +110,7 @@ class xpDataObject extends xp {
 
 	function table_exists( $table_name ) {/*{{{*/
 
-		$dd = NewDataDictionary( $this->db );
+		$dd = NewDataDictionary( $this->db() );
 		$mt = $dd->MetaTables();
 		return array_search( $table_name, $mt ); 
 	}/*}}}*/
@@ -139,6 +139,7 @@ class xpDataObject extends xp {
 			return null;
 
 		$this->set_metadata( $metadata );
+
 		// $this->db( (string) $this->metadata['dbi'] );
 
 		$this->name or $this->name = $this->class_name;
@@ -298,16 +299,16 @@ class xpDataObject extends xp {
 
 		global $xpdoc;
 
-		if ( is_object( $db_handler ) ) 
-			$this->db = $db_handler;
+		$db_handler or $db_handler = (string) $this->metadata['dbi'];
 
-		else if ( $dbi = $xpdoc->db_instance( $db_handler ) ) 
+		M()->debug( "db_handler para la clase $this->class_name: ". ( $db_handler ? $db_handler: '(default)' ) );
+
+		if ( $dbi = $xpdoc->db_instance( $db_handler ) ) 
 			$this->db = $dbi;
 
 		else {
 			$this->db = $xpdoc->open_db_instance( $db_handler ) or
 				M()->error( "No encuentro la base de datos para la clase $this->class_name" ); 
-			return null;
 		}
 
 		return $this->db;
@@ -1586,7 +1587,7 @@ class xpDataObject extends xp {
 
 		$this->sql = new DBQuery( $this->db );;
 
-		$modifiers and $this->sql->modifiers = $modifiers;
+		$modifiers and $this->sql->addModifiers( $modifiers );
 
 		$this->sql->addTable ( $this->table_name ) ;
 
@@ -1625,13 +1626,13 @@ class xpDataObject extends xp {
 
 		} catch ( PDOException $e ) {
 
-			unset( $this->sql->modifiers );
+			// unset( $this->sql->modifiers );
 
 			M()->db_error( $this->db, 'replace', $sql );
 			return ( $this->transac_status = DB_ERROR );
 		}
 
-		unset( $this->sql->modifiers );
+		// unset( $this->sql->modifiers );
 
 		if ( $af = $this->get_autonumeric_field() ) {
 
@@ -1718,8 +1719,6 @@ class xpDataObject extends xp {
 		}
 
 		global $xpdoc;
-
-		$this->db or $this->db = $this->db( (string) $this->metadata['dbi'] );
 
 		if ( ! $this->has_access( 'delete' ) ) {
 
