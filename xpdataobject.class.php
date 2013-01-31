@@ -1190,7 +1190,7 @@ class xpDataObject extends xp {
 
 			} else {
 
-				$sql_code = array( $xpdoc->feat->count_recs ? 
+				$sql_code = array( $this->feat->count_rows ? 
 						$this->sql->prepareCount() : 
 						$this->sql->prepare() 
 						);
@@ -1242,12 +1242,12 @@ class xpDataObject extends xp {
 
 		$this->total_records = null;
 
-		if ( $xpdoc->feat->count_recs ) {
+		if ( $this->feat->count_rows ) {
 
 			// $this->total_records = $this->recordset->rowCount();
 			if ( $this->db_type() == 'dblib' ) {
 				// $r = $this->recordset->fetch( PDO::FETCH_ASSOC );
-				$r = $rows[0];
+				@$r = $rows[0];
 			}
 			else {
 				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( PDO::FETCH_ASSOC );
@@ -1484,7 +1484,6 @@ class xpDataObject extends xp {
 
 		$this->feat->load_after_store and $this->load();
 
-
 		return $this->transac_status;
 	}/*}}}*/
 
@@ -1537,7 +1536,7 @@ class xpDataObject extends xp {
 
 		$sql = $this->sql->prepare();
 
-		// M()->debug( "insertando: $sql"  );
+		M()->debug( "insertando: $sql"  );
 
 		try {
 			$this->affected_records = $this->db->Execute( $sql );
