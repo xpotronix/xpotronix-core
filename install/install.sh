@@ -30,7 +30,7 @@ if [ -z $DOCUMENT_ROOT ]; then
 fi
 
 # these are mandatory
-apt-get install php5 php5-cli php5-mysql php5-xsl php5-curl php-pear
+apt-get install php5 php5-cli php5-mysql php5-xsl php5-curl php-pear php5-ldap
 apt-get install libphp-adodb php-cache-lite
 apt-get install libsaxonb-java
 

@@ -94,11 +94,16 @@ class xpattr extends xp {
 
 		// if ( !$this->obj ) { print $this->debug_backtrace( $this ); exit; }
 
-		if ( $this->obj->track_modified ) {
-      	 		$this->modified = true;
-	 		$this->obj->modified = true;
-			// M()->debug("modificado $this->name");
-		}
+		@$value = $this->obj->data[$this->name];
+
+		if ( $value != $var_value ) 
+			if ( $this->obj->track_modified ) {
+      	 			$this->modified = true;
+				// M()->debug("modificado $this->name");
+			}
+
+ 		$this->obj->modified = true;
+
 	 	return $this->obj->data[$this->name] = $var_value;
 
 	 } else if ( $var_name == 'label' ) {

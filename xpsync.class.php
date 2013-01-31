@@ -126,7 +126,8 @@ class xpsync {
 		// DEBUG: mejor guardar el estado anterior
 		
 		$s->feat->load_full_query = false;
-		$this->obj->feat->load_full_query = true;
+		$this->obj->feat->load_full_query = false;
+		$this->obj->feat->count_rows = false;
 
 		$this->obj->set_flag( 'check', false );
 		$this->obj->set_flag( 'validate', false );
@@ -159,11 +160,9 @@ class xpsync {
 				M()->user( "alcanzado el limite $limit de registros. Fin del proceso" );
 				break;
 			}
-
 			// xdebug_stop_trace();
 			// exit;
 		}
-
 
 		unset( $rs );
 
@@ -187,7 +186,14 @@ class xpsync {
 			return;
 		}
 
+		// var_dump( $this->obj->track_modified );
+		// print_r ( $so->data );
+		// print_r ( $this->obj->data );
+
+		// foreach( $this->obj->attr as $key => $attr ) { print "$key: ". ( $attr->modified ? 'SI': 'NO' ). "\n"; }
+
 		foreach( $so->attr as $key => $attr ) {
+
 
 			if ( ! $this->obj->get_attr( $key ) ) {
 				M()->debug('no encuentro al key '.$key );
@@ -206,23 +212,34 @@ class xpsync {
 					if ( str_replace( ' 00:00:00', '', $this->obj->$key ) != $so->$key )
 
 						$this->obj->$key = $so->$key;
-
 				} else {
 
 					$this->obj->$key = $so->$key;
-
 				}
 			}
+
+			/*
+
+			$dattr = $this->obj->get_attr( $key );
+
+			$sv = $so->$key;
+			@$dv = $this->obj->get_attr( $key )->value;
+
+			print "$key: $sv >> $dv ". ( $dattr->modified ? 'SI': 'NO' ). "\n"; 
+
+			*/
 		}
 
+		// print "modified::: ". ( $this->obj->modified ? 'SI': 'NO' ). "\n";
 
 		// $this->obj->debug_object(); exit;
 
 		// $this->obj->replace( 'DELAYED' );
-		$this->obj->replace();
+		// $this->obj->replace();
 
-		// $this->obj->store();
+		$this->obj->store();
 
+		// M()->fatal( "yendome" );
 	}/*}}}*/
 
 }

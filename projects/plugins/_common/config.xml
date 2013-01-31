@@ -22,7 +22,7 @@
 		<table_prefix/>
 	</db_instance>
 
-	<count_recs type="bool">true</count_recs>
+	<count_rows type="bool">true</count_rows>
 
 	<log_xpid type="bool">true</log_xpid>
 	<log_ip type="bool">true</log_ip>
