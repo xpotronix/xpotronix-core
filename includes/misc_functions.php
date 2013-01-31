@@ -1,11 +1,5 @@
 <?
 
-   function M() {/*{{{*/
-	static $mess;
-	$mess or $mess = new xpmessages;
-	return $mess;
-}/*}}}*/
-
 function ProcStats() 
    {    
        $fp=fopen("/proc/stat","r"); 
