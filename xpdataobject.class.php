@@ -714,14 +714,17 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function load_array_recordset() {/*{{{*/
+	function load_array_recordset( $rows ) {/*{{{*/
 
 			$objs = array();
 			$objs_count = 0;
 
 			// M()->mem_stats( 'entro a load_array_recordset' );
 
-			while ( $row = $this->recordset->fetch() ) {
+			// $rows = $this->recordset->fetchAll();
+
+			// while ( $row = $this->recordset->fetch() ) {
+			foreach ( $rows as $row ) {
 
 				$this->reset();
 				$this->bind_data( $row );
@@ -736,8 +739,9 @@ class xpDataObject extends xp {
 
 			if ( count( $objs ) < $objs_count ) 
 
-				M()->warn( 'en '. $this->class_name .' se han cargado menos items que los que se contaron. Revise la clave primaria (que deben ser valores unicos)' );
-			unset( $this->recordset );
+				M()->warn( "en $this->class_name se han cargado menos items que los que se contaron. Revise la clave primaria (que deben ser valores unicos)" );
+
+			// unset( $this->recordset );
 
 			// M()->mem_stats('salgo de load_array_recordset');
 
@@ -1230,6 +1234,9 @@ class xpDataObject extends xp {
 			return null;
 		}
 
+		$rows = $this->recordset->fetchAll();
+
+		unset( $this->recordset );
 
 		// d) calcula el record count
 
@@ -1239,7 +1246,8 @@ class xpDataObject extends xp {
 
 			// $this->total_records = $this->recordset->rowCount();
 			if ( $this->db_type() == 'dblib' ) {
-				$r = $this->recordset->fetch( PDO::FETCH_ASSOC );
+				// $r = $this->recordset->fetch( PDO::FETCH_ASSOC );
+				$r = $rows[0];
 			}
 			else {
 				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( PDO::FETCH_ASSOC );
@@ -1262,7 +1270,7 @@ class xpDataObject extends xp {
 		} else {
 
 			// M()->mem_stats( 'salgo de page' );
-			return $this->load_array_recordset();
+			return $this->load_array_recordset( $rows );
 		}
 
 		// $this->class_name == '_licencia' and xdebug_stop_trace();
@@ -1306,7 +1314,7 @@ class xpDataObject extends xp {
 
 		$offset = $pr * ($cp-1);
 
-		M()->info( "offset: $offset" );
+		M()->info( "offset: $offset, page_rows: $pr" );
 
 		$q = array();
 
