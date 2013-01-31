@@ -224,7 +224,13 @@
 
 		// Fallback SQL authentication fails, proceed with LDAP
 
-		if ( !$rs = @ldap_connect( $this->ldap_host, $this->ldap_port ) ) {
+		if ( ! function_exists( 'ldap_connect' ) ) {
+
+			M()->error( "modulo ldap no instalado" );
+			return false;
+		}
+
+		if ( !$rs = ldap_connect( $this->ldap_host, $this->ldap_port ) ) {
 
 			M()->warn( "no hubo respuesta del servidor LDAP" );
 
@@ -238,16 +244,16 @@
 
 		} 
 
-		@ldap_set_option( $rs, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version );
-		@ldap_set_option( $rs, LDAP_OPT_REFERRALS, 0 );
+		ldap_set_option( $rs, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version );
+		ldap_set_option( $rs, LDAP_OPT_REFERRALS, 0 );
 
 		$ldap_bind_dn = "uid = {$this->ldap_search_user},{$this->base_dn}";
 		// $ldap_bind_dn = $this->ldap_search_user;
 
-		if ( !$bindok = @ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) {
+		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
 
-			M()->info( ldap_error( $rs ). " en $ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}" );
-			M()->info( "no pude conectarme al servidor LDAP. Haciendo login via _login()" );
+			M()->warn( ldap_error( $rs ). " en $ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}" );
+			M()->warn( "no pude conectarme al servidor LDAP. Haciendo login via _login()" );
 			return $this->_login( $username, $password );
 		
 		} else {
