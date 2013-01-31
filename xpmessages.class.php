@@ -15,6 +15,12 @@ require_once 'constants.inc.php';
 if ( ! defined( 'LOG_FUNCTION' ) ) define( 'LOG_FUNCTION', NULL );
 if ( ! defined( 'LOG_CLASS' ) ) define( 'LOG_CLASS', NULL );
 
+   function M() {/*{{{*/
+	static $mess;
+	$mess or $mess = new xpmessages;
+	return $mess;
+}/*}}}*/
+
 class xpmessage {
 
 	var $text;
