@@ -79,6 +79,7 @@ class DBQuery {
 		$this->query = null;
 		$this->table_list = null;
 		$this->where = null;
+		$this->modifiers = null;
 		$this->order_by = null;
 		$this->group_by = null;
 		$this->limit = null;

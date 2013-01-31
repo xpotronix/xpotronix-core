@@ -219,8 +219,9 @@ class xpsync {
 		// $this->obj->debug_object(); exit;
 
 		// $this->obj->replace( 'DELAYED' );
+		$this->obj->replace();
 
-		$this->obj->store();
+		// $this->obj->store();
 
 	}/*}}}*/
 

@@ -12,15 +12,19 @@
 
 class xpadodb extends PDO {
 
-	private $database;
-	private $host;
-	private $user;
+	var $instance;
+	var $database;
+	var $host;
+
+	var $user;
 	private $password;
 
 	var $implem;
 	var $databaseType;
 
-	function __construct( $implem ) {/*{{{*/
+	function __construct( $instance, $implem ) {/*{{{*/
+
+		$this->instance = $instance;
 
 		if ( $implem == 'mysqli' ) $implem = 'mysql';
 		if ( $implem == 'mssql' ) $implem = 'dblib';
