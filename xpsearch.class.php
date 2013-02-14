@@ -387,12 +387,17 @@ class xpsearch {
 
 
 	// MATCH AGAINST cambia el orden de los operadores
-	$c->result_term = ( $c->search_type == 'match' ) ?
-		sprintf( $c->term_syntax, $c->value, $c->sql_var, null ):
-		sprintf( $c->term_syntax, $c->sql_var, $c->operator, $c->value);
 
+	if ( @$this->obj->foreign_key['@set'] == 'variables' )
+		$c->result_term = sprintf( $c->term_syntax, $c->sql_var, '=', $c->value);
 
-	M()->debug( "busqueda tipo: [{$c->search_type}], match_type: [{$c->match_type}], term_syntax: [{$c->term_syntax}], operator: [{$c->operator}], value: [{$c->value}]" );
+	else if ( $c->search_type == 'match' ) 
+		$c->result_term = sprintf( $c->term_syntax, $c->value, $c->sql_var, null );
+
+	else 
+		$c->result_term = sprintf( $c->term_syntax, $c->sql_var, $c->operator, $c->value);
+
+	M()->debug( "busqueda tipo: [{$c->search_type}], match_type: [{$c->match_type}], term_syntax: [{$c->term_syntax}], operator: [{$c->operator}], value: [{$c->value}], result_term: [$c->result_term]" );
 
 	return $c;
 	}/*}}}*/
