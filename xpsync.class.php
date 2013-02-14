@@ -130,6 +130,7 @@ class xpsync {
 		$this->obj->feat->count_rows = false;
 
 		$this->obj->set_flag( 'check', false );
+		$this->obj->set_flag( 'post_check', false );
 		$this->obj->set_flag( 'validate', false );
 
 		if ( $page_rows = (int) $this->sync['page_rows'] ) {
