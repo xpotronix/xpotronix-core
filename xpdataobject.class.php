@@ -193,6 +193,7 @@ class xpDataObject extends xp {
 		$this->set_flag( 'main_sql', true );
 		$this->set_flag( 'validate', true );
 		$this->set_flag( 'check', true );
+		$this->set_flag( 'post_check', true );
 
 		return $this->init();
 
@@ -1477,9 +1478,12 @@ class xpDataObject extends xp {
 			$this->loaded = true;
 			$this->set_primary_key();
 
-			M()->debug( "llamando a $this->class_name::post_check()" );
-			$this->post_check();
-			M()->debug( "volviendo de  $this->class_name::post_check()" );
+			if ( $this->get_flag( 'post_check' ) ) {
+
+				M()->debug( "llamando a $this->class_name::post_check()" );
+				$this->post_check();
+				M()->debug( "volviendo de  $this->class_name::post_check()" );
+			}
 		}
 
 		$this->feat->load_after_store and $this->load();
