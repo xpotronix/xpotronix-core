@@ -60,6 +60,7 @@
 			<xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
 			<xsl:sequence select="@*"/>
 			<xsl:sequence select="layout"/>
+			<xsl:sequence select="config"/>
 			<xsl:apply-templates select="panel" mode="copy"/>
 			<xsl:apply-templates select="." mode="get_primary_key"/>
 			<xsl:sequence select="foreign_key"/>
