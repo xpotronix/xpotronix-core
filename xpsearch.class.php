@@ -139,7 +139,7 @@ class xpsearch {
 				// en variables solo asigna valores.
 				// por ahora no se usa foreign keys con operadores, pero los puede haber
 
-				$sql = ( @$this->obj->foreign_key['@set'] == 'variables' ) ? "%s" : "(%s)";
+				$sql = ( @$this->obj->foreign_key->set == 'variables' ) ? "%s" : "(%s)";
 
 				$sql_clause = sprintf( $sql, implode( ' ', $term_array ) );
 
@@ -388,7 +388,7 @@ class xpsearch {
 
 	// MATCH AGAINST cambia el orden de los operadores
 
-	if ( @$this->obj->foreign_key['@set'] == 'variables' )
+	if ( @$this->obj->foreign_key->set == 'variables' )
 		$c->result_term = sprintf( $c->term_syntax, $c->sql_var, '=', $c->value);
 
 	else if ( $c->search_type == 'match' ) 
@@ -418,7 +418,7 @@ class xpsearch {
 
 		// DEBUG: hot fix para poder usar search->proces para @variables sql
 
-		switch( (string) @$this->obj->foreign_key['@set'] ) {
+		switch( (string) @$this->obj->foreign_key->set ) {
 
 			case 'constraints':
 			case null:

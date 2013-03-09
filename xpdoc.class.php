@@ -699,7 +699,7 @@ class xpdoc extends xp {
 				return $instance;
 
 			} else
-				M()->fatal( 'No encuentro la instancia '. $obj_name );
+				M()->error( 'No encuentro la instancia '. $obj_name );
 
 		}
 
@@ -707,7 +707,7 @@ class xpdoc extends xp {
 
 	function add_class( $model ) {/*{{{*/
 
-		if ( !$model ) M()->fatal( "No hay modelo para esta definicion del objeto" );
+		if ( !$model ) M()->error( "No hay modelo para esta definicion del objeto" );
 
 		$class_name = (string) $model['name'];
 
