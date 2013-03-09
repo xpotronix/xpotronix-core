@@ -164,9 +164,6 @@ class xpDataObject extends xp {
 		
 		// control consulta
 
-		$this->primary_key = array();
-		$this->foreign_key = array();
-
 		$this->order_array = array();
 
 		$this->search = new xpsearch( $this );
@@ -1083,7 +1080,7 @@ class xpDataObject extends xp {
 
 		M()->debug( 'constraints: '. serialize( $const ) );
 
-		if ( @$this->foreign_key['@set'] == 'variables' ) {
+		if ( @$this->foreign_key->set == 'variables' ) {
 
 			$set = array();
 
@@ -1196,7 +1193,7 @@ class xpDataObject extends xp {
 						$this->sql->prepare() 
 						);
 
-				( $this->feat->full_sql_log ) ? 
+				( true or $this->feat->full_sql_log ) ? 
 					M()->debug( $sql_code[0] ) :
 					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );
 
@@ -1907,12 +1904,15 @@ class xpDataObject extends xp {
 
 		if ( $any or $normalized or $recursive ) {
 
-			if ( $recursive && is_object( $this->parent ) )
-				$fk = $this->get_foreign_key();
-			else
-				$fk = null;
+			if ( $recursive && is_object( $this->parent ) && is_object( $this->foreign_key ) ) {
 
-			$objs = $this->load_page( $fk ); 
+				M()->debug( 'load con fk '. serialize( $this->foreign_key->get_key_values() ) );
+				$objs = $this->load_page( $this->foreign_key->get_key_values() ); 
+			}
+			else {
+				M()->debug( 'load sin fk' );
+				$objs = $this->load_page(); 
+			}
 
 		} else M()->warn( "no se ha definido ni DS_ANY ni DS_NORMALIZED ni DS_RECURSIVE: no hay registros a serializar. Revise directiva 'include_dataset'" );
 
@@ -1967,7 +1967,7 @@ class xpDataObject extends xp {
 			$this->reset();
 			$this->fill_primary_key( true );
 			$this->set_primary_key();
-			$this->assign_foreign_key();
+			$this->foreign_key and $this->foreign_key->assign();
 			$defaults and $this->defaults();
 		}
 
@@ -2172,7 +2172,7 @@ class xpDataObject extends xp {
 
 		// $this->__new == !$this->loaded;
 		$this->set_primary_key();
-		$this->assign_foreign_key();
+		$this->foreign_key and $this->foreign_key->assign();
 
 		/*
 
@@ -2223,7 +2223,8 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	// manejo de claves 
+	/* keys handling */ 
+	/* primary */
 
 	function config_primary_key() {/*{{{*/ 
 
@@ -2233,6 +2234,8 @@ class xpDataObject extends xp {
 			M()->fatal( "no hay modelo definido: no puedo cargar la clave primaria" );
 
 		$refs = $this->model->xpath( "primary_key/primary" );
+	
+		is_array( $this->primary_key ) or $this->primary_key = array();
 
 		foreach( $refs as $ref ) {
 
@@ -2250,43 +2253,6 @@ class xpDataObject extends xp {
 		// echo "<pre>"; print_r( $this->primary_key ); echo "</pre>"; ob_flush(); exit;
 
 	}/*}}}*/ 
-
-	function config_foreign_key() {/*{{{*/ 
-
-		/* carga la configuracion para la clave foranea desde el modelo */
-
-		if ( ! count( $xp = $this->model->xpath( "foreign_key" ) ) )
-			return;
-
-		$xfk = array_shift( $xp );
-
-		if ( isset( $xfk['set'] ) )
-			$this->foreign_key['@set'] = (string) $xfk['set'];
-
-		if ( is_object( $xfk ) ) {
-			foreach( $xfk->xpath( "ref" ) as $ref ) {
-
-				$local = (string) $ref['local'];
-				$remote = (string) $ref['remote'];
-
-				if ( ! isset( $this->foreign_key['@set'] ) ) 
-
-					if ( $attr = $this->get_attr( $local ) ) 
-						$attr->foreign = true;
-					else
-						M()->warn( "atributo 'local' {$this->name}::$local no existe" );
-
-				if ( $this->parent->get_attr( $remote ) ) {
-
-					$this->foreign_key[$local] = new xpkey( $this->parent->table_name, $remote );
-					M()->debug( "local: $local, remote: $remote, set: ". @$this->foreign_key['@set'] );
-				} else
-					M()->warn( "atributo 'remote' {$this->parent->name}::$remote no existe" );
-
-			}
-		}
-
-	}/*}}}*/
 
 	function set_primary_key() {/*{{{*/
 
@@ -2340,114 +2306,10 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-//
-
-	function set_foreign_key() {/*{{{*/
-
-		global $xpdoc;
-
-		/* si req_object esta definida, entonces esta pidiendo un objeto dentro de un modelo que no esta cargado */
-
-		if ( isset ( $xpdoc->req_object ) ) return array();
-
-		else return $this->search->process( $this->get_foreign_key() );
-
-	}/*}}}*/
-
-	function get_foreign_key() {/*{{{*/
-
-		$ret = array();
-
-		foreach ( $this->foreign_key as $local => $fk ) {
-
-			if ( $local{0} == '@' ) continue; // variables de configuracion, ej @set
-
-			$value = $this->parent->{$fk->remote};
-
-			/*
-			if ( ! $attr = $this->get_attr( $local ) ) {
-
-				M()->warn( "no encuentro el attr $local" ); 
-				continue;
-			}
-			*/
-
-			M()->debug( "valor del foreign_key: {$this->table_name}::$local = $value" ); 
-
-			$ret[$local] = $value;
-		}
-
-		return $ret;
-	}/*}}}*/
-
-	function assign_foreign_key() {/*{{{*/
-
-		// DEBUG: esto se usa solamente en SOAP
-
-		$this->bind( $this->get_foreign_key(), true );
-
-	}/*}}}*/
-
-	function fill_primary_key( $force = false, $seed = null ) {/*{{{*/
-
-		/* llena la clave primaria con hashes segun el tipo */
-
-		foreach ( $this->primary_key as $key => $data ) {
-
-			if ( $key == $this->get_autonumeric_field() ) {
-
-				M()->info( "$key es autonumerico, no puedo llenar" );
-				continue;
-			}
-
-			if ( ! ( $attr = $this->get_attr( $key ) ) ) {
-
-				M()->warn( "el atributo $key no existe en {$this->class_name}" );
-				continue;
-			}
-
-			if ( $attr->value and ! $force ) {
-
-				M()->info( "$key tiene valor y no puedo forzar" );
-				continue;
-			}
-
-			// distintas alternativas para rellenar claves primarias segun el tipo
-
-			if ( ( $attr->type == 'xpstring' or $attr->type == 'xpentry_help' ) and $attr->length == 32 )
-				$attr->value = $this->get_hash( $seed );
-
-			else if ( ( $attr->type == 'xpstring' or $attr->type == 'xpentry_help' ) and $attr->length == 13 )
-				$attr->value = uniqid();
-
-			else M()->info( 'no puedo llenar el atributo '.$attr->name.' de la clave primaria para el tipo '. $attr->type. ' en el objeto ' . $this->class_name );
-
-		}
-
-	}/*}}}*/
-
-	function guess_primary_key() {/*{{{*/
-
-		// si no tiene clave primaria, genera una temporal
-
-		return ( count( $this->primary_key ) ) ? 
-			$this->pack_primary_key(): 
-			$this->get_hash();
-	}/*}}}*/
-
 	function is_primary_key( $attr_name ) {/*{{{*/
 
 		if ( $attr = $this->get_attr( $attr_name ) )
 			return $attr->is_primary_key();
-		else
-			return null;
-
-	}/*}}}*/
-
-	function is_foreign_key( $attr_name ) {/*{{{*/
-
-		if ( $attr = $this->get_attr( $attr_name ) )
-			return $attr->is_foreign_key();
 		else
 			return null;
 
@@ -2509,6 +2371,83 @@ class xpDataObject extends xp {
 		M()->info( "clave $m: ". decbin( $status ) );
 
 		return $status;
+
+	}/*}}}*/
+
+	function fill_primary_key( $force = false, $seed = null ) {/*{{{*/
+
+		/* llena la clave primaria con hashes segun el tipo */
+
+		foreach ( $this->primary_key as $key => $data ) {
+
+			if ( $key == $this->get_autonumeric_field() ) {
+
+				M()->info( "$key es autonumerico, no puedo llenar" );
+				continue;
+			}
+
+			if ( ! ( $attr = $this->get_attr( $key ) ) ) {
+
+				M()->warn( "el atributo $key no existe en {$this->class_name}" );
+				continue;
+			}
+
+			if ( $attr->value and ! $force ) {
+
+				M()->info( "$key tiene valor y no puedo forzar" );
+				continue;
+			}
+
+			// distintas alternativas para rellenar claves primarias segun el tipo
+
+			if ( ( $attr->type == 'xpstring' or $attr->type == 'xpentry_help' ) and $attr->length == 32 )
+				$attr->value = $this->get_hash( $seed );
+
+			else if ( ( $attr->type == 'xpstring' or $attr->type == 'xpentry_help' ) and $attr->length == 13 )
+				$attr->value = uniqid();
+
+			else M()->info( 'no puedo llenar el atributo '.$attr->name.' de la clave primaria para el tipo '. $attr->type. ' en el objeto ' . $this->class_name );
+
+		}
+
+	}/*}}}*/
+
+	function guess_primary_key() {/*{{{*/
+
+		// si no tiene clave primaria, genera una temporal
+
+		return ( count( $this->primary_key ) ) ? 
+			$this->pack_primary_key(): 
+			$this->get_hash();
+	}/*}}}*/
+
+	/* foreign */
+
+	function config_foreign_key() {/*{{{*/ 
+
+		/* carga la configuracion para la clave foranea desde el modelo */
+
+		if ( ! count( $xp = $this->model->xpath( "foreign_key" ) ) )
+			return;
+
+		foreach( $xp as $xfk ) {
+	
+			if ( is_object( $xfk ) ) {
+
+				$this->foreign_key = new xpkey( $this, $xfk );
+
+				return $this; /* solo la primera */
+			}
+		}
+
+	}/*}}}*/
+
+	function is_foreign_key( $attr_name ) {/*{{{*/
+
+		if ( $attr = $this->get_attr( $attr_name ) )
+			return $attr->is_foreign_key();
+		else
+			return null;
 
 	}/*}}}*/
 
