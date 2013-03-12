@@ -1065,7 +1065,14 @@ class xpDataObject extends xp {
 				$this->sql->addOrder( $this->quote_order( $field ). " $asc_desc" ) ;
 
 			}
+
+		} else if ( $this->model->order_by ) {
+
+			M()->debug( "order by: {$this->model->order_by}" );
+			// DEBUG: no hace quote por ahora
+			$this->sql->addOrder( $this->model->order_by );
 		}
+
 
 	}/*}}}*/ 
 
