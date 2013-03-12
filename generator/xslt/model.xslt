@@ -64,6 +64,7 @@
 			<xsl:apply-templates select="panel" mode="copy"/>
 			<xsl:apply-templates select="." mode="get_primary_key"/>
 			<xsl:sequence select="foreign_key"/>
+			<xsl:sequence select="order_by"/>
 			<xsl:apply-templates select="." mode="get_queries"/>
 			<xsl:apply-templates select="table" mode="get_model"/>
 		</xsl:element>
