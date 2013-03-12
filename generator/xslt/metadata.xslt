@@ -165,6 +165,8 @@
 				<xsl:copy>
 					<xsl:copy-of select="$over_fields/*[@name=current()/@name]/@*"/>
 					<xsl:copy-of select="@*"/>
+					<!-- DEBUG: por ahora no hay override de los elementos -->
+					<xsl:copy-of select="*"/>
 				</xsl:copy>
 			</xsl:for-each>
 			<xsl:copy-of select="$base_fields/*[not(@name=$over_fields/*/@name)]"/>
