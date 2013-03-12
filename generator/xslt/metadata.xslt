@@ -88,13 +88,24 @@
 		<xsl:variable name="table_name" select="@name"/>
 
 		<!-- attr sets -->
-		<xsl:variable name="ui_fields" select="field"/>
-		<xsl:variable name="in_fields" select="$ui_collection/table[@name=$table_name]/field"/>
-		<xsl:variable name="tb_fields" select="$table_collection/table[@name=$table_name]/field"/>
-		<xsl:variable name="db_fields" select="$database_collection/table[@name=$table_name]/field"/>
+		<xsl:variable name="ui_fields">
+			<xsl:sequence select="field"/>
+		</xsl:variable>
 
+		<xsl:variable name="in_fields">
+ 			<xsl:sequence select="$ui_collection/table[@name=$table_name]/field"/>
+		</xsl:variable>
+
+		<xsl:variable name="tb_fields">
+			<xsl:sequence select="$table_collection/table[@name=$table_name]/field"/>
+		</xsl:variable>
+
+		<xsl:variable name="db_fields">
+			<xsl:sequence select="$database_collection/table[@name=$table_name]/field"/>
+		</xsl:variable>
+
+		<!-- 
 		<xsl:message>CLASS NAME: <xsl:value-of select="$table_name"/></xsl:message>
-		<!--
 		<xsl:message>UI_FIELDS: <xsl:copy-of select="$ui_fields"/></xsl:message>
 		<xsl:message>IN_FIELDS: <xsl:copy-of select="$in_fields"/></xsl:message>
 		<xsl:message>TB_FIELDS: <xsl:copy-of select="$tb_fields"/></xsl:message>
@@ -129,8 +140,9 @@
 		<!-- metadata final -->
 		<xsl:element name="table">
 			<xsl:sequence select="@*"/>
-			<xsl:sequence select="$p3_fields"/>
+			<xsl:sequence select="$p3_fields/*"/>
 		</xsl:element>
+
 	</xsl:template><!--}}}-->
 
 	<xsl:template name="fields_override"><!--{{{-->
@@ -138,43 +150,30 @@
 		<xsl:param name="base_fields"/>
 		<xsl:param name="over_fields"/>
 
-		<xsl:message>BASE_FIELDS: <xsl:copy-of select="$base_fields"/></xsl:message>
-		<xsl:message>OVER_FIELDS: <xsl:copy-of select="$over_fields"/></xsl:message>
+		<!--
+		<xsl:message>**** fields_override ****</xsl:message>
+		<xsl:message>BASE_FIELDS: <xsl:copy-of select="$base_fields/*"/></xsl:message>
+		<xsl:message>count: <xsl:copy-of select="count($base_fields/*)"/></xsl:message>
+		<xsl:message>OVER_FIELDS: <xsl:copy-of select="$over_fields/*"/></xsl:message>
+		<xsl:message>count: <xsl:copy-of select="count($over_fields/*)"/></xsl:message>
+		-->
 
 		<!-- <xsl:message><xsl:value-of select="concat('fields_override: ', count($base_fields), '/', count($over_fields))"/></xsl:message> -->
 
 		<xsl:variable name="result">
-
-		<xsl:for-each select="$base_fields">
-			<xsl:choose>
-				<xsl:when test="$over_fields/fields[@name=current()/@name]">
-					<xsl:message>OVERRIDE_MATCH: <xsl:value-of select="@name"/></xsl:message>
-					<xsl:copy>
-						<xsl:copy-of select="@*"/>
-						<xsl:copy-of select="$over_fields[@name=current()/@name]/@*"/>
-					</xsl:copy>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:copy-of select="."/>
-				</xsl:otherwise>
-			</xsl:choose>
-
-		</xsl:for-each>
-
-		<xsl:for-each select="$over_fields">
-			<xsl:if test="$base_fields/field[@name=current()/@name]/@name=''">
-				<xsl:message><xsl:value-of select="current()/@name"/></xsl:message>
-				<xsl:message><xsl:copy-of select="$base_fields/field[@name=current()/@name]"/></xsl:message>
-				<xsl:message>OVERRIDE_COPY: <xsl:value-of select="@name"/></xsl:message>
-				<xsl:copy-of select="."/>
-			</xsl:if>
-		</xsl:for-each>
-
+			<xsl:for-each select="$base_fields/*[@name=$over_fields/*/@name]">
+				<xsl:copy>
+					<xsl:copy-of select="$over_fields/*[@name=current()/@name]/@*"/>
+					<xsl:copy-of select="@*"/>
+				</xsl:copy>
+			</xsl:for-each>
+			<xsl:copy-of select="$base_fields/*[not(@name=$over_fields/*/@name)]"/>
+			<xsl:copy-of select="$over_fields/*[not(@name=$base_fields/*/@name)]"/>
 		</xsl:variable>
-			
-		<xsl:message>RESULT: <xsl:copy-of select="$result"/></xsl:message>
 
-		<xsl:copy-of select="$result"/>
+		<!-- <xsl:message>RESULT: <xsl:copy-of select="$result"/></xsl:message> -->
+
+		<xsl:sequence select="$result"/>
 
 	</xsl:template><!--}}}-->
 
