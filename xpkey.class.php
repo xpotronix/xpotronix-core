@@ -49,8 +49,8 @@ class xpkey {
 
 			if ( isset( $ref->expr ) ) {
 
-				M()->debug( "expresion (no implementado): $ref->expr " );
-				continue;
+				M()->debug( "parseo $ en expresion: $ref->expr " );
+				return $this->parse( $ref->expr );
 			}
 
 			else if ( strstr( $ref->remote, '$' ) ) {
@@ -118,7 +118,12 @@ class xpkey {
 
 	function assign() {/*{{{*/
 
-		$this->obj->bind( $this->get_key_values(), true );
+		if ( $this->refs[0]->expr )
+			M()->warn( "no puedo asignar una clave foranea basada en una expresion" );
+		else
+			$this->obj->bind( $this->get_key_values(), true );
+
+		return $this->obj;
 
 	}/*}}}*/
 

@@ -1914,7 +1914,11 @@ class xpDataObject extends xp {
 			if ( $recursive && is_object( $this->parent ) && is_object( $this->foreign_key ) ) {
 
 				M()->debug( 'load con fk '. serialize( $this->foreign_key->get_key_values() ) );
-				$objs = $this->load_page( $this->foreign_key->get_key_values() ); 
+
+				if ( isset( $this->foreign_key->refs[0]->expr ) ) 
+					$objs = $this->load_page( NULL, $this->foreign_key->get_key_values() ); 
+				else
+					$objs = $this->load_page( $this->foreign_key->get_key_values() ); 
 			}
 			else {
 				M()->debug( 'load sin fk' );
