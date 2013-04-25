@@ -1228,7 +1228,7 @@ class xpdoc extends xp {
 			case 'login':
 
 				$this->set_view( 'json' );
-				$this->json = $this->user->login();
+				$this->json = $this->user->POST_login();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
