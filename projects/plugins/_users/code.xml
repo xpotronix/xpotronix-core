@@ -136,7 +136,28 @@
 
         }/*}}}*/ 
 
-        function login() {/*{{{*/
+        function login( $user, $pass ) {/*{{{*/
+
+		global $xpdoc;
+
+		$this->set_flag('main_sql', false);
+
+                if ( ( $r = $this->$login_fn( $user, $pass ) ) ) {
+
+			$xpdoc->session->set_user_session( $xpdoc->user->user_id );
+			M()->info("ingreso usuario $user" );
+
+		} else {
+
+			M()->info("fallo ingreso usuario $user" );
+                }
+
+		$this->set_flag('main_sql',true);
+		return $r;
+
+        }/*}}}*/ 
+
+        function POST_login() {/*{{{*/
 
 		global $xpdoc;
 
@@ -293,8 +314,6 @@
 					$this->user_password = $password;
 					$this->store();
 
-					return true;
-
 				} else { 
 
 					// DEBUG: mmm le estoy dando permisos al anon para crear usuarios por un segundo, revisar
@@ -304,11 +323,10 @@
 					M()->info( "el usuario no existe, creando uno" );
 
 					$ret = (bool) $this->create( $username, $password );
-
-					return $ret;
 				}
 
 				$this->pop_privileges();
+				return true;
 
 			} else {
 
@@ -400,7 +418,7 @@
 
 	}/*}}}*/
 
-	function create( $username, $password, $groups = null) {/*{{{*/
+	 function create( $username, $password, $groups = null) {/*{{{*/
 
 		// recibe el id del grupo (aro_group.id)
 
@@ -599,6 +617,174 @@
 
 	</code>
    </table>
+
+
+<file name="soapauth.php"><![CDATA[<?php 
+
+class SoapAuth {
+
+        function SoapLogin( $user = null, $pass = null ) { /*{{{*/
+
+                global $xpdoc;
+
+
+		M()->user( "en login, user: $user" );
+
+                $s = new xpSoap;
+
+                $xpdoc = new xpdoc;
+
+                $xpdoc->init();
+
+		$Response = new SimpleXMLElement('<Response/>');
+
+		$Response->Status = ( $xpdoc->user->_login_ldap( $user, $pass ) ) ? '1' : '0';
+
+		$User = $Response->addChild( 'User' );
+
+		$User->FirstName = $xpdoc->user->user_username;
+		$User->LastName = $xpdoc->user->user_username;
+		$User->DisplayName = $xpdoc->user->user_username;
+		$User->Email = $xpdoc->user->user_username.'@jusbaires.gov.ar';
+		$User->URL = 'http://xpay.jusbaires.gov.ar';
+
+		$Response->Role = 'editor';
+
+		$Response->Messages = 'string de mensajes';
+
+
+		M()->user( $Response->asXML() );
+
+		return $Response;
+
+        } /*}}}*/
+
+}
+
+// main script
+
+ini_set( 'display_errors', 0 );
+ini_set( 'log_errors', 1 );
+ini_set( 'error_log', 'syslog' );
+
+// requires
+
+require_once "xpsoap.class.php";
+
+global $xpdoc;
+
+$t_start = microtime_float();
+
+M()->stats( 'START' ); 
+M()->mem_stats();
+
+$server = new SoapServer("soapauth8.wsdl"); 
+$server->setClass("SoapAuth"); 
+$server->handle(); 
+
+M()->mem_stats();
+M()->mem_max_stats();
+
+M()->stats( 'END' ); 
+
+?>]]></file>
+
+<file name="soapauth8.wsdl" type="xml">
+<wsdl:definitions 
+
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:tns="http://xpay.jusbaires.gov.ar/xpay/soapauth8.wsdl" 
+	targetNamespace="http://xpay.jusbaires.gov.ar/xpay/soapauth8.wsdl">
+
+	<!-- types -->
+
+	<wsdl:types>
+		<xs:schema targetNamespace="http://xpay.jusbaires.gov.ar/xpay/soapauth8.wsdl" elementFormDefault="qualified">
+			<xs:element name="Proceso" type="xs:string"/>
+			<xs:element name="FhAudiencia" type="xs:string"/>
+			<xs:element name="Username" type="xs:string"/>
+			<xs:element name="Password" type="xs:string"/>
+
+	  <xs:element name="Response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element type="xs:byte" name="Status"/>
+        <xs:element name="User">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="FirstName"/>
+              <xs:element type="xs:string" name="LastName"/>
+              <xs:element type="xs:string" name="DisplayName"/>
+              <xs:element type="xs:string" name="Email"/>
+              <xs:element type="xs:anyURI" name="URL"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element type="xs:string" name="Role"/>
+        <xs:element type="xs:string" name="Messages"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>	
+		</xs:schema>
+	</wsdl:types>
+
+	<!-- messages -->
+
+	<wsdl:message name="SoapLoginRequest">
+		<wsdl:part name="Username" element="tns:Username"/>
+		<wsdl:part name="Password" element="tns:Password"/>
+	</wsdl:message>
+
+	<wsdl:message name="SoapLoginResponse">
+		<wsdl:part name="Response" element="tns:Response"/>
+	</wsdl:message>
+
+	<!-- portType -->
+
+	<wsdl:portType name="SoapAuthPortType">
+		<wsdl:operation name="SoapLogin">
+			<wsdl:input message="tns:SoapLoginRequest"/>
+			<wsdl:output message="tns:SoapLoginResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<!-- bindings -->
+
+	<wsdl:binding name="SoapAuthBinding" type="tns:SoapAuthPortType">
+
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+		<wsdl:operation name="SoapLogin">
+			<soap:operation soapAction="urn:#SoapLogin"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+
+	</wsdl:binding>
+
+	<!-- service -->
+
+	<wsdl:service name="SoapAuthService">
+		<wsdl:port name="SoapAuthPort" binding="tns:SoapAuthBinding">
+			<soap:address location="http://xpay.jusbaires.gov.ar/xpay/soapauth.php"/>
+		</wsdl:port>
+	</wsdl:service>
+
+</wsdl:definitions>
+</file>
+
+
+
 
 </database>
 <!-- vim600: fdm=marker sw=3 ts=8 ai: 
