@@ -317,8 +317,6 @@ class xp {
 
 			$out->close();
 
-			print "hola";
-
 			return java_cast($out->toString(), "string");
 
 		}

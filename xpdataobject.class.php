@@ -211,13 +211,8 @@ class xpDataObject extends xp {
 		/*
 		echo '<pre>';
 		print_r( debug_backtrace( false ) );
-
 		print $var_name; 
-
 		print_r( $this->data );
-
-		print 'hola'; exit;
-
 		*/
 
 		if ( array_key_exists( $var_name, $this->data ) )
@@ -980,7 +975,6 @@ class xpDataObject extends xp {
 		global $xpdoc;
 
 		// print_r( debug_backtrace( false ) ); exit;
-		// print 'hola'; $xpdoc->search; exit;
 
 
 		if ( ( $xpdoc->search )
