@@ -10,6 +10,7 @@
 	<!-- -->
 
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
+	<xsl:strip-space elements="*"/>
 
 	<xsl:param name="xpotronix_path"/>
 	<xsl:param name="project_path"/>
