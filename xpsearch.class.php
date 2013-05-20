@@ -148,7 +148,7 @@ class xpsearch {
 				else 
 					$result[$c->clause][] = $sql_clause;
 
-			} else M()->debug( "la consulta para la clave [$key] no es valida" );
+			} else M()->debug( "la consulta para la clave [{$this->obj->class_name}::$key] no es valida" );
 		}
 
 		// print "<pre>condition: $condition<br/>";print_r( $result );
