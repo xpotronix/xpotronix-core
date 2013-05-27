@@ -296,6 +296,8 @@ class xp {
 		try {
 
 
+			java_require( $this->ini['java']['saxon_jar'].";" );
+
 			// Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);	
 
 			$mimeConstants = new JavaClass( "org.apache.fop.apps.MimeConstants" );
@@ -303,9 +305,16 @@ class xp {
 			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
 			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
 
-			$cfactory = new JavaClass( 'javax.xml.transform.TransformerFactory' );
+			$oFeatureKeys = new JavaClass("net.sf.saxon.FeatureKeys");
 
-			$factory = $cfactory->newInstance();
+			// $cfactory = new JavaClass( 'javax.xml.transform.TransformerFactory' );
+			$factory = new java( "net.sf.saxon.TransformerFactoryImpl" );
+
+			// $cfactory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
+
+			// $factory = $cfactory->newInstance();
+
+			$factory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
 
 			$transformer = $factory->newTransformer( $oXslSource );
 
