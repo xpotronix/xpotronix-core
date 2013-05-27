@@ -37,6 +37,11 @@ class DBQuery {
 	var $order_by;
 	var $group_by;
 
+	var $auto_where  = true;
+	var $auto_having = true;
+	var $auto_group  = true;
+	var $auto_order  = true;
+
 	var $limit;
 	var $offset;
 
@@ -632,10 +637,12 @@ class DBQuery {
 		if ( $this->sql ) {
 
 			$q[] = array_shift( $this->sql );
-			$q[] = $this->make_order_clause();
+			$this->auto_where and $q[] = $this->make_where_clause();
+			$this->auto_group and $q[] = $this->make_group_clause();
+			$this->auto_having and $q[] = $this->make_having_clause();
+			$this->auto_order and $q[] = $this->make_order_clause();
 
 		} else {
-
 
 			$q[] = $this->prepareSelectCommand();
 			$q[] = $this->prepareSelectFields();
