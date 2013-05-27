@@ -743,6 +743,8 @@ class xpDataObject extends xp {
 
 	function load_page( $key = null, $where = null ) {/*{{{*/
 
+		M()->debug( "key: ". serialize( $key ).", where: $where" );
+
 		return new xpIterator( $this, $key, $where, null, false );
 
 	}/*}}}*/
@@ -754,6 +756,20 @@ class xpDataObject extends xp {
 	}/*}}}*/
 
 	// sql query
+
+	function set_dbquery( $sql, $xsql ) {/*{{{*/
+
+		M()->debug( $xsql->asXML() );
+
+		foreach( $xsql->attributes() as $key => $value ) {
+
+			M()->debug( "key: $key = $value" );
+			$sql->$key = (( strtolower( $value ) == 'no' ) ? false : true );
+		}
+
+		$sql->addSql( (string) $xsql );
+
+	}/*}}}*/
 
 	function replace_table_name( $from, $to, $string ) {/*{{{*/
 
@@ -800,7 +816,7 @@ class xpDataObject extends xp {
 		if ( count( $this->xsql->sql ) == 1 ) {
 
 			M()->info( "el objeto $this->class_name tiene definida una vista sql" );
-			$sql->addSql( (string) $this->xsql->sql );
+			$this->set_dbquery( $sql, $this->xsql->sql );
 			return $sql;
 
 		} else if ( count( $this->xsql->sql ) > 1 ) {
@@ -1178,10 +1194,20 @@ class xpDataObject extends xp {
 
 		if ( ( $c = count( $this->xsql->sql ) ) > 1 ) {
 
+
 			$sql_code = $this->xsql->sql;
 			M()->info( " ejecutando $c fragmentos de codigo SQL para la vista $this->class_name" );
 
 		} else { 
+
+			/*
+
+			if ( $this->class_name == 'v_intersub_ca' ) {
+				echo '<pre>'; 
+				print_r( $this->sql );
+				print( $this->sql->prepare() );
+				print( 'clase: '. $this->class_name ); exit;
+			} */
 
 			if ( $this->db_type() == 'dblib' ) {
 
@@ -1194,11 +1220,11 @@ class xpDataObject extends xp {
 						$this->sql->prepare() 
 						);
 
-				( true or $this->feat->full_sql_log ) ? 
+				( $this->feat->full_sql_log ) ? 
 					M()->debug( $sql_code[0] ) :
 					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );
 
-				$xpdoc->feat->log_sql and M()->write_log( $sql_code[0] );
+				$xpdoc->feat->log_sql and M()->write_log( $sql_code[0], 'sql' );
 			}
 		}
 
