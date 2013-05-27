@@ -106,11 +106,13 @@ class xpkey {
 			}
 
 			$pairs[$var] = $value;
-			M()->debug( "variable: $var" );
+			M()->debug( "variable: $var, value: [$value]" );
 		}
 
 		foreach( $pairs as $var => $value ) 
 			$expr = str_replace( '$'.$var, $value, $expr );
+
+		M()->debug( "expr: $expr" );
 
 		return $expr;
 

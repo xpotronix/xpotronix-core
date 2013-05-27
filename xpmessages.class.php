@@ -435,7 +435,7 @@ class xpmessages {
 	}/*}}}*/
 
 
-	function write_log( $content ) {
+	function write_log( $content, $extension = 'log' ) {
 
 		global $xpdoc;
 
@@ -444,7 +444,7 @@ class xpmessages {
 		if ( ! file_exists( $path_name = $xpdoc->get_log_dir( 'log' ) ) )
 			mkdir( $path_name );
 
-		$file_name = $path_name. $xpdoc->xpid(). '.log';
+		$file_name = $path_name. $xpdoc->xpid(). '.'. $extension;
 
 		if ( $xpdoc ) {
 

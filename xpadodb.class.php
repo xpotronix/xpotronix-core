@@ -94,6 +94,7 @@ class xpadodb extends PDO {
 		$offset = $pr * ( $cp -1 );
 
 		M()->debug( "limit: $limit, offset: $offset" );
+		// M()->debug( "SQL: $sql" );
 
 		// M()->mem_stats( 'antes del query' );
 		$r = $this->query( $sql. " LIMIT $offset, $limit" );
