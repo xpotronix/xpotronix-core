@@ -505,7 +505,7 @@ class DBQuery {
 
 	}/*}}}*/
 
-	function setLimit($limit, $start = -1) {/*{{{*/
+	function setLimit($limit, $start = 0) {/*{{{*/
 
 		$this->limit = $limit;
 		$this->offset = $start;
@@ -1070,9 +1070,11 @@ function make_where_clause( $where_clause = null ) {/*{{{*/
 			M()->error( $this->db->ErrorMsg());
 			M()->error( $this->prepare() );
 
-		} else if ($data = $this->fetchRow()) {
+		} else if ( $data = $this->fetchRow() ) {
 
-			$result =  $data[0];
+			M()->error( serialize( $data ) );
+
+			@$result =  $data[0];
 
 		}
 

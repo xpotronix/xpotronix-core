@@ -1502,7 +1502,7 @@ class xpDataObject extends xp {
 			$this->loaded = true;
 			$this->set_primary_key();
 
-			if ( $this->get_flag( 'post_check' ) ) {
+			if ( $this->get_flag( 'post_check' ) and ( in_array( $this->transac_status, array( INSERT_OP, UPDATE_OP, REPLACE_OP ) ) ) ) {
 
 				M()->debug( "llamando a $this->class_name::post_check()" );
 				$this->post_check();
@@ -1529,6 +1529,7 @@ class xpDataObject extends xp {
 		if ( ! $this->has_access( 'add' ) ) {
 
 			M()->user( 'No tiene permisos para agregar el objeto '. $this->class_name );
+			// M()->user( print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ) );
 			return $this->transac_status = NO_PERMS;
 		}
 
