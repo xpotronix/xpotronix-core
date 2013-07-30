@@ -84,7 +84,16 @@ class xpmessage {
 
 	function serialize() {/*{{{*/
 
-		$xml = new SimpleXMLElement( '<message>'. htmlspecialchars($this->text). '</message>' );
+		try{
+
+			$xml = new SimpleXMLElement( '<message>'. htmlspecialchars($this->text). '</message>' );
+
+		} catch( Exception $e ) {
+
+			$xml = new SimpleXMLElement( '<message>'. htmlspecialchars( utf8_encode( $this->text) ) . '</message>' );
+
+		}
+
 
 		$this->type and $xml['type'] = $this->type;
 		$this->file and $xml['file'] = $this->file;
