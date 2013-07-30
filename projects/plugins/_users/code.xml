@@ -108,7 +108,12 @@
 
 		$this->push_privileges( array( 'edit' => true ) );
 
-		if ( $pass1 != $pass2 ) {
+		if ( !$pass1 or !$pass2 ) {
+
+			$result["errors"]["reason"] = "Debe ingresar una clave válida";
+			$result["success"] = false;
+
+		} else if ( $pass1 != $pass2 ) {
 
 			$result["errors"]["reason"] = "La claves difieren entre si, por favor, reingrese";
 			$result["success"] = false;
