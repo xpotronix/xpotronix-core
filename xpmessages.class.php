@@ -90,7 +90,7 @@ class xpmessage {
 
 		} catch( Exception $e ) {
 
-			$xml = new SimpleXMLElement( '<message>'. htmlspecialchars( utf8_encode( $this->text) ) . '</message>' );
+			$xml = new SimpleXMLElement( '<message>no pude decodificar el mensaje de error!</message>' );
 
 		}
 
