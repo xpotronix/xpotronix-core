@@ -148,7 +148,7 @@ class xpIterator implements Iterator {
 			// $this->data = $this->obj->page( ++ $this->page );
 			$this->data = $this->obj->loadc( $this->key, $this->where, $this->order, ++ $this->page );
 
-			M()->debug( count( $this->data ). " registros cargdos." );
+			M()->debug( count( $this->data ). " registros cargados." );
 
 			$this->rewind();
 
