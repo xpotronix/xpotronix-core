@@ -620,7 +620,7 @@ class xpDataObject extends xp {
 		if ( $key === null and $where === null ) 
 			$key = $this->primary_key;
 
-		$objs = $this->loadc( $key, $where );
+		$objs = $this->loadc( $key, $where, null, 1 );
 
 		$this->reset(); 
 
@@ -1222,7 +1222,7 @@ class xpDataObject extends xp {
 
 				( $this->feat->full_sql_log ) ? 
 					M()->debug( $sql_code[0] ) :
-					M()->debug( 'SELECT ... '. stristr( $sql_code[0], 'WHERE' ) );
+					M()->debug( "SELECT ... FROM {$this->table_name} ". stristr( $sql_code[0], 'WHERE' ) );
 
 				$xpdoc->feat->log_sql and M()->write_log( $sql_code[0], 'sql' );
 			}
