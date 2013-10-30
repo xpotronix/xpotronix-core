@@ -89,7 +89,7 @@
 			<xsl:otherwise>
 				<!-- automatico -->
 				<xsl:sequence select="$database_collection//table[@name=$table_name]/*[name()='modifiers' or name()='join' or name()='group_by']"/>
-		                <frem><xsl:value-of select="@name"/></frem>
+		                <from><xsl:value-of select="@name"/></from>
 	        	        <xsl:for-each select="$ui_collection//table[@name=$table_name]/field[@eh!='' or @entry_help!='']">
 	                	        <xsl:variable name="query_name" select="@eh|@entry_help"/>
 					<xsl:variable name="query" select="$queries_collection//query[@name=$query_name]"/>
