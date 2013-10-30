@@ -826,9 +826,25 @@ class xpDataObject extends xp {
 
 		} else 	M()->info( "el objeto $this->class_name no tiene sentencias sql definidas" );
 
-		// busco los atributos con su entry help
-		// y arma la vista
+		
+		/* modifiers */
+		foreach( $this->xsql->modifiers as $modifier )
+			$sql->addModifiers( (string) $modifier );
 
+		/* join principales del query */
+		foreach ( $this->xsql->join as $join )
+			$this->uniq_tables( $join['table'], $join['alias'] ) 
+			or $sql->addJoin( 
+				(string) $join['table'], 
+				$this->quote_name( (string) $join['alias'] ),
+				(string) $join->where, 
+				(string) $join['type'] );
+
+		/* group by */
+		foreach( $this->xsql->group_by as $group_by )
+			$sql->addGroup( (string) $group_by );
+			
+		/* joins de los entry_helpers */
 		if ( $this->feat->load_full_query ) {
 
 			foreach( $this->metadata->xpath( "attr[@entry_help]") as $attr ) {
@@ -867,6 +883,7 @@ class xpDataObject extends xp {
 			}
 		}
 
+		/* joins de queries asociadas */
 		if ( $this->queries_array ) {
 
 			$protect_list_attr = array();
