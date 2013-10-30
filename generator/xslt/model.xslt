@@ -83,22 +83,25 @@
                 <query name="main_sql">
 		<xsl:choose>
 			<xsl:when test="$database_collection//table[@name=$table_name]/sql">
+				<!-- el sql estatico en su elemento -->
 				<xsl:sequence select="$database_collection//table[@name=$table_name]/sql"/>
 			</xsl:when>
 			<xsl:otherwise>
-	                <from><xsl:value-of select="@name"/></from>
-	                <xsl:for-each select="$ui_collection//table[@name=$table_name]/field[@eh!='' or @entry_help!='']">
-	                        <xsl:variable name="query_name" select="@eh|@entry_help"/>
-				<xsl:variable name="query" select="$queries_collection//query[@name=$query_name]"/>
-				<xsl:choose>
-					<xsl:when test="count($query/*)=0">
-						<xsl:message>No encuentro el query <xsl:value-of select="$query_name"/> para el atributo <xsl:value-of select="concat(../@name,'/',@name)"/></xsl:message>
-					</xsl:when>
-					<xsl:otherwise>
-        	                		<xsl:sequence select="$query"/> 			
-					</xsl:otherwise>
-				</xsl:choose>
-	                </xsl:for-each>
+				<!-- automatico -->
+				<xsl:sequence select="$database_collection//table[@name=$table_name]/*[name()='modifiers' or name()='join' or name()='group_by']"/>
+		                <frem><xsl:value-of select="@name"/></frem>
+	        	        <xsl:for-each select="$ui_collection//table[@name=$table_name]/field[@eh!='' or @entry_help!='']">
+	                	        <xsl:variable name="query_name" select="@eh|@entry_help"/>
+					<xsl:variable name="query" select="$queries_collection//query[@name=$query_name]"/>
+					<xsl:choose>
+						<xsl:when test="count($query/*)=0">
+							<xsl:message>No encuentro el query <xsl:value-of select="$query_name"/> para el atributo <xsl:value-of select="concat(../@name,'/',@name)"/></xsl:message>
+						</xsl:when>
+						<xsl:otherwise>
+        	                			<xsl:sequence select="$query"/> 			
+						</xsl:otherwise>
+					</xsl:choose>
+	        	        </xsl:for-each>
 			</xsl:otherwise>
 		</xsl:choose>
        	        </query>
