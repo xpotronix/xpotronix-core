@@ -1118,11 +1118,14 @@ class xpDataObject extends xp {
 
 	function set_const( $const ) {/*{{{*/
 
+
 		if ( ! count( $const ) ) return;
 
 		M()->debug( 'constraints: '. serialize( $const ) );
 
-		if ( @$this->xsql['set'] == 'variables' ) {
+		if ( @$this->xsql->sql['set'] == 'variables' ) {
+
+			// print 'hola'; exit;
 
 			$set = array();
 
