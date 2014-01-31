@@ -1007,12 +1007,11 @@ class xpDataObject extends xp {
 
 		global $xpdoc;
 
-		// print_r( debug_backtrace( false ) ); exit;
-
-
 		if ( ( $xpdoc->search )
+
 			and array_key_exists($this->class_name, $xpdoc->search)
 			and is_array( $xpdoc->search[$this->class_name] ) ) {
+
 
 			M()->info( 'search key: aplicando busqueda global con '. serialize( $xpdoc->search ) );
 
@@ -1021,6 +1020,15 @@ class xpDataObject extends xp {
 
 			$this->set_const( $search->process( $xpdoc->search[$this->class_name] ) );
 		}
+
+		/*		
+		echo '<pre>'; 
+		print_r ( $xpdoc->search );
+		print_r ( $this->search );
+		// print_r( debug_backtrace( true ) ); 
+		exit;
+		*/
+
 	}/*}}}*/
 
 	function quote_name( $name = null ) {/*{{{*/
@@ -1114,7 +1122,7 @@ class xpDataObject extends xp {
 
 		M()->debug( 'constraints: '. serialize( $const ) );
 
-		if ( @$this->foreign_key->set == 'variables' ) {
+		if ( @$this->xsql['set'] == 'variables' ) {
 
 			$set = array();
 
