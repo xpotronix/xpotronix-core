@@ -653,10 +653,10 @@ class SoapAuth {
 		$User->Email = $xpdoc->user->user_username.'@jusbaires.gov.ar';
 		$User->URL = 'http://xpay.jusbaires.gov.ar';
 
-		$Response->Role = 'editor';
+		// DEBUG: hotfix: es admin el usuario admin solamente
+		$Response->Role = ( $user == 'admin' ) ? 'admin' : 'editor';
 
 		$Response->Messages = 'string de mensajes';
-
 
 		M()->user( $Response->asXML() );
 
