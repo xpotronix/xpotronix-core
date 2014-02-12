@@ -172,7 +172,7 @@ class xpthumb {
 
 			M()->error( "no ecuentro la imagen $file" );
 
-			if ( file_exists( $err_img = 'images/warning.jpg' ) ) 
+			if ( ! file_exists( $err_img = 'images/warning.jpg' ) ) 
 				M()->error( "no encuentro $err_img en ". getcwd() );
 			else
 				$this->image->readImage( $err_img );
@@ -246,6 +246,32 @@ class xpthumb {
 		$this->image->setImageCompression(Imagick::COMPRESSION_JPEG);
 		$this->image->setImageCompressionQuality($index);
 		$this->image->stripImage();
+
+	}/*}}}*/
+
+	function rotate( $angle ) {/*{{{*/
+
+		M()->user( "angle $angle" );
+
+
+		switch( (int) $angle ) {
+
+			case 90:
+				$this->image->rotateImage(new ImagickPixel(), 90);
+			break;
+
+			case 180:
+				$this->image->rotateImage(new ImagickPixel(), 180);
+			break;
+
+			case 270:
+				$this->image->rotateImage(new ImagickPixel(), -90);
+			break;
+
+			default:
+				$this->image->rotateImage(new ImagickPixel(), (int) $angle );
+
+		}
 
 	}/*}}}*/
 
