@@ -40,8 +40,8 @@
 
 				if ( r = this.cr() ) {
 
-                			img.dom.src 	= App.feat.uri_thumb + r.data.dirname + '/' + r.data.basename;
-					img.dom.style 	= "border:2px solid black;"
+                			img.dom.src 	= App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename;
+					img.dom.style 	= "border:2px solid black;";
 					/* img.dom.border 	= 0; */
 					img.dom.alt 	= r.data.imagen_ID_label;
                 
