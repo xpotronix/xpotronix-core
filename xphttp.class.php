@@ -86,6 +86,24 @@ class xphttp {
 
 	}/*}}}*/
 
+	function get_vars() {/*{{{*/
+
+		return array_keys( $this->var );
+
+	}/*}}}*/
+
+	function get_get_vars() {/*{{{*/
+
+		return array_keys( $_GET );
+
+	}/*}}}*/
+
+	function get_post_vars() {/*{{{*/
+
+		return array_keys( $_POST );
+
+	}/*}}}*/
+
 	function remote_host_name( $ip = null ) {/*{{{*/
 
 		if ( ! function_exists( 'gethostbyaddr' ) ) 
