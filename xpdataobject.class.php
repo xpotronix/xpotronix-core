@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * @package xpotronix
@@ -1561,7 +1561,7 @@ class xpDataObject extends xp {
 			return $this->transac_status = NO_PERMS;
 		}
 
-		$this->sql = new DBQuery( $this->db );;
+		$this->sql = new DBQuery( $this->db );
 
 		$this->sql->addTable ( $this->table_name ) ;
 
@@ -1649,7 +1649,7 @@ class xpDataObject extends xp {
 			return $this->transac_status = NO_PERMS;
 		}
 
-		$this->sql = new DBQuery( $this->db );;
+		$this->sql = new DBQuery( $this->db );
 
 		$modifiers and $this->sql->addModifiers( $modifiers );
 
@@ -1726,11 +1726,13 @@ class xpDataObject extends xp {
 			return $this->transac_status = NO_PERMS;
 		}
 
-		$this->sql = new DBQuery( $this->db );;
+		$this->sql = new DBQuery( $this->db );
 
 		$this->sql->addTable ( $this->table_name ) ;
 
 		/* genera la consulta con los valores modificados del objeto */
+
+		$mods = false;
 
 		foreach ( $this->attr as $key => $attr ) {
 
@@ -1739,7 +1741,11 @@ class xpDataObject extends xp {
 
 			$this->sql->addUpdate( $attr->name, $attr->encode() );
 
+			$mods or $mods = true;
 		}
+
+		if ( !$mods ) return NO_OP;
+		
 		
 		/* registra el where en la consulta con los valores de la clave primaria */
 
@@ -1796,7 +1802,7 @@ class xpDataObject extends xp {
 			return $this->transac_status = NOT_VALID;
 		}
 
-		$this->sql = new DBQuery( $this->db );;
+		$this->sql = new DBQuery( $this->db );
 
 		$this->sql->setDelete( $this->table_name );
 
@@ -1926,199 +1932,13 @@ class xpDataObject extends xp {
 
 	function serialize ( $flags ) {/*{{{*/
 
-		global $xpdoc;
+		require_once 'xpserialize.class.php';
 
-		$any = $flags & DS_ANY;
-		$normalized = $flags & DS_NORMALIZED;
-		$recursive = $flags & DS_RECURSIVE;
-		$blank = $flags & DS_BLANK;
-		$defaults = $flags & DS_DEFAULTS;
-
-		$e = $normalized ? 'class' : $this->feat->container_tag;
-
-
-		$xc = new SimpleXMLElement( "<$e/>" ); 
-		$xc['name'] = $this->class_name;
-
-
-		if ( is_object( $xpdoc->perms ) and ( ! ( $this->can('list') and $this->can('view') ) ) ) {
-
-			M()->info( "acceso denegado para el objeto {$this->class_name}" );
-			$xc['msg']='ACC_DENIED';
-			return $xc;
-		}
-
-                if ( $this->is_virtual() and ! $this->count_views() ) {
-
-                        M()->warn( "no puedo serializar el objeto virtual {$this->class_name}, count_views: ". $this->count_views() );
-			$xc['total_records'] = 0;
-                        $xc['msg']='IS_VIRTUAL';
-                        return $xc;
-                }
-
-		$objs = null;
-
-		if ( $any or $normalized or $recursive ) {
-
-			if ( $recursive && is_object( $this->parent ) && is_object( $this->foreign_key ) ) {
-
-				M()->debug( 'load con fk '. serialize( $this->foreign_key->get_key_values() ) );
-
-				if ( isset( $this->foreign_key->refs[0]->expr ) ) 
-					$objs = $this->load_page( NULL, $this->foreign_key->get_key_values() ); 
-				else
-					$objs = $this->load_page( $this->foreign_key->get_key_values() ); 
-			}
-			else {
-				M()->debug( 'load sin fk' );
-				$objs = $this->load_page(); 
-			}
-
-		} else M()->warn( "no se ha definido ni DS_ANY ni DS_NORMALIZED ni DS_RECURSIVE: no hay registros a serializar. Revise directiva 'include_dataset'" );
-
-		$xc['total_records'] = $this->total_records ;
-		$xc['xmlns'] = null;
-		$xc['page_rows'] = $this->pager['pr'];
-		$xc['current_page'] = $this->pager['cp'];
-
-		M()->info( "serialize con any: $any, normalized: $normalized, recursive: $recursive, blank: $blank, defaults: $defaults, con cantidad de objetos: ". count( $objs ) );
-		
-		if ( $blank and ( $any or $normalized or $recursive ) and ( $objs ) )
-
-			{ $flags = $flags ^ DS_BLANK; }
-		
-		if ( $objs ) {
-
-			foreach ( $objs as $obj ) {
-
-				$obj->prepare_data( $obj ); // DEBUG: prepare_data deberia ir directamente en el iterador?
-				simplexml_append( $xc, $obj->serialize_row( $flags ) );
-			} 
-
-		} else if ( $blank ) {  
-
-			simplexml_append( $xc, $this->serialize_row( $flags ) );
-		} 
-
-		return $xc;
+		$s = new xpserialize( $this, $flags );
+		return $s->serialize();
 
 	}/*}}}*/
 
-	function serialize_row( $flags = null, $params = null ) {/*{{{*/
-
-		$normalized = $flags & DS_NORMALIZED;
-		$recursive = $flags & DS_RECURSIVE;
-		$blank = $flags & DS_BLANK;
-		$defaults = $flags & DS_DEFAULTS;
-
-
-		global $xpdoc;
-
-		// $this->debug_object();
-
-		M()->debug( "serializando instancia objeto {$this->class_name}" );
-
-		$xobj = new SimpleXMLElement( $normalized ? '<obj/>' : "<{$this->class_name}/>" );
-		if ( $normalized ) $xobj['name'] = $this->class_name;
-
-
-		if ( $blank ) {
-
-			$this->reset();
-			$this->fill_primary_key( true );
-			$this->set_primary_key();
-			$this->foreign_key and $this->foreign_key->assign();
-			$defaults and $this->defaults();
-		}
-
-		$xobj['ID'] = $this->pack_primary_key();
-		$xobj['edit'] = (string) $this->has_access('edit');
-		$xobj['delete'] = (string) $this->has_access('delete');
-		$xobj['new'] = (string) (bool) $blank;
-
-
-		foreach ( $this->attr as $key => $attr ) {
-
-			// print $attr->name;
-			// print $attr->value;
-
-			if ( $attr->display == 'protect' or $attr->display == 'ignore' or $attr->display == 'sql' ) continue;
-			if ( !$blank and $attr->value === null and $this->feat->ignore_null_fields ) continue;
-
-
-			simplexml_append( $xobj, $this->serialize_attr( $attr, $flags ) );
-		}
-
-		if ( $recursive ) {
-
-			$iname = null;
-
-			foreach ( $this->model->xpath( "obj" ) as $obj ) {
-
-				$iname = (string) $obj['name'];
-
-				if ( ! isset( $xpdoc->instances[$iname] ) ) 
-					M()->warn( "instancia $iname ignorada: no la encuentro");
-				else {
-
-					M()->info( "recursivo, hacia el objeto $iname" );
-
-					if ( is_array( $params ) and is_array( $params['ignore'] ) and ( in_array( $iname, $params['ignore'] ) ) )
-						continue;
-					else
-						simplexml_append( $xobj, $xpdoc->instances[$iname]->serialize( $flags ) );
-
-				} 
-			}
-		}
-
-		return $xobj;
-
-	}/*}}}*/ 
-
-	function serialize_attr( $attr, $flags ) {/*{{{*/
-
-		$normalized = $flags & DS_NORMALIZED;
-		$defaults = $flags & DS_DEFAULTS;
-
-		$attr_name = $attr->name;
-		$value = $attr->serialize();
-
-		/* value */
-
-		try {
-			$xattr = new SimpleXMLElement( $normalized ? "<attr name=\"$attr_name\">$value</attr>" : "<$attr_name>$value</$attr_name>" );
-
-		} catch (Exception $e)  { 
-
-			M()->warn( 'problemas con la codificacion en la serializacion, verificar la codificacion de caracteres de la base de datos y la aplicacion. Forzando la codificacion a utf8' );
-			$value = utf8_encode( $value );
-
-			try {
-				$xattr = new SimpleXMLElement( $normalized ? "<attr name=\"$attr_name\">$value</attr>" : "<$attr_name>$value</$attr_name>" );
-
-			} catch (Exception $e)  { 
-
-				M()->warn( "No puedo serializar el objeto {$this->class_name} con la clave [". $this->pack_primary_key(). "] en el atributo [$attr_name] con el valor [$value]. Motivo: ". $e->getMessage() );
-			}
-		}
-
-		/* label */
-
-		if ( $attr->label ) {
-
-			// $attr->label and $xattr['label'] = utf8_encode( $attr->serialize( $attr->label ) );
-			// $attr->label and $xattr['label'] = $attr->serialize( $attr->label );
-			// $attr->label and $xattr['label'] = $attr->label;
-			// $attr->label and $xattr['label'] = utf8_decode( $attr->label );
-
-			$xattr->addAttribute( 'label', $attr->label );
-			// M()->user( "label " . $attr->label );
-		}
-
-
-		return $xattr;
-	}/*}}}*/
 
 	// respuestas xml
 
