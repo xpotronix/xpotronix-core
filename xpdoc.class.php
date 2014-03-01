@@ -143,11 +143,11 @@ class xpdoc extends xp {
 
 	}/*}}}*/
 
-	function db_driver( $driver = null ) {
+	function db_driver( $driver = null ) {/*{{{*/
 
 		$driver and $this->db_driver = $driver;
 		return $this->db_driver;
-	}
+	}/*}}}*/
 
 	function set_model( $model = null ) {/*{{{*/
 
@@ -273,7 +273,7 @@ class xpdoc extends xp {
 		}
 	}/*}}}*/
 
-	function open_db_instance( $i ) {
+	function open_db_instance( $i ) {/*{{{*/
 
 		if ( is_string( $i ) ) {
 
@@ -327,7 +327,7 @@ class xpdoc extends xp {
 
 		return $dbi;
 
-	}
+	}/*}}}*/
 
 	function init_acl_db() {/*{{{*/
 
@@ -763,8 +763,6 @@ class xpdoc extends xp {
 
 	function set_view( $view = null ) {/*{{{*/
 
-		$this->headers_do(); // esta funcion esta pegada aca nomas, tiene que estar en sincronia con el set_view: por ahora como default
-
 		if ( !$this->views ) 
 			$this->load_views( 'views.xml' );
 
@@ -1080,6 +1078,46 @@ class xpdoc extends xp {
 
 	}/*}}}*/
 
+	function get_json() {/*{{{*/
+
+		M()->info();
+
+		$obj_name = $this->req_object ? $this->req_object : $this->module;
+
+		$instance_fn = ( $obj_name == 'users' or $obj_name == 'sessions' ) ? 'instance' : 'get_instance';
+
+		if ( ! ( $obj = $this->$instance_fn( $obj_name ) ) ) return null;
+
+		if ( $this->query ) $obj->add_query( $this->query );
+
+		if ( $do = $this->feat->display_only ) 
+			$obj->hide_all( $do );
+
+		return $obj->json();
+
+	}/*}}}*/
+
+	function get_csv() {/*{{{*/
+
+		M()->info();
+
+		$obj_name = $this->req_object ? $this->req_object : $this->module;
+
+		$instance_fn = ( $obj_name == 'users' or $obj_name == 'sessions' ) ? 'instance' : 'get_instance';
+
+		if ( ! ( $obj = $this->$instance_fn( $obj_name ) ) ) return null;
+
+		if ( $this->query ) $obj->add_query( $this->query );
+
+		if ( $do = $this->feat->display_only ) 
+			$obj->change_attr( 'display', 'ignore', $do );
+
+		// $obj->debug_object(); exit;
+
+		return $obj->csv();
+
+	}/*}}}*/
+
 	// action_do
 
 	function action_do() {/*{{{*/
@@ -1151,6 +1189,16 @@ class xpdoc extends xp {
 
 			case 'databset_r':
 				$this->set_xdoc( $this->get_dataset( DS_RECURSIVE | DS_NORMALIZED | DS_BLANK | DS_DEFAULTS ) );
+				break;
+
+			case 'json':
+				$this->json = $this->get_json(); 
+				$this->set_view( 'json' );
+				break;
+		
+			case 'csv':
+				$this->output_buffer = $this->get_csv(); 
+				$this->set_view( 'csv' );
 				break;
 
 
@@ -1298,6 +1346,24 @@ class xpdoc extends xp {
 
 	// transform
 
+	function output() {/*{{{*/
+
+		/* view == 'csv' genera el output directamente en el modulo xpcsv */
+
+		if ( $this->view == 'csv' ) return;
+
+		$this->headers_do();
+
+		M()->info( $tmp = "Content-type: ". $this->content_type() );
+
+		header( $tmp );
+
+		/* output final */
+
+		print( $this->output_buffer );
+
+	}/*}}}*/
+
 	function view_ID () {/*{{{*/
 
 		$ret[] = $this->user->user_username;
@@ -1320,6 +1386,8 @@ class xpdoc extends xp {
 
 		M()->info( 'transform view: ' . $this->get_view() );
 
+		if ( $this->view == 'csv' ) return;
+
 		if ( $this->config->app_cache_time and $cache ) {
 
 			if ( ! is_object( $this->cache ) ) 
@@ -1336,9 +1404,11 @@ class xpdoc extends xp {
 				return $this->output_buffer;
 
 				}
+
 			else M()->info( 'pagina de cache no encontrada: '. $this->view_ID() );
-			}
-		else M()->info( 'Cache deshabilitada para la aplicacion' );
+
+		} else M()->info( 'Cache deshabilitada para la aplicacion' );
+
 
 		if ( is_object( $xdoc ) ) {
 
@@ -1375,17 +1445,22 @@ class xpdoc extends xp {
 		} else if ( $this->view == 'json' ) {
 
 			$this->content_type( 'text/x-json' );
+
 			if ( is_array( $this->json ) ) 
 				$this->output_buffer = json_encode($this->json); 
+
 			else if ( is_string( $this->json ) )
 				$this->output_buffer = $this->json; 
+
 			else M()->warn( 'json no es ni un array ni un string, devolviendo nulo' );
 
 
-		} else  if ( $this->view == 'rss' ) 
-				$this->content_type( 'text/xml' );
+		} else  if ( $this->view == 'rss' ) {
 
-		else {
+			$this->content_type( 'text/xml' );
+
+
+		} else {
 
 			M()->info("vista XML por default");
 
@@ -1546,24 +1621,6 @@ class xpdoc extends xp {
 		M()->info('OK');	
 
 		return $this->output_buffer;
-
-	}/*}}}*/
-
-	function output() {/*{{{*/
-
-		$ct = $this->content_type();
-		$tmp = "Content-type: $ct";
-
-		M()->info( $tmp );
-
-		header( $tmp );
-		// DEBUG: estaria bueno hacerlo mejor por tipo de archivo en el manejo de view ... 
-
-		if ( $this->view == 'csv' ) 
-			header('Content-Disposition: attachment; filename="download.csv"');
-
-		print( $this->output_buffer );
-
 
 	}/*}}}*/
 

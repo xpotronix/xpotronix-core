@@ -978,13 +978,18 @@ class xpDataObject extends xp {
 			$sql->addOrder( $this->quote_order( $this->replace_table_name( (string) $this->xsql->alias, $this->table_name,  (string) $order ) ) );
 
 
+
 		// cargo los campos desde los atributos del objeto
 		if ( ! count( $this->attr ) ) 
 			M()->warn( "clase $this->class_name sin atributos" );
 		else
 		foreach( $this->attr as $key => $attr ) {
 
-			if ( ( $attr->virtual and !$attr->alias_of ) or ( $this->attr == 'ignore' ) ) continue;
+			if ( 	( $attr->display == 'ignore' ) or 
+				( $attr->virtual and !$attr->alias_of ) )
+				continue;
+
+			/* if ( $this->class_name == '_empleado' ) { print $key. "<br/>"; } */
 
 			$field_name = $this->quote_name( sprintf( "%s.%s", $this->table_name, $attr->name ) );
 
@@ -997,7 +1002,10 @@ class xpDataObject extends xp {
 		// comentados para debug
 		// if ( $this->class_name == 'dtNotificacionActor' ) { $this->metadata(); exit; }
 		// if ( $this->class_name == 'REMPLES' ) { echo '<pre>'; $this->debug_object(); print_r( $sql ) ; echo '</pre>'; exit; }
-		// $this->debug_object(); ob_flush(); exit;
+
+		// if ( $this->class_name == '_empleado' ) { echo '<p>'; print_r( $sql->prepare() ); echo '</p>'; exit; }
+
+		// if ( $this->class_name == '_empleado' ) { $this->debug_object(); ob_flush(); exit; }
 
 		return $sql;
 
@@ -1930,7 +1938,7 @@ class xpDataObject extends xp {
 
 	// funciones para la serializacion
 
-	function serialize ( $flags ) {/*{{{*/
+	function serialize ( $flags = null ) {/*{{{*/
 
 		require_once 'xpserialize.class.php';
 
@@ -1939,6 +1947,32 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
+	function serialize_row ( $flags = null ) {/*{{{*/
+
+		require_once 'xpserialize.class.php';
+
+		$s = new xpserialize( $this, $flags );
+		return $s->serialize_row();
+
+	}/*}}}*/
+
+	function json() {/*{{{*/
+
+		require_once 'xpjson.class.php';
+
+		$s = new xpjson( $this );
+		return $s->serialize();
+
+	}/*}}}*/
+
+	function csv() {/*{{{*/
+
+		require_once 'xpcsv.class.php';
+
+		$s = new xpcsv( $this );
+		return $s->serialize();
+
+	}/*}}}*/
 
 	// respuestas xml
 
