@@ -20,7 +20,7 @@ class xpcsv {
 	private $attr_list = array();
 	private $download_name;
 	private $timestamp;
-	private $delim = array( 'field' => ";", 'row' => "\n", 'bom' => "\xEF\xBB\xBF" );
+	private $delim = array( 'field' => ";", 'row' => "\n", 'bom' => "\xEF\xBB\xBF", 'string' => '"' );
 	// private $delim = array( 'field' => "", 'row' => "<br/>" );
 
 	function __construct( $obj, $flags = null ) {/*{{{*/
@@ -159,9 +159,14 @@ class xpcsv {
 
 		$ret = array();
 
-		$ret[] = $attr->serialize();
+		$delim = $this->delim['string'];
 
-		$attr->entry_help and $ret[] = $attr->label;
+		if ( $attr->type == 'xpstring' or $attr->type == 'xptext' )
+			$ret[] = $delim. $attr->serialize(). $delim;
+		else
+			$ret[] = $attr->serialize();
+		
+		$attr->entry_help and $ret[] = $delim. $attr->label. $delim;
 
 		return join( $this->delim['field'], $ret );
 	}/*}}}*/

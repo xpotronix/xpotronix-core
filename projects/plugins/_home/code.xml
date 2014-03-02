@@ -37,7 +37,7 @@ Ext.onReady(function() {
 
 	Ext.onReady(function() {
 
-	var tree = Ext.getCmp('tree');
+	var tree = Ext.getCmp('mainTreePanel');
 
 	if ( ! tree ) 
 		return;
