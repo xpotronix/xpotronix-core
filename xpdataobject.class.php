@@ -2484,7 +2484,13 @@ function main_sql () {/*{{{*/
 
 		}
 
-		(! M()->status() ) and M()->status( $valid ? 'OK' : 'ERR' );
+		$flag = $valid ? 'OK' : 'ERR';
+
+		M()->info( "status: $flag" );
+
+		/* ningun metodo ha seteado el status, entonces lo seteo aqui */
+
+		( M()->status() == '' ) and M()->status( $flag );
 
 		return $valid;
 

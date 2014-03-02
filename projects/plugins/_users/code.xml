@@ -183,7 +183,7 @@
 
 			$result["errors"]["reason"] = "Ingreso fallido: intente nuevamente";
 			$result["success"] = false;
-			M()->info("fallo ingreso usuario $user" );
+			M()->user("fallo ingreso usuario $user" );
                 }
 
 		$this->set_flag('main_sql',true);
