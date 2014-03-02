@@ -1275,21 +1275,21 @@ class xpdoc extends xp {
 
 			case 'login':
 
-				$this->set_view( 'json' );
+				// $this->set_view( 'json' );
 				$this->json = $this->user->POST_login();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
 			case 'logout':
 
-				$this->set_view( 'json' );
+				// $this->set_view( 'json' );
 				$this->json = $this->user->logout();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
 			case 'change_password':
 
-				$this->set_view( 'json' );
+				// $this->set_view( 'json' );
 				$this->json = $this->user->change_password();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
@@ -1302,9 +1302,11 @@ class xpdoc extends xp {
 					M()->status('ERR');
 					$this->set_xdoc( $this->get_messages() );
 					$this->set_view( 'error' );
-					if ( ( $audit = $this->instance('audit') ) ) $audit->record();
-					break;
 
+					if ( ( $audit = $this->instance('audit') ) ) 
+						$audit->record();
+
+					break;
 
 				}
 

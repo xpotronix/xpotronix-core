@@ -171,10 +171,12 @@ class xpmessage {
 
 }
 
+
+
 class xpmessages {
 
 	var $buffer = array();
-	var $buffer_length = 50;
+	var $buffer_length = 500;
 	var $trace = true;
 
 	var $syslog_flags = DEFAULT_SYSLOG_FLAGS;
@@ -443,8 +445,7 @@ class xpmessages {
 
 	}/*}}}*/
 
-
-	function write_log( $content, $extension = 'log' ) {
+	function write_log( $content, $extension = 'log' ) {/*{{{*/
 
 		global $xpdoc;
 
@@ -464,7 +465,7 @@ class xpmessages {
 		return $file_name;
 
 		
-	}
+	}/*}}}*/
 
 }
 
