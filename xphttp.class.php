@@ -90,17 +90,18 @@ class xphttp {
 
 		return array_keys( $this->var );
 
-	}/*}}}*/
-
-	function get_get_vars() {/*{{{*/
-
-		return array_keys( $_GET );
 
 	}/*}}}*/
 
 	function get_post_vars() {/*{{{*/
 
 		return array_keys( $_POST );
+
+	}/*}}}*/
+
+	function get_get_vars() {/*{{{*/
+
+		return array_keys( $_GET );
 
 	}/*}}}*/
 
@@ -115,33 +116,38 @@ class xphttp {
 
 	}/*}}}*/
 
-   function __get( $var_name ) {/*{{{*/
+	function __get( $var_name ) {/*{{{*/
 
-   	if ( isset( $this->var[ $var_name ] ) )  
-      return $this->var[ $var_name ] ;
-        else
-      return NULL;
-   }/*}}}*/
+		if ( isset( $this->var[ $var_name ] ) )  
+			return $this->var[ $var_name ] ;
+		else
+			return NULL;
+	}/*}}}*/
 
-   function __set( $var_name, $var_value ) {/*{{{*/
-      return $this->var[ $var_name ] = $var_value ;
-   }/*}}}*/
+	function __set( $var_name, $var_value ) {/*{{{*/
 
-   function set_array( $var_name, $var_value ) {/*{{{*/
+		return $this->var[ $var_name ] = $var_value ;
 
-		/* get/set no funcionan con arrays */
+	}/*}}}*/
+
+	function set_array( $var_name, $var_value ) {/*{{{*/
+
+	/* get/set no funcionan con arrays */
 
 		return $this->var[ $var_name ] = $var_value;
+
 	}/*}}}*/
 
 	function get_xml() {/*{{{*/
 		
 		return array2xml( 'var', $this->var );
+
 	}/*}}}*/
 
 	function get_SERVER_xml() {/*{{{*/
 
 		return array2xml( 'server', $this->server_var );
+
 	}/*}}}*/
 
 }
