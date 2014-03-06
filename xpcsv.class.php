@@ -73,6 +73,7 @@ class xpcsv {
                         return 'IS_VIRTUAL';
                 }
 
+		set_time_limit(0);
 
 		$this->header_do();
 
