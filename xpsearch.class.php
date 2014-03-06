@@ -39,7 +39,7 @@ class xpsearch {
 
 			if ( strstr( $key, $this->obj->feat->key_delimiter ) ) {
 
-				M()->debug('recibi campos multiples');
+				M()->debug('recibi campos multiples: '. $key);
 				
 				$fields = explode( $this->obj->feat->key_delimiter, $key );
 
