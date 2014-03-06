@@ -1,7 +1,7 @@
 <?
 
-function ProcStats() 
-   {    
+function ProcStats() {    
+
        $fp=fopen("/proc/stat","r"); 
        if(false===$fp) 
                return false; 
@@ -111,10 +111,10 @@ function array2xml( $root_tag, $array ) {/*{{{*/
 
 		$x = new array2xml( $root_tag, $array ); 
 		return simplexml_import_dom( $x->data );
-	}
-	catch(Exception $e) {
 
-		M()->error('No puedo realizar la conversion: Error: '. $e->getMessage(). ' '.  $xpdoc->debug_backtrace( $array ));
+	} catch(Exception $e) {
+
+		M()->warn('No puedo realizar la conversion: Error: '. $e->getMessage(). ', tag: '. $root_tag. ', data: '. $x->data );
 		// print '<pre>';
 		// var_dump( $e );
 		// print 'root_tag: '. $root_tag;
