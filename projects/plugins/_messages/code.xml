@@ -218,6 +218,17 @@
 		return $this;
 	}/*}}}*/
 
+
+	function img_inline( $filename, $cid, $name = null ) {/*{{{*/
+
+		$name or $name = $filename;
+
+		$this->mail->AddEmbeddedImage( $filename, $cid, $name );
+
+		return $this;
+
+	}/*}}}*/
+
 	function send() {/*{{{*/
 
 		try {
