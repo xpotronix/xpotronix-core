@@ -2552,7 +2552,10 @@ function main_sql () {/*{{{*/
 		return $this->db->ErrorMsg();
 	}/*}}}*/
 
-	function is_new() {/*{{{*/
+	function is_new( $new = null ) {/*{{{*/
+
+		if ( $new !== null ) 
+			$this->__new == $new;
 
 		return $this->__new;
 
