@@ -74,7 +74,31 @@
 
 			global $xpdoc;
 
-			
+			/* las variables de configuracion
+
+				audit_ignore_action
+				audit_ignore_proc
+
+			permiten excluir a ciertas acciones y procesos de ser registrados en la auditoria
+
+			*/
+
+			M()->user( "action: ". $xpdoc->action );
+
+			if ( preg_match( $xpdoc->config->audit_ignore_action, $xpdoc->action ) ) {
+
+				M()->info( "action $xpdoc->action ignorada, no registra en audit" );
+				return;
+			}
+
+			M()->user( "process: ". serialize( $xpdoc->process ) );
+
+			foreach( $xpdoc->process as $process )
+				if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) ) {
+
+					M()->info( "process $process ignorado, no registra en audit" );
+					return;
+				}
 
 			$this->fill_primary_key();
 			$this->user_id = $xpdoc->user->user_id;
@@ -93,14 +117,16 @@
 
 			$this->get_attr('when')->now();
 
-			foreach( $xpdoc->process as $process )
-				if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) )
-					return;
-
 			if ( is_array( $xpdoc->process ) )
 				$this->proc_required = implode( ',', $xpdoc->process );
 
-			$this->transac_data = (CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
+
+			/* con audit_silent_action no guarda los datos de la transaccion */
+
+			if ( ! preg_match( $xpdoc->config->audit_silent_action, $xpdoc->action ) ) {
+
+				$this->transac_data = (CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
+			}
 
 			$this->messages = $xpdoc->get_messages( true )->asXML();
 
@@ -126,14 +152,14 @@
 
 		}/*}}}*/
 
-	function prepare_data( $obj ) {
+	function prepare_data( $obj ) {/*{{{*/
 
 		global $xpdoc;
 
 		/* solo visible por admin por que por aqui van los passwords */
 		if ( $obj->action == 'login' and $xpdoc->user->user_username != 'admin' )
 		 	$obj->transac_data = '******';
-	}
+	}/*}}}*/
 
 	</code>
    </table>
