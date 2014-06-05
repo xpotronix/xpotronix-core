@@ -157,7 +157,7 @@
 		global $xpdoc;
 
 		/* solo visible por admin por que por aqui van los passwords */
-		if ( $obj->action == 'login' and $xpdoc->user->user_username != 'admin' )
+		if ( $obj->action == 'login' and ! $this->has_role('admin') )
 		 	$obj->transac_data = '******';
 	}/*}}}*/
 
