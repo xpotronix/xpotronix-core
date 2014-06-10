@@ -1260,7 +1260,7 @@ class xpDataObject extends xp {
 					M()->debug( $sql_code[0] ) :
 					M()->debug( "SELECT ... FROM {$this->table_name} ". stristr( $sql_code[0], 'WHERE' ) );
 
-				$xpdoc->feat->log_sql and M()->write_log( $sql_code[0], 'sql' );
+				$xpdoc->config->log_sql and M()->write_log( $sql_code[0], 'sql' );
 			}
 		}
 
