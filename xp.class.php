@@ -273,12 +273,16 @@ class xp {
 			$cfopFactory = new JavaClass("org.apache.fop.apps.FopFactory");
 			$fopFactory = $cfopFactory->newInstance();
 
+			M()->info( $t = getcwd() );
+
+			$fopFactory->setBaseURL( $t );
+
 			$foUserAgent = $fopFactory->newFOUserAgent();
 
 			// Setup output
 
-			$baseDir = new Java( "java.io.File", '/tmp' );
-			$outDir = new Java( "java.io.File", $baseDir, 'fop-out' );
+			$tmpDir = new Java( "java.io.File", '/tmp' );
+			$outDir = new Java( "java.io.File", $tmpDir, 'fop-out' );
 
 			$outDir->mkdirs();
 
