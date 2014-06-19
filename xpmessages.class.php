@@ -341,6 +341,7 @@ class xpmessages {
 			case INSERT_OP:
 			case UPDATE_OP:
 			case REPLACE_OP:
+			case NO_OP:
 				// DEBUG: por ahora devuelve todos los atributos, no hay diferencia entre modificados o no.
 				// agregar DS_MODIFIED para poder traer solo los modificados
 
@@ -350,7 +351,6 @@ class xpmessages {
 			break;
 
 			case DELETE_OP:
-			case NO_OP:
 			case NOT_VALID:
 			case NOT_FOUND:
 			case NO_PERMS:
