@@ -83,22 +83,30 @@
 
 			*/
 
-			M()->user( "action: ". $xpdoc->action );
+			if ( $xpdoc->config->audit_ignore_action ) {
 
-			if ( preg_match( $xpdoc->config->audit_ignore_action, $xpdoc->action ) ) {
+				M()->user( "action: ". $xpdoc->action );
 
-				M()->info( "action $xpdoc->action ignorada, no registra en audit" );
-				return;
-			}
+				if ( preg_match( $xpdoc->config->audit_ignore_action, $xpdoc->action ) ) {
 
-			M()->user( "process: ". serialize( $xpdoc->process ) );
-
-			foreach( $xpdoc->process as $process )
-				if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) ) {
-
-					M()->info( "process $process ignorado, no registra en audit" );
+					M()->info( "action $xpdoc->action ignorada, no registra en audit" );
 					return;
 				}
+			}
+
+
+			if( $xpdoc->config->audit_ignore_proc ) {
+
+				M()->user( "process: ". serialize( $xpdoc->process ) );
+
+				foreach( $xpdoc->process as $process )
+
+					if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) ) {
+
+						M()->info( "process $process ignorado, no registra en audit" );
+						return;
+					}
+			}
 
 			$this->fill_primary_key();
 			$this->user_id = $xpdoc->user->user_id;
