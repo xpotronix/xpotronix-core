@@ -1112,6 +1112,9 @@ class xpdoc extends xp {
 		if ( $do = $this->feat->display_only ) 
 			$obj->change_attr( 'display', 'ignore', $do );
 
+		foreach( $obj->get_primary_key_array() as $key ) 
+			$obj->get_attr( $key )->display = '';
+
 		// $obj->debug_object(); exit;
 
 		return $obj->csv();
