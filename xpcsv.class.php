@@ -32,7 +32,11 @@ class xpcsv {
 
 		foreach ( $this->obj->attr as $key => $attr ) {
 
-			if ( $attr->display == 'protect' or $attr->display == 'ignore' or $attr->display == 'sql' or $attr->display == 'hide' ) continue;
+			if ( ( 	$attr->display == 'protect' or 
+				$attr->display == 'ignore' or 
+				$attr->display == 'sql' or 
+				$attr->display == 'hide' ) and ! $attr->is_primary_key() )continue;
+
 			$this->attr_list[$key] = $attr;
 		}
 
@@ -43,6 +47,8 @@ class xpcsv {
 		$this->download_name = $xpdoc->feat->application. '-'. $xpdoc->module. '-'. $this->timestamp. '-'. $xpdoc->user->user_username. '.csv';
 
 		// $this->tmpf = tmpfile();
+
+		// $obj->debug_object();
 
 	}/*}}}*/
 

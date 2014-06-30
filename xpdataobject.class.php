@@ -1003,7 +1003,7 @@ class xpDataObject extends xp {
 		// if ( $this->class_name == 'dtNotificacionActor' ) { $this->metadata(); exit; }
 		// if ( $this->class_name == 'REMPLES' ) { echo '<pre>'; $this->debug_object(); print_r( $sql ) ; echo '</pre>'; exit; }
 
-		// if ( $this->class_name == '_empleado' ) { echo '<p>'; print_r( $sql->prepare() ); echo '</p>'; exit; }
+		// if ( $this->class_name == 'antiguedad' ) { echo '<p>'; print_r( $sql->prepare() ); echo '</p>'; exit; }
 
 		// if ( $this->class_name == '_empleado' ) { $this->debug_object(); ob_flush(); exit; }
 
@@ -2189,8 +2189,7 @@ class xpDataObject extends xp {
 
 		if ( count( $this->primary_key ) )  
 			foreach( $this->primary_key as $name => $pk ) 
-					$ret[$name] = (string) $node->$name;
-
+				$ret[$name] = (string) $node->$name;
 		return $ret;
 
 	}/*}}}*/
@@ -2201,7 +2200,7 @@ class xpDataObject extends xp {
 
 		if ( count( $this->primary_key ) )  
 			foreach( $this->primary_key as $name => $pk ) 
-					$ret[$name] = (string) $this->$name;
+				$ret[$name] = (string) $this->$name;
 		return $ret;
 
 	}/*}}}*/
