@@ -314,7 +314,7 @@ class xpdoc extends xp {
 
 		if ( ! $dbi->$function( $host, $user, $password, $database, $encoding ) ) {
 
-			M()->user( "No puedo conectarme con la base de datos {$database}" ) ;
+			M()->error( "No puedo conectarme con la base de datos {$database}" ) ;
 			return null;
 
 		}
