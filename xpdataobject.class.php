@@ -55,7 +55,7 @@ class xpDataObject extends xp {
 	var $feat;
 
 	// base de datos
-	protected $db;
+	var $db = null;
 
 	// tabla asociada
 	var $table_name;
@@ -239,7 +239,7 @@ class xpDataObject extends xp {
 		if ( is_object( $var_value ) or is_array( $var_value ) ) {
 
 			$this->$var_name = $var_value;
-			( $var_name == 'data' or $var_name == 'sql' or $var_name == 'recordset' ) 
+			( $var_name == 'data' or $var_name == 'sql' or $var_name == 'recordset' or $var_name == 'db' ) 
 				or M()->warn( "asignando una tipo complejo a un dato simple $this->class_name::$var_name" );
 		}
 
@@ -253,7 +253,13 @@ class xpDataObject extends xp {
 
 			$this->aliases[$var_name]->value = $var_value;
 
-		} else M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
+		} else { 
+
+			M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
+
+			$this->debug_backtrace(); exit;
+
+		}
 
 		return $var_value;
 	}/*}}}*/
@@ -296,13 +302,20 @@ class xpDataObject extends xp {
 
 		M()->debug( "db_handler para la clase $this->class_name: ". ( $db_handler ? $db_handler: '(default)' ) );
 
-		if ( $dbi = $xpdoc->db_instance( $db_handler ) ) 
-			$this->db = $dbi;
+		$this->db = null;
 
-		else {
-			$this->db = $xpdoc->open_db_instance( $db_handler ) or
-				M()->error( "No encuentro la base de datos para la clase $this->class_name" ); 
-		}
+		/* devuelve una instancia abierta */
+
+		if ( $this->db = $xpdoc->db_instance( $db_handler ) ) 
+			M()->info( "instancia encontrada $db_handler" );
+
+		/* abre una instancia abierta */
+		else if ( $this->db = $xpdoc->open_db_instance( $db_handler ) )
+			M()->info( "instancia no encontrada y abierta $db_handler" );
+
+		/* error al abrir la instancia */
+		else
+			M()->error( "No encuentro la base de datos para la clase $this->class_name" ); 
 
 		return $this->db;
 

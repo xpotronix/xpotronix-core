@@ -10,6 +10,18 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
+class pdoDbException extends PDOException { 
+
+    public function __construct(PDOException $e) { 
+        if(strstr($e->getMessage(), 'SQLSTATE[')) { 
+            preg_match('/SQLSTATE\[(\w+)\] \[(\w+)\] (.*)/', $e->getMessage(), $matches); 
+            $this->code = ($matches[1] == 'HT000' ? $matches[2] : $matches[1]); 
+            $this->message = $matches[3]; 
+        } 
+    } 
+} 
+
+
 class xpadodb extends PDO {
 
 	var $instance;
@@ -53,7 +65,16 @@ class xpadodb extends PDO {
 
 		M()->debug( $conn_str );
 
-		parent::__construct( $conn_str, $user, $password );
+		try {
+
+			parent::__construct( $conn_str, $user, $password );
+
+		} catch( PDOException $e ) {
+
+			M()->error( sprintf( "No se pudo abrir la base de datos [$database]: %s", $e->getMessage() )) ;
+			return null;
+
+		}
 
 		// produce memory leaks!!
 		// $this->setAttribute( PDO::ATTR_STATEMENT_CLASS, array('xpadostatement', array( $this ) ) );
