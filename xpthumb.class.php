@@ -326,6 +326,12 @@ class xpthumb {
 
 	}/*}}}*/
 
+	function setImageDepth( $depth ) {/*{{{*/
+
+		$this->image->setImageDepth( $depth );
+
+	}/*}}}*/
+
 	function write( $file ) {/*{{{*/
 
 		try {
