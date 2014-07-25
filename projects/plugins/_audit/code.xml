@@ -85,7 +85,7 @@
 
 			if ( $xpdoc->config->audit_ignore_action ) {
 
-				M()->user( "action: ". $xpdoc->action );
+				M()->info( "action: ". $xpdoc->action );
 
 				if ( preg_match( $xpdoc->config->audit_ignore_action, $xpdoc->action ) ) {
 
@@ -97,7 +97,7 @@
 
 			if( $xpdoc->config->audit_ignore_proc ) {
 
-				M()->user( "process: ". serialize( $xpdoc->process ) );
+				M()->info( "process: ". serialize( $xpdoc->process ) );
 
 				foreach( $xpdoc->process as $process )
 
