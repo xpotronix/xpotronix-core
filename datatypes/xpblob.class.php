@@ -12,13 +12,36 @@
 
 class xpblob extends xpattr {
 
-	function serialize( $value = null ) {
+	function serialize( $value = null ) {/*{{{*/
 
-		// DEBUG: devuelve una referencia http a donde se encuentra el objeto. Deberia especificar que field esta pidiendo
+		return null;
+		/*
+		$value or $value = $this->value;
+		return $value;
+		*/
 
-		return "?m={$this->obj->class_name}&amp;fi[{$this->name}]&amp;a=process&amp;p=download&amp;s[{$this->obj->class_name}][__ID__]=".$this->obj->pack_primary_key();
+	}/*}}}*/
 
-	}
+	function unserialize( $value = null ) {/*{{{*/
+
+		$value or $value = $this->value;
+		return $value;
+
+	}/*}}}*/
+
+	function encode( $value = null ) {/*{{{*/
+
+		$value or $value = $this->value;
+		return addslashes( $value );
+
+	}/*}}}*/
+
+	function decode( $value = null ) {/*{{{*/
+
+		$value or $value = $this->value;
+		return stripslashes( $value );
+
+	}/*}}}*/
 
 }
 

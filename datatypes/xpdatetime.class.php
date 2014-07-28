@@ -15,31 +15,31 @@ include_once 'datatypes/xpdate.class.php';
 class xpdatetime extends xpdate {
 
 
-	function format_str() {
+	function format_str() {/*{{{*/
 
 		global $xpdoc;
 		return $xpdoc->feat->date_format. ' '. $xpdoc->feat->time_format;
-	}
+	}/*}}}*/
 
-	function format_long_str() {
+	function format_long_str() {/*{{{*/
 
 		global $xpdoc;
 		return $xpdoc->feat->date_long_format. ' '. $xpdoc->feat->time_format;
-	}
+	}/*}}}*/
 
-	function db_format_str() {
+	function db_format_str() {/*{{{*/
 
 		global $xpdoc;
 		return $xpdoc->feat->date_db_format. ' '. $xpdoc->feat->time_db_format;
 
-	}
+	}/*}}}*/
 
-	function db_null_str() {
+	function db_null_str() {/*{{{*/
 
 		global $xpdoc;
 		return $xpdoc->feat->date_db_null. ' '. $xpdoc->feat->time_db_null;
 
-	}
+	}/*}}}*/
 
 	function human( $value ) {/*{{{*/
 
