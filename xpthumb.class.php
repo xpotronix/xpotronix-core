@@ -167,18 +167,24 @@ class xpthumb {
 
 			$this->image->readImage($file);
 			M()->debug( "cargada la imagen $file" );
+			$this->get_props();
+			return $this;
 
 		} catch (Exception $e) {
 
 			M()->error( "no ecuentro la imagen $file" );
 
-			if ( ! file_exists( $err_img = 'images/warning.jpg' ) ) 
+			if ( ! file_exists( $err_img = 'images/warning.jpg' ) ) {
 				M()->error( "no encuentro $err_img en ". getcwd() );
-			else
+				return null;
+				}
+			else {
+
 				$this->image->readImage( $err_img );
+				return $this;
+			}
 		}
 
-		$this->get_props();
 	}/*}}}*/
 
 	function thumb() {/*{{{*/
