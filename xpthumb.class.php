@@ -76,8 +76,8 @@ class xpthumb {
 
 	function get_cache_key() {/*{{{*/
 
-
 		return md5($this->http->request_uri);
+
 	}/*}}}*/
 
 	function get_cache() {/*{{{*/
@@ -186,6 +186,37 @@ class xpthumb {
 		}
 
 	}/*}}}*/
+
+	function read_blob( $image ) {/*{{{*/
+
+		$this->image = new imagick;
+
+
+		try {
+
+			$this->image->readImageBlob( $image );
+			M()->debug( "cargada la imagen desde BLOB" );
+			$this->get_props();
+			return $this;
+
+		} catch (Exception $e) {
+
+			M()->error( "no se pudo cargar la imagen desde BLOB" );
+
+			if ( ! file_exists( $err_img = 'images/warning.jpg' ) ) {
+				M()->error( "no encuentro $err_img en ". getcwd() );
+				return null;
+				}
+			else {
+
+				$this->image->readImage( $err_img );
+				return $this;
+			}
+		}
+
+	}/*}}}*/
+
+
 
 	function thumb() {/*{{{*/
 
