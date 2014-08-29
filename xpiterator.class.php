@@ -46,6 +46,12 @@ class xpIterator implements Iterator {
 
 	}/*}}}*/
 
+	function get_data() {/*{{{*/
+
+		return $this->data;
+
+	}/*}}}*/
+
 	function can_jump( $flag ) {/*{{{*/
 
 		M()->info();
@@ -126,8 +132,6 @@ class xpIterator implements Iterator {
 	}/*}}}*/
 
 	function next() {/*{{{*/
-
-		M()->info();
 
 		$new_key = next( $this->data );
 
