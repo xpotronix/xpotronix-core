@@ -105,6 +105,12 @@ class xphttp {
 
 	}/*}}}*/
 
+	function local_host_name() {/*{{{*/
+
+		return gethostname();
+
+	}/*}}}*/
+
 	function remote_host_name( $ip = null ) {/*{{{*/
 
 		if ( ! function_exists( 'gethostbyaddr' ) ) 

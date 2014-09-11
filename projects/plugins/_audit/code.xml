@@ -83,7 +83,7 @@
 
 			*/
 
-			if ( $xpdoc->config->audit_ignore_action ) {
+			if ( (bool) $xpdoc->config->audit_ignore_action ) {
 
 				M()->info( "action: ". $xpdoc->action );
 
@@ -95,7 +95,7 @@
 			}
 
 
-			if( $xpdoc->config->audit_ignore_proc ) {
+			if( (bool) $xpdoc->config->audit_ignore_proc ) {
 
 				M()->info( "process: ". serialize( $xpdoc->process ) );
 
@@ -131,7 +131,7 @@
 
 			/* con audit_silent_action no guarda los datos de la transaccion */
 
-			if ( ! preg_match( $xpdoc->config->audit_silent_action, $xpdoc->action ) ) {
+			if ( (bool) $xpdoc->config->audit_silent_action and ! preg_match( $xpdoc->config->audit_silent_action, $xpdoc->action ) ) {
 
 				$this->transac_data = (CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
 			}
