@@ -1,0 +1,96 @@
+
+
+xpotronizar
+
+normal: xpotronize
+
+con la base de datos (regenera tables.xml): xpotronix -f
+
+entorno de desarrollo
+
+10.3.0.60
+
+usuario eduardo/tirulito22
+demo (bootstrap): http://10.3.0.60/miportal
+admin (extjs3): http://10.3.0.60/xpay
+
+URI de acceso para xpotronix/miportal
+
+
+http://xpay.jusbaires.gov.ar/miportal/?
+v=miportal/main // vista
+#?
+m=v_empleado_min& // modulo
+v=miportal/licencia/solicitud& // vista (con xml ves el xdocument)
+f[include_dataset]=6& // feat override
+s[v_empleado_min][legajo]=        1082&
+o[_licencia][timestamp]=desc
+
+para process:
+
+a=process
+p=<nom_proceso>
+
+
+para las variables 
+
+global $xpdoc;
+$xpdoc->http-><nom_var>
+
+
+Procesos
+
+en process.xml
+
+        <table name="_licencia"><!--{{{-->
+
+                <process name="proc_dias_entre_fechas" translate="Dias entre fechas" view="json">
+                        <acl action="permit" role="licencias"/>
+                        <acl action="permit" role="empleado"/>
+                        <acl action="permit" role="admin"/>
+                        <command name="proc_dias_entre_fechas" for="process_start"/>
+                </process>
+
+                <process name="post" translate="post" view="json">
+                        <acl action="permit" role="empleado"/>
+                        <acl action="permit" role="licencias"/>
+                        <acl action="permit" role="altas"/>
+                        <command name="post" for="process_start"/>
+                </process>
+
+	</table>
+
+
+
+process_start: todo el proceso
+object_start: para cada objeto
+
+
+mensajes de log
+
+en /var/log/syslog (salvo que en main le comentes la linea ad hoc)
+
+LOG_FUNCTION: reg ex de el nombre de la funcion (para que habilite los flags de info o debug)
+LOG_CLASS: reg ex del nombre de la clase (idem anterior)
+
+M()->info()
+M()->debug()
+
+
+Localizacion de los templates
+
+
+/usr/share/xpotronix/projects/priv-projecs/xpay/templates
+
+
+v=miportal/licencia/email
+
+equivalente a
+
+templates/miportal/licencia/email.xsl
+
+
+
+
+
+
