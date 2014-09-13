@@ -345,7 +345,8 @@ class xp {
 
         function get_hash( $seed = null ) {/*{{{*/
 
-                return md5(uniqid(rand().$seed, true));
+		// return sha1(microtime(true).mt_rand(10000,90000).$seed);
+                return md5(uniqid(microtime(true).mt_rand(10000,90000).$seed, true));
         
         }/*}}}*/
 
