@@ -35,6 +35,7 @@ class xpIterator implements Iterator {
 		$this->where = $where;
 		$this->order = $order;
 
+		$this->obj->reset();
 		$this->data = $this->obj->loadc( $this->key, $this->where, $this->order );
 		$this->can_jump = $can_jump;
 	} /*}}}*/
@@ -60,6 +61,8 @@ class xpIterator implements Iterator {
 	}/*}}}*/
 
 	function rewind(){ /*{{{*/
+
+		M()->debug( "count data: ". count( $this->data ) );
 
 		if ( ( is_array( $this->data ) ) and ( $new_key = reset( $this->data ) ) ) {
 
@@ -170,8 +173,11 @@ class xpIterator implements Iterator {
 
 	} /*}}}*/
 
-	function last_page() {}
+	function debug() {/*{{{*/
+		print_r( object_to_array( $this ) );
+	}/*}}}*/
 
+	function last_page() {}
 }
 
 ?>
