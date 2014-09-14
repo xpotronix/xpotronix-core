@@ -716,7 +716,11 @@ class xpDataObject extends xp {
 		$this->set_order( $order );
 		$this->main_sql();
 
-		return $this->page( $page );
+		$recs = $this->page( $page );
+
+		M()->debug( "devolviendo ". count( $recs ). " registros" );
+
+		return $recs;
 
 	}/*}}}*/
 
@@ -1202,6 +1206,8 @@ class xpDataObject extends xp {
 	}/*}}}*/ 
 
 	function page ( $page = null ) {/*{{{*/
+
+		$page && M()->debug( "page $page" );
 
 		/*
 
@@ -1891,6 +1897,8 @@ class xpDataObject extends xp {
 
 		$this->loaded = false;
 		$this->set_modified( false ); // attrs
+
+		$this->pager = array( 'pr' => 0, 'cp' => 1 );
 
 		return $this;
 

@@ -1,6 +1,6 @@
 <?
 
-function ProcStats() {    
+function ProcStats() {    /*{{{*/
 
        $fp=fopen("/proc/stat","r"); 
        if(false===$fp) 
@@ -12,7 +12,7 @@ function ProcStats() {
        var_dump($a); 
        fclose($fp); 
        return $a; 
-   }
+   }/*}}}*/
 
    function crypto($source) {/*{{{*/
         $salt[0] = "something  here!";   // Limit this to 16 characters
@@ -140,6 +140,21 @@ function a2o($array) {/*{{{*/
     }
 }/*}}}*/
 
+function object_to_array( $obj, $recursive = false ) {/*{{{*/
+
+        $_arr = is_object($obj) ? get_object_vars($obj) : $obj;
+
+        foreach ($_arr as $key => $val) {
+
+                $val = (is_array($val) || is_object($val)) ? 
+			( ( $recursive ) ? $object_to_array($val) : 'Array' ) :  
+			$val;
+
+		$val && $arr[$key] = $val;
+        }
+        return $arr;
+}/*}}}*/
+   
 function remove_accents($string) {/*{{{*/
 
 	return str_replace( array('à','á','â','ã','ä', 'ç', 'è','é','ê','ë', 'ì','í','î','ï', 'ñ', 'ò','ó','ô','õ','ö', 'ù','ú','û','ü', 'ý','ÿ', 'À','Á','Â','Ã','Ä', 'Ç', 'È','É','Ê','Ë', 'Ì','Í','Î','Ï', 'Ñ', 'Ò','Ó','Ô','Õ','Ö', 'Ù','Ú','Û','Ü', 'Ý'), array('a','a','a','a','a', 'c', 'e','e','e','e', 'i','i','i','i', 'n', 'o','o','o','o','o', 'u','u','u','u', 'y','y', 'A','A','A','A','A', 'C', 'E','E','E','E', 'I','I','I','I', 'N', 'O','O','O','O','O', 'U','U','U','U', 'Y'), $string);

@@ -156,6 +156,10 @@ class xp {
 		echo '</pre>';
 	}/*}}}*/
 
+	function debug_console( $recursive = false ) {/*{{{*/
+		print_r( object_to_array( $this, $recursive ) );
+	}/*}}}*/
+
 	function debug( $var = null, $type = 'undef' ) {/*{{{*/
 
 		$origin = __FILE__ . ":". __LINE__;
