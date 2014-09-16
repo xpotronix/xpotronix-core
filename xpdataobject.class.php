@@ -257,8 +257,7 @@ class xpDataObject extends xp {
 
 			M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
 
-			$this->debug_backtrace(); exit;
-
+			// $this->debug_backtrace(); exit;
 		}
 
 		return $var_value;
