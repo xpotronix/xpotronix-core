@@ -10,6 +10,30 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-class xpdecimal extends xpattr {}
+class xpdecimal extends xpattr {
+
+	function serialize( $value = NULL ) {/*{{{*/
+
+		global $xpdoc;
+	
+		if ( $value === NULL ) 
+			$value = $this->value;
+
+		// M()->debug( 'valor: '. $value );
+
+		return $value;
+
+		if ( $value === NULL )
+
+			return null;
+
+		else return number_format( $value, 
+			$xpdoc->config->decimal_precision,
+			$xpdoc->config->decimal_separator );
+
+
+	}/*}}}*/
+
+}
 
 ?>
