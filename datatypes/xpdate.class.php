@@ -27,8 +27,8 @@ class xpdate extends xpattr {
 
 		global $xpdoc;
 
-			$date = date_create( $value );
-			$this->errors( $value );
+		$date = date_create( $value );
+		$this->errors( $value );
 
 		return $date; 
 	}/*}}}*/ 
