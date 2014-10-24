@@ -82,6 +82,7 @@ class xpDataObject extends xp {
 	// paginador del recordset
 	var $pager;
 	var $total_records;
+	var $last_page;
 
 	// claves
 	var $primary_key;
@@ -650,6 +651,8 @@ class xpDataObject extends xp {
 
 	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
 
+		// M()->debug( "key: ". serialize( $key ).", where: ". serialize( $where ). ", order: ". serialize( $order ). ", page: $page" );
+
 		if ( !$this->db() ) {
 
 			$this->total_records = -2;
@@ -658,8 +661,6 @@ class xpDataObject extends xp {
 
 		if ( !$this->acl ) 
 			$this->set_acl();
-
-		unset( $this->sql );
 
 		$this->sql = $this->sql_prepare();
 
@@ -714,6 +715,8 @@ class xpDataObject extends xp {
 
 		$this->set_order( $order );
 		$this->main_sql();
+
+		// echo "<pre>"; print( $this->sql->prepare() ); exit; 
 
 		$recs = $this->page( $page );
 
@@ -773,16 +776,24 @@ class xpDataObject extends xp {
 
 	// sql query
 
-	function set_dbquery( $sql, $xsql ) {/*{{{*/
+	function set_dbquery( $sql, $xsql, $assign_attributes = true ) {/*{{{*/
+
+		/* en esta funcion se asignan los atributos modificadores de la consulta
+			definidos en database.xml
+			auto_where, auto_having, auto_group, auto_order */
 
 		M()->debug( $xsql->asXML() );
 
-		foreach( $xsql->attributes() as $key => $value ) {
+		if ( $assign_attributes ) {
+			M()->debug( "assign_attributes = true" );
+			foreach( $xsql->attributes() as $key => $value ) {
 
-			M()->debug( "key: $key = $value" );
-			$sql->$key = (( strtolower( $value ) == 'no' ) ? false : true );
-		}
+				M()->debug( "key: $key = $value" );
+				$sql->$key = (( strtolower( $value ) == 'no' ) ? false : true );
+			}
 
+		} else M()->debug( "assign_attributes = false" );
+		
 		$sql->addSql( (string) $xsql );
 
 	}/*}}}*/
@@ -807,8 +818,9 @@ class xpDataObject extends xp {
 		return $ret;
 	}/*}}}*/
 
-	function sql_prepare () {/*{{{*/
+	function sql_prepare ( $sql = null ) {/*{{{*/
 
+		// is_object( $sql ) or 
 		$sql = new DBQuery( $this->db );
 
 		// para que no se repitan las tablas entre table y alias
@@ -832,7 +844,6 @@ class xpDataObject extends xp {
 		if ( count( $this->xsql->sql ) == 1 ) {
 
 			M()->info( "el objeto $this->class_name tiene definida una vista sql" );
-			$this->set_dbquery( $sql, $this->xsql->sql );
 			return $sql;
 
 		} else if ( count( $this->xsql->sql ) > 1 ) {
@@ -1204,122 +1215,150 @@ class xpDataObject extends xp {
 
 	}/*}}}*/ 
 
-	function page ( $page = null ) {/*{{{*/
+	function page ( $page = null, $page_rows = null ) {/*{{{*/
 
-		$page && M()->debug( "page $page" );
-
-		/*
-
-		echo '<pre>'; 
-		$this->db->Execute( "SET @ID_Proceso = '17af85533edfbc84cf33c0a1ddc1ef9d'" );
-		print_r ( $this->db->Execute( "call getFreeTime( @ID_Proceso )" ) );
-
-		exit;
-
-		*/
-
-		// a) configura el rango de la paginacion
-
-		// $this->class_name == '_licencia' and xdebug_start_trace('/tmp/xpotronix-trace.xt');
-
-		// M()->mem_stats( 'entro a page' );
 		global $xpdoc;
 
-		if ( ! $this->pager )
-			$this->pager = array( 'pr' => 0, 'cp' => 1 );
+		$page && M()->debug( "class_name: $this->class_name, page: $page" );
+
+		$cn =  $this->class_name;
+
+		// $cn == '_licencia' and xdebug_start_trace('/tmp/xpotronix-trace.xt');
+
+		/* a) configura el rango de la paginacion */
+
+		is_array( $this->pager ) or $this->pager = array( 'pr' => 0, 'cp' => 1 );
 
 		$pr =& $this->pager['pr'];
 		$cp =& $this->pager['cp'];
 
-		if ( isset( $xpdoc->pager ) and array_key_exists ( $this->class_name, $xpdoc->pager ) and is_array( $xpdoc->pager[$this->class_name] ) ) {
+		if ( isset( $xpdoc->pager ) and array_key_exists ( $cn, $xpdoc->pager ) and is_array( $xpdoc->pager[$cn] ) ) {
 
-			isset( $xpdoc->pager[$this->class_name]['pr'] ) and $pr = $xpdoc->pager[$this->class_name]['pr'];
-			isset( $xpdoc->pager[$this->class_name]['cp'] ) and $cp = $xpdoc->pager[$this->class_name]['cp'];
+			isset( $xpdoc->pager[$cn]['pr'] ) and $pr = $xpdoc->pager[$cn]['pr'];
+			isset( $xpdoc->pager[$cn]['cp'] ) and $cp = $xpdoc->pager[$cn]['cp'];
 		}
+
+		M()->debug( "pager: ". serialize( $this->pager ) );
+		M()->debug( "xpdoc::pager: ". serialize( $xpdoc->pager ) );
 
 		if ( $this->feat->page_rows !== null  and !$pr ) 
 			$pr = $this->feat->page_rows;
 
 		if ( $page !== null ) $cp = $page;
 
-		M()->info( "object: {$this->class_name}, page_rows: $pr, current_page: $cp" );
+		M()->info( "object: {$cn}, page_rows: $pr, current_page: $cp" );
 
-		// b) obtiene el fuente sql a ejecutar
+		$c = count( $this->xsql->sql ); 
+		M()->debug( "cuenta $c" );
 
-		if ( ( $c = count( $this->xsql->sql ) ) > 1 ) {
+		if ( $this->sql and $c == 0 )
+			$a_sql = array( $this->sql );
+		else
+			$a_sql = array();
+
+		/* c) por cada fragmento, lo ejecuta */
+
+		$i = 1;
+
+		foreach( $this->xsql->sql as $xsql ) {
+
+			// M()->debug( "en loop #$i con ". $xsql->asXML() );
+
+			// echo "<pre>"; print_r( $xsql->asXML() );
+
+			// $sql = (string) $sql_p;
 
 
-			$sql_code = $this->xsql->sql;
-			M()->info( " ejecutando $c fragmentos de codigo SQL para la vista $this->class_name" );
+			if ( $i < $c ) {
 
-		} else { 
+				$sql = new DBQuery( $this->db() );
+				$this->set_dbquery( $sql, $xsql, false );
 
-			/*
+				$sql->auto_where  = false;
+				$sql->auto_order  = false;
+				$sql->auto_group  = false;
+				$sql->auto_having = false;
 
-			if ( $this->class_name == 'v_intersub_ca' ) {
-				echo '<pre>'; 
-				print_r( $this->sql );
-				print( $this->sql->prepare() );
-				print( 'clase: '. $this->class_name ); exit;
-			} */
+			} else { 
 
-			if ( $this->db_type() == 'dblib' ) {
+				$sql = $this->sql;
+				$this->set_dbquery( $sql, $xsql );
 
-				$sql_code = array( $this->sql->prepare() );
-
-			} else {
-
-				$sql_code = array( $this->feat->count_rows ? 
-						$this->sql->prepareCount() : 
-						$this->sql->prepare() 
-						);
-
-				( $this->feat->full_sql_log ) ? 
-					M()->debug( $sql_code[0] ) :
-					M()->debug( "SELECT ... FROM {$this->table_name} ". stristr( $sql_code[0], 'WHERE' ) );
-
-				$xpdoc->config->log_sql and M()->write_log( $sql_code[0], 'sql' );
 			}
+
+			$a_sql[] = $sql;
+
+			$i++;
 		}
 
-		// c) por cada fragmento, lo ejecuta
+		M()->debug( "count(a_sql): ". count( $a_sql ) );
 
-		try {
+		if ( count( $a_sql ) > 1 ) {
 
-			foreach( $sql_code as $sql_p ) {
+		// echo "<pre>"; print $xsql->asXML(); exit;
 
-				if ( $pr ) {
+		// echo "<pre>"; print_r( $this->xsql ); exit;
+			// echo "<pre>"; print_r( $a_sql ); exit;
+		}
+
+		// echo "<pre>"; print_r( $a_sql ); exit;
+
+		$i = 1;
+
+		foreach( $a_sql as $sql ) {
+
+			$sql_text = ( $this->db_type() == 'dblib' ) ?
+					$sql->prepare():
+					$sql->prepare( false, $this->feat->count_rows );
+
+			M()->debug( $sql_text );
+
+			try {
+
+				if ( ( $i < $c ) and $pr ) {
+
+					/* primeros: sin paginar */
+
+					M()->debug( "Execute (sin paginar)" );
+					$this->recordset = $this->db->Execute( $sql_text );
+					$i++;
+
+					continue; /* DEBUG: si no corta el loop */
+
+				} else {
+
+					/* ultimo fragmento */
 
 					if ( $this->db_type() == 'dblib' ) {
 
-						// hace la paginacion via consulta para los motores que no tienen LIMIT (dblib)
-						$this->recordset = $this->paged_query( (string) $sql_p, $pr, $cp );
+						M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
+						$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
 
 					} else {
-						$this->recordset = $this->db->PageExecute( (string) $sql_p, $pr, $cp );
+
+						M()->debug( "PageExecute con pr: $pr y cp: $cp" );
+						$this->recordset = $this->db->PageExecute( $sql_text, $pr, $cp );
 					}
-
-				} else {
-					$this->recordset = $this->db->Execute( (string) $sql_p );
 				}
+
+				$rows = $this->recordset->fetchAll();
+				$this->recordset->closeCursor();
+
+			} catch ( PDOException $e ) {
+
+				$this->total_records = -1;
+				$this->last_page = null;
+				$this->loaded = false;
+
+				M()->db_error( $this->db, 'select', $sql_text );
+				return null;
 			}
-
-		} catch ( PDOException $e ) {
-
-			$this->total_records = -1;
-			$this->loaded = false;
-
-			M()->db_error( $this->db, 'select', $sql_p );
-			return null;
 		}
 
-		$rows = $this->recordset->fetchAll();
-
-		unset( $this->recordset );
-
-		// d) calcula el record count
+		/* d) calcula el record count */
 
 		$this->total_records = null;
+		$this->last_page = null;
 
 		if ( $this->feat->count_rows ) {
 
@@ -1337,22 +1376,27 @@ class xpDataObject extends xp {
 
 		M()->debug('total_records: '. $this->total_records );
 
-		// e) prepara el return: si hay datos devuelve un recordset con los datos, si no, null
+		/* e) prepara el return: si hay datos devuelve un recordset con los datos, si no, null */
 
 		if ( $this->total_records === 0 ) {
 
 			// print_r( $this->primary_key ); exit;
 			$this->loaded = false;
+			$this->last_page = true;
 			// M()->info( 'no encontre registros en: '. $this->sql->prepare() ) ;
 			return null;
 
 		} else {
 
+			$this->last_page = (bool) ( $this->total_records < ($pr*$cp) );
+
+			// M()->debug( "last_page: ". ( $this->last_page ? 'true': 'false' ) );
+
 			// M()->mem_stats( 'salgo de page' );
 			return $this->load_array_recordset( $rows );
 		}
 
-		// $this->class_name == '_licencia' and xdebug_stop_trace();
+		// $cn == '_licencia' and xdebug_stop_trace();
 
 	}/*}}}*/
 
