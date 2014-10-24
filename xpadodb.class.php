@@ -144,24 +144,7 @@ class xpadodb extends PDO {
 
 	}/*}}}*/
 
-	function BeginTrans() { return $this->beginTransaction(); }
-	function StartTrans() { return $this->beginTransaction(); }
-	function CommitTrans() { return $this->commit(); }
-	function CompleteTrans() { return $this->commit(); }
-	function RollbackTrans() { return $this->rollBack(); }
-	function Insert_ID() { return $this->lastInsertId(); }
-
-	function GetCol( $query = null ) {
-		return $this->query( $query )->fetchColumn( PDO::FETCH_NUM );
-	}
-	function GetOne( $query = null ) {
-		return $this->query( $query )->fetch( PDO::FETCH_NUM );
-	}
-	function GetRow( $query = null ) {
-		return $this->query( $query )->fetch( PDO::FETCH_NUM );
-	}
-
-	function quote_name($string) {/*{{{*/
+		function quote_name($string) {/*{{{*/
 
 		$ldelim = null;
 		$rdelim = null;
@@ -200,6 +183,24 @@ class xpadodb extends PDO {
 
 	}/*}}}*/
 
+/* aliases */
+
+	function BeginTrans() { return $this->beginTransaction(); }
+	function StartTrans() { return $this->beginTransaction(); }
+	function CommitTrans() { return $this->commit(); }
+	function CompleteTrans() { return $this->commit(); }
+	function RollbackTrans() { return $this->rollBack(); }
+	function Insert_ID() { return $this->lastInsertId(); }
+
+	function GetCol( $query = null ) {
+		return $this->query( $query )->fetchColumn( PDO::FETCH_NUM );
+	}
+	function GetOne( $query = null ) {
+		return $this->query( $query )->fetch( PDO::FETCH_NUM );
+	}
+	function GetRow( $query = null ) {
+		return $this->query( $query )->fetch( PDO::FETCH_NUM );
+	}
 
 } 
 
@@ -207,14 +208,15 @@ class xpadostatement extends PDOStatement {
 
 	public $db;
 	
-	private function __construct( $db ) {
+	private function __construct( $db ) {/*{{{*/
 
 		$this->db = $db;
-	}
+	}/*}}}*/
 
-	function GetRows() {
+	function GetRows() {/*{{{*/
 		return $this->fetchAll( PDO::FETCH_NUM );
-	}
+	}/*}}}*/
+
 }
 
 ?>

@@ -177,7 +177,10 @@ class xpIterator implements Iterator {
 		print_r( object_to_array( $this ) );
 	}/*}}}*/
 
-	function last_page() {}
+	function last_page() {
+
+		return $this->obj->last_page;
+	}
 }
 
 ?>
