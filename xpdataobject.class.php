@@ -1315,30 +1315,38 @@ class xpDataObject extends xp {
 
 			try {
 
-				if ( ( $i < $c ) and $pr ) {
+				if ( $pr ) {
 
-					/* primeros: sin paginar */
+					if ( $i < $c ) {
 
-					M()->debug( "Execute (sin paginar)" );
-					$this->recordset = $this->db->Execute( $sql_text );
-					$i++;
+						/* primeros: sin paginar */
 
-					continue; /* DEBUG: si no corta el loop */
+						M()->debug( "Execute (sin paginar)" );
+						$this->recordset = $this->db->Execute( $sql_text );
+						$i++;
 
-				} else {
-
-					/* ultimo fragmento */
-
-					if ( $this->db_type() == 'dblib' ) {
-
-						M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
-						$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
+						continue; /* DEBUG: si no corta el loop */
 
 					} else {
 
-						M()->debug( "PageExecute con pr: $pr y cp: $cp" );
-						$this->recordset = $this->db->PageExecute( $sql_text, $pr, $cp );
+						/* ultimo fragmento */
+
+						if ( $this->db_type() == 'dblib' ) {
+
+							M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
+							$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
+
+						} else {
+
+							M()->debug( "PageExecute con pr: $pr y cp: $cp" );
+							$this->recordset = $this->db->PageExecute( $sql_text, $pr, $cp );
+						}
 					}
+
+				} else  {
+
+					M()->debug( "Execute (sin paginar)" );
+					$this->recordset = $this->db->Execute( $sql_text );
 				}
 
 				$rows = $this->recordset->fetchAll();
