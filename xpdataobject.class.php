@@ -874,10 +874,12 @@ class xpDataObject extends xp {
 		/* joins de los entry_helpers */
 		if ( $this->feat->load_full_query ) {
 
+
 			foreach( $this->metadata->xpath( "attr[@entry_help]") as $attr ) {
 
 				// el query que se corresponde al entry_help
 				$query_name = (string) $attr['entry_help'];
+
 				foreach( $this->xsql->xpath( ".//query[@name='$query_name']" ) as $query )  {
 
 					// agrego los label para cada uno de los entry helpers
@@ -891,11 +893,15 @@ class xpDataObject extends xp {
 
 					}
 
+					/* si el join del entry helper esta baseado en un alias_of, usar eso para la parte izquierda del join */
+
+					$fn = ( $attr['alias_of'] ) ? $attr['alias_of'] : $this->quote_name( "{$this->table_name}.{$attr['name']}" );
+
 					// agrego el join del from
 					$this->uniq_tables($query->from, $query->alias) or $sql->addJoin( 
 							(string) $query->from, 
 							$this->quote_name( (string) $query->alias ),
-							sprintf( "%s=%s", $this->quote_name( "{$this->table_name}.{$attr['name']}" ), $this->quote_name( $query->id ) ).
+							sprintf( "%s=%s", $fn, $this->quote_name( $query->id ) ).
 							( $query->on ? ' AND '. $query->on : null ), 
 							(string) "left" );
 
