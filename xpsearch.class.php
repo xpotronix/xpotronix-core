@@ -368,8 +368,8 @@ class xpsearch {
 		$c->operator = '=';
 
 	$term_syntaxes = array( 
-		'null'	=> "$c->sql_var IS NULL AND $c->sql_var = ''",
-		'not_null' => "$c->sql_var IS NOT NULL AND $c->sql_var <> ''",
+		'null'	=> "$c->sql_var IS NULL OR $c->sql_var = ''",
+		'not_null' => "$c->sql_var IS NOT NULL OR $c->sql_var <> ''",
 		'compare' => "$c->sql_var $c->operator '$c->value'",
 		'like' => "$c->sql_var $c->operator '$c->value'",
 		'numeric' => "$c->sql_var $c->operator $c->value",
@@ -377,16 +377,17 @@ class xpsearch {
 		'to_date' => "DATE($c->sql_var) $c->operator '$c->value'",
 		'to_date_mssql' => "DATEADD(dd, 0, DATEDIFF(dd, 0, $c->sql_var)) $c->operator '$c->value'" );
 
-	if ( array_key_exists( $c->search_type, $term_syntaxes ) )
+	if ( array_key_exists( $c->search_type, $term_syntaxes ) ) {
 
-		$c->term_syntax = $term_syntaxes[$c->search_type];
-	else {
+		$c->result_term = $term_syntaxes[$c->search_type];
+
+	} else {
 
 		M()->warn( "no hay definido un term_syntax para el tipo de busqueda $c->search_type" );
 		return $c->invalid;
 	}
 
-	M()->debug( "busqueda tipo: [{$c->search_type}], match_type: [{$c->match_type}], term_syntax: [{$c->term_syntax}], operator: [{$c->operator}], value: [{$c->value}], result_term: [$c->result_term]" );
+	M()->debug( "busqueda tipo: [{$c->search_type}], match_type: [{$c->match_type}], operator: [{$c->operator}], value: [{$c->value}], result_term: [$c->result_term]" );
 
 	return $c;
 	}/*}}}*/
