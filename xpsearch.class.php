@@ -364,17 +364,18 @@ class xpsearch {
 			M()->info( 'no pude identificar el tipo de busqueda: por default' );
 		}
 
-
+	if ( $this->obj->xsql->sql['set'] == 'variables' )
+		$c->operator = '=';
 
 	$term_syntaxes = array( 
-		'null'	=> "%s IS NULL",
-		'not_null' => "%s IS NOT NULL",
-		'compare' => "%s %s '%s'",
-		'like' => "%s %s '%s'",
-		'numeric' => "%s %s %s",
-		'match' => "MATCH(%s) AGAINST ('%s' IN BOOLEAN MODE)",
-		'to_date' => "DATE(%s) %s '%s'",
-		'to_date_mssql' => "DATEADD(dd, 0, DATEDIFF(dd, 0, %s)) %s '%s'" );
+		'null'	=> "$c->sql_var IS NULL AND $c->sql_var = ''",
+		'not_null' => "$c->sql_var IS NOT NULL AND $c->sql_var <> ''",
+		'compare' => "$c->sql_var $c->operator '$c->value'",
+		'like' => "$c->sql_var $c->operator '$c->value'",
+		'numeric' => "$c->sql_var $c->operator $c->value",
+		'match' => "MATCH('$c->value') AGAINST ('$c->sql_var' IN BOOLEAN MODE)",
+		'to_date' => "DATE($c->sql_var) $c->operator '$c->value'",
+		'to_date_mssql' => "DATEADD(dd, 0, DATEDIFF(dd, 0, $c->sql_var)) $c->operator '$c->value'" );
 
 	if ( array_key_exists( $c->search_type, $term_syntaxes ) )
 
@@ -384,18 +385,6 @@ class xpsearch {
 		M()->warn( "no hay definido un term_syntax para el tipo de busqueda $c->search_type" );
 		return $c->invalid;
 	}
-
-
-	// MATCH AGAINST cambia el orden de los operadores
-
-	if ( $this->obj->xsql->sql['set'] == 'variables' )
-		$c->result_term = sprintf( $c->term_syntax, $c->sql_var, '=', $c->value);
-
-	else if ( $c->search_type == 'match' ) 
-		$c->result_term = sprintf( $c->term_syntax, $c->value, $c->sql_var, null );
-
-	else 
-		$c->result_term = sprintf( $c->term_syntax, $c->sql_var, $c->operator, $c->value);
 
 	M()->debug( "busqueda tipo: [{$c->search_type}], match_type: [{$c->match_type}], term_syntax: [{$c->term_syntax}], operator: [{$c->operator}], value: [{$c->value}], result_term: [$c->result_term]" );
 
