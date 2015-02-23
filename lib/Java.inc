@@ -1142,7 +1142,7 @@ $this->__java = ++$client->asyncCtx;
 if(JAVA_DEBUG) {echo "setresult from new Java cache: object:"; echo sprintf("%x", $client->asyncCtx); echo "\n";}
 $this->__factory = $cacheEntry->factory;
 $this->__signature = $cacheEntry->signature;
-$this->__cancelProxyCreationTag = ++$client->cancelProxyCreationTag;} else {if(JAVA_DEBUG) { echo "cache miss for new Java: $sig\n"; }
+@$this->__cancelProxyCreationTag = ++$client->cancelProxyCreationTag;} else {if(JAVA_DEBUG) { echo "cache miss for new Java: $sig\n"; }
 $client->currentCacheKey = $sig;
 $delegate = $this->__delegate = $client->createObject($name, $args);
 $this->__java = $delegate->__java;

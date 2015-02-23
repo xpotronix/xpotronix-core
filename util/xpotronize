@@ -25,7 +25,7 @@ $xpdoc->db_driver( 'ADODB' );
 
 if ( @$x->opts['f'] ) {
 
-	M()->user( "dbdump: aplicacion {$x->feat->application}" );
+	M()->user( "dbdump: aplicacion {$x->config->application}" );
 
 	$db = new dbdump( $x->ini );
 	$db->get_database_info();
@@ -46,7 +46,7 @@ if ( @$x->opts['f'] ) {
 	unlink( $y->transform['xml'] );
 }
 
-M()->user( "xpotronize: aplicacion {$x->feat->application}" );
+M()->user( "xpotronize: aplicacion {$x->config->application}" );
 
 ( $x->config->self === true or $x->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
 

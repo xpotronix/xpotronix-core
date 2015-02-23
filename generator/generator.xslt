@@ -9,29 +9,31 @@
 	<!-- output -->
 	<!-- -->
 
-	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
+	<xsl:output method="text" encoding="UTF-8" indent="yes"/>
 	<xsl:strip-space elements="*"/>
 
 	<xsl:param name="xpotronix_path"/>
 	<xsl:param name="project_path"/>
 	<xsl:param name="config_path"/>
 	<xsl:param name="application_path"/>
+	<xsl:param name="config_file"/>
+	<xsl:param name="feat_file"/>
 	<xsl:param name="module"/>
-
 
 	<!-- archivos de configuracion de xpotronix de la aplicacion -->
 
-	<xsl:param name="tables_file" 		select="string(concat($project_path,'/tables.xml'))"/>
-	<xsl:param name="queries_file" 		select="string(concat($project_path,'/queries.xml'))"/>
-	<xsl:param name="ui_file" 		select="string(concat($project_path,'/ui.xml'))"/>
-	<xsl:param name="code_file" 		select="string(concat($project_path,'/code.xml'))"/>
-	<xsl:param name="processes_file" 	select="string(concat($project_path,'/processes.xml'))"/>
-	<xsl:param name="database_file" 	select="string(concat($project_path,'/database.xml'))"/>
-	<xsl:param name="menu_file" 		select="string(concat($project_path,'/menu.xml'))"/>
-	<xsl:param name="views_file" 		select="string(concat($project_path,'/views.xml'))"/>
-	<xsl:param name="feat_file" 		select="string(concat($project_path,'/feat.xml'))"/>
-	<xsl:param name="config_file" 		select="string(concat($project_path,'/config.xml'))"/>
-	<xsl:param name="license_file" 		select="string(concat($project_path,'/license.xml'))"/>
+	<xsl:variable name="tables_file" 	select="string(concat($project_path,'/tables.xml'))"/>
+	<xsl:variable name="database_file" 	select="string(concat($project_path,'/database.xml'))"/>
+	<xsl:variable name="queries_file" 	select="string(concat($project_path,'/queries.xml'))"/>
+
+	<xsl:variable name="ui_file" 		select="string(concat($project_path,'/ui.xml'))"/>
+	<xsl:variable name="code_file" 		select="string(concat($project_path,'/code.xml'))"/>
+
+	<xsl:variable name="processes_file" 	select="string(concat($project_path,'/processes.xml'))"/>
+	<xsl:variable name="menu_file" 		select="string(concat($project_path,'/menu.xml'))"/>
+	<xsl:variable name="views_file" 	select="string(concat($project_path,'/views.xml'))"/>
+
+	<xsl:variable name="license_file" 	select="string(concat($project_path,'/license.xml'))"/>
 
 	<!-- -->
 	<!-- includes -->
@@ -262,11 +264,15 @@
 		<xsl:message>http://xpotronix.com/</xsl:message>
 		<xsl:message></xsl:message>
 		<xsl:message>Parametros de la Transformacion:</xsl:message>
-		<xsl:message>config_path: <xsl:value-of select="$config_path"/></xsl:message>
-		<xsl:message>project_path: <xsl:value-of select="$project_path"/></xsl:message>
-		<xsl:message>application_path: <xsl:value-of select="$application_path"/></xsl:message>
-		<xsl:message>tables_file: <xsl:value-of select="$tables_file"/></xsl:message>
-		<xsl:message>module: <xsl:value-of select="$module"/></xsl:message>
+
+		<xsl:message>xpotronix_path: &#x9;<xsl:value-of select="$xpotronix_path"/></xsl:message>
+		<xsl:message>project_path: &#x9;&#x9;<xsl:value-of select="$project_path"/></xsl:message>
+		<xsl:message>config_path: &#x9;&#x9;<xsl:value-of select="$config_path"/></xsl:message>
+		<xsl:message>application_path: &#x9;<xsl:value-of select="$application_path"/></xsl:message>
+		<xsl:message>config_file: &#x9;&#x9;<xsl:value-of select="$config_file"/></xsl:message>
+		<xsl:message>feat_file: &#x9;&#x9;<xsl:value-of select="$feat_file"/></xsl:message>
+		<xsl:message>module: &#x9;&#x9;<xsl:value-of select="$module"/></xsl:message>
+
 		<xsl:message></xsl:message>
 
 		<xsl:if test="$config_path=''">

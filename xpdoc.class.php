@@ -101,10 +101,11 @@ class xpdoc extends xp {
 		// $this->load_datatypes();
 		$this->load_features( $feat_file );
 
-		$this->application = $this->feat->application or 
-			M()->fatal( 'no encuentro el nombre de la aplicacion en feat.xml' );
-
 		$this->load_config( $config_file );
+
+		$this->application = $this->config->application or 
+			M()->fatal( 'no encuentro el nombre de la aplicacion en config.xml' );
+
 		$this->feat->set_fallback( $this->config ); // si no lo encuentra entre los features, lo buscara en config
 
 		$this->feat->set_time_limit 
@@ -570,7 +571,7 @@ class xpdoc extends xp {
 
 		$suffix and $suffix = "$suffix/";
 
-		return "{$this->config->cache_dir}/{$this->feat->application}/$suffix";
+		return "{$this->config->cache_dir}/{$this->config->application}/$suffix";
 
 	}/*}}}*/
 
@@ -578,7 +579,7 @@ class xpdoc extends xp {
 
 		$suffix and $suffix = "$suffix/";
 
-		return "{$this->config->log_dir}/{$this->feat->application}/$suffix";
+		return "{$this->config->log_dir}/{$this->config->application}/$suffix";
 
 	}/*}}}*/
 
@@ -1373,7 +1374,7 @@ class xpdoc extends xp {
 
 		$ret[] = $this->user->user_username;
 		$ret[] = $this->session->session_id;
-		$ret[] = $this->feat->application;
+		$ret[] = $this->config->application;
 		$ret[] = $this->module;
 		$ret[] = $this->req_object;
 		$ret[] = $this->view;

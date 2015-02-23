@@ -10,6 +10,14 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
+
+class ref {
+
+	var $local;
+	var $remote;
+	var $expr;
+}
+
 class xpkey {
 
 	var $obj;
@@ -27,7 +35,7 @@ class xpkey {
 
 		foreach( $xk->children() as $xref ) {
 
-			$ref = new stdClass;
+			$ref = new ref;
 
 			( $t = (string) $xref['local'] ) and $ref->local = $t;
 			( $t = (string) $xref['remote'] ) and $ref->remote = $t;

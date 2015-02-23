@@ -21,7 +21,7 @@ if ( count( $x->argv ) < 2 ) {
 		M()->fatal( "\nxpdump-base\nGenera el diccionario de datos en xml de la base de datos\n");
 } else $db_name = $x->argv[1];
 
-M()->user( "dbdump: aplicacion {$x->feat->application}" );
+M()->user( "dbdump: aplicacion {$x->config->application}" );
 
 $db = new dbdump( $x->ini );
 $db->get_database_info();

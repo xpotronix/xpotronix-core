@@ -19,7 +19,7 @@
 	<xsl:param name="dry" select="'no'"/>
 
 	<xsl:variable name="app">
-		<xsl:value-of select="document(concat($base_dir,'/feat.xml'))//feat/application"/>
+		<xsl:value-of select="document(concat($base_dir,'/config.xml'))//config/application"/>
 	</xsl:variable>
 
 	<xsl:variable name="help">

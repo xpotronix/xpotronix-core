@@ -27,7 +27,6 @@ class xpotronize extends xp {
 
 	var $transform = array();
 
-
 	function __construct( $params = NULL ) {/*{{{*/
 
 		global $argv;
@@ -38,7 +37,7 @@ class xpotronize extends xp {
 
 		if ( isset( $this->opts['h'] ) ) {
 
-			print "xpotronize [project] [-fadtmh]\n";
+			print "xpotronize [project <project_path>] [config_file <config_file>] [feat_file <feat_file>][-fadtmh]\n";
 			print "project: path del proyecto\n";
 			print "m: <module> solo este modulo 'm'\n";
 			print "d: (dry) mostrar que va a hacer\n";
@@ -50,8 +49,21 @@ class xpotronize extends xp {
 			if ( is_numeric( $key ) ) 
 				$this->argv[] = $value;
 
+		M()->info( "opts: " . serialize( $this->opts ) );
+
 		$this->load_ini();
 
+	}/*}}}*/
+
+	function get_absolute_path( $file_name ) {/*{{{*/
+
+
+		$path_info = pathinfo( $file_name );
+
+		if ( ! $path_info['dirname'] )
+			$file_name = implode( DS, getcwd(), $filename );
+
+		return realpath( $file_name );
 	}/*}}}*/
 
 	function check_params_xpotronize() {/*{{{*/
@@ -60,44 +72,57 @@ class xpotronize extends xp {
 		// xpotronize [project_path] --app_path <application_path> --tables_file <tables_file> --module <module> -d -f
 
 
-		$this->transform['params']['xpotronix_path'] = $this->ini['paths']['lib'];
-
-		$projects_dir = $this->ini['paths']['projects'];
+		M()->info( "xpotronix_path: ". $this->transform['params']['xpotronix_path'] = $this->ini['paths']['lib'] );
+		
+		M()->info( "projects_dir: ". $projects_dir = $this->ini['paths']['projects'] );
 
 		if ( count( $this->argv ) > 1 ) {
+
 			if ( $tmp = realpath( $this->argv[1] ) )
 				$project_path = $tmp;
 			else if (( $tmp = realpath( implode( DS, array( $projects_dir, $this->argv[1] ) ) ) ) )
 				$project_path = $tmp;
 			else 
 				M()->fatal( "la ruta de origen de la aplicacion {$this->argv[1]} es invalida" );
+
 		} else if (( $tmp = getcwd() ))
 			$project_path = $tmp;
 		else
 			M()->fatal( "la ruta de origen de la aplicacion {$this->argv[1]} es invalida" );
 
+		M()->info( "project_path: ". $this->transform['params']['project_path'] = $project_path );
 
-		$this->transform['params']['project_path'] = $project_path;
+		$config_file = $this->opts['config_file'] or $config_file = 'config.xml';
+		$config_file = $this->get_absolute_path( $config_file );
+		$this->transform['params']['config_file'] = $config_file;
+		M()->info( "config_file: $config_file" );
 
-		$this->load_config( $project_path );
+		$feat_file = $this->opts['feat_file'] or $feat_file = 'feat.xml';
+		$feat_file = $this->get_absolute_path( $feat_file );
+		M()->info( "feat_file: $feat_file" );
+		$this->transform['params']['feat_file'] = $feat_file;
 
-		$this->transform['params']['config_path'] = ( $this->ini['paths']['config'] ) ? 
-			( $this->ini['paths']['config'] .'/' ) : 
-			$project_path;
+		$this->load_config_feat( $config_file, $feat_file );
 
-		$this->transform['params']['application_path'] = ( $tmp = @$this->opts['app_path'] ) ? 
-			$tmp : 
-			implode( DS, array( $this->ini['paths']['apps'], (string) $this->feat->application ) );
+		M()->info( "config_path: ".
+			$this->transform['params']['config_path'] = realpath( ( $this->ini['paths']['config'] ) ? 
+				( $this->ini['paths']['config'] .'/' ) : 
+				$project_path )
+		);
 
-		foreach( array( 'module', 'tables_file', 'queries_file', 'ui_file', 'code_file', 'processes_file', 'database_file', 'menu_file', 'views_file', 'feat_file', 'config_file', 'license_file' ) as $var_name ) {
 
-			if ( $tmp = @$this->opts[$var_name] )
-				$this->transform['params'][$var_name] = $tmp;
-		}
+		M()->info( "application_path: ".
+			$this->transform['params']['application_path'] = realpath( ( $tmp = @$this->opts['app_path'] ) ? 
+				implode( DS, array( $this->ini['paths']['apps'], $tmp ) ) : 
+				implode( DS, array( $this->ini['paths']['apps'], (string) $this->config->application ) ) )
+		);
 
-		// armamos los parametros en un array
-		$this->transform['xsl'] = implode( DS, array(  $this->ini['paths']['lib'], 'generator', 'generator.xslt'));
-		$this->transform['xml'] = implode( DS, array(  $project_path, 'config.xml' ));
+		isset( $this->opts['module'] ) and $this->transform['params']['module'] = $this->opts['module'];
+
+		/* armo los parametros en un array */
+
+		M()->info( "xsl: ". $this->transform['xsl'] = realpath( implode( DS, array(  $this->ini['paths']['lib'], 'generator', 'generator.xslt'))));
+		M()->info( "xml: ". $this->transform['xml'] = $config_file );
 
 	}/*}}}*/
 
@@ -135,19 +160,15 @@ class xpotronize extends xp {
 
 	}/*}}}*/
 
-	function load_config( $project_path ) {/*{{{*/
+	function load_config_feat( $config_file, $feat_file ) {/*{{{*/
 
-		M()->info( 'project path: '. $this->transform['xml'] = $project_path );
-
-		$config_file = implode( DS, array( $project_path, "config.xml" ) );
-		$feat_file = implode( DS, array( $project_path, "feat.xml" ) );
+		M()->info( 'config_file: '. $config_file );
+		M()->info( 'feat_file: '  . $feat_file );
 
 		$this->config = new xpconfig( $config_file );
-		$this->feat = new xpconfig( $feat_file );
+		$this->feat   = new xpconfig( $feat_file );
 
-		$this->application = (string) $this->feat->application;
-
-		if ( ! $this->application ) 
+		( $this->application = (string) $this->config->application ) or
 			M()->fatal( "no encuentro el nombre de la aplicacion (directiva <application/> en config.xml o feat.xml)" );
 
 	}/*}}}*/
