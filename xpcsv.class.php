@@ -44,7 +44,7 @@ class xpcsv {
 
 		$this->timestamp = $date->format ( "Ymd-His" );
 
-		$this->download_name = $xpdoc->feat->application. '-'. $xpdoc->module. '-'. $this->timestamp. '-'. $xpdoc->user->user_username. '.csv';
+		$this->download_name = $xpdoc->config->application. '-'. $xpdoc->module. '-'. $this->timestamp. '-'. $xpdoc->user->user_username. '.csv';
 
 		// $this->tmpf = tmpfile();
 

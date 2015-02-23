@@ -105,7 +105,7 @@ class xpthumb {
 
 	function cache_filename() {/*{{{*/
 
-		$cache_filename = implode('/', array( $this->cache_root, $this->cache_pathinfo['dirname'], $this->cache_dir, $this->get_cache_key() ));
+		@$cache_filename = implode('/', array( $this->cache_root, $this->cache_pathinfo['dirname'], $this->cache_dir, $this->get_cache_key() ));
 
 		M()->info( $cache_filename );
 
@@ -115,7 +115,7 @@ class xpthumb {
 
 	function cache_pathname() {/*{{{*/
 
-		$cache_pathname = implode('/', array( $this->cache_root, $this->cache_pathinfo['dirname'], $this->cache_dir ));
+		@$cache_pathname = implode('/', array( $this->cache_root, $this->cache_pathinfo['dirname'], $this->cache_dir ));
 
 		// M()->info( $cache_pathname );
 
@@ -314,7 +314,7 @@ class xpthumb {
 
 	function adjust_orientation() {/*{{{*/
 
-		$orientation = $this->props['exif:Orientation'];
+		@$orientation = $this->props['exif:Orientation'];
 
 		switch ( $orientation ) {
 

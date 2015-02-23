@@ -118,7 +118,7 @@ class xpmessage {
 
 		if ( is_object( $xpdoc ) ) {
 
-			$xpdoc->config->log_xpid and $buff[] = 'XPID:'. $xpdoc->feat->application. '/'. $this->xpid;
+			$xpdoc->config->log_xpid and $buff[] = 'XPID:'. $xpdoc->config->application. '/'. $this->xpid;
 			$xpdoc->config->log_ip and $buff[] = 'IP:'. $this->ip;
 		}
 
