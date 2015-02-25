@@ -101,10 +101,14 @@ class xpdoc extends xp {
 		// $this->load_datatypes();
 		$this->load_features( $feat_file );
 
+		// print $this->feat->get_xml()->asXML(); exit;
+
+		$this->application = $this->feat->application or
+			M()->fatal( 'no encuentro el nombre de la aplicacion en feat.xml' );
+
 		$this->load_config( $config_file );
 
-		$this->application = $this->config->application or 
-			M()->fatal( 'no encuentro el nombre de la aplicacion en config.xml' );
+		M()->info( "application: $this->application" );
 
 		$this->feat->set_fallback( $this->config ); // si no lo encuentra entre los features, lo buscara en config
 

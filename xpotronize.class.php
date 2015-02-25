@@ -111,11 +111,20 @@ class xpotronize extends xp {
 		);
 
 
-		M()->info( "application_path: ".
-			$this->transform['params']['application_path'] = realpath( ( $tmp = @$this->opts['app_path'] ) ? 
-				implode( DS, array( $this->ini['paths']['apps'], $tmp ) ) : 
-				implode( DS, array( $this->ini['paths']['apps'], (string) $this->config->application ) ) )
-		);
+		M()->info( "ini.paths.apps: ". $this->ini['paths']['apps'] );
+		M()->info( "opts.app_path: ". @$this->opts['app_path'] );
+		M()->info( "feat.application: ". $this->feat->application );
+
+		$p =& $this->transform['params']['application_path'];
+		$app_path = ( isset( $this->opts['app_path'] ) ) ? $this->opts['app_path'] : '';
+
+		$ini_paths_app = $this->ini['paths']['apps'];
+
+		$p = ( $app_path ) ? 
+			implode( DS, array( $ini_paths_app, $app_path ) ) : 
+			implode( DS, array( $ini_paths_app, (string) $this->feat->application ) );
+
+		M()->info( "application_path: $p" );
 
 		isset( $this->opts['module'] ) and $this->transform['params']['module'] = $this->opts['module'];
 
@@ -168,8 +177,8 @@ class xpotronize extends xp {
 		$this->config = new xpconfig( $config_file );
 		$this->feat   = new xpconfig( $feat_file );
 
-		( $this->application = (string) $this->config->application ) or
-			M()->fatal( "no encuentro el nombre de la aplicacion (directiva <application/> en config.xml o feat.xml)" );
+		( $this->application = (string) $this->feat->application ) or
+			M()->fatal( "no encuentro el nombre de la aplicacion (directiva <application/> en feat.xml)" );
 
 	}/*}}}*/
 
