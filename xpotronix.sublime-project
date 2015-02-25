@@ -1,0 +1,14 @@
+{
+    "folders":
+    [
+        {
+            "follow_symlinks": true,
+            "path": "."
+        }
+    ],
+    "settings": {
+        "xdebug": {
+             "url": "http://localhost/xpay/?v=xml&a=data&r=_licencia&m=_licencia"
+        }
+    }
+}
