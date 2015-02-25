@@ -16,8 +16,8 @@
 	<xsl:param name="project_path"/>
 	<xsl:param name="config_path"/>
 	<xsl:param name="application_path"/>
-	<xsl:param name="config_file"/>
-	<xsl:param name="feat_file"/>
+	<xsl:param name="config_file" select="string(concat($project_path,'/config.xml'))"/>
+	<xsl:param name="feat_file" select="string(concat($project_path,'/feat.xml'))"/>
 	<xsl:param name="module"/>
 
 	<!-- archivos de configuracion de xpotronix de la aplicacion -->
@@ -40,9 +40,6 @@
 	<!-- -->
 
 	<xsl:include href="xslt/metadata.xslt"/>
-	<xsl:include href="xslt/menu.xslt"/>
-	<xsl:include href="xslt/feat.xslt"/>
-	<xsl:include href="xslt/config.xslt"/>
 	<xsl:include href="xslt/class.xslt"/>
 	<xsl:include href="xslt/field.xslt"/>
 	<xsl:include href="xslt/model.xslt"/>
@@ -407,6 +404,40 @@
 				<xsl:attribute name="name" select="@name"/>
 				<xsl:sequence select="$views_collection//table[@name=$table_name]/view"/>
 			</xsl:element>
+		</xsl:result-document>
+	</xsl:template><!--}}}-->
+
+	<xsl:template match="menu" mode="menu"><!--{{{-->
+		<xsl:result-document method="xml" encoding="UTF-8" indent="yes" href="{concat($application_path,'/conf/menu.xml')}">
+			<xsl:sequence select="."/>
+		</xsl:result-document>
+	</xsl:template><!--}}}-->
+
+	<xsl:template match="config" mode="config"><!--{{{-->
+		<xsl:variable name="application_name" select="$feat_collection//application"/>
+		<xsl:variable name="output_file" select="concat($config_path,'/conf/',$application_name,'/config.xml')"/>
+		<xsl:message>generando archivo de configuracion en <xsl:value-of select="$output_file"/></xsl:message>
+		<xsl:result-document method="xml" encoding="UTF-8" indent="yes" href="{$output_file}">
+			<xsl:sequence select="."/>
+		</xsl:result-document>
+	</xsl:template><!--}}}-->
+
+	<xsl:template match="feat" mode="feat"><!--{{{-->
+		<xsl:variable name="feats" select="."/>
+
+		<xsl:result-document 	method="xml" encoding="UTF-8" indent="yes" href="{concat($application_path,'/conf/feat.xml')}">
+			<feat>
+			<xsl:for-each-group select="./*" group-by="name()">
+				<!-- <xsl:sort select="name()"/> -->
+				<xsl:variable name="cgk" select="current-grouping-key()"/>
+				<xsl:element name="{$cgk}">
+					<xsl:if test="//*[name()=$cgk][1]/@type">
+						<xsl:attribute name="type" select="//*[name()=$cgk][1]/@type"/>
+					</xsl:if>
+					<xsl:value-of select="//*[name()=$cgk][last()]"/>
+				</xsl:element>
+	    		</xsl:for-each-group>
+			</feat>
 		</xsl:result-document>
 	</xsl:template><!--}}}-->
 
