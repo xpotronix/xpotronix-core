@@ -59,6 +59,7 @@ class xpDataObject extends xp {
 
 	// tabla asociada
 	var $table_name;
+	var $prefix;
 	var $uniq_tables_array;
 
 	// autonumeric
@@ -193,6 +194,8 @@ class xpDataObject extends xp {
 		$this->set_flag( 'check', true );
 		$this->set_flag( 'post_check', true );
 
+		
+
 		return $this->init();
 
 	}/*}}}*/ 
@@ -326,9 +329,11 @@ class xpDataObject extends xp {
 		return $this->db;
 	}/*}}}*/
 
-	function set_table_name( $table_name ) {/*{{{*/
+	function set_table_name( $table_name, $prefix = null ) {/*{{{*/
 
-		return $this->table_name = $table_name;
+		$prefix and $this->prefix = $prefix;
+		$this->table_name = $table_name;
+		return $this->prefix.$this->table_name;
 
 	}/*}}}*/ 
 
@@ -818,6 +823,20 @@ class xpDataObject extends xp {
 		return $ret;
 	}/*}}}*/
 
+	function get_table_name() {/*{{{*/
+
+		/*
+		$cn = $this->class_name;
+		if ( $cn == 'foto' or $cn == 'cliente' or $cn == 'b_cliente' or $cn == 'sessions' or $cn == 'users' or $cn == 'user_preferences' ) $this->prefix = 'fotoshow.';
+		*/
+
+		$r = $this->prefix. $this->table_name;
+		M()->info( $r );
+
+		return $r;
+
+	}/*}}}*/
+
 	function sql_prepare ( $sql = null ) {/*{{{*/
 
 		// is_object( $sql ) or 
@@ -827,7 +846,7 @@ class xpDataObject extends xp {
 		// print $this->model->asXML(); ob_flush(); 
 
 		$this->uniq_tables();
-		$this->uniq_tables( $this->table_name );
+		$this->uniq_tables( $this->get_table_name() );
 
 		// busca la consulta principal
 		$fq = $this->feat->query_name;
@@ -895,7 +914,7 @@ class xpDataObject extends xp {
 
 					/* si el join del entry helper esta baseado en un alias_of, usar eso para la parte izquierda del join */
 
-					$fn = ( $attr['alias_of'] ) ? $attr['alias_of'] : $this->quote_name( "{$this->table_name}.{$attr['name']}" );
+					$fn = ( $attr['alias_of'] ) ? $attr['alias_of'] : $this->quote_name( $this->get_table_name(). ".". $attr['name'] );
 
 					// agrego el join del from
 					$this->uniq_tables($query->from, $query->alias) or $sql->addJoin( 
@@ -998,9 +1017,9 @@ class xpDataObject extends xp {
 		// agrego la tabla y su alias, si esta definido
 
 		if ( $alias = (string) $this->xsql->alias ) 
-			$sql->addTable( $this->table_name, $alias );
+			$sql->addTable( $this->get_table_name(), $alias );
 		else
-			$sql->addTable( $this->table_name );
+			$sql->addTable( $this->get_table_name() );
 
 		// agrego el where del main_sql
 		if ( $this->xsql->where )
@@ -1008,7 +1027,7 @@ class xpDataObject extends xp {
 
 		// agrego el order_by 
 		if ( $this->xsql->order_by )
-			$sql->addOrder( $this->quote_order( $this->replace_table_name( (string) $this->xsql->alias, $this->table_name,  (string) $order ) ) );
+			$sql->addOrder( $this->quote_order( $this->replace_table_name( (string) $this->xsql->alias, $this->get_table_name(),  (string) $order ) ) );
 
 
 
@@ -1024,7 +1043,7 @@ class xpDataObject extends xp {
 
 			/* if ( $this->class_name == '_empleado' ) { print $key. "<br/>"; } */
 
-			$field_name = $this->quote_name( sprintf( "%s.%s", $this->table_name, $attr->name ) );
+			$field_name = $this->quote_name( sprintf( "%s.%s", $this->get_table_name(), $attr->name ) );
 
 			if ( $attr->alias_of ) 
 				$this->feat->load_full_query and $sql->addQuery( $attr->alias_of, $this->quote_name( $attr->name ) );
@@ -1468,7 +1487,7 @@ class xpDataObject extends xp {
 			$q[] = ") AS __RowNumber,";
 
 			$q[] = $sql->prepareSelectFields();
-			$q[] = "FROM [$this->table_name]";
+			$q[] = "FROM [". $this->get_table_name()."]";
 
 			$q[] = $sql->make_join();
 			$q[] = $sql->make_where_clause();
@@ -1647,7 +1666,7 @@ class xpDataObject extends xp {
 
 		$this->sql = new DBQuery( $this->db );
 
-		$this->sql->addTable ( $this->table_name ) ;
+		$this->sql->addTable ( $this->get_table_name() ) ;
 
 		/* genera la consulta con los valores modificados del objeto */
 
@@ -1737,7 +1756,7 @@ class xpDataObject extends xp {
 
 		$modifiers and $this->sql->addModifiers( $modifiers );
 
-		$this->sql->addTable ( $this->table_name ) ;
+		$this->sql->addTable ( $this->get_table_name() ) ;
 
 		/* genera la consulta con los valores modificados del objeto */
 
@@ -1812,7 +1831,7 @@ class xpDataObject extends xp {
 
 		$this->sql = new DBQuery( $this->db );
 
-		$this->sql->addTable ( $this->table_name ) ;
+		$this->sql->addTable ( $this->get_table_name() ) ;
 
 		/* genera la consulta con los valores modificados del objeto */
 
@@ -1888,11 +1907,11 @@ class xpDataObject extends xp {
 
 		$this->sql = new DBQuery( $this->db );
 
-		$this->sql->setDelete( $this->table_name );
+		$this->sql->setDelete( $this->get_table_name() );
 
 		foreach ( $this->primary_key as $field => $value ) 
 
-			$this->sql->addWhere( $this->quote_name( "{$this->table_name}.$field" ). sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
+			$this->sql->addWhere( $this->quote_name( $this->get_table_name(). $field ). sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
 
 		foreach ( $this->model->xpath( "obj[foreign_key/@type='wired']" ) as $obj ) {
 
@@ -2234,7 +2253,14 @@ class xpDataObject extends xp {
 			$name = (string) $ref['name'];
 			$this->primary_key[$name] = null;
 			$attr = $this->get_attr( $name );
-			$attr->primary = true;
+
+
+			if ( !$attr ) {
+
+				M()->error( "no encuentro el atributo $name en el objeto $this->class_name" );
+				return;
+			} else
+				$attr->primary = true;
 		}
 
 		if ( !count( $this->primary_key ) )  
@@ -2290,7 +2316,7 @@ class xpDataObject extends xp {
 		if ( count( $this->primary_key ) )  
 			foreach( array_keys( $this->primary_key ) as $name ) 
 				if ( $full )
-					$ret[] = "{$this->table_name}.$name";
+					$ret[] = $this->get_table_name(). $name;
 				else 
 					$ret[] = (string) $name;
 		return $ret;
@@ -2669,13 +2695,15 @@ function main_sql () {/*{{{*/
 		$loaded = $this->loaded ? 'si' : 'no';
 		$modified = $this->modified ? 'si' : 'no';
 
+		$table_name = $this->get_table_name();
+
 		print "<h1>Object: {$this->name}</h1>";
 		print "<hr/>";
 		print "<table border=\"1\">
 				<tr><td>name:</td><td>{$this->name}</td></tr>
 				<tr><td>type:</td><td>{$this->type}</td></tr>
 				<tr><td>class_name:</td><td>{$this->class_name}</td></tr>
-				<tr><td>table_name:</td><td>{$this->table_name}</td></tr>
+				<tr><td>table_name:</td><td>$table_name</td></tr>
 				<tr><td>autonumeric_field:</td><td>{$this->autonumeric_field}</td></tr>
 				<tr><td>__new:</td><td>{$new}</td></tr>
 				<tr><td>loaded:</td><td>{$loaded}</td></tr>
