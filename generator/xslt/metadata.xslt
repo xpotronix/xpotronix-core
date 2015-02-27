@@ -219,7 +219,9 @@
                 </xsl:variable>
 
 		<xsl:variable name="eh_name" select="@eh"/>
-		<xsl:variable name="query" select="$queries_collection//query[@name=$eh_name]"/>
+
+		<!-- toma el primer query de la transformacion, el resto son ignorados -->
+		<xsl:variable name="query" select="$queries_collection//query[@name=$eh_name][1]"/>
 
 		<xsl:element name="attr">
 			<xsl:sequence select="@*"/>
@@ -236,6 +238,7 @@
 			<xsl:if test="$eh_name!=''">
 				<xsl:attribute name="entry_help"><xsl:value-of select="$eh_name"/></xsl:attribute>
 				<!-- DEBUG: fix para que tome el nombre relativo de la tabla, no el absoluto cuando tiene el nombre de la base de datos delante -->
+
 				<xsl:choose>
 					<xsl:when test="contains($query/from,'.')">
 						<xsl:attribute name="entry_help_table"><xsl:value-of select="substring-after($query/from,'.')"/></xsl:attribute>
