@@ -108,14 +108,5 @@
          <order_by>value</order_by>
    </query>
 
-   <query name="aco_value">
-         <id>gacl_aco.value</id>
-         <label>gacl_aco.name</label>
-         <from>gacl_aco</from>
-         <order_by>order_value</order_by>
-   </query>
-
-
-
    </queries>
 </database>
