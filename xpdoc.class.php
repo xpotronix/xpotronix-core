@@ -531,17 +531,12 @@ class xpdoc extends xp {
 			$this->search[$obj_name][$key] = $data;
 		}
 
-
 		// query_field: sobre que campo alias tiene que buscar (ej.: _label)
 
-		$query_field = $this->feat->query_field;
+		if ( ( $query = $this->http->query ) and ( $query_field = $this->feat->query_field ) ) {
 
-		M()->info( "query: {$this->http->query} query_field: $query_field" );
-
-		if ( $this->http->query and $query_field ) {
-
-			$this->search[$obj_name][$query_field] = $this->http->query;
-			M()->info( "query encontrado buscando {$this->http->query} en $query_field" );
+			$this->search[$obj_name][$query_field] = $query;
+			M()->info( "parametro query buscando el valor \"$query\" sobre [$query_field]" );
 		}
 
 		if ( $this->http->g ) {
