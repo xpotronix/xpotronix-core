@@ -893,6 +893,7 @@ class xpDataObject extends xp {
 		/* joins de los entry_helpers */
 		if ( $this->feat->load_full_query ) {
 
+			M()->info( "load_full_query" );
 
 			foreach( $this->metadata->xpath( "attr[@entry_help]") as $attr ) {
 
@@ -935,14 +936,18 @@ class xpDataObject extends xp {
 			}
 		}
 
+		/* if ( $this->class_name == 'cliente' ) { $this->debug_object(); exit; } */
+
 		/* joins de queries asociadas */
 		if ( $this->queries_array ) {
+
+			M()->info( "queries_array" );
 
 			$protect_list_attr = array();
 
 			foreach( $this->queries_array as $query_name ) {
 
-				M()->debug( "agrego query $query_name" );
+				M()->debug( "agrego query [$query_name]" );
 
 				foreach( $this->model->xpath( "queries//query[@name='$query_name']" ) as $query_xml ) {
 
@@ -951,7 +956,7 @@ class xpDataObject extends xp {
 					$r_table = (string) $query_xml->from;
 					$r_alias = (string) $query_xml->alias;
 
-					M()->debug( "encontre query {$query_xml['name']}" );
+					M()->debug( "encontre query [{$query_xml['name']}]" );
 
 					foreach ( $query_xml->xpath( "join" ) as $join )
 						$this->uniq_tables( $join['table'], $join['alias'] ) or $sql->addJoin( 
@@ -2689,7 +2694,7 @@ function main_sql () {/*{{{*/
 
 
 		$primary_key = serialize( $this->primary_key );
-		$foreign_key = serialize( $this->foreign_key );
+		// $foreign_key = serialize( $this->foreign_key );
 
 		$new = $this->__new ? 'si' : 'no';
 		$loaded = $this->loaded ? 'si' : 'no';
