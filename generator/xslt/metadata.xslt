@@ -235,7 +235,15 @@
 
 			<xsl:if test="$eh_name!=''">
 				<xsl:attribute name="entry_help"><xsl:value-of select="$eh_name"/></xsl:attribute>
-				<xsl:attribute name="entry_help_table"><xsl:value-of select="$query/from"/></xsl:attribute>
+				<!-- DEBUG: fix para que tome el nombre relativo de la tabla, no el absoluto cuando tiene el nombre de la base de datos delante -->
+				<xsl:choose>
+					<xsl:when test="contains($query/from,'.')">
+						<xsl:attribute name="entry_help_table"><xsl:value-of select="substring-after($query/from,'.')"/></xsl:attribute>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:attribute name="entry_help_table"><xsl:value-of select="$query/from"/></xsl:attribute>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:if>
 			<xsl:if test="not($tb_field)">
 				<xsl:if test="$tb_table">
