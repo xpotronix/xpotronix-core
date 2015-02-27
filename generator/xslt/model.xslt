@@ -74,7 +74,10 @@
 		<xsl:variable name="table_name" select="@name"/>
 		<xsl:element name="queries">
 			<xsl:apply-templates select="." mode="get_main_sql"/>
+			<!-- para los from relativos -->
 			<xsl:sequence select="$queries_collection//query[from=$table_name]"/>
+			<!-- para los from absolutos (database.table) -->
+			<xsl:sequence select="$queries_collection//query[substring-after(from,'.')=$table_name]"/>
 		</xsl:element>
 	</xsl:template><!--}}}-->
 

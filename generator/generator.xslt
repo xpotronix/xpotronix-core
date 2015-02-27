@@ -43,7 +43,6 @@
 	<xsl:include href="xslt/class.xslt"/>
 	<xsl:include href="xslt/field.xslt"/>
 	<xsl:include href="xslt/model.xslt"/>
-	<xsl:include href="xslt/queries.xslt"/>
 
 	<!-- -->
 	<!-- globals -->
