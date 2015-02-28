@@ -282,7 +282,9 @@ class xpdoc extends xp {
 
 		if ( is_string( $i ) ) {
 
-			if ( ! ( $instance = array_shift( $this->config->get_xml()->xpath( "db_instance[@name='$i']" ) ) ) ) {
+			$arr = $this->config->get_xml()->xpath( "db_instance[@name='$i']" );
+
+			if ( ! ( $instance = array_shift( $arr ) ) ) {
 				M()->error( "no encuentro la instancia $i" );
 				return null;
 			} 
