@@ -1916,7 +1916,7 @@ class xpDataObject extends xp {
 
 		foreach ( $this->primary_key as $field => $value ) 
 
-			$this->sql->addWhere( $this->quote_name( $this->get_table_name(). $field ). sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
+			$this->sql->addWhere( $this->quote_name( $this->get_table_name(). '.'. $field ). sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
 
 		foreach ( $this->model->xpath( "obj[foreign_key/@type='wired']" ) as $obj ) {
 
@@ -2321,7 +2321,7 @@ class xpDataObject extends xp {
 		if ( count( $this->primary_key ) )  
 			foreach( array_keys( $this->primary_key ) as $name ) 
 				if ( $full )
-					$ret[] = $this->get_table_name(). $name;
+					$ret[] = $this->get_table_name(). '.'. $name;
 				else 
 					$ret[] = (string) $name;
 		return $ret;
