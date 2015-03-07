@@ -60,8 +60,13 @@ class xphttp {
 
 			M()->info("Recibidos los parametros via la web");
 
-			foreach ( $_REQUEST as $key => $value )
-				$this->var[str_replace('amp;','',$key)] = $value;
+			foreach ( $_REQUEST as $key => $value ) {
+
+				$key = str_replace( '@', '', $key );	
+				$key = str_replace( 'amp;', '', $key );
+
+				$this->var[$key] = $value;
+			}
 
 			$this->server_var 	= $_SERVER;
 			$this->method 		= $_SERVER['REQUEST_METHOD'];
