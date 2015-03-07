@@ -102,6 +102,8 @@ Ext.onReady(function() {
 					App.close_objs();
 					App.close_stores();
 
+					App.set_source( src );
+
 					Ext.Loader.load( [src + '&v=ext/loader&UNNORMALIZED=1'] );
 				}
 			}
