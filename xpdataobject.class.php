@@ -1162,6 +1162,15 @@ class xpDataObject extends xp {
 
 					$field = $this->attr[$key]->name. '_label'; 
 
+
+				if ( $asc_desc == '' or strtoupper( substr( $asc_desc, 0, 3 ) ) == 'ASC'  )
+					$asc_desc = 'ASC';
+
+				else if ( strtoupper( substr( $asc_desc, 0, 4 ) ) == 'DESC' )
+					$asc_desc = 'DESC';
+				else
+					$asc_desc = ''; 
+
 				$this->sql->addOrder( $this->quote_order( $field ). " $asc_desc" ) ;
 
 			}
