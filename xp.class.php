@@ -347,7 +347,12 @@ class xp {
 
 	}/*}}}*/
 
-        function get_hash( $seed = null ) {/*{{{*/
+	function get_hash( $length = 32 ) {
+
+		return getToken( $length );
+	}
+
+        function get_hash_md5( $seed = null ) {/*{{{*/
 
 		// return sha1(microtime(true).mt_rand(10000,90000).$seed);
                 return md5(uniqid(microtime(true).mt_rand(10000,90000).$seed, true));
