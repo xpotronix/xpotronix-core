@@ -2405,7 +2405,7 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function fill_primary_key( $force = false, $seed = null ) {/*{{{*/
+	function fill_primary_key( $force = false ) {/*{{{*/
 
 		/* llena la clave primaria con hashes segun el tipo */
 
@@ -2432,7 +2432,7 @@ class xpDataObject extends xp {
 			// distintas alternativas para rellenar claves primarias segun el tipo
 
 			if ( ( $attr->type == 'xpstring' or $attr->type == 'xpentry_help' ) and $attr->length == 32 )
-				$attr->value = $this->get_hash( $seed );
+				$attr->value = $this->get_hash();
 
 			else if ( ( $attr->type == 'xpstring' or $attr->type == 'xpentry_help' ) and $attr->length == 13 )
 				$attr->value = uniqid();
