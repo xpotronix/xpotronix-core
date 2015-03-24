@@ -825,17 +825,24 @@ class xpDataObject extends xp {
 
 	function get_table_name() {/*{{{*/
 
-		/*
-		$cn = $this->class_name;
-		if ( $cn == 'foto' or $cn == 'cliente' or $cn == 'b_cliente' or $cn == 'sessions' or $cn == 'users' or $cn == 'user_preferences' ) $this->prefix = 'fotoshow.';
-		*/
-
 		$r = $this->prefix. $this->table_name;
 		M()->info( $r );
 
 		return $r;
 
 	}/*}}}*/
+
+	function get_update_name() {/*{{{*/
+
+		$tn = ( $t = $this->metadata['update'] ) ? $t : $this->table_name;
+
+		$r = $this->prefix. $tn;
+		M()->info( $r );
+
+		return $r;
+
+	}/*}}}*/
+
 
 	function sql_prepare ( $sql = null ) {/*{{{*/
 
@@ -1680,7 +1687,7 @@ class xpDataObject extends xp {
 
 		$this->sql = new DBQuery( $this->db );
 
-		$this->sql->addTable ( $this->get_table_name() ) ;
+		$this->sql->addTable ( $this->get_update_name() ) ;
 
 		/* genera la consulta con los valores modificados del objeto */
 
@@ -1770,7 +1777,7 @@ class xpDataObject extends xp {
 
 		$modifiers and $this->sql->addModifiers( $modifiers );
 
-		$this->sql->addTable ( $this->get_table_name() ) ;
+		$this->sql->addTable ( $this->get_update_name() ) ;
 
 		/* genera la consulta con los valores modificados del objeto */
 
@@ -1845,7 +1852,7 @@ class xpDataObject extends xp {
 
 		$this->sql = new DBQuery( $this->db );
 
-		$this->sql->addTable ( $this->get_table_name() ) ;
+		$this->sql->addTable ( $this->get_update_name() ) ;
 
 		/* genera la consulta con los valores modificados del objeto */
 
@@ -1921,11 +1928,11 @@ class xpDataObject extends xp {
 
 		$this->sql = new DBQuery( $this->db );
 
-		$this->sql->setDelete( $this->get_table_name() );
+		$this->sql->setDelete( $this->get_update_name() );
 
 		foreach ( $this->primary_key as $field => $value ) 
 
-			$this->sql->addWhere( $this->quote_name( $this->get_table_name(). '.'. $field ). sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
+			$this->sql->addWhere( $this->quote_name( $this->get_update_name(). '.'. $field ). sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
 
 		foreach ( $this->model->xpath( "obj[foreign_key/@type='wired']" ) as $obj ) {
 
