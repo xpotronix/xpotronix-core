@@ -1738,7 +1738,7 @@ class xpDataObject extends xp {
 				}
 			} else {
 
-				M()->db_error( $this->db, 'insert', $sql );
+				M()->db_error( $this->db, 'INSERT', $sql );
 				return ( $this->transac_status = DB_ERROR );
 			}
 		}
@@ -1816,7 +1816,7 @@ class xpDataObject extends xp {
 
 			// unset( $this->sql->modifiers );
 
-			M()->db_error( $this->db, 'replace', $sql );
+			M()->db_error( $this->db, 'REPLACE', $sql );
 			return ( $this->transac_status = DB_ERROR );
 		}
 
@@ -1897,7 +1897,7 @@ class xpDataObject extends xp {
 			if ( $this->ErrorNo() == 1062 )
 				M()->user( 'Datos duplicados en el ingreso, no se puede guardar' );
 
-			M()->db_error( $this->db, 'update', $sql );
+			M()->db_error( $this->db, 'UPDATE', $sql );
 			return ( $this->transac_status = DB_ERROR );
 		}
 
@@ -1958,7 +1958,7 @@ class xpDataObject extends xp {
 
 		} catch ( PDOException $e ) {  
 
-			M()->db_error( $this->db, 'delete', $sql ); 
+			M()->db_error( $this->db, 'DELETE', $sql ); 
 			return ( $this->transac_status = DB_ERROR );
 		}
 
