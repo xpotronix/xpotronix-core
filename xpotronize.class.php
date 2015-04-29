@@ -334,12 +334,15 @@ class dbdump extends xp {
 	
 					$xfield = $xtable->addChild('field');
 
-					foreach( $field as $key => $data )
+					foreach( $field as $key => $data ) {
+
+						// M()->user( serialize( $data ) );
 
 						if ( is_array( $data ) )
 							$xfield[$key] = implode( ',', $data );
 						else
 							$xfield[$key] = $data;
+					}
 				}
 			}
 

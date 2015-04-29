@@ -290,7 +290,7 @@ class xpmessages {
 
 		$msg = array();
 
-		$msg[] = "Error al $op [$errno]: $errmsg";
+		$msg[] = "Error en la operación $op [$errno]: $errmsg";
 		$sql and $msg[] = "en $sql";
 
 		return $this->m( implode( ' ', $msg ), MSG_ERROR );
