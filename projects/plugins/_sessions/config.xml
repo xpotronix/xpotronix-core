@@ -12,6 +12,7 @@
 
 <config>
 	<class_session>sessions</class_session>
+	<db_instance name="default-acl"/>
 
 	<!-- manejo de sesiones -->
 	<session_handling></session_handling>
