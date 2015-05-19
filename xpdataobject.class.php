@@ -1404,7 +1404,7 @@ class xpDataObject extends xp {
 				$this->last_page = null;
 				$this->loaded = false;
 
-				M()->db_error( $this->db, 'select', $sql_text );
+				M()->db_error( $this->db, 'SELECT', $sql_text );
 				return null;
 			}
 		}

@@ -11,6 +11,9 @@
 -->
 
 <config>
+
+        <db_instance name="default-acl"/>
+
 	<!-- metodo de autentificacion -->
 	<auth_method>sql</auth_method>
 	<anonymous_user_id>2</anonymous_user_id>
