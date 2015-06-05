@@ -49,9 +49,6 @@
 	<!-- globals -->
 	<!-- -->
 
-	<!-- Control de archivos ya generados -->
-	<xsl:variable name="file_list" saxon:assignable="yes"/>
-
 	<xsl:variable name="datatypes" select="document('datatypes.xml')"/>
 
 	<!-- includes list -->
@@ -61,28 +58,29 @@
 	<!-- collections -->
 
 	<xsl:variable name="table_collection"><!--{{{-->
-		<xsl:sequence select="document($tables_file)/database/table"/>
-		<xsl:for-each select="$includes">
-			<xsl:for-each select="xp:get_document(@path,'tables.xml')/database/table">
-				<xsl:variable name="name" select="@name"/>
-				<xsl:if test="count(document($tables_file)/database/table[@name=$name])=0">
-					<xsl:sequence select="."/>
-				</xsl:if>
+
+		<xsl:variable name="tmp">
+			<xsl:sequence select="document($tables_file)/database/table"/>
+			<xsl:for-each select="$includes">
+				<xsl:sequence select="xp:get_document(@path,'tables.xml')/database/table"/>
 			</xsl:for-each>
-		</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
+
 	</xsl:variable><!--}}}-->
 
-
 	<xsl:variable name="ui_collection"><!--{{{-->
-		<xsl:sequence select="document($ui_file)/database/table"/>
-		<xsl:for-each select="$includes">
-			<xsl:for-each select="xp:get_document(@path,'ui.xml')/database/table">
-				<xsl:variable name="name" select="@name"/>
-				<xsl:if test="count(document($ui_file)/database/table[@name=$name])=0">
-					<xsl:sequence select="."/>
-				</xsl:if>
+
+		<xsl:variable name="tmp">
+			<xsl:sequence select="document($ui_file)/database/table"/>
+			<xsl:for-each select="$includes">
+				<xsl:sequence select="xp:get_document(@path,'ui.xml')/database/table"/>
 			</xsl:for-each>
-		</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="code_collection"><!--{{{-->
@@ -101,56 +99,61 @@
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="file_collection"><!--{{{-->
-		<xsl:sequence select="document($code_file)//file"/>
-		<xsl:for-each select="$includes">
-			<xsl:sequence select="xp:get_document(@path,'code.xml')/database/file"/>
-		</xsl:for-each>			
+
+		<xsl:variable name="tmp">
+			<xsl:sequence select="document($code_file)//file"/>
+			<xsl:for-each select="$includes">
+				<xsl:sequence select="xp:get_document(@path,'code.xml')//file"/>
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:sequence select="$tmp/file[not(@name=preceding-sibling::file/@name)]"/>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="database_collection"><!--{{{-->
-		<xsl:sequence select="document($database_file)/database/table"/>
-		<xsl:for-each select="$includes">
-			<xsl:for-each select="xp:get_document(@path,'database.xml')/database/table">
-				<xsl:variable name="name" select="@name"/>
-				<xsl:if test="count(document($database_file)/database/table[@name=$name])=0">
-					<xsl:sequence select="."/>
-				</xsl:if>
+
+		<xsl:variable name="tmp">
+			<xsl:sequence select="document($database_file)/database/table"/>
+			<xsl:for-each select="$includes">
+				<xsl:sequence select="xp:get_document(@path,'database.xml')/database/table"/>
 			</xsl:for-each>
-		</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="queries_collection"><!--{{{-->
-		<queries>
-		<xsl:sequence select="document($queries_file)//query"/>
-		<xsl:for-each select="$includes">
-			<xsl:for-each select="xp:get_document(@path,'queries.xml')//query">
-				<xsl:variable name="query_name" select="@name"/>
-				<xsl:choose>
-					<xsl:when test="document($queries_file)//query[@name=$query_name]">
-						<xsl:message>query <xsl:value-of select="$query_name"/> repetido en <xsl:value-of select="@path"/>: No se incluye</xsl:message>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:sequence select="."/>
-					</xsl:otherwise>
-				</xsl:choose>
+
+		<xsl:variable name="tmp">
+			<xsl:sequence select="document($queries_file)//query"/>
+			<xsl:for-each select="$includes">
+				<xsl:sequence select="xp:get_document(@path,'queries.xml')//query"/>
 			</xsl:for-each>
-		</xsl:for-each>
+		</xsl:variable>
+
+		<queries>
+			<xsl:sequence select="$tmp/query[not(@name=preceding-sibling::query/@name)]"/>
 		</queries>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="processes_collection"><!--{{{-->
-		<xsl:sequence select="document($processes_file)//table"/>
-		<xsl:variable name="table_name" select="@name"/>
-		<xsl:for-each select="$includes">
-			<xsl:for-each select="xp:get_document(@path,'processes.xml')/database/table">
-				<xsl:if test="count(document($processes_file)//table[@name=$table_name])=0">
-					<xsl:sequence select="."/>
-				</xsl:if>
+
+		<xsl:variable name="tmp">
+			<xsl:sequence select="document($processes_file)/database/table"/>
+			<xsl:for-each select="$includes">
+				<xsl:sequence select="xp:get_document(@path,'processes.xml')/database/table"/>
 			</xsl:for-each>
-		</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="menu_collection"><!--{{{-->
+
 		<xsl:element name="menu">
 			<xsl:sequence select="document($menu_file)/menu/@*"/>
 			<xsl:sequence select="document($menu_file)/menu/*"/>
@@ -158,13 +161,16 @@
 				<xsl:sequence select="xp:get_document(@path,'menu.xml')/menu/*"/>
 			</xsl:for-each>
 		</xsl:element>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="views_collection"><!--{{{-->
+
 		<xsl:sequence select="document($views_file)//table"/>
 		<xsl:for-each select="$includes">
 			<xsl:sequence select="xp:get_document(@path,'views.xml')/database/table"/>
 		</xsl:for-each>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="feat_collection"><!--{{{-->
@@ -201,12 +207,7 @@
 		</xsl:element>
 	</xsl:variable><!--}}}-->
 
-
-	<!-- -->
-	<!-- Plantilla Principal -->
-	<!-- -->
-
-	<xsl:function name="xp:get_document">
+	<xsl:function name="xp:get_document"><!--{{{-->
 
 		<xsl:param name="path"/>
 		<xsl:param name="file"/>
@@ -223,8 +224,11 @@
 			</xsl:otherwise>
 		</xsl:choose>
 
-        </xsl:function>
+        </xsl:function><!--}}}-->
 
+	<!-- -->
+	<!-- Plantilla Principal -->
+	<!-- -->
 
 	<xsl:template match="/"><!--{{{-->
 
