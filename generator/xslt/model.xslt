@@ -36,23 +36,16 @@
 		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,$file_type)"/>
 		<xsl:variable name="table_name" select="@name"/>
 
-		<!-- si el archivo existe, se corta la recursividad y el tiempo de proceso -->
 		<!-- <xsl:message>Creando archivo <xsl:value-of select="$class_file_name"/></xsl:message> -->
-		<xsl:choose>
-			<xsl:when test="contains($file_list,$class_file_name)"/>
-			<!-- si el archivo existe, no hace nada -->
-			<xsl:otherwise>
-				<xsl:variable name="file_list" select="concat($file_list,' ',$class_file_name)"/>
-				<xsl:result-document method="xml" 
-							omit-xml-declaration="no" 
-							encoding="utf-8" 
-							href="{$class_file_name}">
+		<xsl:result-document method="xml" 
+			omit-xml-declaration="no" 
+			encoding="utf-8" 
+			href="{$class_file_name}">
 
-					<xsl:apply-templates select="." mode="get_model"/>
+			<xsl:apply-templates select="." mode="get_model"/>
 
-				</xsl:result-document>
-			</xsl:otherwise>
-		</xsl:choose>
+		</xsl:result-document>
+
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="table"  mode="get_model"><!--{{{-->

@@ -33,16 +33,9 @@
 		<xsl:variable name="table_name" select="@name"/>
 		<xsl:variable name="license" select="document($license_file)/license"/>
 
-		<xsl:choose>
-			<xsl:when test="contains($file_list,$class_file_name)"/>
-			<!-- si el archivo existe, no hace nada -->
-			<xsl:otherwise>
-				<xsl:variable name="file_list" select="concat($file_list,' ',$class_file_name)"/>
-				<!--<xsl:message terminate="yes"><xsl:value-of select="$class_file_name"/></xsl:message> -->
-				<xsl:result-document method="text" encoding="UTF-8" href="{$class_file_name}"><![CDATA[<?
-				
+		<!--<xsl:message terminate="yes"><xsl:value-of select="$class_file_name"/></xsl:message> -->
+		<xsl:result-document method="text" encoding="UTF-8" href="{$class_file_name}"><![CDATA[<?
 /*
-
 	Archivo: ]]><xsl:value-of select="$class_file_name"/><![CDATA[
 
 ]]><xsl:value-of select="$license"/><![CDATA[
@@ -90,8 +83,7 @@ class C]]><xsl:value-of select="$class_name"/><![CDATA[ extends ]]><xsl:choose>
 // vim600: fdm=marker sw=3 ts=8 ai:
 
 ?>]]></xsl:result-document>
-	</xsl:otherwise>
-	</xsl:choose>
+
 </xsl:template>
 </xsl:stylesheet>
 <!--  vim600: fdm=marker sw=3 ts=8 ai:
