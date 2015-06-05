@@ -19,6 +19,7 @@
 	<xsl:param name="config_file" select="string(concat($project_path,'/config.xml'))"/>
 	<xsl:param name="feat_file" select="string(concat($project_path,'/feat.xml'))"/>
 	<xsl:param name="module"/>
+	<xsl:param name="debug" select="false()"/>
 
 	<!-- archivos de configuracion de xpotronix de la aplicacion -->
 
@@ -53,12 +54,15 @@
 
 	<xsl:variable name="datatypes" select="document('datatypes.xml')"/>
 
+	<!-- includes list -->
+
+	<xsl:variable name="includes" select="document($ui_file)//include"/>
 
 	<!-- collections -->
 
-	 <xsl:variable name="table_collection"><!--{{{-->
+	<xsl:variable name="table_collection"><!--{{{-->
 		<xsl:sequence select="document($tables_file)/database/table"/>
-		<xsl:for-each select="document($ui_file)//include">
+		<xsl:for-each select="$includes">
 			<xsl:for-each select="xp:get_document(@path,'tables.xml')/database/table">
 				<xsl:variable name="name" select="@name"/>
 				<xsl:if test="count(document($tables_file)/database/table[@name=$name])=0">
@@ -68,21 +72,10 @@
 		</xsl:for-each>
 	</xsl:variable><!--}}}-->
 
-	<xsl:variable name="database_collection"><!--{{{-->
-		<xsl:sequence select="document($database_file)/database/table"/>
-		<xsl:for-each select="document($ui_file)//include">
-			<xsl:for-each select="xp:get_document(@path,'database.xml')/database/table">
-				<xsl:variable name="name" select="@name"/>
-				<xsl:if test="count(document($database_file)/database/table[@name=$name])=0">
-					<xsl:sequence select="."/>
-				</xsl:if>
-			</xsl:for-each>
-		</xsl:for-each>
-	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="ui_collection"><!--{{{-->
 		<xsl:sequence select="document($ui_file)/database/table"/>
-		<xsl:for-each select="document($ui_file)//include">
+		<xsl:for-each select="$includes">
 			<xsl:for-each select="xp:get_document(@path,'ui.xml')/database/table">
 				<xsl:variable name="name" select="@name"/>
 				<xsl:if test="count(document($ui_file)/database/table[@name=$name])=0">
@@ -100,7 +93,7 @@
 			<xsl:copy>
 				<xsl:sequence select="@name"/>
 				<xsl:sequence select="document($code_file)/database/table[@name=$name]/code"/>
-				<xsl:for-each select="document($ui_file)//include">
+				<xsl:for-each select="$includes">
 					<xsl:sequence select="xp:get_document(@path,'/code.xml')/database/table[@name=$name]/code"/>
 				</xsl:for-each>
 			</xsl:copy>
@@ -109,15 +102,27 @@
 
 	<xsl:variable name="file_collection"><!--{{{-->
 		<xsl:sequence select="document($code_file)//file"/>
-		<xsl:for-each select="document($ui_file)//include">
+		<xsl:for-each select="$includes">
 			<xsl:sequence select="xp:get_document(@path,'code.xml')/database/file"/>
 		</xsl:for-each>			
+	</xsl:variable><!--}}}-->
+
+	<xsl:variable name="database_collection"><!--{{{-->
+		<xsl:sequence select="document($database_file)/database/table"/>
+		<xsl:for-each select="$includes">
+			<xsl:for-each select="xp:get_document(@path,'database.xml')/database/table">
+				<xsl:variable name="name" select="@name"/>
+				<xsl:if test="count(document($database_file)/database/table[@name=$name])=0">
+					<xsl:sequence select="."/>
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:for-each>
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="queries_collection"><!--{{{-->
 		<queries>
 		<xsl:sequence select="document($queries_file)//query"/>
-		<xsl:for-each select="document($ui_file)//include">
+		<xsl:for-each select="$includes">
 			<xsl:for-each select="xp:get_document(@path,'queries.xml')//query">
 				<xsl:variable name="query_name" select="@name"/>
 				<xsl:choose>
@@ -136,7 +141,7 @@
 	<xsl:variable name="processes_collection"><!--{{{-->
 		<xsl:sequence select="document($processes_file)//table"/>
 		<xsl:variable name="table_name" select="@name"/>
-		<xsl:for-each select="document($ui_file)//include">
+		<xsl:for-each select="$includes">
 			<xsl:for-each select="xp:get_document(@path,'processes.xml')/database/table">
 				<xsl:if test="count(document($processes_file)//table[@name=$table_name])=0">
 					<xsl:sequence select="."/>
@@ -149,7 +154,7 @@
 		<xsl:element name="menu">
 			<xsl:sequence select="document($menu_file)/menu/@*"/>
 			<xsl:sequence select="document($menu_file)/menu/*"/>
-			<xsl:for-each select="document($ui_file)//include">
+			<xsl:for-each select="$includes">
 				<xsl:sequence select="xp:get_document(@path,'menu.xml')/menu/*"/>
 			</xsl:for-each>
 		</xsl:element>
@@ -157,7 +162,7 @@
 
 	<xsl:variable name="views_collection"><!--{{{-->
 		<xsl:sequence select="document($views_file)//table"/>
-		<xsl:for-each select="document($ui_file)//include">
+		<xsl:for-each select="$includes">
 			<xsl:sequence select="xp:get_document(@path,'views.xml')/database/table"/>
 		</xsl:for-each>
 	</xsl:variable><!--}}}-->
@@ -165,7 +170,7 @@
 	<xsl:variable name="feat_collection"><!--{{{-->
 		<xsl:element name="feat">
 			<xsl:sequence select="document($feat_file)/feat/*"/>
-			<xsl:for-each select="document($ui_file)//include">
+			<xsl:for-each select="$includes">
 				<xsl:for-each select="xp:get_document(@path,'feat.xml')/feat/*">
 					<xsl:variable name="node_name" select="name()"/>
 					<xsl:if test="count(document($feat_file)/feat/*[name()=$node_name])=0">
@@ -179,7 +184,7 @@
 	<xsl:variable name="config_collection"><!--{{{-->
 		<xsl:element name="config">
 			<xsl:sequence select="document($config_file)/config/*"/>
-			<xsl:for-each select="document($ui_file)//include">
+			<xsl:for-each select="$includes">
 				<xsl:for-each select="xp:get_document(@path,'config.xml')/config/*">
 					<xsl:variable name="node_name" select="name()"/>
 					<xsl:variable name="name" select="@name"/>
@@ -202,8 +207,10 @@
 	<!-- -->
 
 	<xsl:function name="xp:get_document">
+
 		<xsl:param name="path"/>
 		<xsl:param name="file"/>
+
 		<xsl:choose>
 			<xsl:when test="unparsed-text-available(concat($project_path,'/',$path,'/',$file))">
 				<xsl:sequence select="document(concat($project_path,'/',$path,'/',$file))"/>
@@ -215,37 +222,62 @@
 				<xsl:message>No encuentro al archivo <xsl:value-of select="concat($path,'/',$file)"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
 			</xsl:otherwise>
 		</xsl:choose>
+
         </xsl:function>
 
 
 	<xsl:template match="/"><!--{{{-->
 
-		<!-- debug de collections -->
+		<!-- debug collections -->
 
-		<!--
+		<xsl:if test="$debug">
+
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="table_collection.xml">
+				<xsl:sequence select="$table_collection"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="database_collection.xml">
+				<xsl:sequence select="$database_collection"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="ui_collection.xml">
+				<xsl:sequence select="$ui_collection"/>
+			</xsl:result-document>
 
 			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="code_collection.xml">
 				<xsl:sequence select="$code_collection"/>
-			</xsl:result-document>
-
-		<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="ui_collection.xml">
-				<xsl:sequence select="$ui_collection"/>
 			</xsl:result-document>
 
 			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="file_collection.xml">
 				<xsl:sequence select="$file_collection"/>
 			</xsl:result-document>
 
-		-->
-
-		<!--
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="processes_collection.xml">
-			<xsl:sequence select="$processes_collection"/>
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="queries_collection.xml">
+				<xsl:sequence select="$queries_collection"/>
 			</xsl:result-document>
 
-		-->
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="processes_collection.xml">
+				<xsl:sequence select="$processes_collection"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="menu_collection.xml">
+				<xsl:sequence select="$menu_collection"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="views_collection.xml">
+				<xsl:sequence select="$views_collection"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="feat_collection.xml">
+				<xsl:sequence select="$feat_collection"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="config_collection.xml">
+				<xsl:sequence select="$config_collection"/>
+			</xsl:result-document>
 
 
+		</xsl:if>
 
 		<!-- <xsl:message terminate="yes"><xsl:sequence select="$database_collection"/></xsl:message> -->
 		<!-- <xsl:message terminate="yes">code: <xsl:value-of select="count($code_collection//code)"/></xsl:message> -->
