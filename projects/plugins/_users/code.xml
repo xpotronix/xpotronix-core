@@ -37,7 +37,13 @@
 		$this->state = array();
 		// $this->setUserLocale($this->base_locale);
 		$this->user_prefs = array();
-		
+
+		/* fallback */
+
+		$this->fallback = isset( $xpdoc->config->ldap_allow_login ) ? 
+			$xpdoc->config->ldap_allow_login : 
+			false;
+
 		parent::__construct();
 
 	}/*}}}*/
@@ -236,10 +242,6 @@
 		$this->ldap_search_user = $xpdoc->config->ldap_search_user ? $xpdoc->config->ldap_search_user : $username;
 		$this->ldap_search_pass = $xpdoc->config->ldap_search_pass ? $xpdoc->config->ldap_search_pass : $password;
 
-		$this->fallback = isset( $xpdoc->config->ldap_allow_login ) ? 
-			$xpdoc->config->ldap_allow_login : 
-			false;
-
 		$this->user_username = $username;
 
 		if ( strlen( $password ) == 0) {
@@ -247,8 +249,6 @@
 			M()->info( "Clave nula, devuelvo FALSE" );
 			return false; 
 		} 
-
-		// Fallback SQL authentication fails, proceed with LDAP
 
 		if ( ! function_exists( 'ldap_connect' ) ) {
 
@@ -259,41 +259,33 @@
 		if ( !$rs = ldap_connect( $this->ldap_host, $this->ldap_port ) ) {
 
 			M()->warn( "no hubo respuesta del servidor LDAP" );
-
-			if ( $this->fallback ) {
-
-				M()->warn( "haciendo fallback en base de datos local" );
-				return $this->_login( $username, $password );
-			}
-
-			return false;
-
+			return $this->_login_ldap_fallback( $username, password );
 		} 
 
 		ldap_set_option( $rs, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version );
 		ldap_set_option( $rs, LDAP_OPT_REFERRALS, 0 );
 
 		$ldap_bind_dn = "uid = {$this->ldap_search_user},{$this->base_dn}";
-		// $ldap_bind_dn = $this->ldap_search_user;
 
 		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
 
 			$err = ldap_error( $rs );
-
 			M()->warn( "No se pudo autenticar via LDAP: [$err] sobre $ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}" );
-			M()->warn( "Haciendo login via _login()" );
-			return $this->_login( $username, $password );
+			return $this->_login_ldap_fallback( $username, $password );
 		
 		} else {
 
 			M()->info( "pude conectarme al servidor LDAP" );
 			$filter_r = str_replace( "%USERNAME%", $username, $this->filter );
-			$result = @ldap_search( $rs, $this->base_dn, $filter_r );
 
-			if ( !$result ) {
+			if ( $result = @ldap_search( $rs, $this->base_dn, $filter_r ) ) {
+
+				M()->info( "ldap_search result: ". serialize( $result ) );
+
+			} else {
 
 				M()->info( "respuesta vacia del servidor LDAP" );
-				return $this->_login( $username, $password );
+				return $this->_login_ldap_fallback( $username, $password );
 			}
 
 			$result_user = ldap_get_entries($rs, $result);
@@ -301,7 +293,7 @@
 			if ( $result_user["count"] == 0 ) {
 
 				M()->info("el usuario no existe en el servidor LDAP" );
-				return $this->_login( $username, $password );
+				return $this->_login_ldap_fallback( $username, $password );
 			}
 
 			$ldap_user_dn = $result_user[0]["dn"];
@@ -338,8 +330,33 @@
 			} else {
 
 				M()->info( ldap_error( $rs ). " en $ldap_user_dn@{$this->ldap_host}:{$this->ldap_port}" );
-				return $this->_login( $username, $password );
+				return $this->_login_ldap_fallback( $username, $password );
 			}
+		}
+
+	}/*}}}*/
+
+	function _login_ldap_fallback( $username, $password ) {/*{{{*/
+
+		global $xpdoc;
+
+		$this->fallback = isset( $xpdoc->config->ldap_allow_login ) ? 
+			$xpdoc->config->ldap_allow_login : 
+			false;
+
+		$this->fallback = true;
+
+		if ( $this->fallback ) {
+
+			M()->warn( "haciendo fallback en base de datos local via SQL" );
+			return $this->_login( $username, $password );
+
+
+		} else { 
+
+			M()->warn( "No hay fallback permitido sobre SQL" );
+			return false;
+
 		}
 
 	}/*}}}*/
