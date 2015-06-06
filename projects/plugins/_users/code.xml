@@ -278,8 +278,10 @@
 
 		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
 
-			M()->warn( ldap_error( $rs ). " en $ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}" );
-			M()->warn( "no pude conectarme al servidor LDAP. Haciendo login via _login()" );
+			$err = ldap_error( $rs );
+
+			M()->warn( "No se pudo autenticar via LDAP: [$err] sobre $ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}" );
+			M()->warn( "Haciendo login via _login()" );
 			return $this->_login( $username, $password );
 		
 		} else {

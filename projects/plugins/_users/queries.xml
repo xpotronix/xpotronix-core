@@ -16,6 +16,7 @@
          <id>users.user_id</id>
          <label>users.user_username</label>
          <from>users</from>
+	 <order>users.user_username</order>
       </query>
    </queries>
 </database>
