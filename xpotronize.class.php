@@ -285,23 +285,29 @@ class dbdump extends xp {
 
 	}/*}}}*/
 
-// get_table_info
+	/* get_table_info */
 
-	function get_table_info( $table ) {/*{{{*/
+	function get_table_info( $table_name ) {/*{{{*/
 
 		$table_info = array();
 
-		$tmp = (array) $this->dd->MetaColumns( $table );
+		$tmp = (array) $this->dd->MetaColumns( $table_name );
 
-		foreach( $tmp as $key => $data )
-			$table_info['fields'][$key] = array_filter( (array) $data );
+		foreach( $tmp as $field_name => $field_data )
+			$table_info['fields'][$field_name] = array_filter( (array) $field_data );
 
-		if ( $tmp = (array) $this->dd->MetaPrimaryKeys($table) )
+		if ( $tmp = (array) $this->dd->MetaPrimaryKeys($table_name) )
 			$table_info['primary'] = $tmp;
 
-		$table_info['index'] = (array) $this->dd->MetaIndexes($table);
+		$table_info['index'] = (array) $this->dd->MetaIndexes($table_name);
 
-		$rs = $this->db->Execute("SHOW CREATE VIEW `$table`");
+		/*
+		if ( $table_name == 'audit' ) {
+			print_r( $table_info ); exit;
+		}
+		*/
+
+		$rs = $this->db->Execute("SHOW CREATE VIEW `$table_name`");
 
 		if ( is_object( $rs ) and !$rs->EOF ) { 
 
@@ -313,7 +319,7 @@ class dbdump extends xp {
 
 	}/*}}}*/
 
-// output
+	/* serialize */
 
 	function serialize() {/*{{{*/
 
@@ -324,6 +330,12 @@ class dbdump extends xp {
 		foreach( $this->table_info as $table_name => $table_data ) {
 
 			$xtable = $xbase->addChild('table');
+
+			/*
+			if ( $table_name == 'audit' ) {
+				print_r( $table_data ); exit;
+			}
+			*/
 
 			$xtable['name'] = $table_name;
 			$this->db_name and $xtable['dbi'] = $this->db_name;
@@ -398,7 +410,7 @@ class dbdump extends xp {
 		} else print $this->serialize()->asXML();
 	}/*}}}*/
 
-// close
+	/* close */
 
 	function close() {/*{{{*/
 
