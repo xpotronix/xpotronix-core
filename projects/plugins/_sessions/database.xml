@@ -12,8 +12,8 @@
 
 <database>
 	<table name="sessions">
-		<field alias_of="UNIX_TIMESTAMP() - UNIX_TIMESTAMP(session_created)" name="session_lifespan"/>
-		<field alias_of="UNIX_TIMESTAMP() - UNIX_TIMESTAMP(session_updated)" name="session_idle"/>
+		<field alias_of="UNIX_TIMESTAMP() - UNIX_TIMESTAMP(session_created)" name="session_lifespan" type="xpint"/>
+		<field alias_of="UNIX_TIMESTAMP() - UNIX_TIMESTAMP(session_updated)" name="session_idle" type="xpint"/>
 		<field alias_of="TIME_FORMAT(SEC_TO_TIME(UNIX_TIMESTAMP() - UNIX_TIMESTAMP(session_updated)),'%Hh %im')" name="idle"/>
 	</table>
 </database>
