@@ -83,7 +83,7 @@
 		<field name="parent_id" translate="parent_id" validate="empty"/>
 		<field name="lft" translate="lft" validate="" display="hide"/>
 		<field name="rgt" translate="rgt" validate="" display="hide"/>
-		<field name="name" translate="name" validate="empty"/>
+		<field name="name" translate="name" validate="empty" match_type="exact"/>
 		<field name="value" translate="value" validate="empty"/>
 	</table><!--}}}-->
 
@@ -144,7 +144,7 @@
 		<field name="section_value" translate="seccion" validate="empty" eh="aro_section_value"/>
 		<field name="value" translate="Usuario (value)" validate="empty" eh="user_id"/>
 		<field name="order_value" translate="Orden" validate=""/>
-		<field name="name" translate="nombre" validate="empty"/>
+		<field name="name" translate="nombre" validate="empty" match_type="exact"/>
 		<field name="hidden" translate="oculto" validate=""/>
 	</table><!--}}}-->
 
@@ -162,7 +162,7 @@
 		<field name="parent_id" translate="parent_id" validate="empty"/>
 		<field name="lft" translate="lft" validate="" display="hide"/>
 		<field name="rgt" translate="rgt" validate="" display="hide"/>
-		<field name="name" translate="name" validate="empty"/>
+		<field name="name" translate="name" validate="empty" match_type="exact"/>
 		<field name="value" translate="value" validate="empty"/>
 	</table><!--}}}-->
 
@@ -187,7 +187,7 @@
 		<field name="section_value" translate="section_value" validate="empty" eh="aco_section_value"/>
 		<field name="value" translate="value" validate="empty"/>
 		<field name="order_value" translate="order_value" validate=""/>
-		<field name="name" translate="name" validate="empty"/>
+		<field name="name" translate="name" validate="empty" match_type="exact"/>
 		<field name="hidden" translate="hidden" validate=""/>
 	</table><!--}}}-->
 
@@ -204,7 +204,7 @@
 		<field name="id" translate="id" validate=""/>
 		<field name="value" translate="value" validate="empty"/>
 		<field name="order_value" translate="order_value" validate=""/>
-		<field name="name" translate="name" validate="empty"/>
+		<field name="name" translate="name" validate="empty" match_type="exact"/>
 		<field name="hidden" translate="hidden" validate=""/>
 	</table><!--}}}-->
 
@@ -228,7 +228,7 @@
 		<field name="id" translate="id" validate=""/>
 		<field name="value" translate="value" validate="empty"/>
 		<field name="order_value" translate="order_value" validate=""/>
-		<field name="name" translate="name" validate="empty"/>
+		<field name="name" translate="name" validate="empty" match_type="exact"/>
 		<field name="hidden" translate="hidden" validate=""/>
 	</table><!--}}}-->
 
@@ -238,7 +238,7 @@
 		<field name="section_value" translate="Seccion" validate="empty" eh="axo_section_value"/>
 		<field name="value" translate="value" validate="empty"/>
 		<field name="order_value" translate="Orden" validate=""/>
-		<field name="name" translate="Nombre" validate="empty"/>
+		<field name="name" translate="Nombre" validate="empty" match_type="exact"/>
 		<field name="hidden" translate="hidden" display="hide"/>
 	</table><!--}}}-->
 
@@ -247,7 +247,7 @@
 		<field name="id" translate="id" validate=""/>
 		<field name="value" translate="value" validate="empty"/>
 		<field name="order_value" translate="order_value" validate=""/>
-		<field name="name" translate="name" validate="empty"/>
+		<field name="name" translate="name" validate="empty" match_type="exact"/>
 		<field name="hidden" translate="hidden" validate=""/>
 	</table><!--}}}-->
 
@@ -271,7 +271,7 @@
 		<field name="id" translate="id" validate=""/>
 		<field name="value" translate="value" validate="empty"/>
 		<field name="order_value" translate="order_value" validate=""/>
-		<field name="name" translate="name" validate="empty"/>
+		<field name="name" translate="name" validate="empty" match_type="exact"/>
 		<field name="hidden" translate="hidden" validate=""/>
 	</table><!--}}}-->
 
