@@ -12,7 +12,7 @@
 
 <database>
 
-   <table name="imagen"><!--{{{-->
+   <table name="imagen">
 
 	   <code type="php" mode="class_functions"><![CDATA[
 
@@ -34,25 +34,28 @@
 
 	$legajo_dir = $xpdoc->instance( 'C3_data' );
 
+	if ( $xpdoc->http->usuario_ID ) {
 
-	if ( ! $xpdoc->user->legajo ) {
+		$usuario_ID = $xpdoc->http->usuario_ID;
 
-		if ( $xpdoc->http->usuario_ID ) {
+	} else {
 
-			$xpdoc->user->attr('legajo');
-			$usuario_ID = $xpdoc->http->usuario_ID;
-			$xpdoc->user->legajo = $usuario_ID; 
+		if ( $xpdoc->user->legajo ) {
+
+			$usuario_ID = $xpdoc->user->legajo;
+
 
 		} else {
 
-
 			M()->user( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
 			return;
-
 		}
+	}
 
-	} else $usuario_ID = $xpdoc->user->legajo;
 
+
+
+	M()->info( "usuario_ID: $usuario_ID" );
 
 	if ( !$legajo_dir->load( array( 'legajo_ID' => $usuario_ID ) ) ) {
 
@@ -70,7 +73,7 @@
 
 		if ( ! count( $tmp ) ) {
 
-			M()->user('no encuentro el usuario en el directorio de imagenes');
+			M()->user( "no encuentro el legajo $usuario_ID en el directorio de imagenes" );
 			return;
 		}
 
@@ -80,36 +83,36 @@
 		$legajo_dir->Doc_id = (string) $xc3->Doc_id;
 		$legajo_dir->Batch_id = (string) $xc3->Batch_id;
 
-		$legajo_dir->insert();
+		$legajo_dir->push_privileges( array( 'add' => 1, 'edit' => 1 ) );
 
 		$legajo_dir->dirname = $legajo_dir->Batch_id. '/'. $legajo_dir->Doc_id;
+
+		$legajo_dir->insert();
 
 		// $legajo_dir->debug_object(); exit;
 	}
 
-	M()->user( 'escaneando para el usuario '. $xpdoc->user->legajo );
+	M()->user( "Escaneando para el usuario/legajo $usuario_ID" );
 
 	$nuevas = 0;
 	$existentes = 0;
 	$faltantes = 0;	
+
+	/* paths */
+
+	$base_path = $this->feat->path_imagenes;
+	$working_path = $base_path . '/'. $legajo_dir->dirname;
 
  	set_time_limit( 0 );
 
 	$imagen = $xpdoc->get_instance('imagen');
 
 	$sql = new DBQuery( $this->db() );
-	$sql->addTable("imagen");
-	$sql->addUpdate("encontrada", 0);
-	$sql->addWhere("imagen.usuario_ID = '{$xpdoc->user->legajo}'");
+	$sql->addTable("imagen")->addUpdate("encontrada", 0)->addWhere("imagen.usuario_ID = '{$usuario_ID}'")->Exec();
 
 	M()->debug( "reset de imagen->encontrada: ". $sql->prepare() ) ;
-	$sql->Exec();
 
-	$base_path = $this->feat->path_imagenes;
-
-	$working_path = $base_path . '/'. $legajo_dir->dirname;
-
-	M()->debug( "escaneando imagenes para el usuario". $xpdoc->user->legajo. " y el directorio $working_path" );
+	M()->debug( "escaneando imagenes para el usuario $usuario_ID y el directorio $working_path" );
 
 	$files = $file_utils->list_directory( $working_path, array( 'jpg', 'JPG', 'TIF' ));
 
@@ -127,7 +130,7 @@
 
 		// completa la informacion de la imagen
 
-		// $params['usuario_ID'] = $xpdoc->user->legajo;
+		// $params['usuario_ID'] = $usuario_ID;
 
 		M()->info( 'params: '. serialize( $params ) );
 
@@ -185,7 +188,7 @@
 	}/*}}}*/]]>
 
 	</code>
-   </table><!--}}}-->
+   </table>
 
 
 </database>
