@@ -61,7 +61,7 @@
 
 	function check() {/*{{{*/
 
-		$this->get_attr( 'user_username' )->modified and $this->user_username = $this->user_username; // DEBUG: falta sanitize
+		$this->get_attr( 'user_username' )->modified and $this->user_username = strtolower(trim($this->user_username)); // DEBUG: falta sanitize
 		$this->get_attr( 'user_password' )->modified and strlen( $this->user_password ) != 32 and $this->user_password = $this->crypt( $this->user_password ) ;
 		return $this;
 
@@ -151,6 +151,8 @@
 
 		global $xpdoc;
 
+		$user = strtolower(trim($user));
+
 		$this->set_flag('main_sql', false);
 
                 if ( ( $r = $this->$login_fn( $user, $pass ) ) ) {
@@ -174,6 +176,8 @@
 
                 $user = $xpdoc->http->loginUsername;
                 $pass = $xpdoc->http->loginPassword;
+
+		$user = strtolower(trim($user));
 
 		$login_fn = $xpdoc->config->login_fn;
 
@@ -270,7 +274,7 @@
 		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
 
 			$err = ldap_error( $rs );
-			M()->warn( "No se pudo autenticar via LDAP: [$err] sobre $ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}" );
+			M()->warn( "No se pudo autenticar via LDAP: [$err] con [$ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}]" );
 			return $this->_login_ldap_fallback( $username, $password );
 		
 		} else {
