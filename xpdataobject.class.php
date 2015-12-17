@@ -633,12 +633,12 @@ class xpDataObject extends xp {
 
 	// load
 
-	function load( $key = null , $where = null ) {/*{{{*/
+	function load( $key = null , $where = null, $order = null ) {/*{{{*/
 
 		if ( $key === null and $where === null ) 
 			$key = $this->primary_key;
 
-		$objs = $this->loadc( $key, $where, null, 1 );
+		$objs = $this->loadc( $key, $where, $order, 1 );
 
 		$this->reset(); 
 
@@ -1386,6 +1386,9 @@ class xpDataObject extends xp {
 
 							M()->debug( "PageExecute con pr: $pr y cp: $cp" );
 							$this->recordset = $this->db->PageExecute( $sql_text, $pr, $cp );
+
+							/* if ( $this->class_name == 'v_compensatoria' ) { echo "<pre>"; print_r( $this->recordset->fetchAll() ); exit; } */
+
 						}
 					}
 
@@ -1408,6 +1411,8 @@ class xpDataObject extends xp {
 				return null;
 			}
 		}
+
+
 
 		/* d) calcula el record count */
 
