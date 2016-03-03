@@ -46,14 +46,23 @@ if ( @$x->opts['f'] ) {
 	unlink( $y->transform['xml'] );
 }
 
-M()->user( "xpotronize: aplicacion {$x->config->application}" );
 
-( $x->config->self === true or $x->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
+if ( @$x->opts['d'] ) { 
 
-$x->transform();
+	M()->user( 'opción -d: sólo generación tables.txt, sin transformación'); 
 
-// xdebug_stop_trace();
+	}
 
-exit(0);
+else {
+
+	M()->user( "xpotronize: aplicacion {$x->config->application}" );
+
+	( $x->config->self === true or $x->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
+
+	$x->transform();
+
+	// xdebug_stop_trace();
+
+}
 
 ?>
