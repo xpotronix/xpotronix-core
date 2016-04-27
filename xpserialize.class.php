@@ -36,8 +36,9 @@ class xpserialize {
 
 		$e = $normalized ? 'class' : $this->obj->feat->container_tag;
 
-
-		$xc = new SimpleXMLElement( "<$e/>" ); 
+		/* DEBUG: pasar el encoding como parametro */
+		/* $xc = new SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"$encoding\"?><$e/>" ); */
+		$xc = new SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"UTF-8\"?><$e/>" ); 
 		$xc['name'] = $this->obj->class_name;
 
 

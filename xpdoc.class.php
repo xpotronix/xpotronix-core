@@ -497,7 +497,7 @@ class xpdoc extends xp {
 		$this->data	      = $this->http->d;
 		$this->search 	      = $this->http->s;
 		$this->order          = $this->http->o;
-		$this->req_object     = $this->http->r;
+		$this->req_object     = $this->http->r or $this->http->m;
 		$this->features       = $this->http->f;
 		$this->template       = $this->http->t;
 		$this->html           = $this->http->h;
@@ -522,42 +522,56 @@ class xpdoc extends xp {
 		if ( $this->feat->debug_xml ) 
 			M()->debug( 'xml: '.$this->http->x );
 
-		// si es el objeto requerido o el default del modulo
-		$obj_name = $this->req_object ? $this->req_object : $this->module;
+		/* parametros de la consulta */
 
-		foreach ( $this->http->var as $key => $data ) {
 
-			if ( strstr( $controller_vars, $key. ';' ) ) 
-				continue; 
+		if ( $this->http->p == 'ext4' ) {
 
-			$this->search[$obj_name][$key] = $data;
-		}
+			require_once 'xpparams.class.php';
 
-		// query_field: sobre que campo alias tiene que buscar (ej.: _label)
+			$params = new xpparam();
+			M()->info( "params: ". serialize( $params->get() ) );
+			$params->process();
+			// print_r( $params->get() );
 
-		if ( ( $query = $this->http->query ) and ( $query_field = $this->feat->query_field ) ) {
+		} else {
 
-			$this->search[$obj_name][$query_field] = $query;
-			M()->info( "parametro query buscando el valor \"$query\" sobre [$query_field]" );
-		}
+			foreach ( $this->http->var as $key => $data ) {
 
-		if ( $this->http->g ) {
+				if ( strstr( $controller_vars, $key. ';' ) ) 
+					continue; 
 
-			$g = $this->http->g;
-
-			if ( isset( $g['limit'] ) and $g['limit'] > 0 ) {
-
-				// equivalencia start/limit vs page_row/current_page
-
-				$this->pager[$obj_name]['pr'] = $g['limit'];
-				$this->pager[$obj_name]['cp'] = (int) ceil( $g['start'] / $g['limit'] ) + 1;
+				$this->search[$this->req_object][$key] = $data;
 			}
 
-			if ( isset( $g['sort'] ) ) 
+			// query_field: sobre que campo alias tiene que buscar (ej.: _label)
 
-				$this->order[$obj_name][$g['sort']]=$g['dir'];
+			if ( ( $query = $this->http->query ) and ( $query_field = $this->feat->query_field ) ) {
+
+				$this->search[$this->req_object][$query_field] = $query;
+				M()->info( "parametro query buscando el valor \"$query\" sobre [$query_field]" );
+			}
+
+			if ( $this->http->g ) {
+
+				$g = $this->http->g;
+
+				if ( isset( $g['limit'] ) and $g['limit'] > 0 ) {
+
+					// equivalencia start/limit vs page_row/current_page
+
+					$this->pager[$this->req_object]['pr'] = $g['limit'];
+					$this->pager[$this->req_object]['cp'] = (int) ceil( $g['start'] / $g['limit'] ) + 1;
+				}
+
+				if ( isset( $g['sort'] ) ) 
+
+					$this->order[$this->req_object][$g['sort']]=$g['dir'];
+			}
+
 		}
 
+		//print_r( $this->search );
 		M()->info( 'OK' );
 	}/*}}}*/
 
@@ -984,11 +998,9 @@ class xpdoc extends xp {
 		$d = new DOMDocument;
 		$x = simplexml_import_dom( $d->createElementNs(XPOTRONIX_NAMESPACE_URI, "xpotronix:metadata") );
 
-		$obj_name = $this->req_object ? $this->req_object : $this->module;
-
 		foreach( $this->instances as $name => $obj ) {
 
-			if ( $obj_name == $name and ( $do = $this->feat->display_only ) )
+			if ( $this->req_object == $name and ( $do = $this->feat->display_only ) )
 				$obj->hide_all( $do );
 
 			simplexml_append( $x, $obj->metadata() );
@@ -1002,11 +1014,9 @@ class xpdoc extends xp {
 
 		M()->info();
 
-		$obj_name = $this->req_object ? $this->req_object : $this->module;
+		$instance_fn = ( $this->req_object == 'users' or $this->req_object == 'sessions' ) ? 'instance' : 'get_instance';
 
-		$instance_fn = ( $obj_name == 'users' or $obj_name == 'sessions' ) ? 'instance' : 'get_instance';
-
-		if ( ! ( $obj = $this->$instance_fn( $obj_name ) ) ) return null;
+		if ( ! ( $obj = $this->$instance_fn( $this->req_object ) ) ) return null;
 
 		if ( $this->query ) $obj->add_query( $this->query );
 
@@ -1060,9 +1070,7 @@ class xpdoc extends xp {
 		simplexml_append( $x, $this->get_model() );
 		simplexml_append( $x, $this->get_metadata() );
 
-		$obj_name = $this->req_object ? $this->req_object : $this->module;
-
-		if ( $obj = $this->get_instance( $obj_name ) )
+		if ( $obj = $this->get_instance( $this->req_object ) )
 			if ( $obj->feat->include_dataset )
 				simplexml_append( $x, $this->get_dataset( $obj->feat->include_dataset, true ) );
 
@@ -1084,11 +1092,9 @@ class xpdoc extends xp {
 
 		M()->info();
 
-		$obj_name = $this->req_object ? $this->req_object : $this->module;
+		$instance_fn = ( $this->req_object == 'users' or $this->req_object == 'sessions' ) ? 'instance' : 'get_instance';
 
-		$instance_fn = ( $obj_name == 'users' or $obj_name == 'sessions' ) ? 'instance' : 'get_instance';
-
-		if ( ! ( $obj = $this->$instance_fn( $obj_name ) ) ) return null;
+		if ( ! ( $obj = $this->$instance_fn( $this->req_object ) ) ) return null;
 
 		if ( $this->query ) $obj->add_query( $this->query );
 
@@ -1103,11 +1109,9 @@ class xpdoc extends xp {
 
 		M()->info();
 
-		$obj_name = $this->req_object ? $this->req_object : $this->module;
+		$instance_fn = ( $this->req_object == 'users' or $this->req_object == 'sessions' ) ? 'instance' : 'get_instance';
 
-		$instance_fn = ( $obj_name == 'users' or $obj_name == 'sessions' ) ? 'instance' : 'get_instance';
-
-		if ( ! ( $obj = $this->$instance_fn( $obj_name ) ) ) return null;
+		if ( ! ( $obj = $this->$instance_fn( $this->req_object ) ) ) return null;
 
 		if ( $this->query ) $obj->add_query( $this->query );
 

@@ -16,7 +16,6 @@
 	<xsl:template match="table" mode="model"><!--{{{-->
 
 		<xsl:param name="mode"/>
-		<xsl:param name="parent"/>
 
 		<xsl:variable name="path_prefix">
 			<xsl:value-of select="concat($application_path,'/modules/',@name,'/')"/>

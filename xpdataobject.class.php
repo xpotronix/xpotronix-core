@@ -1079,6 +1079,8 @@ class xpDataObject extends xp {
 
 		global $xpdoc;
 
+		M()->debug( "xpdoc->search: ". serialize( $xpdoc->search ) );
+
 		if ( ( $xpdoc->search )
 
 			and array_key_exists($this->class_name, $xpdoc->search)
