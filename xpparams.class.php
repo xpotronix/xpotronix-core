@@ -75,9 +75,14 @@ class xpparam {
 						break;
 
 				case 'filterParam':
-					foreach( $value as $val )
+					foreach( $value as $val ) {
+
+						if ( strstr( $xpdoc->controller_vars, $key. ';' ) ) 
+							continue; 
+
 						$xpdoc->search[$obj_name][$val->property] = $val->value;
 						break;
+					}
 
 				case 'directionParam':
 					break;

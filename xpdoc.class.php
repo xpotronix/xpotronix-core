@@ -60,6 +60,7 @@ class xpdoc extends xp {
 
 	// parametros del URI
 
+	var $controller_vars = 'm;a;b;q;v;d;s;o;r;f;t;h;p;j;e;g;x;method;_dc';
 	var $module;
 	var $action;
 	var $query;
@@ -67,6 +68,7 @@ class xpdoc extends xp {
 	var $data; // array con las variables del request
 	var $search;
 	var $req_object;
+	var $param_schema;
 	var $order;
 	var $features;
 	var $process;
@@ -487,7 +489,6 @@ class xpdoc extends xp {
 			return;
 		}
 
-		$controller_vars = 'm;a;q;v;d;s;o;r;f;t;h;p;j;e;g;x;method;_dc';
 
 		$this->http->m and $this->set_model( $this->http->m );
 
@@ -503,6 +504,7 @@ class xpdoc extends xp {
 		$this->html           = $this->http->h;
 		$this->process	      = explode( ';', $this->http->p );
 		$this->json	      = json_decode( $this->http->j );
+		$this->param_schema   = $this->http->b;
 		$this->extra_param    = $this->http->e;
 		$this->pager	      = $this->http->g;
 
@@ -525,7 +527,7 @@ class xpdoc extends xp {
 		/* parametros de la consulta */
 
 
-		if ( $this->http->p == 'ext4' ) {
+		if ( $this->param_schema == 'ext4' ) {
 
 			require_once 'xpparams.class.php';
 
@@ -538,7 +540,7 @@ class xpdoc extends xp {
 
 			foreach ( $this->http->var as $key => $data ) {
 
-				if ( strstr( $controller_vars, $key. ';' ) ) 
+				if ( strstr( $this->controller_vars, $key. ';' ) ) 
 					continue; 
 
 				$this->search[$this->req_object][$key] = $data;
