@@ -131,6 +131,8 @@ class xpdate extends xpattr {
 
 			if ( $date = $this->create( $value ) )
 				return $date->format( $this->format_long_str() );
+				// return $date->format( 'c' );
+
 			else 
 				return null;
 
