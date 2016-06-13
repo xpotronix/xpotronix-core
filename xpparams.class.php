@@ -70,14 +70,16 @@ class xpparam {
 					break;
 
 				case 'sortParam':
+					if ( is_array( $value ) )
 					foreach( $value as $val )
 						$xpdoc->order[$obj_name][$val->property] = $val->direction;
 						break;
 
 				case 'filterParam':
+					if ( is_array( $value ) )
 					foreach( $value as $val ) {
 
-						if ( strstr( $xpdoc->controller_vars, $key. ';' ) ) 
+						if ( strstr( $xpdoc->controller_vars, $val->property. ';' ) ) 
 							continue; 
 
 						$xpdoc->search[$obj_name][$val->property] = $val->value;
