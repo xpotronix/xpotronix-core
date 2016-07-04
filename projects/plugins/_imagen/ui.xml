@@ -29,46 +29,39 @@
 			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
 			</items>
 			</cmp>
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
-		listeners: { render: { fn: function(){
+		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen">
+			<config>show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
+		initComponent: function( config ) {
 
-			this.imagen_cambia_imagen = function() {
+			Ext.apply(this, config);
+			this.callParent(arguments);
+			this.store.on('selectionchange', this.imagen_cambia_imagen, this );
+			this.store.on('load', this.imagen_cambia_imagen, this );
+			this.on('afterlayout', this.imagen_cambia_imagen, this );
 
-				var img, r;
+		},
+		imagen_cambia_imagen: function() {
 
-				if ( ! ( img = Ext.get('xbox_imagen_xpForm') ) ) return;
+			var img = Ext.getCmp('muestra_img'), 
+			r = this.store.cr();
 
-				if ( r = this.cr() ) {
+			if ( img ) {
 
-                			img.dom.src 	= App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename;
+				if ( r ) {
+
+					img.dom.src 	= App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename;
 					img.dom.style 	= "border:2px solid black;";
-					/* img.dom.border 	= 0; */
 					img.dom.alt 	= r.data.imagen_ID_label;
-                
-				} else img.dom.src = '/ext/resources/images/default/s.gif';
-			};
+				} else 
 
-			this.store.on('changerowindex', this.imagen_cambia_imagen );
-			this.store.on('load', this.imagen_cambia_imagen );
-			this.on('afterlayout', this.imagen_cambia_imagen, this.store );
-
-		}}
-		}</config>
-			<items>
-				<cmp><config>layout:'column',border:false</config>
-				<items>
-					<cmp><config>columnWidth:1,layout: 'form',border:false</config>
-						<items>
-							<cmp><config>xtype: 'box',margins: '5 5 5 5', style: { width: '100px' }, autoScroll: true,
-								autoEl: {
-								id: 'xbox_imagen_xpForm', tag: 'img', src: '/ext/resources/images/default/s.gif'
-								}
-							</config></cmp>
-						</items>
-					</cmp>
-				</items>
-				</cmp>
-			</items>
+					img.dom.src = '/ext/resources/images/default/s.gif';
+			}
+		}
+		</config>
+		<items>
+			<cmp type="box"><config>margins:'5 5 5 5',autoScroll:true,autoEl:{id:'muestra_img',tag:'img',src:'/ext/resources/images/default/s.gif'}
+			</config></cmp>
+		</items>
 		</panel>
 		</items>
 		</cmp>
