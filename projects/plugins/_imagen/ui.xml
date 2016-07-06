@@ -12,94 +12,66 @@
 
 <database>
 
-<table name="imagen"><!--{{{-->
+	<table name="imagen"><!--{{{-->
 		<layout>
 
-		<cmp type="Panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border',split:true</config>
+		<cmp type="panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border',split:true</config>
 		<items>
-			<cmp type="Panel"><config>region: 'west',layout:'border', width: 250, split:true</config><items>
-			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config><![CDATA[region: 'center', width:200,collapseMode:'mini',split:true,minWidth:50, listeners:{ render: { fn: function(){
-
-				this.dv.on('dblclick', function() { 
-
-					this.obj.get_inspect_panel() && this.obj.inspect_window();
-				});
-			}
-		}}]]></config></panel>
+			<cmp type="panel"><config>region: 'west',layout:'border', width: 250, split:true</config><items>
+			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>
+				<![CDATA[region: 'center', width:200,collapseMode:'mini',split:true,minWidth:50, 
+					listeners:{ 
+						render: { 
+							fn: function(){
+								this.dv.on('dblclick', function() { 
+								this.obj.get_inspect_panel() && this.obj.inspect_window();
+							});
+						}
+				}}]]></config>
+			</panel>
 			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
-			</items>
-			</cmp>
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen">
-			<config>show_buttons:false, region:'center',
+		</items>
+		</cmp>
 
-		initComponent: function( config ) {
+		<panel type="xpImageViewer" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen">
+			<config>show_buttons:false, region:'center'
 
-			Ext.apply(this, config);
-			this.callParent(arguments);
-			this.store.on('selectionchange', this.imagen_cambia_imagen, this );
-			// this.store.on('load', this.imagen_cambia_imagen, this );
-			// this.on('afterlayout', this.imagen_cambia_imagen, this );
+			,initComponent: function( config ) {
 
-		},
+				Ext.apply(this, config);
+				this.callParent(arguments);
+				this.store.on('selectionchange', this.imagen_cambia_imagen, this );
+				// this.store.on('load', this.imagen_cambia_imagen, this );
+				// this.on('afterlayout', this.imagen_cambia_imagen, this );
 
-		imagen_cambia_imagen: function() {
+			}
 
-			var panel = this,
-			image = panel.down('image'), 
-			r = panel.store.cr();
+			,imagen_cambia_imagen: function() {
 
-			if ( ! panel.rendered ) return;
+				var panel = this,
+				r = panel.store.cr();
 
-			if ( image ) {
+				if ( ! panel.rendered ) return;
 
 				if ( ! Ext.isEmptyObject( r ) ) {
 
-					image.setSrc( App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename );
-					// image.style	= "border:1px solid grey;max-height:100%; max-width:100%;";
-					image.style	= "border:1px solid grey";
-					image.alt 	= r.data.imagen_ID_label;
-
-					/*	
-
-					setTimeout(function() {
-
-						var panelSize = panel.getSize(true),
-						imageSize = image.getSize(),
-						ratio = 0;
-
-						// resize the image to fit in the panel with the correct ratio
-						if (imageSize.width > panelSize.width) {
-							ratio = panelSize.width / imageSize.width;
-							imageSize.width = panelSize.width;
-							imageSize.height = imageSize.height * ratio;
-						}
-
-						if (imageSize.height > panelSize.height) {
-							ratio = panelSize.height / imageSize.height;
-							imageSize.height = panelSize.height;
-							imageSize.width = imageSize.width * ratio;
-						}
-
-						image.setSize(imageSize);
-
-						},0);
-
-					*/
-
+					this.setImage( App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename );
+					// image.alt 	= r.data.imagen_ID_label;
+	
 				} else 
 
-					image.setSrc( '/ext/resources/images/default/s.gif' );
+					this.setImage( '/ext/resources/images/default/s.gif' );
 			}
-		}
-		</config>
-		<items>
-			<!-- <cmp type="box"><config>margins:'5 5 5 5',autoScroll:true,autoEl:{id:'muestra_img',tag:'img',src:'/ext/resources/images/default/s.gif'}</config></cmp> -->
-			<cmp type="image"><config>margins:'5 5 5 5',shrinkWrap:false</config></cmp>
-		</items>
+			</config>
+			<items>
+				<!-- <cmp type="box"><config>margins:'5 5 5 5',autoScroll:true,autoEl:{id:'muestra_img',tag:'img',src:'/ext/resources/images/default/s.gif'}</config></cmp> -->
+				<cmp type="image"><config>margins:'5 5 5 5',shrinkWrap:false</config></cmp>
+			</items>
 		</panel>
 		</items>
 		</cmp>
-	</layout>
+
+		</layout>
 
 		<feat>
 			<hide_pk type="bool">false</hide_pk>
@@ -128,6 +100,7 @@
 		<field name="cache" translate="En Caché?" display="hide"/>
 		<field name="filesize" translate="Tamaño" display="hide"/>
 		<field name="exim_info" translate="Info EXIF" display="hide"/>
+
 	</table><!--}}}-->
 
 	<table name="scan_imagen" translate="Escanear Imágenes"><!--{{{-->
