@@ -129,10 +129,13 @@ class xpdate extends xpattr {
 
 		if ( $value ) {
 
-			if ( $date = $this->create( $value ) )
-				return $date->format( $this->format_long_str() );
-				// return $date->format( 'c' );
+			global $xpdoc;
 
+			if ( $date = $this->create( $value ) )
+				if ( $xpdoc->param_schema == 'ext4' )
+					return $date->format( 'c' );
+				else
+					return $date->format( $this->format_long_str() );
 			else 
 				return null;
 
