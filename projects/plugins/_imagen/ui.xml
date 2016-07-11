@@ -40,9 +40,9 @@
 
 				Ext.apply(this, config);
 				this.callParent(arguments);
+
+				this.on('afterrender', this.imagen_cambia_imagen, this );
 				this.store.on('selectionchange', this.imagen_cambia_imagen, this );
-				// this.store.on('load', this.imagen_cambia_imagen, this );
-				// this.on('afterlayout', this.imagen_cambia_imagen, this );
 
 			}
 
@@ -63,10 +63,6 @@
 					this.setImage( '/ext/resources/images/default/s.gif' );
 			}
 			</config>
-			<items>
-				<!-- <cmp type="box"><config>margins:'5 5 5 5',autoScroll:true,autoEl:{id:'muestra_img',tag:'img',src:'/ext/resources/images/default/s.gif'}</config></cmp> -->
-				<cmp type="image"><config>margins:'5 5 5 5',shrinkWrap:false</config></cmp>
-			</items>
 		</panel>
 		</items>
 		</cmp>
