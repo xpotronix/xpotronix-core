@@ -12,7 +12,57 @@
 
 <database>
 
-	<table name="home" translate="Principal" layout="ext/treemenu">
+	<!-- con @layout se puede seleccionar el template de salida de la transformacion directamente desde aca, deberia llamarse view que responde al set_view() del controlador, esta es otra forma mas, por ahi cambiarle el nombre o poner los feat como atributos del objeto 
+
+	<table name="home" translate="Principal" layout="ext4new/treemenu">
+-->
+
+	<table name="home" translate="Principal">
+
+		<layout name="default">
+
+
+			<cmp type="panel"><config>region:'north',minHeight:100,bodyStyle:'background-color:#dfe8f5;',layout:'fit',heigth:100,split:true</config>
+			<items>
+				<cmp type="panel" translate="Seleccionar Imágenes"><config>html:'hola!!'</config></cmp>
+			</items>
+			</cmp>
+
+			<cmp type="panel"><config>region:'west',layout:'vbox',width:250,split:true,layout:{type:'accordion',animate:true}</config>
+			<items>
+				<cmp type="treemenu"><config>title:'menu ppal'</config></cmp>
+				<cmp type="panel" title="Seleccionar Imágenes"><config>title:'algo raro pasa',region:'center',html:'hola!!'</config></cmp>
+				<cmp type="panel"><config>title:'bastaaa',region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
+			</items>
+			</cmp>
+
+			<cmp type="tabpanel"><config>region:'center',layout:'fit',width:250,split:true</config>
+			<items>
+				<cmp type="panel" translate="Seleccionar Imágenes"><config>region:'center',html:'hola!!'</config></cmp>
+				<cmp type="panel" title="esto es un titulo"><config>html:'esto es asi',region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
+			</items>
+			</cmp>
+
+			<!-- 
+
+			<cmp type="panel"><config>region:'east',layout:'fit',width:250,split:true</config>
+			<items>
+				<cmp type="panel" translate="Seleccionar Imágenes"><config>region:'center',html:'hola!!'</config></cmp>
+				<cmp type="panel"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
+			</items>
+			</cmp>
+
+			<cmp type="panel"><config>region:'south',minHeight:100,layout:'fit',heigth:100,split:true</config>
+			<items>
+				<cmp type="panel" translate="Seleccionar Imágenes"><config>bodyStyle:'background-color:#dfe8f5;',html:'perro!!'</config></cmp>
+			</items>
+			</cmp>
+
+			-->
+
+		</layout>
+
+
 		<panel type="xpGrid"/>
 		<panel type="xpForm" display="inspect"/>
 
