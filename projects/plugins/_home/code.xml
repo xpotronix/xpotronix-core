@@ -14,121 +14,20 @@
 
 <table name="tip"><!--{{{-->
 	<code mode="events" type="js"><![CDATA[
-Ext.onReady(function() {
-
-	// DEBUG: esto fue hecho en 10 minutos hay que hacer uno mejor !! 
-	var randomnumber = Math.floor(Math.random() * 7);
-
-
-	var tip = Ext.getDom('tip-' + randomnumber);
-
-	tip && Ext.MessageBox.show({
-		title: App.feat.page_title,
-		msg: '<center><b>Sugerencia del sistema:</b>' + tip.innerHTML + '</center>',
-		width: 300,
-		buttons: Ext.Msg.OK
-	});
-});
-	]]></code>
-	</table><!--}}}-->
-
-<table name="home"><!--{{{-->
-	<code mode="events" type="js"><![CDATA[
-
 	Ext.onReady(function() {
 
-	var tree = Ext.getCmp('mainTreePanel');
+		// DEBUG: esto fue hecho en 10 minutos hay que hacer uno mejor !! 
+		var randomnumber = Math.floor(Math.random() * 7);
 
-	if ( ! tree ) 
-		return;
+		var tip = Ext.getDom('tip-' + randomnumber);
 
-	var iframe = Ext.getCmp('iframe');
-	var detailEl = null;
-	var currentEx = null;
-
-	tree.getRootNode().expand();
-
-	showDetail('home');
-
-
-	function showDetail(ex) {
-		if(!detailEl) {
-			detailEl = Ext.getCmp('detail').body.createChild({tag:'div'});
-		}
-		Ext.state.Manager.set('ex', ex);
-		if(ex !== currentEx) {
-			var detailSrc = Ext.getDom('detail-' + ex);
-			if(detailSrc) {
-				detailEl.hide().update(detailSrc.innerHTML).slideIn('t');
-				currentEx = ex;
-			}
-		}
-	}
-
-	tree.on({
-		click:{stopEvent:true, fn:function(n, e) {
-
-			if ( App.getModifiedStores && App.getModifiedStores().length ) {
-
-				App.showSaveChanges();
-				return;
-			}
-
-			e.stopEvent();
-			// handle detail
-
-			if( n.id && Ext.fly( 'detail-' + n.id ) )
-				showDetail(n.id);
-
-			else if ( n.parentNode && n.parentNode.id && Ext.fly( 'detail-' + n.parentNode.id ) )
-				showDetail(n.parentNode.id);
-
-			else if ( typeof console != 'undefined' ) 
-				console.error('no hay detail para el div_id: '+ n.id );
-
-			// handle iframe
-			if(n.attributes.href ) {
-
-				if ( n.attributes.href.substring(0,11) == 'javascript:' ) {
-					eval( n.attributes.href );
-				}
-				else {
-					var src = n.attributes.href;
-					// iframe.setSrc.defer(350, iframe, [src, true]);
-
-					var layout = Ext.getCmp('xpApp_layout');
-					layout && layout.destroy();
-
-					App.close_objs();
-					App.close_stores();
-
-					App.set_source( src );
-
-					Ext.Loader.load( [src + '&v=ext/loader&UNNORMALIZED=1'] );
-				}
-			}
-
-			// handle text click (toggle collapsed)
-			if(!n.isLeaf()) {
-				n.toggle();
-			}
-		}},
-
-		load: { fn:function( node ) {
-
-
-			if ( App.user_node == undefined && App.user.user_username && ! App.user._anon ) {
-
-				App.user_node = this.getNodeById('user');
-				App.user_node && App.user_node.setText( App.user_node.text + ' <b>' + App.user.user_username + '</b>' );
-
-				Ext.Loader.load( [App.feat.defaultSrc + '&v=ext/loader&UNNORMALIZED=1'] );
-			}
-		}}
+		tip && Ext.MessageBox.show({
+			title: App.feat.page_title,
+			msg: '<center><b>Sugerencia del sistema:</b>' + tip.innerHTML + '</center>',
+			width: 300,
+			buttons: Ext.Msg.OK
+		});
 	});
-
-	});
-
 	]]></code>
 	</table><!--}}}-->
 
