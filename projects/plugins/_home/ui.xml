@@ -36,7 +36,7 @@
 			</items>
 			</cmp>
 
-			<cmp type="tabpanel"><config>region:'center',layout:'fit',width:250,split:true</config>
+			<cmp type="tabpanel"><config>id:'mainAppTabPanel',region:'center',layout:'fit',width:250,split:true</config>
 			<items>
 				<cmp type="panel" translate="Seleccionar Imágenes"><config>region:'center',html:'hola!!'</config></cmp>
 				<cmp type="panel" title="esto es un titulo"><config>html:'esto es asi',region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
