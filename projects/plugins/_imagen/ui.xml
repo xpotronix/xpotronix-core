@@ -13,59 +13,62 @@
 <database>
 
 	<table name="imagen"><!--{{{-->
+
 		<layout>
 
-		<cmp type="panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border',split:true</config>
-		<items>
-			<cmp type="panel"><config>region: 'west',layout:'border', width: 250, split:true</config><items>
-			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>
-				<![CDATA[region: 'center', width:200,collapseMode:'mini',split:true,minWidth:50, 
-					listeners:{ 
-						render: { 
-							fn: function(){
-								this.dv.on('dblclick', function() { 
-								this.obj.get_inspect_panel() && this.obj.inspect_window();
-							});
-						}
-				}}]]></config>
-			</panel>
-			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
-		</items>
-		</cmp>
+			<cmp type="panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border',split:true</config>
+			<items>
 
-		<panel type="xpImageViewer" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen">
-			<config>show_buttons:false, region:'center'
+				<cmp type="panel"><config>region: 'west',layout:'border', width: 250, split:true</config>
+				<items>
+					<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>
+						<![CDATA[region: 'center', width:200,collapseMode:'mini',split:true,minWidth:50, 
+							listeners:{ 
+								render: { 
+									fn: function(){
+										this.dv.on('dblclick', function() { 
+										this.obj.get_inspect_panel() && this.obj.inspect_window();
+									});
+								}
+						}}]]></config>
+					</panel>
+					<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
+				</items>
+				</cmp>
 
-			,initComponent: function( config ) {
+				<panel type="xpImageViewer" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen">
+					<config>show_buttons:false, region:'center'
 
-				Ext.apply(this, config);
-				this.callParent(arguments);
+					,initComponent: function( config ) {
 
-				this.on('afterrender', this.imagen_cambia_imagen, this );
-				this.store.on('selectionchange', this.imagen_cambia_imagen, this );
+						Ext.apply(this, config);
+						this.callParent(arguments);
 
-			}
+						this.on('afterrender', this.cambia_imagen, this );
+						this.store.on('selectionchange', this.cambia_imagen, this );
 
-			,imagen_cambia_imagen: function() {
+					}
 
-				var panel = this,
-				r = panel.store.cr();
+					,cambia_imagen: function() {
 
-				if ( ! panel.rendered ) return;
+						var panel = this,
+						r = panel.store.cr();
 
-				if ( ! Ext.isEmptyObject( r ) ) {
+						if ( ! panel.rendered ) return;
 
-					this.setImage( App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename );
-					// image.alt 	= r.data.imagen_ID_label;
-	
-				} else 
+						if ( ! Ext.isEmptyObject( r ) ) {
 
-					this.setImage( '/ext/resources/images/default/s.gif' );
-			}
-			</config>
-		</panel>
-		</items>
-		</cmp>
+							this.setImage( App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename );
+							// image.alt 	= r.data.imagen_ID_label;
+			
+						} else 
+
+							this.setImage( '/ext/resources/images/default/s.gif' );
+					}
+					</config>
+				</panel>
+			</items>
+			</cmp>
 
 		</layout>
 

@@ -40,17 +40,18 @@
 					<items>
 						<cmp><config>layout: 'border', title: 'Administración de Módulos'</config>
 							<items>
-								<cmp ref="gacl_groups_axo_map_xpGrid"><config>region: 'west', enableDragDrop: true, ddGroup:'GridDD', width: 500,
-				onRecordsDrop: function( g, s ) {
-					Ext.each(s, function(r) {
-						var nr = new this.store.rs({ '__new__': 1 });
-						this.store.add( nr );
-						nr.set( 'group_id', this.store.parent_store.cr().get('id') );
-						nr.set( 'axo_id', r.get('id') );
-						nr.set( 'axo_id_label', r.get('name') );
-						g.store.remove(r);
-					}, this );
-				}</config></cmp>
+								<cmp ref="gacl_groups_axo_map_xpGrid">
+								<config>region: 'west', enableDragDrop: true, ddGroup:'GridDD', width: 500,
+								onRecordsDrop: function( g, s ) {
+									Ext.each(s, function(r) {
+										var nr = new this.store.rs({ '__new__': 1 });
+										this.store.add( nr );
+										nr.set( 'group_id', this.store.parent_store.cr().get('id') );
+										nr.set( 'axo_id', r.get('id') );
+										nr.set( 'axo_id_label', r.get('name') );
+										g.store.remove(r);
+									}, this );
+								}</config></cmp>
 								<cmp ref="gacl_axo_xpGrid"><config>region: 'center', enableDragDrop: true, ddGroup:'GridDD'</config></cmp>
 							</items>
 						</cmp>
