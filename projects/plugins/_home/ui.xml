@@ -28,15 +28,15 @@
 			</items>
 			</cmp>
 
-			<cmp type="panel"><config>region:'west',layout:'vbox',width:250,split:true,layout:{type:'accordion',animate:true}</config>
+			<cmp type="panel"><config>region:'west',layout:'vbox',width:250,split:true,collapsible:true,collapseMode:'header',collapseDirection:'left',layout:{type:'accordion',animate:true}</config>
 			<items>
-				<cmp type="treemenu"><config>title:'menu ppal'</config></cmp>
+				<cmp type="treemenu"><config>title:'menu ppal',colapsible:true</config></cmp>
 				<cmp type="panel" title="Seleccionar Imágenes"><config>title:'algo raro pasa',region:'center',html:'hola!!'</config></cmp>
-				<cmp type="panel"><config>title:'bastaaa',region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
+				<cmp type="panel"><config>title:'bastaaa',region:'south',heigth:200,minHeight:200,split:true</config></cmp>
 			</items>
 			</cmp>
 
-			<cmp type="tabpanel"><config>id:'mainAppTabPanel',region:'center',layout:'fit',width:250,split:true</config>
+			<cmp type="tabpanel"><config>id:'mainAppTabPanel',region:'center',layout:'fit',width:250,split:true,plain:true,tabPosition:'left',defaults:{closable:true}</config>
 			<items>
 				<cmp type="panel" translate="Seleccionar Imágenes"><config>region:'center',html:'hola!!'</config></cmp>
 				<cmp type="panel" title="esto es un titulo"><config>html:'esto es asi',region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
