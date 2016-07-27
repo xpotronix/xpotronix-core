@@ -22,43 +22,20 @@
 		<layout name="default">
 
 
-			<cmp type="panel"><config>region:'north',minHeight:100,bodyStyle:'background-color:#dfe8f5;',layout:'fit',heigth:100,split:true</config>
+			<cmp><config>region:'north',html:'Bienvenido a la aplicacion',minHeight:60</config></cmp>
+
+			<cmp><config>title:'Aplicacion',region:'west',width:250,split:true,collapsible:true,collapseMode:'header',collapseDirection:'left',layout:{type:'accordion',animate:true}</config>
 			<items>
-				<cmp type="panel" translate="Seleccionar Imágenes"><config>html:'hola!!'</config></cmp>
+				<cmp type="treemenu"><config>title:'Menú Principal',colapsible:true,layout:'fit'</config></cmp>
+				<cmp title="Seleccionar Imágenes"><config>title:'Notificaciones',html:'Estas son las notificaciones'</config></cmp>
 			</items>
 			</cmp>
 
-			<cmp type="panel"><config>region:'west',layout:'vbox',width:250,split:true,collapsible:true,collapseMode:'header',collapseDirection:'left',layout:{type:'accordion',animate:true}</config>
+			<cmp type="tabmenu"><config>id:'mainAppTabPanel',border:false,region:'center',width:250,plain:true,tabPosition:'left',defaults:{closable:true}</config>
 			<items>
-				<cmp type="treemenu"><config>title:'menu ppal',colapsible:true</config></cmp>
-				<cmp type="panel" title="Seleccionar Imágenes"><config>title:'algo raro pasa',region:'center',html:'hola!!'</config></cmp>
-				<cmp type="panel"><config>title:'bastaaa',region:'south',heigth:200,minHeight:200,split:true</config></cmp>
+				<cmp translate="Seleccionar Imágenes"><config>title:'Splash Tab',closable:false,html:'Ayuda de la aplicacion'</config></cmp>
 			</items>
 			</cmp>
-
-			<cmp type="tabpanel"><config>id:'mainAppTabPanel',region:'center',layout:'fit',width:250,split:true,plain:true,tabPosition:'left',defaults:{closable:true}</config>
-			<items>
-				<cmp type="panel" translate="Seleccionar Imágenes"><config>region:'center',html:'hola!!'</config></cmp>
-				<cmp type="panel" title="esto es un titulo"><config>html:'esto es asi',region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
-			</items>
-			</cmp>
-
-			<!-- 
-
-			<cmp type="panel"><config>region:'east',layout:'fit',width:250,split:true</config>
-			<items>
-				<cmp type="panel" translate="Seleccionar Imágenes"><config>region:'center',html:'hola!!'</config></cmp>
-				<cmp type="panel"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></cmp>
-			</items>
-			</cmp>
-
-			<cmp type="panel"><config>region:'south',minHeight:100,layout:'fit',heigth:100,split:true</config>
-			<items>
-				<cmp type="panel" translate="Seleccionar Imágenes"><config>bodyStyle:'background-color:#dfe8f5;',html:'perro!!'</config></cmp>
-			</items>
-			</cmp>
-
-			-->
 
 		</layout>
 
