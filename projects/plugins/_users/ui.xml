@@ -84,7 +84,7 @@
 		defaultButton: 'login_loginUsername'
 		</config>
 		<items>
-			<cmp type="TabPanel"><config>
+			<cmp type="tabpanel"><config>
 				title:'ingresar',
 				layoutOnTabChange: true, 
 				collapsible: false, 

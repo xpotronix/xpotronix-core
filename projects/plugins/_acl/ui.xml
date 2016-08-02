@@ -13,12 +13,13 @@
 <database>
 
 	<table name="gacl_axo_groups" translate="Grupos de Módulos del Sistema"><!--{{{-->
+		
 
 		<layout name="default">
-			<cmp type="Panel"><config>layout:'border', deferredRender: true, id:'xpApp_layout'</config>
+			<cmp><config>layout:'border', deferredRender: true, id:'xpApp_layout'</config>
 				<items>
 					<!-- <cmp><config>layout: 'fit', width: '100%', region: 'north', tbar: App.menu</config></cmp> -->
-					<cmp type="TabPanel"><config>titleCollapse: false, 
+					<cmp type="tabpanel"><config>titleCollapse: false, 
 					height: 400, 
 					margins: '0 0 0 0', 
 					split: true, 
@@ -36,7 +37,7 @@
 						</cmp>
 					</items>
 					</cmp>
-					<cmp type="TabPanel"><config>region:'center', deferredRender: true, layoutOnTabChange: true, collapsible: false, activeTab:0</config>
+					<cmp type="tabpanel"><config>region:'center', deferredRender: true, layoutOnTabChange: true, collapsible: false, activeTab:0</config>
 					<items>
 						<cmp><config>layout: 'border', title: 'Administración de Módulos'</config>
 							<items>

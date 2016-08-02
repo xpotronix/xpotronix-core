@@ -82,10 +82,10 @@
 
 	var filter_axo = function(){
 
-		var s = App.store.item('gacl_axo');
+		var s = App.store.lookup('gacl_axo');
 		s.clearFilter( true );
 
-		var cs = App.store.item('gacl_groups_axo_map');
+		var cs = App.store.lookup('gacl_groups_axo_map');
 
 		s.filterBy( function( r ) {
 
@@ -94,9 +94,9 @@
 		}, this );
 	};
 
-	App.store.item('gacl_axo').on('load', filter_axo );
+		App.store.lookup('gacl_axo').on('load', filter_axo );
 
-	App.store.item('gacl_groups_axo_map').on('load', filter_axo );
+		App.store.lookup('gacl_groups_axo_map').on('load', filter_axo );
 
 	</code>
 
