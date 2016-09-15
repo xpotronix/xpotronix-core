@@ -19,6 +19,8 @@
 		<xsl:element name="database">
 			<xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
 			<xsl:apply-templates select="table"/>
+			<xsl:call-template name="default-includes"/>
+
 		</xsl:element>
 	</xsl:template>
 	<xsl:template match="table">
@@ -38,4 +40,52 @@
 			<xsl:attribute name="display"></xsl:attribute>
 		</xsl:element>
 	</xsl:template>
+
+	<!-- exceptions -->
+
+	<xsl:template match="table[@name='audit' or
+		@name='gacl_acl' or
+		@name='gacl_acl_sections' or
+		@name='gacl_aco' or
+		@name='gacl_aco_map' or
+		@name='gacl_aco_sections' or
+		@name='gacl_aro' or
+		@name='gacl_aro_groups' or
+		@name='gacl_aro_groups_map' or
+		@name='gacl_aro_map' or
+		@name='gacl_aro_sections' or
+		@name='gacl_axo' or
+		@name='gacl_axo_groups' or
+		@name='gacl_axo_groups_map' or
+		@name='gacl_axo_map' or
+		@name='gacl_axo_sections' or
+		@name='gacl_groups_aro_map' or
+		@name='gacl_groups_axo_map' or
+		@name='gacl_phpgacl' or
+
+		@name='help' or
+		@name='home' or
+		@name='tip' or
+		@name='sessions' or
+
+		@name='users' or
+		@name='user_preferences']"/>
+
+	<xsl:template name="default-includes">
+	<xsl:comment>Default Includes</xsl:comment><xsl:text>
+</xsl:text>
+
+        <include path="projects/plugins/_common"/>
+        <include path="projects/plugins/_acl"/>
+        <include path="projects/plugins/_audit"/>
+        <include path="projects/plugins/_users"/>
+
+        <include path="projects/plugins/_messages"/>
+        <include path="projects/plugins/_sessions"/>
+        <include path="projects/plugins/_file"/>
+        <include path="projects/plugins/_home"/><xsl:text>
+</xsl:text>
+
+	</xsl:template>
+
 </xsl:stylesheet>
