@@ -12,7 +12,7 @@
 
 <menu>
         <menu n="Auditoría" acl="access:audit" id="audit">
-		<item n="Auditoría de Accesso" h="?m=audit" acl="access:audit"/>
+		<item n="Auditoría de Accesso" m="audit" acl="access:audit"/>
         </menu>
 </menu>
 
