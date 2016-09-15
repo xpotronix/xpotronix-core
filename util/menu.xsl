@@ -22,10 +22,41 @@
 		</xsl:element>
 	</xsl:template>
 
+	<!-- exceptions -->
+
+	<xsl:template match="table[@name='audit' or
+		@name='gacl_acl' or
+		@name='gacl_acl_sections' or
+		@name='gacl_aco' or
+		@name='gacl_aco_map' or
+		@name='gacl_aco_sections' or
+		@name='gacl_aro' or
+		@name='gacl_aro_groups' or
+		@name='gacl_aro_groups_map' or
+		@name='gacl_aro_map' or
+		@name='gacl_aro_sections' or
+		@name='gacl_axo' or
+		@name='gacl_axo_groups' or
+		@name='gacl_axo_groups_map' or
+		@name='gacl_axo_map' or
+		@name='gacl_axo_sections' or
+		@name='gacl_groups_aro_map' or
+		@name='gacl_groups_axo_map' or
+		@name='gacl_phpgacl' or
+
+		@name='help' or
+		@name='home' or
+		@name='tip' or
+		@name='sessions' or
+
+		@name='users' or
+		@name='user_preferences']"/>
+
+
 	<xsl:template match="table">
 		<xsl:element name="item">
 			<xsl:attribute name="n" select="@name"/>
-			<xsl:attribute name="h" select="concat('?m=', @name )"/>	
+			<xsl:attribute name="m" select="@name"/>	
 		</xsl:element>
 	</xsl:template>
 </xsl:stylesheet>
