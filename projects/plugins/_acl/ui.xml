@@ -13,8 +13,7 @@
 <database>
 
 	<table name="gacl_axo_groups" translate="Grupos de Módulos del Sistema"><!--{{{-->
-		
-
+	
 		<layout name="default">
 			<cmp><config>layout:'border', deferredRender: true, id:'xpApp_layout'</config>
 				<items>
@@ -62,6 +61,8 @@
 			</cmp>
 		</layout>
 
+
+
 		<panel type="xpGrid"/>
 
 		<table name="gacl_axo_groups_map" translate="Permisos">
@@ -71,12 +72,41 @@
 		</table>
 
 		<table name="gacl_groups_axo_map">
+
+			<config>listeners: { 
+				load: function(){ 
+					App.store.lookup('gacl_axo').filter_axo();
+					}
+				}
+			</config>
+
 			<panel type="xpGrid" translate="Modulos por Grupo"/>
 			<foreign_key type="wired"><ref local="group_id" remote="id"/></foreign_key>
 			<feat><page_rows type="int">0</page_rows><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>
 		</table>
 
 		<table name="gacl_axo">
+			<config>
+
+			filter_axo: function(){
+
+				var s = App.store.lookup('gacl_axo');
+				s.clearFilter( true );
+
+				var cs = App.store.lookup('gacl_groups_axo_map');
+
+				s.filterBy( function( r ) {
+
+					return ( cs.find( 'axo_id', r.get( 'id' ) ) == -1 ); 
+
+				}, this );
+			},
+
+			listeners: { load: function(){ this.filter_axo(); }}
+
+			</config>
+
+
 			<panel type="xpGrid" translate="Módulos Disponibles"/>
 			<feat><page_rows type="int">0</page_rows><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>
 		</table>
