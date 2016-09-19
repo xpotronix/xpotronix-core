@@ -78,28 +78,6 @@
 
 <table name="gacl_axo_groups">
 
-	<code type="js" mode="events">
-
-	var filter_axo = function(){
-
-		var s = App.store.lookup('gacl_axo');
-		s.clearFilter( true );
-
-		var cs = App.store.lookup('gacl_groups_axo_map');
-
-		s.filterBy( function( r ) {
-
-			return ( cs.find( 'axo_id', r.get( 'id' ) ) == -1 ); 
-
-		}, this );
-	};
-
-		App.store.lookup('gacl_axo').on('load', filter_axo );
-
-		App.store.lookup('gacl_groups_axo_map').on('load', filter_axo );
-
-	</code>
-
 	<code type="php" mode="class_functions">
 
 		function rebuild_tree() {/*{{{*/
