@@ -27,13 +27,13 @@
 			<cmp><config>title:'Aplicacion',region:'west',width:250,split:true,collapsible:true,collapseMode:'header',collapseDirection:'left',layout:{type:'accordion',animate:true}</config>
 			<items>
 				<cmp type="treemenu"><config>title:'Menú Principal',colapsible:true,layout:'fit'</config></cmp>
-				<cmp title="Seleccionar Imágenes"><config>title:'Notificaciones',html:'Estas son las notificaciones'</config></cmp>
+				<cmp><config>title:'Notificaciones',html:'Estas son las notificaciones'</config></cmp>
 			</items>
 			</cmp>
 
 			<cmp type="tabmenu"><config>id:'mainAppTabPanel',border:false,region:'center',width:250,plain:true,tabPosition:'left',defaults:{closable:true}</config>
 			<items>
-				<cmp translate="Seleccionar Imágenes"><config>title:'Splash Tab',closable:false,html:'Ayuda de la aplicacion'</config></cmp>
+				<cmp><config>title:'Ayuda',closable:false,html:'Ayuda de la aplicacion'</config></cmp>
 			</items>
 			</cmp>
 
