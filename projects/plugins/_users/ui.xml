@@ -72,7 +72,7 @@
 <table name="login" translate="Ingresar a Patrocinio"><!--{{{-->
 
 	<layout>
-		<cmp type="Window" id="xpApp_layout"><config>
+		<cmp type="Window"><config>
 		layout:'fit',
         	width:500,
         	height:300,

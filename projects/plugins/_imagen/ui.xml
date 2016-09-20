@@ -16,60 +16,64 @@
 
 		<layout>
 
-			<cmp type="panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border',split:true</config>
-			<items>
+			<cmp type="panel"><config>region: 'west',layout:'border', width: 250, split:true</config><items>
+			<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>
+				<![CDATA[region: 'center', width:200,collapseMode:'mini',split:true,minWidth:50, 
+					listeners:{ 
+						render: { 
+							fn: function(){
+								this.dv.on('dblclick', function() { 
+								this.obj.get_inspect_panel() && this.obj.inspect_window();
+							});
+						}
+				}}]]></config>
+			</panel>
+			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
+			</items>
+			</cmp>
 
-				<cmp type="panel"><config>region: 'west',layout:'border', width: 250, split:true</config>
+			<panel type="xpImageViewer" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen">
+				<config>show_buttons:false, region:'center'
+
+				,initComponent: function( config ) {
+
+					Ext.apply(this, config);
+					this.callParent(arguments);
+					this.store.on('selectionchange', this.imagen_cambia_imagen, this );
+					// this.store.on('load', this.imagen_cambia_imagen, this );
+					// this.on('afterlayout', this.imagen_cambia_imagen, this );
+
+				}
+
+				,imagen_cambia_imagen: function() {
+
+					var panel = this,
+					r = panel.store.cr();
+
+					if ( ! panel.rendered ) return;
+
+					if ( ! Ext.isEmptyObject( r ) ) {
+
+						this.setImage( App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename );
+						// image.alt 	= r.data.imagen_ID_label;
+		
+					} else 
+
+						this.setImage( '/ext/resources/images/default/s.gif' );
+				}
+				</config>
 				<items>
-					<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>
-						<![CDATA[region: 'center', width:200,collapseMode:'mini',split:true,minWidth:50, 
-							listeners:{ 
-								render: { 
-									fn: function(){
-										this.dv.on('dblclick', function() { 
-										this.obj.get_inspect_panel() && this.obj.inspect_window();
-									});
-								}
-						}}]]></config>
-					</panel>
-					<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
+					<!-- <cmp type="box"><config>margins:'5 5 5 5',autoScroll:true,autoEl:{id:'muestra_img',tag:'img',src:'/ext/resources/images/default/s.gif'}</config></cmp> -->
+					<cmp type="image"><config>margins:'5 5 5 5',shrinkWrap:false</config></cmp>
 				</items>
-				</cmp>
-
-				<panel type="xpImageViewer" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen">
-					<config>show_buttons:false, region:'center'
-
-					,initComponent: function( config ) {
-
-						Ext.apply(this, config);
-						this.callParent(arguments);
-
-						this.on('afterrender', this.cambia_imagen, this );
-						this.store.on('selectionchange', this.cambia_imagen, this );
-
-					}
-
-					,cambia_imagen: function() {
-
-						var panel = this,
-						r = panel.store.cr();
-
-						if ( ! panel.rendered ) return;
-
-						if ( ! Ext.isEmptyObject( r ) ) {
-
-							this.setImage( App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename );
-							// image.alt 	= r.data.imagen_ID_label;
-			
-						} else 
+			</panel>
+		</items>
+		</cmp>
 
 							this.setImage( '/ext/resources/images/default/s.gif' );
 					}
 					</config>
 				</panel>
-			</items>
-			</cmp>
-
 		</layout>
 
 		<feat>
