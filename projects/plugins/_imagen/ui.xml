@@ -16,9 +16,6 @@
 
 		<layout>
 
-			<cmp type="panel" translate="Imágenes" id="xpApp_layout"><config>layout:'border',split:true</config>
-			<items>
-
 				<cmp type="panel"><config>region: 'west',layout:'border', width: 250, split:true</config>
 				<items>
 					<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>
@@ -44,7 +41,7 @@
 						Ext.apply(this, config);
 						this.callParent(arguments);
 
-						this.on('afterrender', this.cambia_imagen, this );
+						/* this.on('afterrender', this.cambia_imagen, this ); */
 						this.store.on('selectionchange', this.cambia_imagen, this );
 
 					}
@@ -67,9 +64,6 @@
 					}
 					</config>
 				</panel>
-			</items>
-			</cmp>
-
 		</layout>
 
 		<feat>

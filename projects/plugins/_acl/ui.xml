@@ -15,8 +15,6 @@
 	<table name="gacl_axo_groups" translate="Grupos de Módulos del Sistema"><!--{{{-->
 	
 		<layout name="default">
-			<cmp><config>layout:'border', deferredRender: true, id:'xpApp_layout'</config>
-				<items>
 					<!-- <cmp><config>layout: 'fit', width: '100%', region: 'north', tbar: App.menu</config></cmp> -->
 					<cmp type="tabpanel"><config>titleCollapse: false, 
 					height: 400, 
@@ -57,8 +55,6 @@
 						</cmp>
 					</items>
 					</cmp>
-				</items>
-			</cmp>
 		</layout>
 
 
