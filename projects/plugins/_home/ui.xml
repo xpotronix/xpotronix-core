@@ -21,6 +21,8 @@
 
 		<layout name="default">
 
+			<items>
+
 
 			<cmp><config>region:'north',html:'Bienvenido a la aplicacion',minHeight:60</config></cmp>
 
@@ -36,6 +38,8 @@
 				<cmp><config>title:'Ayuda',closable:false,html:'Ayuda de la aplicacion'</config></cmp>
 			</items>
 			</cmp>
+
+			</items>
 
 		</layout>
 

@@ -16,6 +16,8 @@
 
 		<layout>
 
+			<items>
+
 				<cmp type="panel"><config>region: 'west',layout:'border', width: 250, split:true</config>
 				<items>
 					<panel type="xpThumbs" translate="Seleccionar Imágenes"><config>
@@ -64,6 +66,8 @@
 					}
 					</config>
 				</panel>
+
+			</items>
 		</layout>
 
 		<feat>
