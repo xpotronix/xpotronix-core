@@ -1363,7 +1363,7 @@ class xpdoc extends xp {
 
 		/* view == 'csv' genera el output directamente en el modulo xpcsv */
 
-		if ( $this->view == 'csv' ) return;
+		if ( $this->view == 'csv' or $this->view == 'none' ) return;
 
 		$this->headers_do();
 
@@ -1399,7 +1399,7 @@ class xpdoc extends xp {
 
 		M()->info( 'transform view: ' . $this->get_view() );
 
-		if ( $this->view == 'csv' ) return;
+		if ( $this->view == 'csv' or $this->view == 'none' ) return;
 
 		if ( $this->config->app_cache_time and $cache ) {
 

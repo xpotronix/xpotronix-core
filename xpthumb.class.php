@@ -156,23 +156,26 @@ class xpthumb {
 
 	}/*}}}*/
 
-	function load( $file = null ) {/*{{{*/
+	function load( $file_path = null ) {/*{{{*/
 
 		$this->image = new imagick;
 
-		if ( ! $file ) 
-			$file = "{$this->doc_root}/{$this->http->src}";
+		if ( ! $file_path ) {
+			$file_path = "{$this->doc_root}/{$this->http->src}";
+		}
+
+		M()->debug( "file_path: $file_path" );
 
 		try {
 
-			$this->image->readImage($file);
-			M()->debug( "cargada la imagen $file" );
+			$this->image->readImage($file_path);
+			M()->debug( "cargada la imagen $file_path" );
 			$this->get_props();
 			return $this;
 
 		} catch (Exception $e) {
 
-			M()->error( "no ecuentro la imagen $file" );
+			M()->error( "no ecuentro la imagen $file_path" );
 
 			if ( ! file_exists( $err_img = 'images/warning.jpg' ) ) {
 				M()->error( "no encuentro $err_img en ". getcwd() );
@@ -215,8 +218,6 @@ class xpthumb {
 		}
 
 	}/*}}}*/
-
-
 
 	function thumb() {/*{{{*/
 
