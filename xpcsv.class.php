@@ -56,9 +56,11 @@ class xpcsv {
 
 		/* output aca */
 
-		header('Content-Encoding: UTF-8');
-		header('Content-type: text/csv; charset=UTF-8');
-		header("Content-Disposition: attachment; filename={$this->download_name}");
+		global $xpdoc;
+
+		$xpdoc->header('Content-Encoding: UTF-8');
+		$xpdoc->header('Content-type: text/csv; charset=UTF-8');
+		$xpdoc->header("Content-Disposition: attachment; filename={$this->download_name}");
 		echo $this->delim['bom'];			
 
 	}/*}}}*/

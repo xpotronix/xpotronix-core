@@ -355,7 +355,7 @@ class xpthumb {
 		header("Content-Type: image/jpeg");
 		$offset = 60 * 60 * 24 * 300;
 		$ExpStr = "Expires: " . gmdate("D, d M Y H:i:s", time() + $offset) . " GMT";
-		Header($ExpStr);
+		header($ExpStr);
 	}/*}}}*/
 
 	function setImageFormat( $format ) {/*{{{*/
