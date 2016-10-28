@@ -199,15 +199,79 @@ class xp {
 		return $r;
 	}/*}}}*/
 
-	function saxon_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
+	function saxon_transform( $xml_file, $xsl_file, $params = null, $validation = false ) {/*{{{*/
+
+		M()->info("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
+
+		/* procesador */
+
+		$saxonProc = new Saxon\SaxonProcessor();
+		$proc = $saxonProc->newXsltProcessor();
+		$version = $saxonProc->version();
+
+		/* config Properties */
+
+		$validation and $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/schema-validation', 'preserve' ); // preserve: 4
+
+		// $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/allow-external-functions', true );
+
+		$proc->setSourceFromFile( $xml_file );
+		M()->debug( "xml_file: $xml_file" );
+
+		$proc->compileFromFile( $xsl_file );
+		M()->debug( "xsl_file: $xsl_file" );
+
+		if ( is_array( $params ) ) {
+
+			foreach( $params as $name => $value ) {
+
+				M()->debug( "setParameter $name: $value" );
+				$proc->setParameter( $name, $saxonProc->createAtomicValue($value) );
+			}
+		}
+
+		M()->debug( "transformacion con Saxon/C" );
+
+                $result = $proc->transformToString();
+                
+                if( $result == NULL ) {
+
+			$errCount = $proc->getExceptionCount();
+
+			if( $errCount > 0 ) { 
+
+				for( $i = 0; $i < $errCount; $i++ ) {
+
+					$errCode = $proc->getErrorCode(intval($i));
+					$errMessage = $proc->getErrorMessage(intval($i));
+					M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> Cod: $errCode, Mensaje: $errMessage" );
+
+   				}
+
+				$proc->exceptionClear();	
+
+			} else {
+
+				M()->error( 'Hubo mensajes en la transformacion pero no han sido reportados por el procesador' );
+			}
+		}
+
+            	$proc->clearParameters();
+		$proc->clearProperties();
+
+                return $result;
+
+	}/*}}}*/
+
+	function saxon_bridge_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
 
 		M()->info("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
 		try {
 
-		require_once 'lib/Java.inc';
+			require_once 'lib/Java.inc';
 
-		java_require( $this->ini['java']['saxon_jar'].";" );
+			java_require( $this->ini['java']['saxon_jar'].";" );
 
 		} catch (java_ConnectException $e) {
 
@@ -251,16 +315,24 @@ class xp {
 			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> ". java_cast($e->getCause()->toString(), "string") );
 			return null;
 		}
-	}/*}}}*/
+	}/*}}}*/ 
 
 	function fop_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
 
 		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
 		try {
-
 			require_once "/usr/share/xpotronix/lib/Java.inc";
-			java_require( "/usr/share/java/fop.jar;/usr/share/java/xmlgraphics-commons.jar;/usr/share/java/avalon-framework.jar;/usr/share/java/commons-logging.jar;/usr/share/java/commons-io.jar;" );
+
+			$jars = array( 
+				"/usr/share/java/fop.jar",
+				"/usr/share/java/xmlgraphics-commons.jar",
+				"/usr/share/java/avalon-framework.jar",
+				"/usr/share/java/commons-logging.jar",
+				"/usr/share/java/commons-io.jar" );
+
+			java_require( implode( ';', $jars ) );
+
 			// java_require( "/usr/share/java/" );
 
 			$oXmlSource = new java("javax.xml.transform.stream.StreamSource", $xml_file);

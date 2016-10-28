@@ -1513,6 +1513,8 @@ class xpdoc extends xp {
 
 			$transform_type = $transform_type ? $transform_type : $this->feat->transform;
 
+			M()->info( "transform_type: $transform_type" );
+
 			switch ( $transform_type ) {
 
 				case 'fo':
@@ -1533,12 +1535,25 @@ class xpdoc extends xp {
 						$this->output_buffer = $this->get_messages()->asXML(); 
 					}
 
-				break;
+					break;
+
+				case 'saxon':
+
+					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
+					$this->output_buffer = $this->saxon_transform( $xml_file, $view_file, $params );
+
+					if ( $this->output_buffer === null ) {
+
+						$this->content_type() or $this->content_type( 'text/html' );
+						$this->output_buffer = $this->get_messages()->asXML(); 
+
+					}
+					break;
 
 				case 'bridge':
 
 					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
-					$this->output_buffer = $this->saxon_transform( $xml_file, $view_file, $params );
+					$this->output_buffer = $this->saxon_bridge_transform( $xml_file, $view_file, $params );
 
 					if ( $this->output_buffer === null ) {
 
