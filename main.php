@@ -55,6 +55,9 @@ if ( $xpdoc->init() ) {
 	$xpdoc->set_xdoc( $xpdoc->get_messages() );
 
 $xpdoc->transform();
+
+/* $xpdoc->tidy(); */
+
 $xpdoc->output();
 $xpdoc->close();
 

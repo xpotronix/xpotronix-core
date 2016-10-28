@@ -419,10 +419,10 @@ class xp {
 
 	}/*}}}*/
 
-	function get_hash( $length = 32 ) {
+	function get_hash( $length = 32 ) {/*{{{*/
 
 		return getToken( $length );
-	}
+	}/*}}}*/
 
         function get_hash_md5( $seed = null ) {/*{{{*/
 
@@ -440,6 +440,37 @@ class xp {
 		$domnode = $doc->appendChild($domnode);
 		echo $doc->saveXML();
 
+	}/*}}}*/
+
+	function tidy ( $options = null ) {/*{{{*/
+
+		global $xpdoc;
+
+		$tidy = new Tidy();
+
+		is_array( $options ) or 
+		$options = array( 
+
+		  "indent" =>  "true",
+		  "indent-spaces" =>  2,
+		  "wrap" =>  0,
+		  "markup" =>  true,
+		  "output-xhtml" =>  true,
+		  "numeric-entities" =>  true,
+		  "quote-marks" =>  true,
+		  "quote-nbsp" =>  false,
+		  "show-body-only" =>  false,
+		  "quote-ampersand" =>  false,
+		  "break-before-br" =>  false,
+		  "uppercase-tags" =>  false,
+		  "uppercase-attributes" =>  false,
+		  "drop-font-tags" =>  true,
+		  "tidy-mark" =>  false );
+		 
+		  $tidy->parseString($xpdoc->output_buffer, $options);
+		  $tidy->cleanRepair();
+		 
+		  $xpdoc->output_buffer = (string) $tidy;
 	}/*}}}*/
 
 }
