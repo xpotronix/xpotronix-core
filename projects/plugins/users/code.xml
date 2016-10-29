@@ -57,19 +57,24 @@
 			if ( ! $this->has_role( 'admin' ) )
 				$this->sql->addWhere( "user_id = '{$xpdoc->session->user_id}'" );
 
-			}/*}}}*/
+		}/*}}}*/
 
 	function check() {/*{{{*/
 
+		M()->info();
+
 		$this->get_attr( 'user_username' )->modified and $this->user_username = strtolower(trim($this->user_username)); // DEBUG: falta sanitize
 		$this->get_attr( 'user_password' )->modified and strlen( $this->user_password ) != 32 and $this->user_password = $this->crypt( $this->user_password ) ;
-		return $this;
+
+		return parent::check();
 
 	}/*}}}*/
 
 	function post_check() {/*{{{*/
 
                 global $xpdoc;
+
+		M()->info();
 
                 $function = $this->__new ? 'addLogin' : 'updateLogin' ;
                 if ( ! $xpdoc->perms->$function($this->user_id, $this->user_username) )
@@ -82,6 +87,9 @@
 	function pre_delete() {/*{{{*/
 
 		global $xpdoc;
+
+		M()->info();
+
 		$as = $xpdoc->instance('gacl_aro');
 
 		foreach ( $as->load_set( array( 'value' => $this->user_id ) ) as $a )
@@ -90,13 +98,30 @@
 		return true;
 	}/*}}}*/
 
-	function add_login( $xml ) {/*{{{*/
+	function process_user( $xml ) {/*{{{*/
 
 		// de ejemplo, no usar , falta agregar a un grupo
 
 		global $xpdoc;
-		@$xml['ID'] and $this->load( $xml['ID'] ) and $xpdoc->perms->addLogin($this->user_id, $this->user_username);
+
+		$ID = (string) @$xml['ID'];
+
+		M()->info( "ID: [$ID]");
+
+		if ( $ID !== null ) {
+
+			if ( $this->load( $ID ) ) {
+
+				if ( $this->check() ) {
+
+					$this->update();
+					$this->post_check();
+				}
+			}
+		}
+
 		return $this;
+
 	}/*}}}*/
 
         function default_prefs() {/*{{{*/
@@ -451,6 +476,8 @@
 		// recibe el id del grupo (aro_group.id)
 
 		global $xpdoc;
+
+		M()->info();
 
 		$this->set_flag('main_sql', false );
 

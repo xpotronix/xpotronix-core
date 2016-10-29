@@ -11,6 +11,13 @@
 -->
 
 <database>
+        <table name="users">
+               <process name="process_user" translate="Procesa Datos Usuario">
+                        <acl action="permit" role="admin"/>
+                        <command name="process_user" for="obj_start"/>
+                </process>
+        </table>
+
         <table name="user_preferences">
                <process name="readState" translate="readState" view="json">
                         <acl action="permit" role="*"/>

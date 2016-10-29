@@ -53,7 +53,6 @@
 		</table>
 
 
-		<field name="user_contact" translate="Contacto"/>
 		<field name="user_username" translate="Usuario"/>
 		<field name="user_password" translate="Clave"/>
 
