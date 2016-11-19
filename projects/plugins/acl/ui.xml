@@ -50,9 +50,16 @@
 			plugins: {
 
 				ptype: 'gridviewdragdrop',
-				dropGroup: 'DDGroup'
+				dropGroup: 'DDGroup',
+				copy: false
 			},
 			listeners: {
+
+				
+				beforedrop: function( a, b, c, d, e ) {
+					debugger;
+				},
+
 			    drop: function(node, data, dropRec, dropPosition) {
 
 				/*
