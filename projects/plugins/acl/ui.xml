@@ -39,68 +39,62 @@
 				<items>
 					<cmp><config>layout: 'border', title: 'Administración de Módulos'</config>
 						<items>
-	
 
-		<cmp ref="gacl_groups_axo_map_xpGrid">
-		<config>region: 'west', 
-		width: 500,
+						<cmp ref="gacl_groups_axo_map_xpGrid">
+						<config><![CDATA[region: 'west', 
+						width: 500,
 
-		viewConfig: {
+						viewConfig: {
 
-			plugins: {
+							allowCopy: false,
+							copy: false,
 
-				ptype: 'gridviewdragdrop',
-				dropGroup: 'DDGroup',
-				copy: false
-			},
-			listeners: {
+							plugins: {
 
-				
-				beforedrop: function( a, b, c, d, e ) {
-					debugger;
-				},
+								ptype: 'gridviewdragdrop',
+								dropGroup: 'DDGroup'
+							},
 
-			    drop: function(node, data, dropRec, dropPosition) {
+							prepareData: function( store, records ) {
 
-				/*
+								var ret = [];
+								
+								for (i = 0, len = records.length; i < len; i++) {
 
-				onRecordsDrop: function( g, s ) {
-					Ext.each(s, function(r) {
-						var nr = new this.store.rs({ '__new__': 1 });
-						this.store.add( nr );
-						nr.set( 'group_id', this.store.parent_store.cr().get('id') );
-						nr.set( 'axo_id', r.get('id') );
-						nr.set( 'axo_id_label', r.get('name') );
-						g.store.remove(r);
-					}, this );
-				}
+									var nr = store.model.create({ '__new__': 1 });
+									var r = records[i];
 
-				*/
+									nr.set( 'group_id', store.parent_store.cr().get('id') );
+									nr.set( 'group_id_label', store.parent_store.cr().get('name') );
 
-				var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('name') : ' on empty view';
-				console.log('Drag from right to left', 'Dropped ' + data.records[0].get('name') + dropOn);
-			    }
-			}
-		}</config></cmp>
+									nr.set( 'axo_id', r.get('id') );
+									nr.set( 'axo_id_label', r.get('name') );
 
-		<cmp ref="gacl_axo_xpGrid">
-			<config>region: 'center',
-				viewConfig: {
-					plugins: {
-						ptype: 'gridviewdragdrop',
-						dragGroup: 'DDGroup'
-					}
-				}
-			</config>
-		</cmp>
+									ret.push( nr );
+
+								}
+
+								return ret;
+							}
+
+						}]]></config></cmp>
+
+						<cmp ref="gacl_axo_xpGrid">
+							<config>region: 'center',
+								viewConfig: {
+									plugins: {
+										ptype: 'gridviewdragdrop',
+										dragGroup: 'DDGroup'
+									}
+								}
+							</config>
+						</cmp>
 						</items>
 					</cmp>
 				</items>
 				</cmp>
 			</items>
 		</layout>
-
-
 
 		<panel type="xpGrid"/>
 
