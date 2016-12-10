@@ -54,11 +54,116 @@ if ( file_grid ) {
 		}
 	}/*}}}*/
 
+	function response( $success = true, $message = 'OK' ) {/*{{{*/
+
+		$response = array(
+			'success' => $success,
+			'message' => $message
+		);
+
+		echo json_encode($response);
+
+	}/*}}}*/
+
+	function error($message) {/*{{{*/
+
+		return $this->response(false, $message);
+
+	}/*}}}*/
+
 	function upload() {/*{{{*/
+
+		/**
+		 * Example processing of raw PUT/POST uploaded files.
+		 * File metadata may be sent through appropriate HTTP headers:
+		 *   - file name - the 'X-File-Name' proprietary header
+		 *   - file size - the standard 'Content-Length' header or the 'X-File-Size' proprietary header
+		 *   - file type - the standard 'Content-Type' header or the 'X-File-Type' proprietary header
+		 * 
+		 * Raw data are read from the standard input.
+		 * The response should be a JSON encoded string with these items:
+		 *   - success (boolean) - if the upload has been successful
+		 *   - message (string) - optional message, useful in case of error
+		 */
+
+		global $xpdoc;
+		M()->info( $xpdoc->config->upload_dir = 'test-upload-dir' );
+
+		if (!isset($_SERVER['HTTP_X_FILE_NAME'])) {
+			$this->error('Unknown file name');
+			return;
+		}
+
+		M()->info( $fileName = $_SERVER['HTTP_X_FILE_NAME'] );
+
+		if (isset($_SERVER['HTTP_X_FILENAME_ENCODER']) && 'base64' == $_SERVER['HTTP_X_FILENAME_ENCODER']) {
+		    M()->info( $fileName = base64_decode($fileName) );
+		}
+
+		M()->info( $fileName = htmlspecialchars($fileName) );
+		M()->info( $mimeType = htmlspecialchars($_SERVER['HTTP_X_FILE_TYPE']) );
+		M()->info( $size = intval($_SERVER['HTTP_X_FILE_SIZE']) );
+
+		$inputStream = fopen('php://input', 'r');
+		M()->info( $outputFilename = $xpdoc->config->upload_dir . '/' . $fileName );
+
+		$realSize = 0;
+		$data = '';
+
+		if ($inputStream) {
+
+			$outputStream = fopen($outputFilename, 'w');
+
+			if ( ! $outputStream) {
+				$this->error("Error creating local file $outputFilename");
+				return;
+			}
+		    
+			while ( ! feof( $inputStream ) ) {
+
+				$bytesWritten = 0;
+				$data = fread($inputStream, 1024);
+			
+				$bytesWritten = fwrite($outputStream, $data);
+			
+				if (false === $bytesWritten) {
+
+					$this->error('Error writing data to file');
+					return;
+				}
+
+				$realSize += $bytesWritten;
+			}
+		    
+			fclose($outputStream);
+
+		} else {
+
+			$this->error('Error reading input');
+			return;
+		}
+
+		if ( $realSize != $size ) {
+
+			$this->error('The actual size differs from the declared size in the headers');
+			return;
+		}
+
+		M()->info(sprintf("[raw] Uploaded %s, %s, %d byte(s)", $fileName, $mimeType, $realSize));
+		$this->response();
+
+	}/*}}}*/
+
+	function upload_multipart() {/*{{{*/
 
 		global $xpdoc;
 
-		ini_set('upload_max_filesize', $this->feat->max_file_size);
+		if ( $t = $this->feat->max_file_size ) {
+
+			M()->debug( "feat.max_file_size: $t" );
+			ini_set('upload_max_filesize', $t );
+		}
+
 
 		$valid_chars_regex = '.A-Z0-9_ !@#$%^&()+={}\[\]\',~`-';	// Characters allowed in the file name (in a Regular Expression format)
 		//$extension_whitelist = array('csv', 'gif', 'png','tif');	// Allowed file extensions
@@ -70,9 +175,14 @@ if ( file_grid ) {
 		$multiplier = ($unit == 'M' ? 1048576 : ($unit == 'K' ? 1024 : ($unit == 'G' ? 1073741824 : 1)));
 
 		if ((int)$_SERVER['CONTENT_LENGTH'] > $multiplier*(int)$POST_MAX_SIZE && $POST_MAX_SIZE) {
-			//header("HTTP/1.1 500 Internal Server Error"); // This will trigger an uploadError event in SWFUpload
-			//echo "POST exceeded maximum allowed size.";
-			$this->error('POST exceeded maximum allowed size.', $id );
+
+			M()->user('POST exceeded maximum allowed size.' );
+	                $xpdoc->json = array(
+                        'status' => M()->status('ERR'),
+                        'message' => M()->get()
+                	);
+
+			return;
 		}
 
 		// Other variables	
@@ -89,37 +199,46 @@ if ( file_grid ) {
 			6=>'Missing a temporary folder'
 		);
 
+
+		if ( count( $_FILES ) ) {
+
+			M()->user( "no se recibieron archivos" );
+			M()->status( "ERR" );
+
+
+		} else 
+
 		foreach ( $_FILES as $id => $file ) {
 
 			// Validate the upload
 			if (!isset($file)) {
-				$this->error('No upload found in \$_FILES for ' . $upload_name, $id);
+				M()->user('No upload found in \$_FILES for ' . $upload_name, $id);
 
 			} else if (isset($file["error"]) && $file["error"] != 0) {
-				$this->error($uploadErrors[$file["error"]], $id);
+				M()->user($uploadErrors[$file["error"]], $id);
 
 			} else if (!isset($file["tmp_name"]) || !@is_uploaded_file($file["tmp_name"])) {
-				$this->error('Upload failed is_uploaded_file test.', $id);
+				M()->user('Upload failed is_uploaded_file test.', $id);
 
 			} else if (!isset($file['name'])) {
-				$this->error('File has no name.', $id);
+				M()->user('File has no name.', $id);
 			} else $file_name = $file_name;
 
 			// Validate the file size (Warning: the largest files supported by this code is 2GB)
 			$file_size = @filesize($file["tmp_name"]);
 
 			if (!$file_size || $file_size > $this->feat->max_file_size ) {
-				$this->error('File exceeds the maximum allowed size', $id);
+				M()->user('File exceeds the maximum allowed size', $id);
 			}
 
 			if ($file_size <= 0) {
-				$this->error('File size outside allowed lower bound', $id);
+				M()->user('File size outside allowed lower bound', $id);
 			}
 
 			// Validate file name (for our purposes we'll just remove invalid characters)
 			$file_name = preg_replace('/[^'.$valid_chars_regex.']|\.+$/i', "", basename($file['name']));
 			if (strlen($file_name) == 0 || strlen($file_name) > $MAX_FILENAME_LENGTH) {
-				$this->error('Invalid file name', $id );
+				M()->user('Invalid file name', $id );
 			}
 
 			/*
@@ -134,7 +253,7 @@ if ( file_grid ) {
 				}
 			}
 			if (!$is_valid_extension) {
-				$this->error("Invalid file extension", $id);
+				M()->user("Invalid file extension", $id);
 				exit(0);
 			}
 			*/
@@ -143,7 +262,7 @@ if ( file_grid ) {
 			$tmp_file_ok = $tmp_file.'-OK';
 	
 			if (!@move_uploaded_file($tmp_file, $tmp_file_ok )) {
-				$this->error("File could not be saved.", $id );
+				M()->user("File could not be saved.", $id );
 			}
 
 			$fh = fopen( $tmp_file_ok, 'rb' );
@@ -164,13 +283,14 @@ if ( file_grid ) {
 			mysqli_multi_query($this->db->_connectionID, "UPDATE file set content = '". addslashes(fread($fh,filesize($tmp_file_ok)))."' WHERE ID = '$this->ID'");
 
 			unlink($tmp_file_ok);
-	
-			die('{"success":true}');
-		}
-	}/*}}}*/
 
-	function error($message, $id ) {/*{{{*/
-		die('{success:false,errors:'.json_encode(array( $id => $message)).'}');
+			$xpdoc->json = array(
+
+                        	'status' => M()->status('ERR'),
+                        	'message' => M()->get()
+                	);
+
+		}
 	}/*}}}*/
 
 	]]></code>
@@ -290,7 +410,6 @@ if ( file_grid ) {
 
 	</code>
    </table>
-
 
 </database>
 <!-- vim600: fdm=marker sw=3 ts=8 ai: 

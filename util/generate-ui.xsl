@@ -75,15 +75,15 @@
 	<xsl:comment>Default Includes</xsl:comment><xsl:text>
 </xsl:text>
 
-        <include path="projects/plugins/_common"/>
-        <include path="projects/plugins/_acl"/>
-        <include path="projects/plugins/_audit"/>
-        <include path="projects/plugins/_users"/>
+        <include path="projects/plugins/common"/>
+        <include path="projects/plugins/acl"/>
+        <include path="projects/plugins/audit"/>
+        <include path="projects/plugins/users"/>
 
-        <include path="projects/plugins/_messages"/>
-        <include path="projects/plugins/_sessions"/>
-        <include path="projects/plugins/_file"/>
-        <include path="projects/plugins/_home"/><xsl:text>
+        <include path="projects/plugins/messages"/>
+        <include path="projects/plugins/sessions"/>
+        <include path="projects/plugins/file"/>
+        <include path="projects/plugins/home"/><xsl:text>
 </xsl:text>
 
 	</xsl:template>
