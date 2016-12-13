@@ -1,6 +1,10 @@
 <?
 
-function crypto_rand_secure($min, $max) {
+function utf8_for_xml($string) {/*{{{*/
+	return preg_replace ('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $string);
+}/*}}}*/
+
+function crypto_rand_secure($min, $max) {/*{{{*/
 
 	$range = $max - $min;
 	if ($range < 0) return $min; // not so random...
@@ -15,9 +19,9 @@ function crypto_rand_secure($min, $max) {
 	} while ($rnd >= $range);
 
 	return $min + $rnd;
-}
+}/*}}}*/
 
-function getToken($length){
+function getToken($length){/*{{{*/
 
 	$token = "";
 	$codeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -27,7 +31,7 @@ function getToken($length){
 		$token .= $codeAlphabet[crypto_rand_secure(0,strlen($codeAlphabet))];
 	}
 	return $token;
-}
+}/*}}}*/
 
 function ProcStats() {    /*{{{*/
 
