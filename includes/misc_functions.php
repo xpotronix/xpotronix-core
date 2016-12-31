@@ -4,6 +4,35 @@ function utf8_for_xml($string) {/*{{{*/
 	return preg_replace ('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $string);
 }/*}}}*/
 
+function utf8_for_xml_entities($string) {/*{{{*/
+
+	$find = array( 
+		'/[^\x{0009}]+/u',
+		'/[^\x{000a}]+/u',
+		'/[^\x{000d}]+/u',
+		'/[^\x{0020}]+/u',
+		'/[^\x{D7FF}]+/u',
+		'/[^\x{E000}]+/u',
+		'/[^\x{FFFD}]+/u'
+	);
+
+	$replace = array( 
+
+		'&#x0009;',
+		'&#x000a;',
+		'&#x000d;',
+		'&#x0020;',
+		'&#xD7FF;',
+		'&#xE000;',
+		'&#xFFFD;'
+	);
+
+	return preg_replace ( $find, $replace, $string);
+
+}/*}}}*/
+
+
+
 function crypto_rand_secure($min, $max) {/*{{{*/
 
 	$range = $max - $min;

@@ -19,7 +19,7 @@ class xpparam {
 
 	private $obj_name;
 
-	function __construct() {
+	function __construct() {/*{{{*/
 
 		global $xpdoc;
 
@@ -28,15 +28,14 @@ class xpparam {
 		foreach( $this->params as $param => $key ) {
 			$this->result[$param] = json_decode( $xpdoc->http->$key );
 		}
-	}
+	}/*}}}*/
 
-	function get() {
+	function get() {/*{{{*/
 
 		return $this->result;
-	}
+	}/*}}}*/
 
-
-	function process () {
+	function process () {/*{{{*/
 
 		global $xpdoc;
 
@@ -102,7 +101,8 @@ class xpparam {
 
 			}
 		}
-	}
+	}/*}}}*/
+
 }
 
 ?>

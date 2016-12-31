@@ -47,7 +47,7 @@
 
 	</xsl:template><!--}}}-->
 
-	<xsl:template match="table"  mode="get_model"><!--{{{-->
+	<xsl:template match="table" mode="get_model"><!--{{{-->
 		<xsl:element name="obj">
 			<xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
 			<xsl:sequence select="@*"/>
