@@ -29,7 +29,8 @@
 			<panel type="xpGrid"><config>region:'south',heigth:200, minHeight:200, collapsible:true,split:true</config></panel>
 			</items>
 			</cmp>
-		<panel type="xpForm" display="inspect" id="imagen_xpForm" region="center" translate="Ver Imagen"><config>show_buttons: false, region:'center',labelWidth:70, defaults:{width: '150px'},
+		<panel type="xpForm" id="empleado_imagen_xpForm" region="center" translate="Ver Imagen"><config>show_buttons: false, region:'center',labelWidth:70, 
+		defaults:{width: '150px'},
 		listeners: { render: { fn: function(){
 
 			this.imagen_cambia_imagen = function() {
@@ -41,7 +42,7 @@
 				if ( r = this.cr() ) {
 
                 			img.dom.src 	= App.feat.uri_thumb + r.data.rotar + '&amp;src=' + r.data.dirname + '/' + r.data.basename;
-					img.dom.style 	= "border:2px solid black;";
+					img.dom.style 	= "border:2px solid black; max-width: 100%; max-height: 100%";
 					/* img.dom.border 	= 0; */
 					img.dom.alt 	= r.data.imagen_ID_label;
                 
