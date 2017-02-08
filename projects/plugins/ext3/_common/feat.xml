@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<feat>
+        <!-- nombre de la aplicacion -->
+        <application></application>
+        <generator>xpotronix2</generator>
+
+	<!-- datos de la organizacion -->
+	<company_name>xpotronix Corporation</company_name>
+
+	<!-- codificacion en la que funcionara la aplicacion -->
+	<encoding>UTF-8</encoding>
+
+	<!-- sitio -->
+	<page_title>xpotronix Application</page_title>
+	<site_domain>red.justamente.net</site_domain>
+	<!-- <base_url>http://xpotronix.com/xpotronix/</base_url> -->
+	<crypt_url type="bool">false</crypt_url>
+        <login_window type="bool">true</login_window>
+	<menu_bar type="bool">true</menu_bar>
+	<paging_toolbar type="bool">true</paging_toolbar>
+
+	<!-- codificacion base de datos -->
+
+	<force_utf8 type="bool">false</force_utf8>
+
+	<!-- locales -->
+	<encoding>UTF-8</encoding>
+	<host_locale>es_AR</host_locale>
+
+	<date_format>d/m/y</date_format>
+	<date_long_format>d/m/Y</date_long_format>
+	<time_format>H:i:s</time_format>
+
+	<default_timezone>America/Argentina/Buenos_Aires</default_timezone>
+
+	<!-- formato de la fecha/hora para la base de datos -->
+
+	<date_db_format>Y-m-d</date_db_format>
+	<time_db_format>H:i:s</time_db_format>
+
+	<date_db_null>0000-00-00</date_db_null>
+	<time_db_null>00:00:00</time_db_null>
+
+	<currency_symbol>$</currency_symbol>
+
+	<!-- comportamiento de la aplicacion -->
+	<default_module>users</default_module>
+	<set_time_limit type="int"></set_time_limit>
+
+	<!-- debugging -->
+	<syslog_level type="int">10</syslog_level>
+	<messages_level type="int">-1</messages_level>
+	<debug_xml type="bool">false</debug_xml>
+	<log_changes type="bool">false</log_changes>
+
+	<!-- acceso a base de datos -->
+	<load_full_query type="bool">true</load_full_query>
+	<add_labels type="bool">true</add_labels>
+	<sql_page_model>page</sql_page_model>
+	<page_rows type="int">50</page_rows>
+	<query_action>data</query_action>
+	<load_after_store type="bool">false</load_after_store>
+	<!-- <query_action>datab</query_action> -->
+	<remote_sort type="bool">true</remote_sort>
+	<include_dataset type="int">0</include_dataset>
+	<ignore_null_fields type="bool">true</ignore_null_fields>
+	<ignore_null_dataset type="bool">true</ignore_null_dataset>
+	<on_null_dataset></on_null_dataset>
+	<hide_pk type="bool">true</hide_pk>
+	<hide_fk type="bool">true</hide_fk>
+	<auto_load type="bool">false</auto_load>
+	<key_delimiter>^</key_delimiter>
+	<container_tag>c_</container_tag>
+	<try_update_on_fail type="bool">true</try_update_on_fail>
+
+	<!-- transformacion de la aplicacion -->
+
+	<transform>bridge</transform>
+	<default_view>ext/viewport</default_view>
+
+	<!-- serializacion -->
+	<envelope_tag type="bool">true</envelope_tag>
+	<expose_server_vars type="bool">false</expose_server_vars>
+
+</feat>

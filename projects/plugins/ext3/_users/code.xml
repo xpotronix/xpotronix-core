@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+   <table name="users">
+
+	<code type="php" mode="var_def">
+
+		var $ldap_host;
+		var $ldap_port;
+		var $ldap_version;
+		var $base_dn;
+		var $ldap_search_user;
+		var $ldap_search_pass;	
+		var $filter;
+		var $fallback;
+
+		var $state;
+		var $user_prefs;
+
+	</code>
+
+	<code type="php" mode="class_functions">
+
+	function __construct() {/*{{{*/
+		
+		global $xpdoc;
+		$this->state = array();
+		// $this->setUserLocale($this->base_locale);
+		$this->user_prefs = array();
+
+		/* fallback */
+
+		$this->fallback = isset( $xpdoc->config->ldap_allow_login ) ? 
+			$xpdoc->config->ldap_allow_login : 
+			false;
+
+		parent::__construct();
+
+	}/*}}}*/
+
+		function main_sql() {/*{{{*/
+
+			global $xpdoc;
+
+			if ( ! $this->get_flag( 'main_sql' ) ) return;
+
+			if ( ! $this->has_role( 'admin' ) )
+				$this->sql->addWhere( "user_id = '{$xpdoc->session->user_id}'" );
+
+			}/*}}}*/
+
+	function check() {/*{{{*/
+
+		$this->get_attr( 'user_username' )->modified and $this->user_username = strtolower(trim($this->user_username)); // DEBUG: falta sanitize
+		$this->get_attr( 'user_password' )->modified and strlen( $this->user_password ) != 32 and $this->user_password = $this->crypt( $this->user_password ) ;
+		return $this;
+
+	}/*}}}*/
+
+	function post_check() {/*{{{*/
+
+                global $xpdoc;
+
+                $function = $this->__new ? 'addLogin' : 'updateLogin' ;
+                if ( ! $xpdoc->perms->$function($this->user_id, $this->user_username) )
+			M()->error( 'no pude agregar permisos para el usuario '. $this->user_username );
+                
+                return $this;
+
+	}/*}}}*/
+
+	function pre_delete() {/*{{{*/
+
+		global $xpdoc;
+		$as = $xpdoc->instance('gacl_aro');
+
+		foreach ( $as->load_set( array( 'value' => $this->user_id ) ) as $a )
+			$a->delete();
+
+		return true;
+	}/*}}}*/
+
+	function add_login( $xml ) {/*{{{*/
+
+		// de ejemplo, no usar , falta agregar a un grupo
+
+		global $xpdoc;
+		@$xml['ID'] and $this->load( $xml['ID'] ) and $xpdoc->perms->addLogin($this->user_id, $this->user_username);
+		return $this;
+	}/*}}}*/
+
+        function default_prefs() {/*{{{*/
+
+                $this->load_prefs( 0 );
+
+        }/*}}}*/ 
+
+        function change_password() {/*{{{*/
+
+                global $xpdoc;
+
+                $pass1 = $xpdoc->http->password;
+                $pass2 = $xpdoc->http->password_repeat;
+
+		$this->push_privileges( array( 'edit' => true ) );
+
+		if ( !$pass1 or !$pass2 ) {
+
+			$result["errors"]["reason"] = "Debe ingresar una clave válida";
+			$result["success"] = false;
+
+		} else if ( $pass1 != $pass2 ) {
+
+			$result["errors"]["reason"] = "La claves difieren entre si, por favor, reingrese";
+			$result["success"] = false;
+	
+		} else if ( $this->user_id &lt; 1 )  {
+
+			$result["errors"]["reason"] = "Debe ingresar primero para cambiar la clave";
+			$result["success"] = false;
+
+		} else if ( ! $this->load( $this->user_id ) ){
+
+			$result["errors"]["reason"] = "Usuario Inexistente";
+			$result["success"] = false;
+
+		} else if ( !$this->bind_store( array('user_password' => $pass1 )) ) {
+
+			$result["errors"]["reason"] = "Hubo un error al cambiar la clave. No se han realizado los cambios";
+			$result["success"] = false;
+
+		} else $result["success"] = true;
+
+		$this->pop_privileges();
+
+		return $result;
+
+        }/*}}}*/ 
+
+        function login( $user, $pass ) {/*{{{*/
+
+		global $xpdoc;
+
+		$user = strtolower(trim($user));
+
+		$this->set_flag('main_sql', false);
+
+                if ( ( $r = $this->$login_fn( $user, $pass ) ) ) {
+
+			$xpdoc->session->set_user_session( $xpdoc->user->user_id );
+			M()->info("ingreso usuario $user" );
+
+		} else {
+
+			M()->info("fallo ingreso usuario $user" );
+                }
+
+		$this->set_flag('main_sql',true);
+		return $r;
+
+        }/*}}}*/ 
+
+        function POST_login() {/*{{{*/
+
+		global $xpdoc;
+
+                $user = $xpdoc->http->loginUsername;
+                $pass = $xpdoc->http->loginPassword;
+
+		$user = strtolower(trim($user));
+
+		$login_fn = $xpdoc->config->login_fn;
+
+		$this->set_flag('main_sql', false);
+
+                if ( $this->$login_fn( $user, $pass ) ) {
+
+			$xpdoc->session->set_user_session( $xpdoc->user->user_id );
+			$result["success"] = true;
+			M()->info("ingreso usuario $user" );
+
+		} else {
+
+			$result["errors"]["reason"] = "Ingreso fallido: intente nuevamente";
+			$result["success"] = false;
+			M()->user("fallo ingreso usuario $user" );
+                }
+
+		$this->set_flag('main_sql',true);
+		return $result;
+
+        }/*}}}*/ 
+
+	function _login( $username, $password ) {/*{{{*/
+
+		global $xpdoc;
+
+		M()->info();
+
+		if ( ! $this->authenticate( $username, $password ) ) 
+			return false;
+
+		$user_id = $this->user_id;
+		$username = $this->user_username;
+
+		M()->info("usuario $username autenticado con id $user_id");
+
+		if ( ! $xpdoc->perms->checkLogin($user_id) ) {
+
+			M()->error("Sin permisos para el usuario $username ");
+			return false;
+		}
+
+		/* DEBUG: migrar
+		$this->load_prefs( $this->user_id );
+		$this->set_locale();
+		*/
+
+		return true;
+
+	}/*}}}*/
+
+	function _login_ldap( $username, $password ) {/*{{{*/
+
+		global $xpdoc;
+
+		M()->info( "autenticando con LDAP, usuario $username, clave $password" );
+
+		$this->ldap_host = $xpdoc->config->ldap_host;
+		$this->ldap_port = $xpdoc->config->ldap_port;
+		$this->ldap_version = $xpdoc->config->ldap_version;
+		$this->base_dn = $xpdoc->config->ldap_base_dn;
+
+		$this->filter = $xpdoc->config->ldap_user_filter;
+
+		$this->ldap_search_user = $xpdoc->config->ldap_search_user ? $xpdoc->config->ldap_search_user : $username;
+		$this->ldap_search_pass = $xpdoc->config->ldap_search_pass ? $xpdoc->config->ldap_search_pass : $password;
+
+		$this->user_username = $username;
+
+		if ( strlen( $password ) == 0) {
+
+			M()->info( "Clave nula, devuelvo FALSE" );
+			return false; 
+		} 
+
+		if ( ! function_exists( 'ldap_connect' ) ) {
+
+			M()->error( "modulo ldap no instalado" );
+			return false;
+		}
+
+		if ( !$rs = ldap_connect( $this->ldap_host, $this->ldap_port ) ) {
+
+			M()->warn( "no hubo respuesta del servidor LDAP" );
+			return $this->_login_ldap_fallback( $username, password );
+		} 
+
+		ldap_set_option( $rs, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version );
+		ldap_set_option( $rs, LDAP_OPT_REFERRALS, 0 );
+
+		$ldap_bind_dn = "uid = {$this->ldap_search_user},{$this->base_dn}";
+
+		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
+
+			$err = ldap_error( $rs );
+			M()->warn( "No se pudo autenticar via LDAP: [$err] con [$ldap_bind_dn@{$this->ldap_host}:{$this->ldap_port}]" );
+			return $this->_login_ldap_fallback( $username, $password );
+		
+		} else {
+
+			M()->info( "pude conectarme al servidor LDAP" );
+			$filter_r = str_replace( "%USERNAME%", $username, $this->filter );
+
+			if ( $result = @ldap_search( $rs, $this->base_dn, $filter_r ) ) {
+
+				M()->info( "ldap_search result: ". serialize( $result ) );
+
+			} else {
+
+				M()->info( "respuesta vacia del servidor LDAP" );
+				return $this->_login_ldap_fallback( $username, $password );
+			}
+
+			$result_user = ldap_get_entries($rs, $result);
+
+			if ( $result_user["count"] == 0 ) {
+
+				M()->info("el usuario no existe en el servidor LDAP" );
+				return $this->_login_ldap_fallback( $username, $password );
+			}
+
+			$ldap_user_dn = $result_user[0]["dn"];
+
+			// Bind with the dn of the user that matched our filter (only one user should match sAMAccountName or user_id etc..)
+
+			if ( $bind_user = @ldap_bind( $rs, $ldap_user_dn, $password ) ) {
+
+				M()->info( "login exitoso" );
+
+		                $this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+
+				if ( $this->user_exists( $username ) ) {
+
+					M()->info( "el usuario existe. Actualizando la clave" );
+
+					$this->user_password = $password;
+					$this->store();
+
+				} else { 
+
+					// DEBUG: mmm le estoy dando permisos al anon para crear usuarios por un segundo, revisar
+
+			                $this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+
+					M()->info( "el usuario no existe, creando uno" );
+
+					$ret = (bool) $this->create( $username, $password );
+				}
+
+				$this->pop_privileges();
+				return true;
+
+			} else {
+
+				M()->info( ldap_error( $rs ). " en $ldap_user_dn@{$this->ldap_host}:{$this->ldap_port}" );
+				return $this->_login_ldap_fallback( $username, $password );
+			}
+		}
+
+	}/*}}}*/
+
+	function _login_ldap_fallback( $username, $password ) {/*{{{*/
+
+		global $xpdoc;
+
+		$this->fallback = isset( $xpdoc->config->ldap_allow_login ) ? 
+			$xpdoc->config->ldap_allow_login : 
+			false;
+
+		$this->fallback = true;
+
+		if ( $this->fallback ) {
+
+			M()->warn( "haciendo fallback en base de datos local via SQL" );
+			return $this->_login( $username, $password );
+
+
+		} else { 
+
+			M()->warn( "No hay fallback permitido sobre SQL" );
+			return false;
+
+		}
+
+	}/*}}}*/
+
+        function logout() {/*{{{*/
+
+		global $xpdoc;
+
+		$xpdoc->session->set_user_session( $xpdoc->config->anonymous_user_id ) ;
+		$xpdoc->session->close();
+		$xpdoc->session->destroy();
+		M()->info("Egreso del usuario {$this->user_username}" );
+		$result["success"] = true;
+
+		return $result;
+
+        }/*}}}*/
+
+        function send_password() {/*{{{*/
+
+	}/*}}}*/
+
+	function set_locale() {/*{{{*/
+
+		// DEBUG: cargar los locales del usuario
+	}/*}}}*/
+
+	function is_logged() {/*{{{*/
+
+		return ($this->user_id &lt; 0) ? true : false;
+	}/*}}}*/
+
+	function get_pref( $name ) {/*{{{*/
+
+		return @$this->user_prefs[$name];
+	}/*}}}*/
+
+	function set_pref( $name, $val ) {/*{{{*/
+
+		$this->user_prefs[$name] = $val;
+	}/*}}}*/
+
+	function load_prefs( $user_id=0 ) {/*{{{*/
+
+		require_once 'modules/user_preferences/user_preferences.class.php';
+		$this->user_prefs = new Cuser_preferences;
+		$this->user_prefs->load( $user_id );
+
+	}/*}}}*/
+
+ 	function authenticate( $username, $password ) {/*{{{*/
+
+		$username = $this->sanitize( $username );
+		$password = $this->crypt( $password );
+
+		$this->set_flag('main_sql',false);
+		$ret = false;
+
+		if ( $this->load( array( 'user_username' => $username ) ) )
+			if ( $password == $this->user_password )
+				$ret = true and M()->info("Usuario $username autenticado" );
+			else
+				M()->user("Clave incorrecta para el usuario $username" );
+		else
+			M()->user("usuario $username inexistente" );
+
+		$this->set_flag('main_sql',true);
+		return $ret; 
+
+	}/*}}}*/
+
+	function user_id( $username ) {/*{{{*/
+
+                if ( $user = $this->load( array( 'user_username' => $username ) ) ) 
+                        return $user->user_id;
+                return NULL;
+
+	}/*}}}*/
+
+	function user_exists( $username ) {/*{{{*/
+
+		return (bool) $this->user_id( $username ); 
+
+	}/*}}}*/
+
+	 function create( $username, $password, $groups = null) {/*{{{*/
+
+		// recibe el id del grupo (aro_group.id)
+
+		global $xpdoc;
+
+		$this->set_flag('main_sql', false );
+
+		if ( $this->load( array( 'user_username' => $username ) ) ) {
+
+			M()->user( "El usuario $username ya existe" );
+			$this->set_flag('main_sql', true );
+			return null;
+		}
+
+		$this->user_username = $username;
+		$this->user_password = $password;
+
+		$this->fill_primary_key();
+		$this->defaults();
+
+		if ( $this->store() ) {
+
+			$this->add_role( $username, $groups );
+
+		} else {
+
+			M()->user( "No pude crear el usaurio $username." );
+			$this->set_flag('main_sql', true );
+			return null;
+		}
+
+		$this->set_flag('main_sql', true );
+		return $this;
+
+	}/*}}}*/
+
+	function add_role( $username, $roles = null ) {/*{{{*/
+
+		global $xpdoc;
+
+		M()->info( "usuario: $username" );
+
+		if ( !$roles ) {
+
+			if ( $dr = $xpdoc->config->create_user_default_role ) {
+
+				M()->info( "create_user_default_role: $dr" );
+				$roles = array( $dr );
+
+			} else {
+
+				M()->warn('no se ha especificado el grupo, asignandolo al grupo "anon"');
+				$roles = array( 'anon' );
+			}
+
+		}
+
+		if ( !is_array( $roles ) ) 
+			$roles = array( $roles );
+
+		// que gacl_aro_id tiene el usuario
+
+		$ga = $xpdoc->instance( 'gacl_aro' );
+
+		if ( ! $ga->load( array( 'name' => $username ) ) ) {
+
+			M()->user( "no encuentro el usuario $username en el sistema" );
+			return;
+		}
+
+		$gacl_aro_id = $ga->id; 
+
+		if ( !$gacl_aro_id ) {
+
+			M()->error( "el usuario {$username} no tiene permisos en el sistema" );
+			return;
+		}
+
+		$ggam = $xpdoc->instance( 'gacl_groups_aro_map' );
+		$gag = $xpdoc->instance( 'gacl_aro_groups' );
+
+                $ggam->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+
+		foreach( $roles as $role ) {
+
+                        if ( ! is_numeric( $role ) ) {
+
+                                if ( ! $gag->load( array( 'value' => $role ) ) ) {
+
+                                        M()->user( "Rol $role inexistente, ignorado. Revise la configuracion" );
+                                        continue;
+
+                                } else $role_id = $gag->id;
+
+                        } else $role_id = $role;
+
+			$io = $ggam->bind_store( array( 'group_id' => $role_id, 'aro_id' => $gacl_aro_id ) );
+
+			if ( $io == INSERT_OP or $io == UPDATE_OP ) {
+
+				M()->info( "El usuario {$username} obtuvo el rol $role" );
+				$xpdoc->perms->clean_cache();	
+			}
+			else
+				M()->user( "El usuario {$username} no pudo obtener el rol $role" );
+
+		}
+
+		$ggam->pop_privileges();
+
+		return $this;
+
+	}/*}}}*/
+
+	function crypt( $string ) {/*{{{*/
+
+		M()->debug( 'llamo a crypt con el valor: '. $string );
+		return md5( $this->sanitize( $string ) );
+
+	}/*}}}*/
+
+	function sanitize( $string ) {/*{{{*/
+
+		// DEBUG: no anda esto por ahora
+		// return trim( filter_var( $string, FILTER_SANITIZE_EMAIL) );
+		return trim( $string );
+
+	}/*}}}*/
+
+</code>
+   </table>
+
+   <table name="user_preferences">
+	<code type="php" mode="class_functions">
+
+	function getState() {/*{{{*/
+
+		global $xpdoc;
+
+		$data = array();
+
+		$prefs = $this->load_set( array( 'user_id' => $xpdoc->user->user_id ) );
+
+		foreach( $prefs as $pref ) 
+
+			$data[] = array ( 'name' => $this->var_name, 'value' => $this->var_value );
+
+		return $data;
+
+	}/*}}}*/
+
+	function readState() {/*{{{*/
+
+		if ( is_array( $data = $this->getState() ) )
+			$xpdoc->json = array( 'success' => true, 'data' => json_encode($data) );
+		else
+			$xpdoc->json = array( 'success' => false );
+
+	}/*}}}*/
+
+	function saveState() {/*{{{*/
+
+		global $xpdoc;
+
+		if ( $data = json_decode( stripslashes( $xpdoc->http->ui_state ) ) ) {
+
+			foreach( $data as $item ) {
+
+				$this->load( array( 'user_id' => $xpdoc->user->user_id, 'var_name' => $item->name ) );
+
+				if ( ! $this->loaded ) {
+
+					$this->fill_primary_key();
+					$this->user_id = $xpdoc->user->user_id;
+					$this->var_name = $item->name;
+
+				}
+
+				$this->var_value = $item->value;
+
+				$this->push_privileges( array( 'add' => true, 'edit' => true ) );
+				$this->store();
+				$this->pop_privileges();
+
+			}
+
+			$xpdoc->json = array( 'success' => true );
+
+		} else {
+
+			M()->warn('no pude decodificar el estado en ui_state');
+			
+			$xpdoc->json = array( 'success' => false );
+		}
+	}/*}}}*/
+
+	</code>
+   </table>
+
+
+<file name="soapauth.php"><![CDATA[<?php 
+
+class SoapAuth {
+
+        function SoapLogin( $user = null, $pass = null ) { /*{{{*/
+
+                global $xpdoc;
+
+
+		M()->user( "en login, user: $user" );
+
+                $s = new xpSoap;
+
+                $xpdoc = new xpdoc;
+
+                $xpdoc->init();
+
+		$Response = new SimpleXMLElement('<Response/>');
+
+		$Response->Status = ( $xpdoc->user->_login_ldap( $user, $pass ) ) ? '1' : '0';
+
+		$User = $Response->addChild( 'User' );
+
+		$User->FirstName = $xpdoc->user->user_username;
+		$User->LastName = $xpdoc->user->user_username;
+		$User->DisplayName = $xpdoc->user->user_username;
+		$User->Email = $xpdoc->user->user_username.'@jusbaires.gov.ar';
+		$User->URL = 'http://xpay.jusbaires.gov.ar';
+
+		// DEBUG: hotfix: es admin el usuario admin solamente
+		$Response->Role = ( $user == 'admin' ) ? 'admin' : 'editor';
+
+		$Response->Messages = 'string de mensajes';
+
+		M()->user( $Response->asXML() );
+
+		return $Response;
+
+        } /*}}}*/
+
+}
+
+// main script
+
+ini_set( 'display_errors', 0 );
+ini_set( 'log_errors', 1 );
+ini_set( 'error_log', 'syslog' );
+
+// requires
+
+require_once "xpsoap.class.php";
+
+global $xpdoc;
+
+$t_start = microtime_float();
+
+M()->stats( 'START' ); 
+M()->mem_stats();
+
+$server = new SoapServer("soapauth8.wsdl"); 
+$server->setClass("SoapAuth"); 
+$server->handle(); 
+
+M()->mem_stats();
+M()->mem_max_stats();
+
+M()->stats( 'END' ); 
+
+?>]]></file>
+
+<file name="soapauth8.wsdl" type="xml">
+<wsdl:definitions 
+
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:tns="http://xpay.jusbaires.gov.ar/xpay/soapauth8.wsdl" 
+	targetNamespace="http://xpay.jusbaires.gov.ar/xpay/soapauth8.wsdl">
+
+	<!-- types -->
+
+	<wsdl:types>
+		<xs:schema targetNamespace="http://xpay.jusbaires.gov.ar/xpay/soapauth8.wsdl" elementFormDefault="qualified">
+			<xs:element name="Proceso" type="xs:string"/>
+			<xs:element name="FhAudiencia" type="xs:string"/>
+			<xs:element name="Username" type="xs:string"/>
+			<xs:element name="Password" type="xs:string"/>
+
+	  <xs:element name="Response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element type="xs:byte" name="Status"/>
+        <xs:element name="User">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="FirstName"/>
+              <xs:element type="xs:string" name="LastName"/>
+              <xs:element type="xs:string" name="DisplayName"/>
+              <xs:element type="xs:string" name="Email"/>
+              <xs:element type="xs:anyURI" name="URL"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element type="xs:string" name="Role"/>
+        <xs:element type="xs:string" name="Messages"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>	
+		</xs:schema>
+	</wsdl:types>
+
+	<!-- messages -->
+
+	<wsdl:message name="SoapLoginRequest">
+		<wsdl:part name="Username" element="tns:Username"/>
+		<wsdl:part name="Password" element="tns:Password"/>
+	</wsdl:message>
+
+	<wsdl:message name="SoapLoginResponse">
+		<wsdl:part name="Response" element="tns:Response"/>
+	</wsdl:message>
+
+	<!-- portType -->
+
+	<wsdl:portType name="SoapAuthPortType">
+		<wsdl:operation name="SoapLogin">
+			<wsdl:input message="tns:SoapLoginRequest"/>
+			<wsdl:output message="tns:SoapLoginResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<!-- bindings -->
+
+	<wsdl:binding name="SoapAuthBinding" type="tns:SoapAuthPortType">
+
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+		<wsdl:operation name="SoapLogin">
+			<soap:operation soapAction="urn:#SoapLogin"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+
+	</wsdl:binding>
+
+	<!-- service -->
+
+	<wsdl:service name="SoapAuthService">
+		<wsdl:port name="SoapAuthPort" binding="tns:SoapAuthBinding">
+			<soap:address location="http://xpay.jusbaires.gov.ar/xpay/soapauth.php"/>
+		</wsdl:port>
+	</wsdl:service>
+
+</wsdl:definitions>
+</file>
+
+
+
+
+</database>
+<!-- vim600: fdm=marker sw=3 ts=8 ai: 
+-->
+

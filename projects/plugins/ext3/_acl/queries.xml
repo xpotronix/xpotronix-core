@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+   <queries>
+      <query name="acl_id">
+         <id>gacl_acl.id</id>
+         <label>concat( gacl_acl.note, ': permite ', gacl_acl.allow, ', activado ', gacl_acl.enabled)</label>
+         <from>gacl_acl</from>
+      </query>
+
+      <query name="acl_section_value">
+         <id>gacl_acl_sections.value</id>
+         <label>gacl_acl_sections.name</label>
+         <from>gacl_acl_sections</from>
+         <order_by>order_value</order_by>
+      </query>
+
+      <query name="aco_section_value">
+         <id>gacl_aco_sections.value</id>
+         <label>gacl_aco_sections.name</label>
+         <from>gacl_aco_sections</from>
+         <order_by>order_value</order_by>
+      </query>
+
+      <query name="aro_section_value">
+         <id>gacl_aro_sections.value</id>
+         <label>gacl_aro_sections.name</label>
+         <from>gacl_aro_sections</from>
+         <order_by>order_value</order_by>
+      </query>
+
+      <query name="axo_section_value">
+         <id>gacl_axo_sections.value</id>
+         <label>gacl_axo_sections.name</label>
+         <from>gacl_axo_sections</from>
+         <order_by>order_value</order_by>
+      </query>
+
+   <query name="aro_groups">
+         <id>gacl_aro_groups.id</id>
+         <label>gacl_aro_groups.name</label>
+         <from>gacl_aro_groups</from>
+   </query>
+
+   <query name="axo_groups">
+         <id>gacl_axo_groups.id</id>
+         <label>gacl_axo_groups.name</label>
+         <from>gacl_axo_groups</from>
+   </query>
+
+   <query name="aco_id">
+         <id>gacl_aco.id</id>
+         <label>gacl_aco.name</label>
+         <from>gacl_aco</from>
+         <order_by>order_value</order_by>
+   </query>
+
+   <query name="aro_id">
+         <id>gacl_aro.value</id>
+         <label>gacl_aro.value</label>
+         <from>gacl_aro</from>
+         <order_by>value</order_by>
+   </query>
+
+   <query name="aro_name">
+         <id>gacl_aro.id</id>
+         <label>gacl_aro.name</label>
+         <from>gacl_aro</from>
+         <order_by>name</order_by>
+   </query>
+
+
+   <query name="axo_id">
+         <id>gacl_axo.id</id>
+         <label>gacl_axo.value</label>
+         <from>gacl_axo</from>
+         <order_by>value</order_by>
+   </query>
+
+   <query name="aro_value">
+         <id>gacl_aro.value</id>
+         <label>gacl_aro.value</label>
+         <from>gacl_aro</from>
+         <order_by>value</order_by>
+   </query>
+
+   <query name="axo_value">
+         <id>gacl_axo.value</id>
+         <label>gacl_axo.value</label>
+         <from>gacl_axo</from>
+         <order_by>value</order_by>
+   </query>
+
+   <query name="aco_value">
+         <id>gacl_aco.value</id>
+         <label>gacl_aco.value</label>
+         <from>gacl_aco</from>
+         <order_by>value</order_by>
+   </query>
+
+   </queries>
+</database>

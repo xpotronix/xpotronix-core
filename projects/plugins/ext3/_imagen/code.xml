@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+   <table name="imagen">
+
+	   <code type="php" mode="class_functions"><![CDATA[
+
+	function source_path() {/*{{{*/
+
+		global $xpdoc;
+		return $this->feat->path_imagenes. '/'.  $this->dirname. '/'. $imagen->basename;
+
+	}/*}}}*/
+
+	function cargar_imagenes() {/*{{{*/
+
+	global $xpdoc;
+
+	require_once 'xpthumb.class.php';
+	$image = new xpthumb;
+
+	$file_utils = $xpdoc->get_instance('file_utils');
+
+	$legajo_dir = $xpdoc->instance( 'C3_data' );
+
+	if ( $xpdoc->http->usuario_ID ) {
+
+		$usuario_ID = $xpdoc->http->usuario_ID;
+
+	} else {
+
+		if ( $xpdoc->user->legajo ) {
+
+			$usuario_ID = $xpdoc->user->legajo;
+
+
+		} else {
+
+			M()->user( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
+			return;
+		}
+	}
+
+
+
+
+	M()->info( "usuario_ID: $usuario_ID" );
+
+	if ( !$legajo_dir->load( array( 'legajo_ID' => $usuario_ID ) ) ) {
+
+		try {
+
+			$xc3s = simplexml_load_file( $xpdoc->feat->path_imagenes.'/C3_data.xml' );
+
+		} catch(Exception $e) {
+
+			M()->user( 'No encuentro el archivo de directorios y legajos. Consulte con el administrador' );
+			return;
+		}
+
+		$tmp = $xc3s->xpath('//C3_data[Nro_legajo='.trim($usuario_ID).']');
+
+		if ( ! count( $tmp ) ) {
+
+			M()->user( "no encuentro el legajo $usuario_ID en el directorio de imagenes" );
+			return;
+		}
+
+		$xc3 = array_shift( $tmp );
+
+		$legajo_dir->legajo_ID = $usuario_ID;
+		$legajo_dir->Doc_id = (string) $xc3->Doc_id;
+		$legajo_dir->Batch_id = (string) $xc3->Batch_id;
+
+		$legajo_dir->push_privileges( array( 'add' => 1, 'edit' => 1 ) );
+
+		$legajo_dir->dirname = $legajo_dir->Batch_id. '/'. $legajo_dir->Doc_id;
+
+		$legajo_dir->insert();
+
+		// $legajo_dir->debug_object(); exit;
+	}
+
+	M()->user( "Escaneando para el usuario/legajo $usuario_ID" );
+
+	$nuevas = 0;
+	$existentes = 0;
+	$faltantes = 0;	
+
+	/* paths */
+
+	$base_path = $this->feat->path_imagenes;
+	$working_path = $base_path . '/'. $legajo_dir->dirname;
+
+ 	set_time_limit( 0 );
+
+	$imagen = $xpdoc->get_instance('imagen');
+
+	$sql = new DBQuery( $this->db() );
+	$sql->addTable("imagen")->addUpdate("encontrada", 0)->addWhere("imagen.usuario_ID = '{$usuario_ID}'")->Exec();
+
+	M()->debug( "reset de imagen->encontrada: ". $sql->prepare() ) ;
+
+	M()->debug( "escaneando imagenes para el usuario $usuario_ID y el directorio $working_path" );
+
+	$files = $file_utils->list_directory( $working_path, array( 'jpg', 'JPG', 'TIF' ));
+
+	// por cada entrada ...
+
+	foreach ( $files as $file ) {
+
+		// saca el $base_path
+
+		$full_file = $file;
+
+		$file = str_replace( $base_path.'/', "", $file );
+
+		$params = pathinfo( $file );
+
+		// completa la informacion de la imagen
+
+		// $params['usuario_ID'] = $usuario_ID;
+
+		M()->info( 'params: '. serialize( $params ) );
+
+		// si no existe, la crea
+
+		if ( ! $imagen->load( $params ) ) {
+
+			$imagen->bind( $params, true );
+			$imagen->fill_primary_key();
+			$imagen->encontrada = true;
+			$imagen->usuario_ID = $usuario_ID;
+			$imagen->filesize = filesize( $full_file );
+			$imagen->fecha = date("Y-m-d", filemtime($full_file));
+			// $imagen->exim_info = (string) $image;
+			$imagen->push_privileges( array( 'add' => 1 ) );
+			$imagen->insert();
+			M()->debug( "agregando imagen {$params['basename']}");
+			$nuevas ++;
+
+	 	} else {
+
+			$existentes ++;
+			$imagen->encontrada = true;
+			$imagen->filesize = filesize( $full_file );
+			// $imagen->exim_info = (string) $image;
+			$imagen->push_privileges( array( 'edit' => 1 ) );
+			$imagen->update();
+			M()->debug( "imagen existente {$params['dirname']}");
+
+		}
+
+		$imagen->pop_privileges();
+
+
+		/*
+		// crea el directorio para cache
+
+		$cache_dir = $base_path.'/'.$params['dirname'].'/cache';
+
+		if ( file_exists( $cache_dir )) {
+
+			M()->debug( "$cache_dir existente.");
+
+		} else {
+
+			M()->debug( "creando directorio $cache_dir");
+			$file_utils->mkdir( $cache_dir );
+		}
+
+		*/
+	}
+
+	M()->user( "existentes: $existentes, nuevas: $nuevas" );
+
+	}/*}}}*/]]>
+
+	</code>
+   </table>
+
+
+</database>
+<!-- vim600: fdm=marker sw=3 ts=8 ai: 
+-->
+

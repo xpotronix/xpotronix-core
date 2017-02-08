@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<config>
+	<class_session>sessions</class_session>
+	<db_instance name="default-acl"/>
+
+	<!-- manejo de sesiones -->
+	<session_handling></session_handling>
+	<session_idle_time>1d</session_idle_time>
+	<session_max_lifetime>1d</session_max_lifetime>
+	<session_base_url></session_base_url>
+</config>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+	<!-- Usuarios del Sistema -->
+
+	<table name="users" translate="Usuarios del Sistema"><!--{{{-->
+		<panel type="xpGrid"/>
+		<panel type="xpForm" display="hide"/>
+
+		<table name="user_preferences" translate="Preferencias del Usuario">
+			<panel type="xpGrid"/>
+			<foreign_key type="wired"><ref local="user_id" remote="user_id"/></foreign_key>
+		</table>
+
+		<table name="audit" translate="Auditoria de Acceso">
+			<panel type="xpGrid"/>
+			<panel type="xpForm" display="disabled"/>
+			<foreign_key type="wired"><ref local="user_id" remote="user_id"/></foreign_key>
+		</table>
+
+		<table name="sessions" translate="Sesiones del Usuario">
+			<panel type="xpGrid"/>
+			<foreign_key type="wired"><ref local="user_id" remote="user_id"/></foreign_key>
+		</table>
+
+		<table name="gacl_aro" translate="Usuario en ACL">
+			<panel type="xpGrid"/>
+			<foreign_key type="wired"><ref local="name" remote="user_username"/></foreign_key>
+
+			<table name="gacl_groups_aro_map" translate="Permisos por Grupos Roles">
+				<panel type="xpGrid"/>
+				<foreign_key type="wired"><ref local="aro_id" remote="id"/></foreign_key>
+				<feat><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>
+			</table>
+
+			<table name="gacl_aro_map" translate="Permisos del Usuario">
+				<panel type="xpGrid"/>
+				<foreign_key type="wired"><ref local="value" remote="value"/></foreign_key>
+				<feat><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>
+			</table>
+
+		</table>
+
+
+		<field name="user_contact" translate="Contacto"/>
+		<field name="user_username" translate="Usuario"/>
+		<field name="user_password" translate="Clave"/>
+
+ 	</table><!--}}}-->
+
+	<table name="user_preferences"><!--{{{-->
+		<panel type="xpGrid"/>
+
+		<field name="id"/>
+		<field name="user_id" match_type="exact" translate="Usuario" eh="user_id"/>
+		<field name="var_name" translate="Variable"/>
+		<field name="var_value" translate="Valor"/>
+
+	</table><!--}}}-->
+
+<table name="login" translate="Ingresar a Patrocinio"><!--{{{-->
+
+	<layout>
+		<cmp type="Window" id="xpApp_layout"><config>
+		layout:'fit',
+        	width:500,
+        	height:300,
+		constrain: true,
+        	closable: false,
+        	resizable: true,
+		maximizable: true,
+        	border: false,
+		defaultButton: 'login_loginUsername'
+		</config>
+		<items>
+			<cmp type="TabPanel"><config>
+				title:'ingresar',
+				layoutOnTabChange: true, 
+				collapsible: false, 
+				activeTab:0
+				</config>
+			<items>
+				<cmp include="login_xpForm"/>
+				<cmp ref="forgot_password_xpForm"/>
+				<cmp ref="register_xpForm"/>
+				<!-- <cmp type="ux.GMapPanel3">
+				<config>
+				title:'Mapa!', 
+				/* xtype: 'gmappanel3', */
+				zoomLevel: 15,
+				gmapType: 'roadmap',
+				minGeoAccuracy: 'APPROXIMATE',
+				mapConfOpts: ['enableScrollWheelZoom','enableDoubleClickZoom','enableDragging'],
+				mapControls: ['GSmallMapControl','GMapTypeControl','NonExistantControl'],
+				setCenter: {
+					/*
+					geoCodeAddr: '4 Yawkey Way, Boston, MA, 02215-3409, USA',
+					geoCodeAddr: 'Pte. Juan Domingo Perón  4318  5 A      1021                      11653',
+					geoCodeAddr: 'Vicente López y Planes 1160, La Lucila, Provincia de Buenos Aires',
+					*/
+					geoCodeAddr: 'Av Leandro N. Alem 685, San Nicolás, Ciudad Autónoma de Buenos Aires, Capital Federal, Argentina',
+					marker: {title: 'CMCABA Sede Alem'}
+				},
+				markers: [{
+					lat:-34.587287, lng:-58.40902,
+					marker: {title: 'CMCABA - Sede Beruti'},
+					listeners: {
+						click: function(e){
+							Ext.Msg.alert('saludos de la familia', 'guido ponete las pilas que estamos vigilando ... :)');
+						}
+					}
+				}]
+				</config>
+				</cmp>-->
+			</items>
+			</cmp>
+		</items>
+		</cmp>
+	</layout> 
+
+	<panel type="xpForm"><config>
+		labelWidth:80,
+		url:'?m=users&amp;a=login', 
+		frame:true, 
+		title:'Ingreso a '+ App.feat.page_title, 
+		bodyStyle: 'background:#fff url(http://www.derecho.uba.ar/imagenes/logofacu_blanco1.jpg) !important; background-repeat: no-repeat; background-size: 100%;',
+		defaultType:'textfield',
+		monitorValid:true,
+	        buttons:[{ 
+		        text:'Ingresar',
+               		formBind: true,	 
+	               	handler: function(){ 
+	                    Ext.getCmp('login_Form').getForm().submit({ 
+	    		        method:'POST', 
+	                       waitTitle:'Conectando', 
+	                        waitMsg:'Enviando datos, aguarde ...',
+				scope: this,
+					success: App.handle_login,
+					failure: App.handle_login
+	               		    }); 
+	               		}
+	           		},{
+			text:'Cancelar',
+		handler:function(){ App.login_w.hide();}
+		}]</config>
+	</panel>
+
+        <field name="loginUsername" validate="empty" translate="Usuario"/>
+        <field name="loginPassword" validate="empty" translate="Clave" display="password"/>
+
+        <table name="forgot_password">
+		<panel type="xpForm">
+		</panel>
+	</table>
+
+        <table name="register">
+		<panel type="xpForm" title="Registrese">
+		</panel>
+	</table>
+
+</table><!--}}}-->
+
+<table name="forgot_password"><!--{{{-->
+        <panel type="Form"/>
+        <feat>
+             <paging_toolbar type="bool">false</paging_toolbar>
+        </feat>
+		<field name="email" filters="email"/>
+</table><!--}}}-->
+
+<table name="register"><!--{{{-->
+        <panel type="Form">
+	</panel>
+        <feat>
+       	     <paging_toolbar type="bool">false</paging_toolbar>
+        </feat>
+	<field name="Nombre" validate="empty"/>
+	<field name="Apellido" validate="empty"/>
+	<field name="Email" validate="empty" filters="email"/>
+	<field name="Clave" validate="empty" display="password"/>
+	<field name="RepiteClave" display="password"/>
+</table><!--}}}-->
+
+</database>
