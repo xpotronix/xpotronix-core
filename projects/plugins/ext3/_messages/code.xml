@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+   <table name="sms">
+	<code type="php" mode="var_def">
+
+
+	var $errors;
+	var $ErrorInfo;
+
+	</code>
+
+	<code type="php" mode="class_functions">
+
+	function send( $to, $text, $service ) {/*{{{*/
+
+
+		if ( !$to or !$text or !$service ) {
+
+			$to or M()->error('no especifica a quien enviar el SMS');
+			$text or M()->error('no he recibido texto a enviar SMS');
+			$service or M()->error('no he recibido el identificador del servicio SMS');
+
+			return false;
+		}
+
+		global $xpdoc;
+
+		$this->errors = array();
+		$this->ErrorInfo = null;
+		$success = false;
+
+		require_once 'xpcurl.class.php';
+
+		$c = new xpCurl();
+
+		foreach ( SplitByLength2( $text, $xpdoc->feat->sms_size ) as $line ) {
+
+			$url_var = "sms_{$service}_url";
+
+			$url = sprintf( $xpdoc->config->$url_var, str_replace(' ', '', $to ), str_replace(' ', '+', $line ));
+
+			M()->debug( 'enviando sms con ' . $url);
+
+			$c->request( $url );
+
+			if ( $c->errorNumber() ) {
+
+				$this->errors[] = $c->getHttpStatus();
+				$this->errors[] = $c->error();
+				M()->error( "No pude conectarme con el servicio $service: ". implode( '; ', $this->errors ));
+
+				break;
+			}
+
+			$success_match_var = "sms_{$service}_success";
+
+			if ( preg_match( $xpdoc->config->$success_match_var, $c ) ) {
+
+				M()->info( "Envio de mensaje satisfactorio al teléfono $to" );
+
+			} else {
+
+				$this->errors[] = "Error al enviar al móvil $to, el servidor ha respondido: $c"; 
+				M()->error( implode( '; ', $this->errors ));
+			
+				break;
+			} 
+		}
+
+		if ( count( $this->errors ) ) {
+
+			$this->ErrorInfo = implode( '; ', $this->errors ) ;
+			return false;
+
+		} else {
+
+			return true;
+		}
+
+	}/*}}}*/
+
+	</code>
+   </table>
+
+   <table name="mailer">
+	<code type="php" mode="var_def">
+
+	var $mail;
+	var $ErrorInfo;
+
+	</code>
+
+	<code type="php" mode="class_functions">
+
+
+	function __construct() {/*{{{*/
+
+		global $xpdoc;
+
+		parent::__construct();
+
+		require_once 'lib/phpmailer/class.phpmailer.php';
+
+		try {
+			$this->mail = new PHPMailer(true);
+                	$this->mail->IsSMTP();
+
+                } catch (phpmailerException $e) {
+
+                        M()->error( 'Error al enviar: '. $e->errorMessage() );
+                }
+
+		$this->mail->CharSet    = $xpdoc->config->mailer_charset or M()->warn( 'charset no definido');
+		$this->mail->SMTPDebug  = $xpdoc->config->mailer_smtp_debug;
+		$this->mail->SMTPAuth   = $xpdoc->config->mailer_smtp_auth;
+		$this->mail->Host       = $xpdoc->config->mailer_host or M()->error( 'host no definido');
+		$this->mail->Port       = $xpdoc->config->mailer_smtp_port or M()->error( 'port no definido');
+
+		if ( $xpdoc->config->mailer_smtp_auth ) {
+			$this->mail->Username   = $xpdoc->config->mailer_username or M()->warn( 'charset no definido');
+			$this->mail->Password   = $xpdoc->config->mailer_password or M()->warn( 'charset no definido');
+		}
+
+		$this->mail->SetLanguage('es');
+
+		return $this;
+
+	}/*}}}*/
+
+	function from( $mail, $name = null ) {/*{{{*/
+
+		if ( ! $name ) $name = $mail;
+
+		try {
+			$this->mail->SetFrom( $mail, $name );
+
+                } catch (phpmailerException $e) {
+
+                        M()->error( 'Error en la direccion: '. $e->errorMessage() );
+
+                }
+		return $this;
+	}/*}}}*/
+
+	function to( $mail, $name = null ) {/*{{{*/
+
+		if ( ! $name ) $name = $mail;
+
+		try {
+			$this->mail->AddAddress( $mail, $name );
+
+                } catch (phpmailerException $e) {
+
+                        M()->error( 'Error en la direccion: '. $e->errorMessage() );
+                }
+		return $this;
+	}/*}}}*/
+
+	function reply_to( $mail, $name = null ) {/*{{{*/
+
+		if ( ! $name ) $name = $mail;
+
+		try {
+			$this->mail->AddReplyTo( $mail, $name );
+
+                } catch (phpmailerException $e) {
+
+                        M()->error( 'Error en la direccion: '. $e->errorMessage() );
+                }
+		return $this;
+	}/*}}}*/
+
+	function subject( $text ) {/*{{{*/
+
+		$this->mail->Subject = $text;
+		return $this;
+	}/*}}}*/
+
+	function text( $text ) {/*{{{*/
+
+		$this->mail->AltBody = $text;
+		return $this;
+	}/*}}}*/
+
+	function html( $html ) {/*{{{*/
+
+		try {
+			$this->mail->MsgHTML( $html );
+
+                } catch (phpmailerException $e) {
+
+                        M()->error( 'Error en la direccion: '. $e->errorMessage() );
+                }
+		return $this;
+	}/*}}}*/
+
+	function attach( $file ) {/*{{{*/
+
+		try { 
+			$this->mail->AddAttachment( $file );
+
+                } catch (phpmailerException $e) {
+
+                        M()->error( 'Error al adjuntar archivo: '. $e->errorMessage() );
+                }
+		return $this;
+	}/*}}}*/
+
+
+	function img_inline( $filename, $cid, $name = null ) {/*{{{*/
+
+		$name or $name = $filename;
+
+		$this->mail->AddEmbeddedImage( $filename, $cid, $name );
+
+		return $this;
+
+	}/*}}}*/
+
+	function send() {/*{{{*/
+
+		try {
+			$this->mail->Send();
+
+                } catch (phpmailerException $e) {
+
+			$this->ErrorInfo = $e->errorMessage(); 
+
+                        M()->error( 'Error al enviar: '. $this->ErrorInfo );
+
+                }
+		return $this;
+	}/*}}}*/
+
+	</code>
+   </table>
+
+</database>
+<!-- vim600: fdm=marker sw=3 ts=8 ai: 
+-->
+

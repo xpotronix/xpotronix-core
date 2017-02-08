@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<database>
+
+   <table name="file">
+
+	<code mode="events" type="js"><![CDATA[
+
+var file_grid = Ext.getCmp('file_xpGrid');
+
+if ( file_grid ) {
+
+	var upload_panel = Ext.getCmp('file_xpUploadPanel');
+
+	if ( upload_panel ) upload_panel.on('allfinished', function() { this.reload(); }, file_grid.store );
+}
+
+]]></code>
+
+	<code type="php" mode="class_functions"><![CDATA[
+
+	function download() {/*{{{*/
+
+		global $xpdoc;
+
+		$id = $xpdoc->search[$this->class_name]['__ID__'];
+		$link = $this->db->_connectionID;
+
+		mysqli_multi_query( $link, "SELECT file_name, content from file WHERE ID = '$id' LIMIT 1" );
+
+		if ( $result = mysqli_store_result( $link ) ) {
+
+			$row = mysqli_fetch_row($result);
+
+			header("Content-type: {$this->mime_type}");
+			header("Content-Disposition: attachment; filename=\"{$row[0]}\"");
+
+			print $row[1];
+			exit;
+
+		} else {
+
+			M()->user( "no encuentro el archivo con el ID $id" );
+		}
+	}/*}}}*/
+
+	function upload() {/*{{{*/
+
+		global $xpdoc;
+
+		ini_set('upload_max_filesize', $this->feat->max_file_size);
+
+		$valid_chars_regex = '.A-Z0-9_ !@#$%^&()+={}\[\]\',~`-';	// Characters allowed in the file name (in a Regular Expression format)
+		//$extension_whitelist = array('csv', 'gif', 'png','tif');	// Allowed file extensions
+		$MAX_FILENAME_LENGTH = 260;
+
+		// Check post_max_size (http://us3.php.net/manual/en/features.file-upload.php#73762)
+		$POST_MAX_SIZE = ini_get('post_max_size');
+		$unit = strtoupper(substr($POST_MAX_SIZE, -1));
+		$multiplier = ($unit == 'M' ? 1048576 : ($unit == 'K' ? 1024 : ($unit == 'G' ? 1073741824 : 1)));
+
+		if ((int)$_SERVER['CONTENT_LENGTH'] > $multiplier*(int)$POST_MAX_SIZE && $POST_MAX_SIZE) {
+			//header("HTTP/1.1 500 Internal Server Error"); // This will trigger an uploadError event in SWFUpload
+			//echo "POST exceeded maximum allowed size.";
+			$this->error('POST exceeded maximum allowed size.', $id );
+		}
+
+		// Other variables	
+		$file_name = '';
+		$file_extension = '';
+
+		$uploadErrors = array(
+
+			0=>'There is no error, the file uploaded with success',
+			1=>'The uploaded file exceeds the upload_max_filesize directive in php.ini',
+			2=>'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+			3=>'The uploaded file was only partially uploaded',
+			4=>'No file was uploaded',
+			6=>'Missing a temporary folder'
+		);
+
+		foreach ( $_FILES as $id => $file ) {
+
+			// Validate the upload
+			if (!isset($file)) {
+				$this->error('No upload found in \$_FILES for ' . $upload_name, $id);
+
+			} else if (isset($file["error"]) && $file["error"] != 0) {
+				$this->error($uploadErrors[$file["error"]], $id);
+
+			} else if (!isset($file["tmp_name"]) || !@is_uploaded_file($file["tmp_name"])) {
+				$this->error('Upload failed is_uploaded_file test.', $id);
+
+			} else if (!isset($file['name'])) {
+				$this->error('File has no name.', $id);
+			} else $file_name = $file_name;
+
+			// Validate the file size (Warning: the largest files supported by this code is 2GB)
+			$file_size = @filesize($file["tmp_name"]);
+
+			if (!$file_size || $file_size > $this->feat->max_file_size ) {
+				$this->error('File exceeds the maximum allowed size', $id);
+			}
+
+			if ($file_size <= 0) {
+				$this->error('File size outside allowed lower bound', $id);
+			}
+
+			// Validate file name (for our purposes we'll just remove invalid characters)
+			$file_name = preg_replace('/[^'.$valid_chars_regex.']|\.+$/i', "", basename($file['name']));
+			if (strlen($file_name) == 0 || strlen($file_name) > $MAX_FILENAME_LENGTH) {
+				$this->error('Invalid file name', $id );
+			}
+
+			/*
+			// Validate file extension
+			$path_info = pathinfo($file['name']);
+			$file_extension = $path_info["extension"];
+			$is_valid_extension = false;
+			foreach ($extension_whitelist as $extension) {
+				if (strcasecmp($file_extension, $extension) == 0) {
+					$is_valid_extension = true;
+					break;
+				}
+			}
+			if (!$is_valid_extension) {
+				$this->error("Invalid file extension", $id);
+				exit(0);
+			}
+			*/
+
+			$tmp_file = $file["tmp_name"];
+			$tmp_file_ok = $tmp_file.'-OK';
+	
+			if (!@move_uploaded_file($tmp_file, $tmp_file_ok )) {
+				$this->error("File could not be saved.", $id );
+			}
+
+			$fh = fopen( $tmp_file_ok, 'rb' );
+
+			// success
+
+			$this->reset();
+			$this->fill_primary_key();
+			$this->parent_ID = $xpdoc->http->parent_ID;
+			$this->file_name = $file_name;
+			$this->mime_type = $file['type'];
+			$this->file_size = $file['size'];
+			// $this->content = fread($fh,filesize($tmp_file_ok));
+			$this->store();
+
+			// DEBUG: hotfix para que no se exceda con la memoria, haciendo bypass al subsistema de SQL, tanto xpquery como adodb
+
+			mysqli_multi_query($this->db->_connectionID, "UPDATE file set content = '". addslashes(fread($fh,filesize($tmp_file_ok)))."' WHERE ID = '$this->ID'");
+
+			unlink($tmp_file_ok);
+	
+			die('{"success":true}');
+		}
+	}/*}}}*/
+
+	function error($message, $id ) {/*{{{*/
+		die('{success:false,errors:'.json_encode(array( $id => $message)).'}');
+	}/*}}}*/
+
+	]]></code>
+   </table>
+
+   <table name="file_utils">
+	<code type="php" mode="class_functions">
+
+	function makeFileNameSafe( $file ) {/*{{{*/
+
+		$file = str_replace( '../', '', $file );
+		$file = str_replace( '..\\', '', $file );
+		return $file;
+
+	}/*}}}*/
+
+	function microtime_float() {/*{{{*/
+
+		list($usec, $sec) = explode(" ", microtime());
+		return ((float)$usec + (float)$sec);
+
+	}/*}}}*/
+
+	public static function mkdir( $dirName ){/*{{{*/
+
+		foreach(explode('/',$dirName) as $dirPart) 
+			@mkdir($newDir="$newDir$dirPart/");
+
+	}/*}}}*/
+
+	function list_directory( $dir, $extensions = null) { /*{{{*/
+
+		$file_list = array(); 
+		$stack[] = $dir; 
+		while ($stack) { 
+			$current_dir = array_pop($stack); 
+			if ($dh = opendir($current_dir)) { 
+				while (($file = readdir($dh)) !== false) { 
+					if ($file !== '.' AND $file !== '..') { 
+						$current_file = "{$current_dir}/{$file}"; 
+						if (is_file( $current_file ) ) { 
+							if ( is_array( $extensions ) ) { 
+								$path_parts = pathinfo($file); 
+								if ( array_search( $path_parts['extension'], $extensions ) !== false )  
+									$file_list[] = "{$current_dir}/{$file}"; 
+							} else 
+								$file_list[] = "{$current_dir}/{$file}"; 
+						} elseif (is_dir($current_file)) { 
+							$stack[] = $current_file; 
+						} 
+					} 
+				} 
+			} else { M()->user( "no puedo abrir el directorio $current_dir" ); }
+		} 
+		return $file_list; 
+
+	}/*}}}*/
+
+	function list_dirs( $dir, $ereg = null) { /*{{{*/
+
+		$file_list = array(); 
+		$stack[] = $dir; 
+		while ($stack) { 
+			$current_dir = array_pop($stack); 
+			if ($dh = opendir($current_dir)) { 
+				while (($file = readdir($dh)) !== false) { 
+					if ($file !== '.' AND $file !== '..') { 
+						$current_file = "{$current_dir}/{$file}"; 
+						if (is_dir( $current_file ) ) { 
+							if ( $ereg ) { 
+								if ( preg_match( $ereg, $file ) )  
+									$file_list[] = $file; 
+							} else 
+								$file_list[] = $file; 
+						}
+					} 
+				} 
+			} 
+		} 
+		return $file_list; 
+
+	}/*}}}*/
+
+	function rm($fileglob) {/*{{{*/
+
+		if (is_string($fileglob)) {
+			if (is_file($fileglob)) {
+				return unlink($fileglob);
+			} else if (is_dir($fileglob)) {
+				$ok = rm("$fileglob/*");
+				if (! $ok) {
+					return false;
+				}   
+				return rmdir($fileglob);
+			} else {
+				$matching = glob($fileglob);
+				if ($matching === false) {
+					trigger_error(sprintf('No files match supplied glob %s', $fileglob), E_USER_WARNING);
+					return false;
+				}       
+				$rcs = array_map('rm', $matching);
+				if (in_array(false, $rcs)) {
+					return false;
+				}   
+			}       
+		} else if (is_array($fileglob)) {
+			$rcs = array_map('rm', $fileglob);
+			if (in_array(false, $rcs)) {
+				return false;
+			}
+		} else {
+			trigger_error('Param #1 must be filename or glob pattern, or array of filenames or glob patterns', E_USER_ERROR);
+			return false;
+		}
+		return true;
+	}/*}}}*/
+
+	</code>
+   </table>
+
+
+</database>
+<!-- vim600: fdm=marker sw=3 ts=8 ai: 
+-->
+

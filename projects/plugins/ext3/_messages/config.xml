@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<config>
+        <!-- mailer internetdinamica.com
+        <mailer_charset>UTF-8</mailer_charset>
+        <mailer_smtp_debug type="int">0</mailer_smtp_debug>
+        <mailer_smtp_auth type="bool">true</mailer_smtp_auth>
+        <mailer_smtp_port>25</mailer_smtp_port>
+        <mailer_host>mail.internetdinamica.com</mailer_host>
+        <mailer_username>eduardo.spotorno.com.ar</mailer_username>
+        <mailer_password>estaeslaclave</mailer_password>
+	-->
+
+        <!-- mailer localhost -->
+        <mailer_charset>UTF-8</mailer_charset>
+        <mailer_smtp_debug type="int">0</mailer_smtp_debug>
+        <mailer_smtp_auth type="bool">false</mailer_smtp_auth>
+        <mailer_smtp_port>25</mailer_smtp_port>
+        <mailer_host>localhost</mailer_host>
+        <mailer_username></mailer_username>
+        <mailer_password></mailer_password>
+ 
+</config>
