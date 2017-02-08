@@ -14,7 +14,7 @@
 
    <table name="imagen">
 
-	   <code type="php" mode="class_functions"><![CDATA[
+	<code type="php" mode="class_functions"><![CDATA[
 
 	function source_path() {/*{{{*/
 
@@ -23,7 +23,7 @@
 
 	}/*}}}*/
 
-	function cargar_imagenes() {/*{{{*/
+	function cargar_imagenes( $usuario_ID = null ) {/*{{{*/
 
 	global $xpdoc;
 
@@ -34,63 +34,26 @@
 
 	$legajo_dir = $xpdoc->instance( 'C3_data' );
 
-	if ( $xpdoc->http->usuario_ID ) {
+	if ( $usuario_ID === null ) 
 
-		$usuario_ID = $xpdoc->http->usuario_ID;
+		if ( $xpdoc->http->usuario_ID ) {
 
-	} else {
-
-		if ( $xpdoc->user->legajo ) {
-
-			$usuario_ID = $xpdoc->user->legajo;
-
+			$usuario_ID = $xpdoc->http->usuario_ID;
 
 		} else {
 
-			M()->user( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
-			return;
-		}
-	}
+			if ( $xpdoc->user->legajo ) {
+
+				$usuario_ID = $xpdoc->user->legajo;
 
 
+			} else {
 
-
-	M()->info( "usuario_ID: $usuario_ID" );
-
-	if ( !$legajo_dir->load( array( 'legajo_ID' => $usuario_ID ) ) ) {
-
-		try {
-
-			$xc3s = simplexml_load_file( $xpdoc->feat->path_imagenes.'/C3_data.xml' );
-
-		} catch(Exception $e) {
-
-			M()->user( 'No encuentro el archivo de directorios y legajos. Consulte con el administrador' );
-			return;
+				M()->user( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
+				return;
+			}
 		}
 
-		$tmp = $xc3s->xpath('//C3_data[Nro_legajo='.trim($usuario_ID).']');
-
-		if ( ! count( $tmp ) ) {
-
-			M()->user( "no encuentro el legajo $usuario_ID en el directorio de imagenes" );
-			return;
-		}
-
-		$xc3 = array_shift( $tmp );
-
-		$legajo_dir->legajo_ID = $usuario_ID;
-		$legajo_dir->Doc_id = (string) $xc3->Doc_id;
-		$legajo_dir->Batch_id = (string) $xc3->Batch_id;
-
-		$legajo_dir->push_privileges( array( 'add' => 1, 'edit' => 1 ) );
-
-		$legajo_dir->dirname = $legajo_dir->Batch_id. '/'. $legajo_dir->Doc_id;
-
-		$legajo_dir->insert();
-
-		// $legajo_dir->debug_object(); exit;
-	}
 
 	M()->user( "Escaneando para el usuario/legajo $usuario_ID" );
 
@@ -100,8 +63,9 @@
 
 	/* paths */
 
+	$dirname = str_pad( trim($usuario_ID), 6, '0', STR_PAD_LEFT );
 	$base_path = $this->feat->path_imagenes;
-	$working_path = $base_path . '/'. $legajo_dir->dirname;
+	$working_path = $base_path . '/'. $dirname;
 
  	set_time_limit( 0 );
 
@@ -114,7 +78,7 @@
 
 	M()->debug( "escaneando imagenes para el usuario $usuario_ID y el directorio $working_path" );
 
-	$files = $file_utils->list_directory( $working_path, array( 'jpg', 'JPG', 'TIF' ));
+	$files = $file_utils->list_directory( $working_path, array( 'jpg', 'JPG', 'TIF', 'tif' ));
 
 	// por cada entrada ...
 
@@ -185,7 +149,27 @@
 
 	M()->user( "existentes: $existentes, nuevas: $nuevas" );
 
-	}/*}}}*/]]>
+	}/*}}}*/
+
+	function cargar_imagenes_todas() {/*{{{*/
+
+		global $xpdoc;
+
+		$es = $xpdoc->get_instance('_empleado');
+
+		// $this->obj->feat->row_count = 10000;
+
+		foreach( $es->load_set( null, null, array( 'legajo' => 'ASC' ) ) as $e ) {
+
+			M()->user( "procesando empleado $e->legajo" );
+
+			$this->cargar_imagenes( $e->legajo );
+
+		}
+
+	}/*}}}*/
+
+	]]>
 
 	</code>
    </table>
