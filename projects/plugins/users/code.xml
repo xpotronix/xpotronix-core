@@ -66,6 +66,17 @@
 		$this->get_attr( 'user_username' )->modified and $this->user_username = strtolower(trim($this->user_username)); // DEBUG: falta sanitize
 		$this->get_attr( 'user_password' )->modified and strlen( $this->user_password ) != 32 and $this->user_password = $this->crypt( $this->user_password ) ;
 
+
+		global $xpdoc;
+
+		$user = $xpdoc->instance('user');
+
+		if ( $user->load( array( 'user_username' => $this->user_username ) ) ) {
+
+			M()->user( "usuario $this->user_username existente" );
+			return false;
+		}
+
 		return parent::check();
 
 	}/*}}}*/
