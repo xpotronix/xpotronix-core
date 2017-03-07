@@ -204,6 +204,13 @@ class xpserialize {
 			}
 		}
 
+		/* DEBUG: deberia ser al reves, que en text() quede el valor real y en un @label el otro */
+
+		if ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' ) {
+
+			$xattr->addAttribute( 'value', $attr->value );
+		}
+
 		/* label */
 
 		if ( $attr->label ) {
