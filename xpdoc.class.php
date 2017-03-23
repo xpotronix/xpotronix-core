@@ -386,6 +386,31 @@ class xpdoc extends xp {
 		}
 
 
+		$t = $this->config->trusted_host and M()->warn( "trusted_host (deprecated): $t" );
+
+		/* trusted_host_ip */
+
+		$trusted_host_ip = array();
+
+		if ( $this->config->trusted_host_ip ) {
+
+			$trusted_host_ip = explode( ';', $this->config->trusted_host_ip );
+			M()->info( "trusted_host_ip: ". serialize( $trusted_host_ip ) );
+		}
+
+
+		/* trusted_host_name */
+
+		$trusted_host_name = array();
+
+		if ( $this->config->trusted_host_name ) {
+
+			$trusted_host_name = explode( ';', $this->config->trusted_host_name );
+			M()->info( "trusted_host_name: $trusted_host_name" );
+		}
+
+		
+
 		$this->session = $this->instance( $this->feat->class_session );
 		$this->user = $this->instance( $this->feat->class_user );
 
@@ -415,22 +440,19 @@ class xpdoc extends xp {
 
 				M()->info('no existe la sesion' );
 
-				$t = $this->config->trusted_host and M()->warn( "trusted_host (deprecated): $t" );
-				$t = $this->config->trusted_host_ip and M()->info( "trusted_host_ip: $t" );
-				$t = $this->config->trusted_host_name and M()->info( "trusted_host_name: $t" );
 
 				if ( ( $this->config->trusted_host_user_id !== NULL ) ) {
 
 					M()->debug( "trusted_host_user_id: {$this->config->trusted_host_user_id}" );
 
-					if ( $this->config->trusted_host_ip == $this->http->remote_addr ) {
+					if ( in_array( $this->http->remote_addr, $trusted_host_ip, true ) ) {
 
 						M()->info( "trusted_host_ip machea remote_addr: {$this->http->remote_addr}" );
 						$this->session->user_id = $this->config->trusted_host_user_id;
 
 					} else if ( $this->config->trusted_host_name !== NULL ) {
 
-						if ( $this->http->remote_host_name() == $this->config->trusted_host_name ) {
+						if ( in_array( $trusted_host_name, $this->http->remote_host_name(), true ) ) {
 							M()->info( "trusted_host_name machea remote_host: {$this->http->remote_host}" );
 							$this->session->user_id = $this->config->trusted_host_user_id;
 						} else {
