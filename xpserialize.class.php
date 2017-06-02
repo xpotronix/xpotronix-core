@@ -41,21 +41,20 @@ class xpserialize {
 		$xc = new SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"UTF-8\"?><$e/>" ); 
 		$xc['name'] = $this->obj->class_name;
 
+                if ( ! $this->obj->persistent() ) {
 
-		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('list') and $this->obj->can('view') ) ) ) {
-
-			M()->info( "acceso denegado para el objeto {$this->obj->class_name}" );
-			$xc['msg']='ACC_DENIED';
-			return $xc;
-		}
-
-                if ( $this->obj->is_virtual() and ! $this->obj->count_views() ) {
-
-                        M()->warn( "no puedo serializar el objeto virtual {$this->obj->class_name}, count_views: ". $this->obj->count_views() );
+                        M()->warn( "No puedo serializar el objeto virtual {$this->obj->class_name}" );
 			$xc['total_records'] = 0;
                         $xc['msg']='IS_VIRTUAL';
                         return $xc;
                 }
+
+		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('list') and $this->obj->can('view') ) ) ) {
+
+			M()->info( "Acceso denegado para el objeto {$this->obj->class_name}" );
+			$xc['msg']='ACC_DENIED';
+			return $xc;
+		}
 
 		$objs = null;
 

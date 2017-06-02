@@ -69,17 +69,17 @@ class xpcsv {
 
 		global $xpdoc;
 
+                if ( $this->obj->persistent() ) {
+
+                        M()->warn( "no puedo serializar el objeto virtual {$this->obj->class_name}" );
+                        return 'IS_VIRTUAL';
+                }
+
 		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('list') and $this->obj->can('view') ) ) ) {
 
 			M()->info( "acceso denegado para el objeto {$this->obj->class_name}" );
 			return 'ACC_DENIED';
 		}
-
-                if ( $this->obj->is_virtual() and ! $this->obj->count_views() ) {
-
-                        M()->warn( "no puedo serializar el objeto virtual {$this->obj->class_name}, count_views: ". $this->obj->count_views() );
-                        return 'IS_VIRTUAL';
-                }
 
 		set_time_limit(0);
 

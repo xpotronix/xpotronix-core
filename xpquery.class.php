@@ -144,6 +144,8 @@ class DBQuery {
 
 	function addTable($name, $id = null) {/*{{{*/
 
+		if ( $id === '' ) $id = null;
+
 		$this->addMap('table_list', $name, $id);
 		return $this;
 
