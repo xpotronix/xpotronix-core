@@ -65,11 +65,15 @@
 	<xsl:template match="table" mode="get_queries"><!--{{{-->
 		<xsl:variable name="table_name" select="@name"/>
 		<xsl:element name="queries">
+
 			<xsl:apply-templates select="." mode="get_main_sql"/>
+
 			<!-- para los from relativos -->
 			<xsl:sequence select="$queries_collection//query[from=$table_name]"/>
+
 			<!-- para los from absolutos (database.table) -->
 			<xsl:sequence select="$queries_collection//query[substring-after(from,'.')=$table_name]"/>
+
 		</xsl:element>
 	</xsl:template><!--}}}-->
 
@@ -84,7 +88,16 @@
 			<xsl:otherwise>
 				<!-- automatico -->
 				<xsl:sequence select="$database_collection//table[@name=$table_name]/*[name()='modifiers' or name()='join' or name()='group_by']"/>
-		                <from><xsl:value-of select="@name"/></from>
+
+				<!-- para los queries que definen la consulta ppal (en database) -->
+				<xsl:for-each select="$database_collection//table[@name=$table_name]/query">
+					<xsl:variable name="query_name" select="@name"/>
+					<!-- solo los elementos contenidos por query -->
+					<xsl:copy-of select="$queries_collection//query[@name=$query_name]/*" copy-namespaces="no"/>
+				</xsl:for-each>
+
+		                <!-- <from><xsl:value-of select="@name"/></from> -->
+
 	        	        <xsl:for-each select="$ui_collection//table[@name=$table_name]/field[@eh!='' or @entry_help!='']">
 	                	        <xsl:variable name="query_name" select="@eh|@entry_help"/>
 					<xsl:variable name="query" select="$queries_collection//query[@name=$query_name]"/>
@@ -121,15 +134,14 @@
 		</xsl:element>
 	</xsl:template><!--}}}-->
 
-
-	<xsl:template match="*" mode="copy">
+	<xsl:template match="*" mode="copy"><!--{{{-->
 		<xsl:copy>
 			<xsl:copy-of select="@*"/>
 			<xsl:copy-of select="./text()"/>
 			<xsl:apply-templates select="*" mode="copy"/>
 		</xsl:copy>
 	</xsl:template>
-</xsl:stylesheet>
+</xsl:stylesheet><!--}}}-->
 
 <!-- vim600: fdm=marker sw=3 ts=8 ai: 
 -->
