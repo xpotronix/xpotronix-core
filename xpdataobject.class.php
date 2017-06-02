@@ -487,11 +487,32 @@ class xpDataObject extends xp {
 		return $this->metadata['virtual'];
 	}/*}}}*/
 
+	function count_queries() {/*{{{*/
+
+		$fq = $this->feat->query_name;
+		$query_name = $fq ? $fq : 'main_sql';
+
+		M()->debug( $ret = (int) count( $this->model->xpath( "queries//query[@name='$query_name']/query" )) );
+			
+		return $ret;
+
+	}/*}}}*/
+
 	function count_views() {/*{{{*/
 
 		$fq = $this->feat->query_name;
-		$query_name = $fq ? $this->feat->query_name : 'main_sql';
-		return (boolean) count( $this->model->xpath( "queries//query[@name='$query_name']/sql" ));
+		$query_name = $fq ? $fq : 'main_sql';
+
+		M()->debug( $ret = (int) count( $this->model->xpath( "queries//query[@name='$query_name']/sql" )) );
+			
+		return $ret;
+
+	}/*}}}*/
+
+	function persistent() {/*{{{*/
+
+		return (boolean) true or ( ! $this->is_virtual() or $this->count_views() or $this->count_queries() );
+
 	}/*}}}*/
 
 	// attr
@@ -748,6 +769,8 @@ class xpDataObject extends xp {
 
 				$this->set_primary_key();
 				$objs[$this->guess_primary_key()] = $this->data;
+
+				$objs_count++;
 			} 
 
 			// echo '<pre>'; print_r( $objs ); echo '</pre>';
@@ -852,7 +875,7 @@ class xpDataObject extends xp {
 		// para que no se repitan las tablas entre table y alias
 		// print $this->model->asXML(); ob_flush(); 
 
-		$this->uniq_tables();
+		$this->uniq_tables(); // reset
 		$this->uniq_tables( $this->get_table_name() );
 
 		// busca la consulta principal
@@ -1028,10 +1051,14 @@ class xpDataObject extends xp {
 		// crea la consulta principal
 		// agrego la tabla y su alias, si esta definido
 
-		if ( $alias = (string) $this->xsql->alias ) 
-			$sql->addTable( $this->get_table_name(), $alias );
-		else
-			$sql->addTable( $this->get_table_name() );
+		$sql_table_name = (string) $this->xsql->from or
+			$sql_table_name = $this->get_table_name();
+
+		$sql_table_alias = (string) $this->xsql->alias;
+
+		M()->warn( "sql_table_name: $sql_table_name, sql_table_alias: $sql_table_alias" );
+
+		$sql->addTable( $sql_table_name, $sql_table_alias );
 
 		// agrego el where del main_sql
 		if ( $this->xsql->where )
@@ -1040,7 +1067,6 @@ class xpDataObject extends xp {
 		// agrego el order_by 
 		if ( $this->xsql->order_by )
 			$sql->addOrder( $this->quote_order( $this->replace_table_name( (string) $this->xsql->alias, $this->get_table_name(),  (string) $order ) ) );
-
 
 
 		// cargo los campos desde los atributos del objeto

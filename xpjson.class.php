@@ -38,6 +38,13 @@ class xpjson {
 		$xc = new SimpleXMLElement( "<$e/>" ); 
 		$xc['name'] = $this->obj->class_name;
 
+                if ( $this->obj->persistent() ) {
+
+                        M()->warn( "no puedo serializar el objeto virtual {$this->obj->class_name}" );
+			$xc['total_records'] = 0;
+                        $xc['msg']='IS_VIRTUAL';
+                        return $xc;
+                }
 
 		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('list') and $this->obj->can('view') ) ) ) {
 
@@ -45,14 +52,6 @@ class xpjson {
 			$xc['msg']='ACC_DENIED';
 			return $xc;
 		}
-
-                if ( $this->obj->is_virtual() and ! $this->obj->count_views() ) {
-
-                        M()->warn( "no puedo serializar el objeto virtual {$this->obj->class_name}, count_views: ". $this->obj->count_views() );
-			$xc['total_records'] = 0;
-                        $xc['msg']='IS_VIRTUAL';
-                        return $xc;
-                }
 
 		$objs = null;
 
