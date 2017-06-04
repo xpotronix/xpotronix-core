@@ -89,14 +89,22 @@
 				<!-- automatico -->
 				<xsl:sequence select="$database_collection//table[@name=$table_name]/*[name()='modifiers' or name()='join' or name()='group_by']"/>
 
-				<!-- para los queries que definen la consulta ppal (en database) -->
-				<xsl:for-each select="$database_collection//table[@name=$table_name]/query">
-					<xsl:variable name="query_name" select="@name"/>
-					<!-- solo los elementos contenidos por query -->
-					<xsl:copy-of select="$queries_collection//query[@name=$query_name]/*" copy-namespaces="no"/>
-				</xsl:for-each>
+				<xsl:variable name="queries">
 
-		                <!-- <from><xsl:value-of select="@name"/></from> -->
+					<!-- para los queries que definen la consulta ppal (en database) -->
+					<xsl:for-each select="$database_collection//table[@name=$table_name]/query">
+						<xsl:variable name="query_name" select="@name"/>
+						<!-- solo los elementos contenidos por query -->
+						<xsl:copy-of select="$queries_collection//query[@name=$query_name]/*" copy-namespaces="no"/>
+					</xsl:for-each>
+
+				</xsl:variable>
+
+				<xsl:copy-of select="$queries"/>
+
+				<xsl:if test="not($queries//from)">
+		                	<from><xsl:value-of select="@name"/></from>
+				</xsl:if>
 
 	        	        <xsl:for-each select="$ui_collection//table[@name=$table_name]/field[@eh!='' or @entry_help!='']">
 	                	        <xsl:variable name="query_name" select="@eh|@entry_help"/>
