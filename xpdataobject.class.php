@@ -487,23 +487,14 @@ class xpDataObject extends xp {
 		return $this->metadata['virtual'];
 	}/*}}}*/
 
-	function count_queries() {/*{{{*/
+	function has_sql() {/*{{{*/
 
 		$fq = $this->feat->query_name;
 		$query_name = $fq ? $fq : 'main_sql';
 
-		M()->debug( $ret = (int) count( $this->model->xpath( "queries//query[@name='$query_name']/query" )) );
-			
-		return $ret;
+		/* DEBUG: tiene que estar fijo en la activacion del modelo */
 
-	}/*}}}*/
-
-	function count_views() {/*{{{*/
-
-		$fq = $this->feat->query_name;
-		$query_name = $fq ? $fq : 'main_sql';
-
-		M()->debug( $ret = (int) count( $this->model->xpath( "queries//query[@name='$query_name']/sql" )) );
+		M()->debug( $ret = (int) count( $this->model->xpath( "queries/query[@name='$query_name']" )) );
 			
 		return $ret;
 
@@ -511,7 +502,18 @@ class xpDataObject extends xp {
 
 	function persistent() {/*{{{*/
 
-		return (boolean) true or ( ! $this->is_virtual() or $this->count_views() or $this->count_queries() );
+		/*
+
+		if ( $this->class_name == 'deudor_e' ) {
+
+			print "<pre>";
+			$query_name = 'main_sql';
+			print_r( $this->model->xpath( "queries/query[@name='$query_name']" ) );
+			print_r( $this->metadata );
+			exit;
+		}*/
+
+		return (boolean) ( ( ! $this->is_virtual() ) or $this->has_sql() or $this->count_queries() );
 
 	}/*}}}*/
 
@@ -680,6 +682,8 @@ class xpDataObject extends xp {
 		// M()->debug( "key: ". serialize( $key ).", where: ". serialize( $where ). ", order: ". serialize( $order ). ", page: $page" );
 
 		if ( !$this->db() ) {
+
+			M()->error( "No hay manejador de base de datos, cancelando loadc" );
 
 			$this->total_records = -2;
 			return;
@@ -866,7 +870,6 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-
 	function sql_prepare ( $sql = null ) {/*{{{*/
 
 		// is_object( $sql ) or 
@@ -882,7 +885,7 @@ class xpDataObject extends xp {
 		$fq = $this->feat->query_name;
 		$query_name = $fq ? $this->feat->query_name : 'main_sql';
 
-		@$this->xsql = array_shift ( $this->model->xpath( "queries//query[@name='$query_name']" ) );
+		@$this->xsql = array_shift ( $this->model->xpath( "queries/query[@name='$query_name']" ) );
 
 		$this->xsql or M()->fatal( "no encuentro la query $query_name para el objeto {$this->class_name}" );
 
@@ -979,7 +982,7 @@ class xpDataObject extends xp {
 
 				M()->debug( "agrego query [$query_name]" );
 
-				foreach( $this->model->xpath( "queries//query[@name='$query_name']" ) as $query_xml ) {
+				foreach( $this->model->xpath( "queries/query[@name='$query_name']" ) as $query_xml ) {
 
 					// cuando "sumo" queries, tengo que cambiar el alias por la tabla original
 
@@ -1016,25 +1019,15 @@ class xpDataObject extends xp {
 						array_push( $protect_list_attr, '_label' );
 						}
 
-					foreach ( $query_xml->xpath( "attr" ) as $attr ) {
+					foreach ( $this->xsql->xpath( "attr|field" ) as $xattr ) {
 
-						// primero lo busco a ver si esta en la lista y solo quiero que aparezca ...
+						/* crea un atributo, puede ser en base a un attr o field */
 
-						$name = (string) $attr['name'];
+						$name = (string) $xattr['name'];
+						$attr = $this->get_attr($name) or $attr = $this->attr( $name );
+						( $t = (string) $xattr['alias_of'] ) and $attr->alias_of = $t;
+						$attr->display = null;
 
-						$attr = null;
-
-						if ( $attr = $this->get_attr($name) ) {
-							M()->debug( "encontre el attr $name" );
-							$attr->display = '';
-						} else {
-
-							$attr = $this->attr( $name )->display = '';
-
-							if ( (string) $attr['alias_of'] )
-								$this->attr($name)->alias_of = (string) $attr['alias_of'];
-
-						}
 						array_push( $protect_list_attr, $name );
 					}
 
@@ -1051,7 +1044,23 @@ class xpDataObject extends xp {
 		// crea la consulta principal
 		// agrego la tabla y su alias, si esta definido
 
-		$sql_table_name = (string) $this->xsql->from or
+
+		foreach ( $this->xsql->xpath( "attr|field" ) as $xattr ) {
+
+			/* crea un atributo, puede ser en base a un attr o field */
+
+			$name = (string) $xattr['name'];
+			$attr = $this->get_attr($name) or $attr = $this->attr( $name );
+			( $t = (string) $xattr['alias_of'] ) and $attr->alias_of = $t;
+			$attr->display = null;
+		}
+
+
+		/* DEBUG: queda el $this->table_name con el nombre del xsql->from */
+
+		if ( $sql_table_name = (string) $this->xsql->from )
+			$this->table_name = $sql_table_name;
+		else
 			$sql_table_name = $this->get_table_name();
 
 		$sql_table_alias = (string) $this->xsql->alias;
@@ -1091,7 +1100,7 @@ class xpDataObject extends xp {
 
 		// comentados para debug
 		// if ( $this->class_name == 'dtNotificacionActor' ) { $this->metadata(); exit; }
-		// if ( $this->class_name == 'REMPLES' ) { echo '<pre>'; $this->debug_object(); print_r( $sql ) ; echo '</pre>'; exit; }
+		// if ( $this->class_name == 'deudor_e' ) { echo '<pre>'; $this->debug_object(); print_r( $sql ) ; echo '</pre>'; exit; }
 
 		// if ( $this->class_name == 'antiguedad' ) { echo '<p>'; print_r( $sql->prepare() ); echo '</p>'; exit; }
 
@@ -1189,7 +1198,7 @@ class xpDataObject extends xp {
 
 				// si es un alias, el nombre no lleva el prefijo de la tabla
 
-				$field = ( $this->attr[$key]->alias_of or $this->count_views() ) ? 
+				$field = ( $this->attr[$key]->alias_of or $this->has_sql() ) ? 
 					$this->attr[$key]->name:
 					$this->attr[$key]->table. '.'. $this->attr[$key]->name;
 

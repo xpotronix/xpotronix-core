@@ -173,7 +173,7 @@ class xpsearch {
 		$c->attr = $attr;
 		$c->valid = true;
 		$c->attr_type = $attr->type;
-		$c->sql_var = "{$this->obj->table_name}.{$attr->name}";
+		$c->sql_var = "{$this->obj->get_table_name()}.{$attr->name}";
 		$c->search_type = 'compare';
 		$c->match_type = $this->match_type;
 		$c->clause = 'where';
