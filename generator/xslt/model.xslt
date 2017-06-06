@@ -91,8 +91,8 @@
 
 				<xsl:variable name="queries">
 
-					<!-- para los queries que definen la consulta ppal (en database) -->
-					<xsl:for-each select="$database_collection//table[@name=$table_name]/query">
+					<!-- para los queries que definen la consulta ppal (en ui) -->
+					<xsl:for-each select="$ui_collection//table[@name=$table_name]/query">
 						<xsl:variable name="query_name" select="@name"/>
 						<!-- solo los elementos contenidos por query -->
 						<xsl:copy-of select="$queries_collection//query[@name=$query_name]/*" copy-namespaces="no"/>
