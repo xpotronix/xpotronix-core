@@ -69,7 +69,7 @@ class xpcsv {
 
 		global $xpdoc;
 
-                if ( $this->obj->persistent() ) {
+                if ( ! $this->obj->persistent() ) {
 
                         M()->warn( "no puedo serializar el objeto virtual {$this->obj->class_name}" );
                         return 'IS_VIRTUAL';
