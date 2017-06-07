@@ -1065,7 +1065,7 @@ class xpDataObject extends xp {
 
 		$sql_table_alias = (string) $this->xsql->alias;
 
-		M()->warn( "sql_table_name: $sql_table_name, sql_table_alias: $sql_table_alias" );
+		M()->info( "sql_table_name: $sql_table_name, sql_table_alias: $sql_table_alias" );
 
 		$sql->addTable( $sql_table_name, $sql_table_alias );
 

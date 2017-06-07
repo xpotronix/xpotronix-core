@@ -38,7 +38,7 @@ class xpjson {
 		$xc = new SimpleXMLElement( "<$e/>" ); 
 		$xc['name'] = $this->obj->class_name;
 
-                if ( $this->obj->persistent() ) {
+                if ( ! $this->obj->persistent() ) {
 
                         M()->warn( "no puedo serializar el objeto virtual {$this->obj->class_name}" );
 			$xc['total_records'] = 0;
