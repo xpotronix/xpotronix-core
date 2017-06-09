@@ -66,7 +66,7 @@ class xpDataObject extends xp {
 	private $autonumeric_field;
 
 	// estatus del objeto 
-	var $__new;
+	private $__new;
 	var $loaded;
 	var $modified;
 	var $transac_status;
@@ -2035,6 +2035,7 @@ class xpDataObject extends xp {
 			$this->data[$attr->name] = null;
 
 		$this->loaded = false;
+		$this->is_new( true );
 		$this->set_modified( false ); // attrs
 
 		$this->pager = array( 'pr' => 0, 'cp' => 1 );
@@ -2183,7 +2184,7 @@ class xpDataObject extends xp {
 
 		if ( $new == '1' ) {
 
-			$this->__new = true;
+			$this->is_new( true );
 
 			if ( $this->check_key( $tmp = $this->unpack_primary_key( $key_str ) ) == $complete_key ) {
 
@@ -2238,13 +2239,12 @@ class xpDataObject extends xp {
 			$this->load( $this->get_primary_key_node( $node ) );
 
 			if ( $this->loaded ) 
-				$this->__new = true;
+				$this->is_new( true );
 			else
 				$this->fill_primary_key();
 
 		}
 
-		// $this->__new == !$this->loaded;
 		$this->set_primary_key();
 		$this->foreign_key and $this->foreign_key->assign();
 
@@ -2721,7 +2721,7 @@ function main_sql () {/*{{{*/
 	function is_new( $new = null ) {/*{{{*/
 
 		if ( $new !== null ) 
-			$this->__new == $new;
+			$this->__new = $new;
 
 		return $this->__new;
 
@@ -2754,7 +2754,7 @@ function main_sql () {/*{{{*/
 		$primary_key = serialize( $this->primary_key );
 		// $foreign_key = serialize( $this->foreign_key );
 
-		$new = $this->__new ? 'si' : 'no';
+		$new = $this->is_new() ? 'si' : 'no';
 		$loaded = $this->loaded ? 'si' : 'no';
 		$modified = $this->modified ? 'si' : 'no';
 
@@ -2768,7 +2768,7 @@ function main_sql () {/*{{{*/
 				<tr><td>class_name:</td><td>{$this->class_name}</td></tr>
 				<tr><td>table_name:</td><td>$table_name</td></tr>
 				<tr><td>autonumeric_field:</td><td>{$this->autonumeric_field}</td></tr>
-				<tr><td>__new:</td><td>{$new}</td></tr>
+				<tr><td>is_new():</td><td>{$new}</td></tr>
 				<tr><td>loaded:</td><td>{$loaded}</td></tr>
 				<tr><td>modified:</td><td>{$modified}</td></tr>
 				<tr><td>transac_status:</td><td>{$this->transac_status}</td></tr>
