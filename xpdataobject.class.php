@@ -2035,7 +2035,7 @@ class xpDataObject extends xp {
 			$this->data[$attr->name] = null;
 
 		$this->loaded = false;
-		/* $this->is_new( true ); */
+		// $this->is_new( true );
 		$this->set_modified( false ); // attrs
 
 		$this->pager = array( 'pr' => 0, 'cp' => 1 );
@@ -2097,7 +2097,7 @@ class xpDataObject extends xp {
 		return $ret;
 	}/*}}}*/
 
-	// funciones para la serializacion
+	/* funciones para la serializacion */
 
 	function serialize ( $flags = null ) {/*{{{*/
 
@@ -2135,7 +2135,7 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	// respuestas xml
+	/* respuestas xml */
 
 	function init_xml_obj( $node ) {/*{{{*/
 
@@ -2183,6 +2183,7 @@ class xpDataObject extends xp {
 		// print $this->pp( $node );
 
 		if ( $new == '1' ) {
+
 
 			$this->is_new( true );
 
@@ -2531,9 +2532,8 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	// metadata
-
-	// funciones virtuales
+	/* metadata */
+	/* funciones virtuales */
 
 	function init() {/*{{{*/
 		return $this;
@@ -2679,7 +2679,7 @@ function main_sql () {/*{{{*/
 		return true;
 	}/*}}}*/
 
-	// transaccion
+	/* transaccion */
 
 	function start_db_transaction( $param = null ) {/*{{{*/
 
@@ -2720,9 +2720,14 @@ function main_sql () {/*{{{*/
 
 	function is_new( $new = null ) {/*{{{*/
 
-		if ( $new !== null ) 
-			$this->__new = $new;
+		if ( $new !== null ) {
 
+			M()->debug( "set new == " . $new ? 'true': 'false' );
+			$this->__new = $new;
+		}
+
+		M()->debug( "new == " . $new ? 'true': 'false' );
+		
 		return $this->__new;
 
 	}/*}}}*/
@@ -2746,7 +2751,7 @@ function main_sql () {/*{{{*/
 
 	}/*}}}*/
 
-	// debug
+	/* debug */
 
 	function debug_object() {/*{{{*/
 
@@ -2754,9 +2759,9 @@ function main_sql () {/*{{{*/
 		$primary_key = serialize( $this->primary_key );
 		// $foreign_key = serialize( $this->foreign_key );
 
-		$new = $this->is_new() ? 'si' : 'no';
-		$loaded = $this->loaded ? 'si' : 'no';
-		$modified = $this->modified ? 'si' : 'no';
+		$new = $this->is_new() ? 'true' : 'false';
+		$loaded = $this->loaded ? 'true' : 'false';
+		$modified = $this->modified ? 'true' : 'false';
 
 		$table_name = $this->get_table_name();
 
@@ -2819,8 +2824,7 @@ function main_sql () {/*{{{*/
 
 	}/*}}}*/
 
-} // xpDataObject
-
+} /* xpDataObject */
 
 // vim600: fdm=marker sw=3 ts=8 ai:
 
