@@ -2035,7 +2035,7 @@ class xpDataObject extends xp {
 			$this->data[$attr->name] = null;
 
 		$this->loaded = false;
-		$this->is_new( true );
+		/* $this->is_new( true ); */
 		$this->set_modified( false ); // attrs
 
 		$this->pager = array( 'pr' => 0, 'cp' => 1 );
@@ -2239,7 +2239,7 @@ class xpDataObject extends xp {
 			$this->load( $this->get_primary_key_node( $node ) );
 
 			if ( $this->loaded ) 
-				$this->is_new( true );
+				$this->is_new( false );
 			else
 				$this->fill_primary_key();
 
