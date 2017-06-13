@@ -704,6 +704,10 @@ class xpdoc extends xp {
 		$class_name = XP_CLASS_NAMESPACE . $object;
 		$class_file_name = "modules/$object/$object.class.php";
 
+		$class_file_name = realpath( $class_file_name );
+
+		M()->info( "cargando clase $object de archivo $class_file_name" );
+
 		if ( file_exists( $class_file_name ) ) {
 
 			require_once $class_file_name;
@@ -1542,6 +1546,8 @@ class xpdoc extends xp {
 				case 'fo':
 
 					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
+
+					M()->debug( "xml_file: $xml_file" );
 					$this->fop_transform( $xml_file, $view_file, $params );
 					$this->content_type( 'application/pdf' );
 
