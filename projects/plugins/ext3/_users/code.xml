@@ -87,7 +87,7 @@
 
 		M()->info();
 
-                $function = $this->__new ? 'addLogin' : 'updateLogin' ;
+                $function = $this->is_new() ? 'addLogin' : 'updateLogin' ;
                 if ( ! $xpdoc->perms->$function($this->user_id, $this->user_username) )
 			M()->error( 'no pude agregar permisos para el usuario '. $this->user_username );
                 
