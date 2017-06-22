@@ -297,26 +297,20 @@ class xpDataObject extends xp {
 
 	// configuracion del objeto
 
-	function db( $db_handler = null ) {/*{{{*/
+	function db( $dbi = null ) {/*{{{*/
 
 		global $xpdoc;
 
-		$db_handler or $db_handler = (string) $this->metadata['dbi'];
+		$dbi or $dbi = (string) $this->metadata['dbi'];
 
-		M()->debug( "db_handler para la clase $this->class_name: ". ( $db_handler ? $db_handler: '(default)' ) );
+		M()->debug( "dbi para la clase $this->class_name: ". ( $dbi ? $dbi: '(default)' ) );
 
 		$this->db = null;
 
 		/* devuelve una instancia abierta */
 
-		if ( $this->db = $xpdoc->db_instance( $db_handler ) ) 
-			M()->info( "instancia encontrada $db_handler" );
-
-		/* abre una instancia abierta */
-		else if ( $this->db = $xpdoc->open_db_instance( $db_handler ) )
-			M()->info( "instancia no encontrada y abierta $db_handler" );
-
-		/* error al abrir la instancia */
+		if ( $this->db = $xpdoc->dbm->instance( $dbi ) ) 
+			M()->info( "instancia encontrada $dbi" );
 		else
 			M()->error( "No encuentro la base de datos para la clase $this->class_name" ); 
 
@@ -1232,6 +1226,7 @@ class xpDataObject extends xp {
 	function db_type() {/*{{{*/
 
 		return $this->db->databaseType;
+
 	}/*}}}*/
 
 	function set_const( $const ) {/*{{{*/

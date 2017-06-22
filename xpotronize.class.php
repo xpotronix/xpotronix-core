@@ -92,12 +92,12 @@ class xpotronize extends xp {
 
 		M()->info( "project_path: ". $this->transform['params']['project_path'] = $project_path );
 
-		$config_file = $this->opts['config_file'] or $config_file = 'config.xml';
+		@$config_file = $this->opts['config_file'] or $config_file = 'config.xml';
 		$config_file = $this->get_absolute_path( $config_file );
 		$this->transform['params']['config_file'] = $config_file;
 		M()->info( "config_file: $config_file" );
 
-		$feat_file = $this->opts['feat_file'] or $feat_file = 'feat.xml';
+		@$feat_file = $this->opts['feat_file'] or $feat_file = 'feat.xml';
 		$feat_file = $this->get_absolute_path( $feat_file );
 		M()->info( "feat_file: $feat_file" );
 		$this->transform['params']['feat_file'] = $feat_file;
@@ -235,22 +235,23 @@ class dbdump extends xp {
 
 		global $xpdoc;
 
+		/* instancia en XML del config */
+
 		$this->instance = $xpdoc->config->db_instance[0];
 
-		$this->db_name = $this->instance['name'];
+		M()->debug( "instancia: ". $this->db_name = (string) $this->instance['name'] );
+		M()->debug( "implementation: ". $this->implementation = (string) $this->instance->implementation );
 
-		$this->implementation = (string) $this->instance->implementation;
-
-		if ( ! ( $encoding = (string) $this->instance->encoding ) )
+		$encoding = (string) $this->instance->encoding or
 			$encoding = 'UTF-8';
 
-		M()->info( "codificacion de la base de datos: $encoding" );
+		M()->debug( "codificacion de la base de datos: $encoding" );
 
 		$this->xml = new SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"$encoding\"?><database/>" );
 
 		M()->info( "iniciando dbdump para la base de datos {$this->db_name} con implementacion {$this->implementation}" );
 
-		$xpdoc->init_db_instances();
+		$xpdoc->dbm->init();
 
 		if ( ! ( $this->db = $xpdoc->db_instance() ) ) {
 			M()->error( 'no puede abrir la base de datos' );

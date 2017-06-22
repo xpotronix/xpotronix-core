@@ -16,15 +16,15 @@ require_once 'xpmessages.class.php';
 require_once 'xpacl.class.php';
 require_once 'xpdataprocess.class.php';
 require_once 'xphttp.class.php';
+require_once 'xpdbm.class.php';
 require_once 'xpadodb.class.php';
 require_once 'xpcache.class.php';
 
 class xpdoc extends xp {
 
-	protected $db = array();
 	private $_xpid;
 
-	var $db_driver;
+	private $dbm;
 
 	var $config;
 	var $feat;
@@ -34,11 +34,12 @@ class xpdoc extends xp {
 
 	var $http;
 
-	// client stock
+	/* client stock */
+
 	var $css = array();
 	var $js = array();
 
-	// xml buffers
+	/* xml buffers */
 	var $xmenu;
 	var $xdoc;
 
@@ -52,13 +53,13 @@ class xpdoc extends xp {
 
 	private $_content_type;
 
-	// types matching for views
+	/* types matching for views */
 
 	var $views;
 	var $cache;
 	var $cache_options;
 
-	// parametros del URI
+	/* parametros del URI */
 
 	var $controller_vars = 'm;a;b;q;v;d;s;o;r;f;t;h;p;j;e;g;x;method;_dc';
 	var $module;
@@ -81,23 +82,23 @@ class xpdoc extends xp {
 	var $json;
 	var $pager = array();
 
-	// array de instancias de objetos creados 
+	/* array de instancias de objetos creados */
 	var $instances = array();
 
-	// Permissions
+	/* Permissions */
 
 	var $perms;
 	var $roles = array();
 
 	var $obj_collection = array();
 
-	// construct
+	/* construct */
 
 	function  __construct( $config_file = null, $feat_file = null ) {/*{{{*/
 
-		$this->db_driver = 'PDO';
 
 		M()->info("current working directory: ". getcwd() );
+
 
 		$this->load_ini();	
 		// $this->load_datatypes();
@@ -146,14 +147,10 @@ class xpdoc extends xp {
 		);
 
 
+		$this->dbm = new xpdbm( $this->config->xpath( "db_instance" ) );
+
 		return $this;
 
-	}/*}}}*/
-
-	function db_driver( $driver = null ) {/*{{{*/
-
-		$driver and $this->db_driver = $driver;
-		return $this->db_driver;
 	}/*}}}*/
 
 	function set_model( $model = null ) {/*{{{*/
@@ -205,7 +202,7 @@ class xpdoc extends xp {
 
 		// DEBUG: algo tiene que devolver false?
 
-		$this->init_db_instances();
+		$this->dbm->init();
 		$this->load_session();
 		$this->load_acl();
 
@@ -227,117 +224,6 @@ class xpdoc extends xp {
 
 	}/*}}}*/
 
-	function init_db_instances() {/*{{{*/
-
-		$database = null;
-		$host = null;
-		$user = null;
-		$password = null;
-		$implementation = null;
-
-		foreach( $this->config->db_instance as $instance ) {
-
-			// por cara uno de los elementos db_instance en config.xml
-
-			// parametros acumulativos entre instancias de base de datos
-
-			if ( $instance->database )
-				$database = $instance->database;
-			else	$instance->database = $database;
- 
-			if ( $instance->host ) 
-				$host = $instance->host;
-			else	$instance->host = $host;
-
-			if ( $instance->user ) 
-				$user = $instance->user;
-			else	$instance->user = $user;
-
-			if ( $instance->password ) 
-				$password = $instance->password;
-			else	$instance->password = $password;
-
-			if ( $instance->implementation ) 
-				$implementation = $instance->implementation;
-			else	$instance->implementation = $implementation;
-
-			// check de parametros;
-
-			( $database and M()->info( "database: $database" ) ) 
-				or M()->warn( "debe especificar una base de datos" );
-			( $host and M()->info( "host: $host" ) ) 
-				or M()->warn( "debe especificar un servidor de  base de datos" );
-			( $user and M()->info( "user: $user" ) ) 
-				or M()->warn( "debe especificar un usuario de base de datos" );
-			( $password and M()->info( "password: $password" ) ) 
-				or M()->warn( "debe especificar un password de usuario de base de datos" );
-			( $implementation and M()->info( "implementation: $implementation" ) ) 
-				or M()->warn( 'debe especificar una implementacion de la base de datos' );
-
-			$lazy = $instance->lazy or $lazy = false;
-
-			$lazy or $this->open_db_instance( $instance );
-		}
-	}/*}}}*/
-
-	function open_db_instance( $i ) {/*{{{*/
-
-		if ( is_string( $i ) ) {
-
-			$arr = $this->config->get_xml()->xpath( "db_instance[@name='$i']" );
-
-			if ( ! ( $instance = array_shift( $arr ) ) ) {
-				M()->error( "no encuentro la instancia $i" );
-				return null;
-			} 
-
-		} else $instance = $i;
-
-		// shorthands
-		$in = (string) $instance['name'];
-
-		$database = (string) $instance->database;
-		$host = (string) $instance->host;
-		$user = (string) $instance->user;
-		$password = (string) $instance->password;
-		$implementation = (string) $instance->implementation;
-
-		M()->info( "abriendo la instancia $in con la base de datos {$instance->database}" );
-	
-		$encoding = (string) $instance->encoding or $encoding = 'utf8';
-
-		switch( $this->db_driver ) {
-
-			case 'ADODB':
-				require_once 'adodb.inc.php'; // DEBUG: el factory tiene que estar en xpadodb
-				$dbi = $this->db_instance( $in, NewADOConnection( $implementation ) );
-				break;
-			default:
-				$dbi = $this->db_instance( $in, new xpadodb( $in, $implementation ) );
-		}
-	
-
-		( $instance->table_prefix ) and ( $dbi->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
-
-		M()->info( $function = $instance->persistent ? 'PConnect' : 'Connect' );
-
-		if ( ! $dbi->$function( $host, $user, $password, $database, $encoding ) ) {
-
-			M()->error( "No puedo conectarme con la base de datos {$database}" ) ;
-			return null;
-
-		}
-
-		$instance->fetch_mode and $dbi->SetFetchMode( (string) $instance->fetch_mode ) and M()->info( "fetch_mode: $instance->fetch_mode" );
-
-		$instance->force_utf8 and $dbi->force_utf8 = true and M()->info( "force_utf8" );
-
-		$instance->encoding and $dbi->__encoding = (string) $instance->encoding and M()->info( "encoding: $instance->encoding" );
-
-		return $dbi;
-
-	}/*}}}*/
-
 	function init_acl_db() {/*{{{*/
 
 		if ( $gacl_class = $this->config->gacl_class ) {
@@ -356,22 +242,6 @@ class xpdoc extends xp {
 			$this->perms = new $gacl_class( $params ); 
 
 		} else M()->warn( 'no hay definida una clase de permisos del sistema, no hay seguridad alguna' );
-
-	}/*}}}*/
-
-	function db_instance( $name = null, $db_handler = null ) {/*{{{*/
-
-		if ( !$name )
-			foreach( $this->db as $ret )
-				return $ret;
-
-		if ( is_object( $db_handler ) )
-			$this->db[$name] = $db_handler;
-
-		if ( $name and ( ! array_key_exists( $name, $this->db ) ) ) 
-			return null;
-		else
-			return $this->db[$name];
 
 	}/*}}}*/
 
@@ -484,6 +354,7 @@ class xpdoc extends xp {
 	function current_session() {/*{{{*/
 
 		return $this->session->session_id;
+
 	}/*}}}*/
 
 	function load_acl() {/*{{{*/
@@ -633,7 +504,6 @@ class xpdoc extends xp {
 		// $this->header( "Content-type: text/html;charset=UTF-8" );
 
 	}/*}}}*/
-
 
 	function header( $directive, $replace = true ) {/*{{{*/
 
