@@ -17,9 +17,9 @@
 	
 		function repost( $xml ) {/*{{{*/
 
-			$this->loaded or $this->load( $xml['ID'] );
+			$this->loaded() or $this->load( $xml['ID'] );
 
-			if ( ! $this->loaded ) {
+			if ( ! $this->loaded() ) {
 
 				M()->error( 'Sin datos para procesar' );
 				return false;

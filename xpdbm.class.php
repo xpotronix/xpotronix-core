@@ -13,7 +13,7 @@
 
 class xpdbm {
 
-	protected $db = array();
+	var $db = array();
 	private $db_driver;
 
 	var $config;
@@ -46,7 +46,7 @@ class xpdbm {
 		foreach( $this->config->db_instance as $instance ) {
 
 			$instance['name'] or $instance['name'] =  'default_'. str_pad($i, 3, '0', STR_PAD_LEFT);
-			M()->info( "Instancia: ". $instanceame['name'] );
+			M()->info( "Instancia: ". $instance['name'] );
 
 			/* por cada uno de los elementos db_instance en config.xml
 			los parametros son acumulativos entre instancias de base de datos */
@@ -103,9 +103,8 @@ class xpdbm {
 			$i++;
 		}
 
-		$i++;
 		M()->info( "Encontradas $i instancias" );
-		print_r( $this->config->asXML() ); exit;
+		// print_r( $this->config->get_xml()->asXML() ); exit;
 
 	}/*}}}*/
 
@@ -167,11 +166,13 @@ class xpdbm {
 
 	function instance( $name = null, $db_handler = null ) {/*{{{*/
 
+		M()->info( "param name: $name" );
+
 		/* si no especifica el nombre, devuelve la primera */
 
-		M()->info( "# instancias: ". $count = $count( $this->db ) );
+		M()->info( "# instancias: ". $count = count( $this->db ) );
 
-		if ( $name === null ) {
+		if ( ! $name ) {
 
 			if ( ! $count ) {
 
@@ -184,7 +185,7 @@ class xpdbm {
 			} else {
 
 				M()->info( "devolviendo instancia por default" );
-				return $this->db[0];
+				return reset( $this->db );
 			}
 
 		} else 
@@ -203,18 +204,6 @@ class xpdbm {
 			return $this->db[$name];
 
 	}/*}}}*/
-
-}
-
-class xpdbi {
-
-	function  __construct() {/*{{{*/
-
-
-	} /*}}}*/
-
-
-
 
 }
 

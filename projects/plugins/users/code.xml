@@ -655,7 +655,7 @@
 
 				$this->load( array( 'user_id' => $xpdoc->user->user_id, 'var_name' => $item->name ) );
 
-				if ( ! $this->loaded ) {
+				if ( ! $this->loaded() ) {
 
 					$this->fill_primary_key();
 					$this->user_id = $xpdoc->user->user_id;

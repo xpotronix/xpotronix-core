@@ -21,7 +21,7 @@ $x = new xpotronize;
 $x->check_params_xpotronize();
 
 $xpdoc = new xpdoc( $x->config, $x->feat );
-$xpdoc->db_driver( 'ADODB' );
+$xpdoc->dbm->db_driver( 'ADODB' );
 
 if ( @$x->opts['f'] ) {
 
