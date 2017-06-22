@@ -85,7 +85,7 @@ class xpIterator implements Iterator {
 		// $this->obj->reset();
 		$this->obj->set_data( $data );
 		$this->obj->set_primary_key();
-		$this->obj->loaded = true;
+		$this->obj->loaded( true );
 	}/*}}}*/
 
 	function reset() {/*{{{*/

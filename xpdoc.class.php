@@ -24,7 +24,7 @@ class xpdoc extends xp {
 
 	private $_xpid;
 
-	private $dbm;
+	var $dbm;
 
 	var $config;
 	var $feat;
@@ -147,7 +147,7 @@ class xpdoc extends xp {
 		);
 
 
-		$this->dbm = new xpdbm( $this->config->xpath( "db_instance" ) );
+		$this->dbm = new xpdbm( $this->config );
 
 		return $this;
 
@@ -198,7 +198,9 @@ class xpdoc extends xp {
 
 	function init() {/*{{{*/
 
-		M()->info('***** Proceso xpotronix iniciado con xpid: *****'. $this->xpid( $this->get_hash() ) );
+		$xpid = $this->xpid( $this->get_hash() );
+
+		M()->info( "***** Proceso xpotronix iniciado con xpid [$xpid] *****" );
 
 		// DEBUG: algo tiene que devolver false?
 
@@ -228,8 +230,8 @@ class xpdoc extends xp {
 
 		if ( $gacl_class = $this->config->gacl_class ) {
 
-			if ( ! $acl_db = $this->db_instance( 'default-acl' ) )
-				$acl_db = $this->db_instance(); // default 
+			if ( ! $acl_db = $this->dbm->instance( 'default-acl' ) )
+				$acl_db = $this->dbm->instance(); // default 
 
 			$params = array();
 

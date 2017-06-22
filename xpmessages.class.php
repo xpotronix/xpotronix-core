@@ -29,7 +29,7 @@ class xpmessage {
 	var $function;
 	var $id;
 	var $tag;
-	var $nest;
+	var $nest = true;
 	var $timestamp;
 	var $mess; // parent
 	var $xpid;

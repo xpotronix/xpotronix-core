@@ -38,7 +38,7 @@
 			<panel type="xpGrid"/>
 			<foreign_key type="wired"><ref local="name" remote="user_username"/></foreign_key>
 
-			<table name="gacl_groups_aro_map" translate="Permisos por Grupos Roles">
+			<table name="gacl_groups_aro_map" translate="Permisos por Grupos de Roles">
 				<panel type="xpGrid"/>
 				<foreign_key type="wired"><ref local="aro_id" remote="id"/></foreign_key>
 				<feat><hide_fk type="bool">true</hide_fk><hide_pk type="bool">false</hide_pk></feat>

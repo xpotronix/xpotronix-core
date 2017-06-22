@@ -235,6 +235,9 @@ class xpattr extends xp {
 
 function metadata() {/*{{{*/
 
+	M()->info( var_export( $this->obj->feat->hide_pk, true ) );
+	M()->info( var_export( $this->obj->feat->hide_fk, true ) );
+
 	$this->is_primary_key() and  $this->obj->feat->hide_pk and $this->display = 'hide';
 	$this->is_foreign_key() and  $this->obj->feat->hide_fk and $this->display = 'hide';
 

@@ -67,7 +67,7 @@ class xpDataObject extends xp {
 
 	// estatus del objeto 
 	private $__new;
-	var $loaded;
+	private $__loaded;
 	var $modified;
 	var $transac_status;
 	var $record_count;
@@ -663,7 +663,7 @@ class xpDataObject extends xp {
 
 			$this->data = array_shift( $objs );
 			$this->set_primary_key();
-			$this->loaded = true;
+			$this->loaded( true );
 			return $this;
 		}
 
@@ -1437,7 +1437,7 @@ class xpDataObject extends xp {
 
 				$this->total_records = -1;
 				$this->last_page = null;
-				$this->loaded = false;
+				$this->loaded( false );
 
 				M()->db_error( $this->db, 'SELECT', $sql_text );
 				return null;
@@ -1472,7 +1472,7 @@ class xpDataObject extends xp {
 		if ( $this->total_records === 0 ) {
 
 			// print_r( $this->primary_key ); exit;
-			$this->loaded = false;
+			$this->loaded( false );
 			$this->last_page = true;
 			// M()->info( 'no encontre registros en: '. $this->sql->prepare() ) ;
 			return null;
@@ -1686,9 +1686,9 @@ class xpDataObject extends xp {
 
 		} else { 
 
-			$this->transac_status = ( $this->loaded ) ? $this->update() : $this->insert();
+			$this->transac_status = ( $this->loaded() ) ? $this->update() : $this->insert();
 
-			$this->loaded = true;
+			$this->loaded( true );
 			$this->set_primary_key();
 
 			if ( $this->get_flag( 'post_check' ) and ( in_array( $this->transac_status, array( INSERT_OP, UPDATE_OP, REPLACE_OP ) ) ) ) {
@@ -2029,8 +2029,8 @@ class xpDataObject extends xp {
 		foreach( $this->attr as $attr ) 
 			$this->data[$attr->name] = null;
 
-		$this->loaded = false;
-		// $this->is_new( true );
+		$this->loaded( false );
+		$this->is_new( true );
 		$this->set_modified( false ); // attrs
 
 		$this->pager = array( 'pr' => 0, 'cp' => 1 );
@@ -2179,7 +2179,6 @@ class xpDataObject extends xp {
 
 		if ( $new == '1' ) {
 
-
 			$this->is_new( true );
 
 			if ( $this->check_key( $tmp = $this->unpack_primary_key( $key_str ) ) == $complete_key ) {
@@ -2229,12 +2228,14 @@ class xpDataObject extends xp {
 				}
 			} 
 
+			$this->is_new( false );
+
 		} else {
 
 			M()->debug('undefined new and key_str undefined');
 			$this->load( $this->get_primary_key_node( $node ) );
 
-			if ( $this->loaded ) 
+			if ( $this->loaded() ) 
 				$this->is_new( false );
 			else
 				$this->fill_primary_key();
@@ -2283,7 +2284,7 @@ class xpDataObject extends xp {
 
 	function delete_xml_response( $node ) {/*{{{*/
 
-		if ( $this->loaded ) {
+		if ( $this->loaded() ) {
 			$this->delete();
 			M()->response( $this, $node );
 		} else {
@@ -2713,17 +2714,33 @@ function main_sql () {/*{{{*/
 		return $this->db->ErrorMsg();
 	}/*}}}*/
 
-	function is_new( $new = null ) {/*{{{*/
+	function is_new( $val = null ) {/*{{{*/
 
-		if ( $new !== null ) {
+		if ( $val !== null ) {
 
-			M()->debug( "set new == " . $new ? 'true': 'false' );
-			$this->__new = $new;
-		}
+			M()->debug( "set new == " . ($val ? 'true': 'false') );
+			$this->__new = $val;
 
-		M()->debug( "new == " . $new ? 'true': 'false' );
+		} else 
+
+			M()->debug( "new == " . ($val ? 'true': 'false') );
 		
 		return $this->__new;
+
+	}/*}}}*/
+
+	function loaded( $val = null ) {/*{{{*/
+
+		if ( $val !== null ) {
+
+			M()->debug( "set new == " . ($val ? 'true': 'false') );
+			$this->__loaded = $val;
+
+		} else 
+
+			M()->debug( "new == " . ($val ? 'true': 'false') );
+		
+		return $this->__loaded;
 
 	}/*}}}*/
 
@@ -2755,7 +2772,7 @@ function main_sql () {/*{{{*/
 		// $foreign_key = serialize( $this->foreign_key );
 
 		$new = $this->is_new() ? 'true' : 'false';
-		$loaded = $this->loaded ? 'true' : 'false';
+		$loaded = $this->loaded() ? 'true' : 'false';
 		$modified = $this->modified ? 'true' : 'false';
 
 		$table_name = $this->get_table_name();
