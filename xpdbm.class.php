@@ -166,21 +166,28 @@ class xpdbm {
 
 	function instance( $name = null, $db_handler = null ) {/*{{{*/
 
-		M()->info( "param name: $name" );
-
-		/* si no especifica el nombre, devuelve la primera */
-
 		M()->info( "# instancias: ". $count = count( $this->db ) );
 
-		if ( ! $name ) {
+		if ( !$name ) {
+
+			/* si no especifica el nombre, devuelve la primera */
+
+			M()->info( "param name: $name" );
 
 			if ( ! $count ) {
 
-				if ( ! $this->open( $this->config->db_instance[0] ) ) {
+				M()->info( "no hay instancias, abriendo la primera" );
+
+				if ( $this->open( $this->config->db_instance[0] ) ) {
+
+					return reset( $this->db );
+
+				} else {
 
 					M()->error( "No puedo abrir la instancia por default o no hay instancias definidas" );
 					return null;
 				}
+
 
 			} else {
 
@@ -188,20 +195,19 @@ class xpdbm {
 				return reset( $this->db );
 			}
 
-		} else 
-			M()->info( "instancia con name: $name" );
-
-		if ( is_object( $db_handler ) ) {
+		} else if ( is_object( $db_handler ) ) {
 
 			M()->info( "asignada la instancia a $name" );
-			$this->db[$name] = $db_handler;
+			return ( $this->db[$name] = $db_handler );
 
-		}
+		} else if ( ! array_key_exists( $name, $this->db ) ) {
 
-		if ( $name and ( ! array_key_exists( $name, $this->db ) ) ) 
-			$this->open( $name );
-		else
+			return $this->open( $name );
+
+		} else {
+
 			return $this->db[$name];
+		}
 
 	}/*}}}*/
 
