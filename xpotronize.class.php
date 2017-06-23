@@ -253,7 +253,7 @@ class dbdump extends xp {
 
 		$xpdoc->dbm->init();
 
-		if ( ! ( $this->db = $xpdoc->instance() ) ) {
+		if ( ! ( $this->db = $xpdoc->dbm->instance() ) ) {
 			M()->error( 'no puede abrir la base de datos' );
 			return;
 		}
