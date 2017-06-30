@@ -51,6 +51,7 @@
 			</xsl:if>
 
 			<xsl:sequence select="$ui_table/sync"/>
+			<xsl:sequence select="$ui_table/dbi"/>
 
 			<!-- primary_key -->
 			<xsl:apply-templates select="." mode="get_primary_key"/>
