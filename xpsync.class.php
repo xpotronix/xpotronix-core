@@ -203,12 +203,13 @@ class xpsync {
 
 			if ( trim( $this->obj->$key ) != trim( $so->$key ) ) {
 
-				// fechas con a;o en 3000 de PayRoll. Esto tiene que ir en una funcion aparte
-				if ( ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' ) 
-					and ( substr( $so->$key, 0, 4 ) == '3000' or substr( $so->$key, 0, 4 ) == '1900' ) )
-					continue;
+				// fechas con a;o en 3000 de PayRoll. Esto tiene que ir en una funcion aparte, por ahora lo pone nulo
+				if ( ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' )
+					and ( substr( $so->$key, 0, 4 ) == '3000' or substr( $so->$key, 0, 4 ) == '1900' ) ) {
 
-				if ( $attr->type == 'xpdatetime' ) {
+						$this->obj->$key = '';
+
+				} else if ( $attr->type == 'xpdatetime' ) {
 
 					if ( str_replace( ' 00:00:00', '', $this->obj->$key ) != $so->$key )
 

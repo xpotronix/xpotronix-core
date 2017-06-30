@@ -108,7 +108,7 @@ class xpconfig {
 
 			if ( $tmp_type == 'bool' or $tmp_type == 'boolean' )
 			
-				return (boolean) $tmp == 'true';
+				return $tmp == 'true';
 
 			settype( $tmp, $tmp_type ) ;
 
