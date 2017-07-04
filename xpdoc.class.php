@@ -388,6 +388,11 @@ class xpdoc extends xp {
 		$this->http->m and $this->set_model( $this->http->m );
 
 		$this->action         = $this->http->a;
+		$this->process	      = explode( ';', $this->http->p );
+
+		count( $this->process ) and  
+			$this->action = 'process';
+
 		$this->query          = $this->http->q;
 		// $this->view           = $this->http->v;
 		$this->data	      = $this->http->d;
@@ -397,7 +402,6 @@ class xpdoc extends xp {
 		$this->features       = $this->http->f;
 		$this->template       = $this->http->t;
 		$this->html           = $this->http->h;
-		$this->process	      = explode( ';', $this->http->p );
 		$this->json	      = json_decode( $this->http->j );
 		$this->param_schema   = $this->http->b;
 		$this->extra_param    = $this->http->e;
