@@ -388,10 +388,12 @@ class xpdoc extends xp {
 		$this->http->m and $this->set_model( $this->http->m );
 
 		$this->action         = $this->http->a;
-		$this->process	      = explode( ';', $this->http->p );
 
-		count( $this->process ) and  
-			$this->action = 'process';
+		if ( $this->p ) {
+
+			$this->action  = 'process';
+			$this->process = explode( ';', $this->http->p );
+		}
 
 		$this->query          = $this->http->q;
 		// $this->view           = $this->http->v;
