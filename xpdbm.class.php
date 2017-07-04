@@ -42,6 +42,7 @@ class xpdbm {
 		$user = null;
 		$password = null;
 		$implementation = null;
+		$table_prefix = null;
 
 		foreach( $this->config->db_instance as $instance ) {
 
@@ -70,6 +71,11 @@ class xpdbm {
 			if ( $instance->implementation ) 
 				$implementation = $instance->implementation;
 			else	$instance->implementation = $implementation;
+
+			if ( $instance->table_prefix ) 
+				$table_prefix = $instance->table_prefix;
+			else	$instance->table_prefix = $table_prefix;
+
 
 			/* check de parametros */
 
@@ -110,6 +116,8 @@ class xpdbm {
 
 	function open( $i ) {/*{{{*/
 
+		M()->info( $i->asXML() );
+
 		if ( is_string( $i ) ) {
 
 			$arr = $this->config->get_xml()->xpath( "db_instance[@name='$i']" );
@@ -128,6 +136,7 @@ class xpdbm {
 		$user = (string) $instance->user;
 		$password = (string) $instance->password;
 		$implementation = (string) $instance->implementation;
+		$table_prefix = (string) $instance->table_prefix;
 
 		M()->info( "abriendo la instancia $name con la base de datos {$database}" );
 	
@@ -142,9 +151,9 @@ class xpdbm {
 			default:
 				$dbi = $this->instance( $name, new xpadodb( $name, $implementation ) );
 		}
-	
 
-		( $instance->table_prefix ) and ( $dbi->tablePrefix = (string) $instance->table_prefix ) and M()->info( "table_prefix: $instance->table_prefix" );
+
+		( $table_prefix ) and ( $dbi->tablePrefix = $table_prefix ) and M()->info( "table_prefix: $table_prefix" );
 
 		M()->info( $function = $instance->persistent ? 'PConnect' : 'Connect' );
 
