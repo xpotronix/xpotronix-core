@@ -389,7 +389,7 @@ class xpdoc extends xp {
 
 		$this->action         = $this->http->a;
 
-		if ( $this->p ) {
+		if ( $this->http->p ) {
 
 			$this->action  = 'process';
 			$this->process = explode( ';', $this->http->p );
