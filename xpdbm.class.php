@@ -116,9 +116,10 @@ class xpdbm {
 
 	function open( $i ) {/*{{{*/
 
-		M()->info( $i->asXML() );
 
 		if ( is_string( $i ) ) {
+
+			M()->info( "i: $i" );
 
 			$arr = $this->config->get_xml()->xpath( "db_instance[@name='$i']" );
 
@@ -127,7 +128,11 @@ class xpdbm {
 				return null;
 			} 
 
-		} else $instance = $i;
+		} else {
+
+			$instance = $i;
+			M()->info( 'i: '. $i->asXML() );
+		}
 
 		// shorthands
 		$name = (string) $instance['name'];

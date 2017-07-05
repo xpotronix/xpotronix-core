@@ -41,7 +41,7 @@
 
 				if ( record = this.cr() ) {
 
-                			img.dom.src 	= App.feat.uri_thumb + record.data.ID + '&amp;r=' + record.data.rotar;
+                			img.dom.src 	= App.feat.uri_imagen + record.data.ID + '&amp;r=' + record.data.rotar;
 					img.dom.style 	= "border:2px solid black; max-width: 100%; max-height: 100%";
 					/* img.dom.border 	= 0; */
 					img.dom.alt 	= record.data.imagen_ID_label;
