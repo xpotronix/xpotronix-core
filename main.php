@@ -23,13 +23,12 @@ ini_set( 'error_log', 'syslog' );
 global $xpdoc;
 
 require_once 'includes/misc_functions.php';
-require_once 'xpmessages.class.php';
-
 $t_start = microtime_float();
 
-// includes
+/* main includes */
 
-include_once "xpdoc.class.php";
+require_once 'xpmessages.class.php';
+require_once "xpdoc.class.php";
 
 M()->stats( '*** inicio de ejecucion de xpotronix ***' ); 
 M()->mem_stats();
