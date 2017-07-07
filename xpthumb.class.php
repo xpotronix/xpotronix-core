@@ -51,6 +51,7 @@ class xpthumb {
 	var $cache_options;
 	var $cache_pathinfo;
 	var $cached_image;
+	var $loaded = false;
 
 	function __construct( $doc_root = null, $cache_root = null ) {/*{{{*/
 
@@ -171,6 +172,7 @@ class xpthumb {
 			$this->image->readImage($file_path);
 			M()->debug( "cargada la imagen $file_path" );
 			$this->get_props();
+			$this->loaded = true;
 			return $this;
 
 		} catch (Exception $e) {
@@ -200,6 +202,7 @@ class xpthumb {
 			$this->image->readImageBlob( $image );
 			M()->debug( "cargada la imagen desde BLOB" );
 			$this->get_props();
+			$this->loaded = true;
 			return $this;
 
 		} catch (Exception $e) {
@@ -356,6 +359,7 @@ class xpthumb {
 		$offset = 60 * 60 * 24 * 300;
 		$ExpStr = "Expires: " . gmdate("D, d M Y H:i:s", time() + $offset) . " GMT";
 		header($ExpStr);
+
 	}/*}}}*/
 
 	function setImageFormat( $format ) {/*{{{*/
