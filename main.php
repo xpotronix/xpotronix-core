@@ -38,6 +38,9 @@ $xpdoc = new xpdoc;
 
 $xpdoc->params_process();
 
+file_exists( $f = 'pre_init.php' ) and
+        include_once( $f );
+
 if ( $xpdoc->init() ) {
 
 	if ( $xpdoc->load_model() ) {
