@@ -342,7 +342,7 @@ class xpdoc extends xp {
 					$this->session->user_id = $this->config->anonymous_user_id;
 				}
 			} else 
-				M()->info( "la sesion existe" );
+				M()->info( "la sesion existe [$sid]" );
 		}
 		
 		$this->user->load( $this->session->user_id );
@@ -427,7 +427,6 @@ class xpdoc extends xp {
 
 		/* parametros de la consulta */
 
-
 		if ( $this->param_schema == 'ext4' ) {
 
 			require_once 'xpparams.class.php';
@@ -439,6 +438,8 @@ class xpdoc extends xp {
 
 		} else {
 
+			/* search keys */
+
 			foreach ( $this->http->var as $key => $data ) {
 
 				if ( strstr( $this->controller_vars, $key. ';' ) ) 
@@ -447,13 +448,15 @@ class xpdoc extends xp {
 				$this->search[$this->req_object][$key] = $data;
 			}
 
-			// query_field: sobre que campo alias tiene que buscar (ej.: _label)
+			/* query_field: sobre que campo alias tiene que buscar (ej.: _label) */
 
 			if ( ( $query = $this->http->query ) and ( $query_field = $this->feat->query_field ) ) {
 
 				$this->search[$this->req_object][$query_field] = $query;
 				M()->info( "parametro query buscando el valor \"$query\" sobre [$query_field]" );
 			}
+
+			/* paginado */
 
 			if ( $this->http->g ) {
 
@@ -472,6 +475,64 @@ class xpdoc extends xp {
 					$this->order[$this->req_object][$g['sort']]=$g['dir'];
 			}
 
+			/* nueva version de paginado para todos los objetos del modelo */
+
+			if ( $this->http->gp ) {
+
+				M()->info( "gp con valor: ". serialize( $gp ) );
+
+				foreach( $this->http->gp as $obj_name => $param ) {
+
+					M()->info( "obj: $obj_name" );
+
+					/* DEBUG: chequear si el nombre del objeto existe */
+
+					$op = array();
+					
+					foreach( $param as $key => $value ) {
+
+						M()->info( "param: $key = $value" );
+
+						if ( $key == 'page' ) {
+
+							$value = (int) $value;
+							$op['cp'] = $value;
+
+						}  else if ( $key == 'start' ) {
+
+							$op['start'] = (int) $value;
+
+						} else if ( $key == 'limit' and ( (int) $value ) > 0 ) {
+
+							$value = (int) $value;
+
+							/* equivalencia start/limit vs page_row/current_page */
+
+							$op['pr'] = $value;
+							$op['cp'] = (int) ceil( $op['start'] / $value ) + 1;
+
+						} else if ( $key == 'sort' ) {
+
+							$this->order[$obj_name][$g['sort']]=$g['dir'];
+
+						} else {
+
+							M()->warn( "pametro desconocido $key con valor $value" );
+
+						}
+					}
+				}
+
+				$this->pager[$obj_name] = $op;
+
+				/*
+				if ( $obj_name == 'imagen' ) {
+					echo '<pre>';
+					print_r( $this->pager );
+					exit;
+				}
+				*/
+			}
 		}
 
 		//print_r( $this->search );
