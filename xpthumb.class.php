@@ -44,6 +44,7 @@ class xpthumb {
 	var $image;
 	var $doc_root;
 	var $cache_root;
+	var $cache_key;
 	var $props;
 	var $cache_dir = 'cache';
 	var $file_pathinfo;
@@ -67,6 +68,8 @@ class xpthumb {
 		else
 			$this->cache_root = $doc_root;
 
+		$this->cache_key = md5($this->http->request_uri);
+
 		$this->file_pathinfo = pathinfo("{$this->doc_root}/{$this->http->src}");
 
 		$this->cache_pathinfo = pathinfo($this->http->src);
@@ -75,53 +78,56 @@ class xpthumb {
 
 	}/*}}}*/
 
-	function get_cache_key() {/*{{{*/
-
-		return md5($this->http->request_uri);
-
-	}/*}}}*/
-
 	function get_cache() {/*{{{*/
 
 		$this->set_cache();
 
-		if ( $this->cached_image = $this->cache->get( $this->get_cache_key() ) ) {
+		if ( $this->cached_image = $this->cache->get( $this->cache_key ) ) {
 
-			M()->info( 'pagina de cache encontrada: '. $this->get_cache_key() );
+			M()->info( 'pagina de cache encontrada: '. $this->cache_key );
                         return $this->cached_image;
 
                 } else 
 
-			M()->info( 'pagina de cache NO encontrada: '. $this->get_cache_key() );
+			M()->info( 'pagina de cache NO encontrada: '. $this->cache_key );
 	}/*}}}*/
 
 	function cache() {/*{{{*/
 
-		M()->info( 'guardando cache en '. $this->get_cache_key(). ' el path: '. $this->cache_filename() );
+		$cache_filename = $this->cache_filename();
+
+		M()->info( "guardando cache en $this->cache_key con el path: $cache_filename" );
 
 		$this->set_cache();	
-		$this->cache->save( $this->image, $this->get_cache_key() );
-
-	}/*}}}*/
-
-	function cache_filename() {/*{{{*/
-
-		@$cache_filename = implode('/', array( $this->cache_root, $this->cache_pathinfo['dirname'], $this->cache_dir, $this->get_cache_key() ));
-
-		M()->info( $cache_filename );
-
-		return $cache_filename;
+		$this->cache->save( $this->image, $this->cache_key );
 
 	}/*}}}*/
 
 	function cache_pathname() {/*{{{*/
 
-		@$cache_pathname = implode('/', array( $this->cache_root, $this->cache_pathinfo['dirname'], $this->cache_dir ));
+		$parts = array();
 
-		// M()->info( $cache_pathname );
+		$t = $this->cache_root and $parts[] = $t;
+		@$t = $this->cache_pathinfo['dirname'] and $parts[] = $t;
+		$t = $this->cache_dir and $parts[] = $t;
 
-		return $cache_pathname;
+		$result = implode('/', $parts );
+		M()->info($result);
+		return $result;
 
+
+	}/*}}}*/
+
+	function cache_filename() {/*{{{*/
+
+		$parts = array();
+
+		$t = $this->cache_pathname() and $parts[] = $t;
+		$t = $this->cache_key and $parts[] = $t;
+
+		$result = implode('/', $parts );
+		M()->info($result);
+		return $result;
 
 	}/*}}}*/
 
@@ -131,9 +137,15 @@ class xpthumb {
 
 		$cache_pathname = $this->cache_pathname();
 
-		M()->info( 'cache_pathname: '. $this->cache_pathname() );
+		M()->info( "cache_pathname: $cache_pathname");
 
-		file_exists( $cache_pathname ) or mkdir( $cache_pathname, 0777, true ) or M()->warn( "no se pudo crear el directorio de cache $cache_pathname" );
+		if ( !file_exists( $cache_pathname ) ) {
+
+			M()->info( "cache_pathname: $cache_pathname" );
+
+			mkdir( $cache_pathname, 0777, true );
+			M()->warn( "no se pudo crear el directorio de cache $cache_pathname" );
+		}
 
                 $this->cache_options = array(
                         'caching' => true,
