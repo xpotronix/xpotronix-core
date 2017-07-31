@@ -367,10 +367,13 @@ class xpthumb {
 
 	function headers() {/*{{{*/
 
-		header("Content-Type: image/jpeg");
 		$offset = 60 * 60 * 24 * 300;
 		$ExpStr = "Expires: " . gmdate("D, d M Y H:i:s", time() + $offset) . " GMT";
+
+		header('Pragma: public');
+		header('Cache-Control: max-age=86400');
 		header($ExpStr);
+		header("Content-Type: image/jpg");
 
 	}/*}}}*/
 
