@@ -1366,6 +1366,8 @@ class xpdoc extends xp {
 
 		$tmp_file = null;
 
+		/* null view */
+
 		$view and $this->set_view( $view );
 
 		$this->get_view() or $this->set_view( 'xml' );
@@ -1373,6 +1375,8 @@ class xpdoc extends xp {
 		M()->info( 'transform view: ' . $this->get_view() );
 
 		if ( $this->view == 'csv' or $this->view == 'none' ) return;
+
+		/* cache */
 
 		if ( $this->config->app_cache_time and $cache ) {
 
@@ -1396,6 +1400,8 @@ class xpdoc extends xp {
 		} else M()->info( 'Cache deshabilitada para la aplicacion' );
 
 
+		/* xdoc */
+
 		if ( is_object( $xdoc ) ) {
 
 			M()->info( 'recibo un xdoc via parametro' );
@@ -1411,6 +1417,8 @@ class xpdoc extends xp {
 			M()->info( 'no hay xpdoc, hago uno' );
 		}
 
+
+		/* view */
 
 		if ( $this->html ) {
 
@@ -1452,7 +1460,10 @@ class xpdoc extends xp {
 
 			// DEBUG: deberia cachear el xpotronix:document
 
-			$tmp_basename = $this->get_hash().'.xml';
+			/* filenames */
+
+			$tmp_filename = $this->xpid();
+			$tmp_basename = "$tmp_filename.xml";
 
 			$tmp_path = $this->ini['paths']['tmp'];
 			$tmp_file = "$tmp_path/$tmp_basename";
@@ -1463,6 +1474,9 @@ class xpdoc extends xp {
 				$tmp_uri = $this->ini['uri']['tmp'];
 				$tmp_file_uri = "$tmp_uri/$tmp_basename";
 			}
+
+
+			/* xml tmp file */
 
 			if ( @$handle = fopen($tmp_file, "w") ) {
 
@@ -1476,33 +1490,13 @@ class xpdoc extends xp {
 			$view_file = $this->get_template_file( $this->view. '.xsl' );
 			M()->info( 'template seleccionado para la transformacion: '. $view_file );
 
+			/* transform */
+
 			$transform_type = $transform_type ? $transform_type : $this->feat->transform;
 
 			M()->info( "transform_type: $transform_type" );
 
 			switch ( $transform_type ) {
-
-				case 'fo':
-
-					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
-
-					M()->debug( "xml_file: $xml_file" );
-					$this->fop_transform( $xml_file, $view_file, $params );
-					$this->content_type( 'application/pdf' );
-
-					if ( $handle = fopen( '/tmp/fop-out/test.pdf', 'r' ) ) {
-
-						$this->output_buffer = fread( $handle, filesize(  '/tmp/fop-out/test.pdf' ) );
-						fclose( $handle);
-					}
-
-					if ( $this->output_buffer === null ) {
-
-						$this->content_type() or $this->content_type( 'text/html' );
-						$this->output_buffer = $this->get_messages()->asXML(); 
-					}
-
-					break;
 
 				case 'saxon':
 
@@ -1545,13 +1539,15 @@ class xpdoc extends xp {
 					ob_start();
 					$param_template = ( $this->template ) ? "-it {$this->template}" : NULL;
 					system( "$saxon_command $param_template $tmp_file $view_file 2>&1", $retval );
-					$this->output_buffer = ob_get_clean();
+					$msgs = ob_get_clean();
+
+					$msgs and M()->warn( $mgsg );
 
 					if ( $retval == 2 ) {
 
 						$this->content_type( 'text/html' );
 						M()->error( "Hubo errores en la transformacion SYSTEM" );
-						$this->output_buffer = sprintf( "<h1>Error en la transformaci&oacute;n:</h1><pre>%s</pre>", $this->output_buffer );
+						$this->output_buffer = sprintf( "<h1>Error en la transformaci&oacute;n:</h1><pre>%s</pre>", $msgs );
 
 					} else {
 
@@ -1560,6 +1556,80 @@ class xpdoc extends xp {
 					}
 
 					break;
+
+				case 'fo':
+				case 'fop':
+
+					$tmp_pdf_file = "$tmp_path/$tmp_filename.pdf";
+
+					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
+
+					M()->debug( "xml_file: $xml_file" );
+					$this->fop_transform( $xml_file, $view_file, $params );
+
+					if ( $handle = fopen( $tmp_pdf_file, 'r' ) ) {
+
+						$this->content_type( 'application/pdf' );
+						$this->output_buffer = fread( $handle, filesize( $tmp_pdf_file ) );
+						fclose( $handle );
+						unlink( $tmp_pdf_file );
+					}
+
+					if ( $this->output_buffer === null ) {
+
+						$this->content_type() or $this->content_type( 'text/html' );
+						$this->output_buffer = $this->get_messages()->asXML(); 
+					}
+
+					break;
+
+				case 'system_fop':
+
+					$tmp_pdf_file = "$tmp_path/$tmp_filename.pdf";
+
+					$system_command = "/usr/bin/fop";
+
+					M()->info( "tmp_pdf_file: $tmp_pdf_file" );
+
+					if ( $params ) {
+						$sparam = null;
+						foreach( $params as $pr => $prv )
+							$sparam += "$pr='$prv' ";
+					}
+
+					$retval = 0;
+					ob_start();
+					$param_template = ( $this->template ) ? "-it {$this->template}" : NULL;
+					system( "$system_command -xml $tmp_file -xsl $view_file -pdf $tmp_pdf_file 2>&1", $retval );
+					$msgs = ob_get_clean();
+
+					$msgs and M()->warn( $msgs );
+
+					if ( $retval == 2 ) {
+
+						$this->content_type( 'text/html' );
+						M()->error( "Hubo errores en la transformacion SYSTEM" );
+						$this->output_buffer = sprintf( "<h1>Error en la transformaci&oacute;n:</h1><pre>%s</pre>", $msgs );
+
+					} else {
+
+						if ( $handle = fopen( $tmp_pdf_file, 'r' ) ) {
+
+							$this->content_type( 'application/pdf' );
+							$this->output_buffer = fread( $handle, filesize( $tmp_pdf_file ) );
+							fclose( $handle);
+							unlink( $tmp_pdf_file );
+						}
+
+						if ( $this->output_buffer === null ) {
+
+							$this->content_type() or $this->content_type( 'text/html' );
+							$this->output_buffer = $this->get_messages()->asXML(); 
+						}
+					}
+
+					break;
+
 
 				case 'php':
 
