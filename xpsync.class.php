@@ -175,6 +175,67 @@ class xpsync {
 		M()->user( "procesados $i registros.fin del proceso" );
 	}/*}}}*/
 
+	function sync_info() {/*{{{*/
+
+		global $xpdoc;
+
+		set_time_limit(0);
+
+		if ( ! ( $source_table = (string) $this->sync['from'] ) ) {
+
+			M()->user( "la clase $source_table no tiene definida la directiva de <sync/> para realizar la sincronizacion." );
+			return;
+		}
+
+		$s = $xpdoc->instance( $source_table );
+
+		if ( ! count( $s->get_primary_key() ) ) {
+
+			M()->error( "Clase $source_table sin clave primaria, no se puede sincronizar. Agregue una clave" );
+			return;
+		}
+
+
+		if ( $page_rows = (int) $this->sync['page_rows'] ) {
+
+			$s->feat->page_rows = $page_rows;
+		}
+
+		if ( $limit = (int) $this->sync['limit'] ) {
+
+			M()->info( "limit: $limit" );
+		}
+
+
+		$info = array();
+
+		$info['source'] = $source_table;
+		$info['target'] = $this->obj->class_name;
+		$info['page_rows'] = $page_rows;
+		$info['limit'] = $limit;
+
+		$start = microtime_float();
+		$rs = $s->load_set( $this->query, $this->where, $this->order );
+		$stop = microtime_float();
+
+		$info['secs_page'] = $stop - $start;
+		$info['total_records'] = $s->total_records;
+
+		$info['not_found_fields'] = array();
+
+		foreach( $s->attr as $key => $attr ) {
+
+			if ( $this->obj->get_attr( $key ) ) {
+				// $info['fields'][$key] = true;
+			} else {
+				$info['fields'][$key] = false;
+			}
+		}
+
+		print_r( $info ); exit;
+
+	}/*}}}*/
+
  	function sync_obj( $so ) {/*{{{*/
 
 		$this->obj->load( $key = $so->get_primary_key() ) or $this->obj->fill_primary_key();
@@ -197,7 +258,7 @@ class xpsync {
 
 
 			if ( ! $this->obj->get_attr( $key ) ) {
-				M()->debug('no encuentro al key '.$key );
+				M()->debug( "no encuentro al key {$this->obj->class_name}::$key existente en $so->class_name" );
 				continue;
 			}
 
