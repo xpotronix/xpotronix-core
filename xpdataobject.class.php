@@ -133,6 +133,13 @@ class xpDataObject extends xp {
 		return $sync->sync_data();
 	}/*}}}*/
 
+	function sync_info() {/*{{{*/
+
+		require_once 'xpsync.class.php';
+		$sync = new xpsync( $this );
+		return $sync->sync_info();
+	}/*}}}*/
+
 	function __construct( $model = null, $metadata = null ) {/*{{{*/
 
 		global $xpdoc; 
