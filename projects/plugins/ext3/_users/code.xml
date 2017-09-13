@@ -18,10 +18,12 @@
 		var $ldap_host;
 		var $ldap_port;
 		var $ldap_version;
-		var $base_dn;
+		var $ldap_base_dn;
 		var $ldap_search_user;
 		var $ldap_search_pass;	
-		var $filter;
+		var $ldap_default_domain;	
+		var $ldap_bind_format;	
+		var $ldap_user_filter;
 		var $fallback;
 
 		var $state;
@@ -258,12 +260,15 @@
 		$this->ldap_host = $xpdoc->config->ldap_host;
 		$this->ldap_port = $xpdoc->config->ldap_port;
 		$this->ldap_version = $xpdoc->config->ldap_version;
-		$this->base_dn = $xpdoc->config->ldap_base_dn;
+		$this->ldap_base_dn = $xpdoc->config->ldap_base_dn;
 
-		$this->filter = $xpdoc->config->ldap_user_filter;
+		$this->ldap_user_filter = $xpdoc->config->ldap_user_filter;
 
 		$this->ldap_search_user = $xpdoc->config->ldap_search_user ? $xpdoc->config->ldap_search_user : $username;
 		$this->ldap_search_pass = $xpdoc->config->ldap_search_pass ? $xpdoc->config->ldap_search_pass : $password;
+
+		$this->ldap_default_domain = $xpdoc->config->ldap_default_domain;
+		$this->ldap_bind_format = $xpdoc->config->ldap_bind_format;
 
 		$this->user_username = $username;
 
@@ -288,7 +293,14 @@
 		ldap_set_option( $rs, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version );
 		ldap_set_option( $rs, LDAP_OPT_REFERRALS, 0 );
 
-		$ldap_bind_dn = "uid = {$this->ldap_search_user},{$this->base_dn}";
+		$ldap_bind_dn = null;
+
+		M()->info( "ldap_bind_format: $this->ldap_bind_format" );
+
+
+		$ldap_bind_dn = string_parse( $this->ldap_bind_format, get_object_vars( $this ) );
+
+		M()->info( "ldap_bind_dn: $ldap_bind_dn" );
 
 		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
 
@@ -299,9 +311,9 @@
 		} else {
 
 			M()->info( "pude conectarme al servidor LDAP" );
-			$filter_r = str_replace( "%USERNAME%", $username, $this->filter );
+			$filter_r = str_replace( "%USERNAME%", $username, $this->ldap_user_filter );
 
-			if ( $result = @ldap_search( $rs, $this->base_dn, $filter_r ) ) {
+			if ( $result = @ldap_search( $rs, $this->ldap_base_dn, $filter_r ) ) {
 
 				M()->info( "ldap_search result: ". serialize( $result ) );
 
