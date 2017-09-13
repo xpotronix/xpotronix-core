@@ -1,5 +1,22 @@
 <?
 
+function string_parse( $string, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
+
+	return preg_replace_callback( $pattern, 
+
+		function ($match) use ( $replace ) {
+
+			/* print_r( $match ); */
+
+			list ($_, $name) = $match;
+
+			if (isset($replace[$name])) 
+				return $replace[$name];
+		}
+
+	, $string);
+}/*}}}*/
+
 function utf8_for_xml($string) {/*{{{*/
 	return preg_replace ('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $string);
 }/*}}}*/
@@ -30,8 +47,6 @@ function utf8_for_xml_entities($string) {/*{{{*/
 	return preg_replace ( $find, $replace, $string);
 
 }/*}}}*/
-
-
 
 function crypto_rand_secure($min, $max) {/*{{{*/
 
