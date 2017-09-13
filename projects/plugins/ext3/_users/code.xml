@@ -297,7 +297,6 @@
 
 		M()->info( "ldap_bind_format: $this->ldap_bind_format" );
 
-
 		$ldap_bind_dn = string_parse( $this->ldap_bind_format, get_object_vars( $this ) );
 
 		M()->info( "ldap_bind_dn: $ldap_bind_dn" );
@@ -311,9 +310,12 @@
 		} else {
 
 			M()->info( "pude conectarme al servidor LDAP" );
-			$filter_r = str_replace( "%USERNAME%", $username, $this->ldap_user_filter );
 
-			if ( $result = @ldap_search( $rs, $this->ldap_base_dn, $filter_r ) ) {
+			$filter_query = string_parse( $this->ldap_user_filter, get_object_vars( $this ) );
+
+			M()->info( "filter_query: $filter_query" );
+
+			if ( $result = @ldap_search( $rs, $this->ldap_base_dn, $filter_query ) ) {
 
 				M()->info( "ldap_search result: ". serialize( $result ) );
 
@@ -324,6 +326,8 @@
 			}
 
 			$result_user = ldap_get_entries($rs, $result);
+
+			M()->info( serialize( $result_user ) );
 
 			if ( $result_user["count"] == 0 ) {
 
