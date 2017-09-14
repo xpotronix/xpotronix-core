@@ -1,6 +1,6 @@
 <?
 
-function string_parse( $string, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
+function string_parse( $data, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
 
 	return preg_replace_callback( $pattern, 
 
@@ -14,7 +14,8 @@ function string_parse( $string, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
 				return $replace[$name];
 		}
 
-	, $string);
+	, $data);
+
 }/*}}}*/
 
 function utf8_for_xml($string) {/*{{{*/
