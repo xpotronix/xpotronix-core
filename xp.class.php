@@ -317,7 +317,7 @@ class xp {
 		}
 	}/*}}}*/ 
 
-	function fop_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
+	function fop_transform( $xml_file, $xsl_file, $params = null, $output_path, $output_file ) {/*{{{*/
 
 		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
@@ -357,12 +357,12 @@ class xp {
 
 			// Setup output
 
-			$tmpDir = new Java( "java.io.File", '/tmp' );
-			$outDir = new Java( "java.io.File", $tmpDir, 'fop-out' );
+			/* $tmpDir = new Java( "java.io.File", '/tmp' ); */
+			$outDir = new Java( "java.io.File", $output_path );
 
 			$outDir->mkdirs();
 
-			$pdffile = new Java( "java.io.File", $outDir, 'test.pdf' );
+			$pdffile = new Java( "java.io.File", $outDir, $output_file );
 
 			$tmp = new Java( "java.io.FileOutputStream", $pdffile );
 			$out = new Java( 'java.io.BufferedOutputStream', $tmp );
