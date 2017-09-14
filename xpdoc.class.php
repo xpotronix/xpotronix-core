@@ -1565,7 +1565,7 @@ class xpdoc extends xp {
 					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
 
 					M()->debug( "xml_file: $xml_file" );
-					$this->fop_transform( $xml_file, $view_file, $params );
+					$this->fop_transform( $xml_file, $view_file, $params, $tmp_path, "$tmp_filename.pdf" );
 
 					if ( $handle = fopen( $tmp_pdf_file, 'r' ) ) {
 
