@@ -99,13 +99,15 @@
 
 				M()->info( "process: ". serialize( $xpdoc->process ) );
 
-				foreach( $xpdoc->process as $process )
+				if ( is_array( $xpdoc->process ) )
 
-					if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) ) {
+					foreach( $xpdoc->process as $process )
 
-						M()->info( "process $process ignorado, no registra en audit" );
-						return;
-					}
+						if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) ) {
+
+							M()->info( "process $process ignorado, no registra en audit" );
+							return;
+						}
 			}
 
 			$this->fill_primary_key();
