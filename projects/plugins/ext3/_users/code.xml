@@ -368,7 +368,7 @@
 
 			} else {
 
-				M()->info( ldap_error( $rs ). " en $ldap_user_dn@{$this->ldap_host}:{$this->ldap_port}" );
+				M()->warn( ldap_error( $rs ). " en $ldap_user_dn@{$this->ldap_host}:{$this->ldap_port}" );
 				return $this->_login_ldap_fallback( $username, $password );
 			}
 		}
@@ -387,7 +387,7 @@
 
 		if ( $this->fallback ) {
 
-			M()->warn( "haciendo fallback en base de datos local via SQL" );
+			M()->info( "haciendo fallback en base de datos local via SQL" );
 			return $this->_login( $username, $password );
 
 
