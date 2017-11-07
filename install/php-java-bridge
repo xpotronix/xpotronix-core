@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ### BEGIN INIT INFO
 # Provides:		php-java-bridge
 # Required-Start:	$mysql-server $apache2
