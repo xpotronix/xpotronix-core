@@ -2106,7 +2106,7 @@ class xpDataObject extends xp {
 		require_once 'xpserialize.class.php';
 
 		$s = new xpserialize( $this, $flags );
-		return $s->serialize();
+		return $s->serialize( $flags );
 
 	}/*}}}*/
 
@@ -2115,7 +2115,7 @@ class xpDataObject extends xp {
 		require_once 'xpserialize.class.php';
 
 		$s = new xpserialize( $this, $flags );
-		return $s->serialize_row();
+		return $s->serialize_row( $flags );
 
 	}/*}}}*/
 

@@ -116,7 +116,7 @@ class xpserialize {
 
 		// $this->obj->debug_object();
 
-		M()->debug( "serializando instancia objeto {$this->obj->class_name}" );
+		M()->debug( "serializando instancia objeto {$this->obj->class_name} con flags = $flags" );
 
 		$xobj = new SimpleXMLElement( $normalized ? '<obj/>' : "<{$this->obj->class_name}/>" );
 		if ( $normalized ) $xobj['name'] = $this->obj->class_name;
