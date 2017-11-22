@@ -16,16 +16,16 @@
 
 	<code mode="events" type="js"><![CDATA[
 
-var file_grid = Ext.getCmp('file_xpGrid');
+		var file_grid = Ext.getCmp('file_xpGrid');
 
-if ( file_grid ) {
+		if ( file_grid ) {
 
-	var upload_panel = Ext.getCmp('file_xpUploadPanel');
+			var upload_panel = Ext.getCmp('file_xpUploadPanel');
 
-	if ( upload_panel ) upload_panel.on('allfinished', function() { this.reload(); }, file_grid.store );
-}
+			if ( upload_panel ) upload_panel.on('allfinished', function() { this.reload(); }, file_grid.store );
+		}
 
-]]></code>
+	]]></code>
 
 	<code type="php" mode="class_functions"><![CDATA[
 
@@ -56,17 +56,20 @@ if ( file_grid ) {
 
 	function response( $success = true, $message = 'OK' ) {/*{{{*/
 
+		global $xpdoc;
+
 		$response = array(
 			'success' => $success,
 			'message' => $message
 		);
 
-		echo json_encode($response);
+		return $xpdoc->json = json_encode($response);
 
 	}/*}}}*/
 
 	function error($message) {/*{{{*/
 
+		M()->error( $message );
 		return $this->response(false, $message);
 
 	}/*}}}*/
@@ -87,55 +90,76 @@ if ( file_grid ) {
 		 */
 
 		global $xpdoc;
-		M()->info( $xpdoc->config->upload_dir = 'test-upload-dir' );
 
-		if (!isset($_SERVER['HTTP_X_FILE_NAME'])) {
+		( $upload_dir = $xpdoc->config->upload_dir ) or $upload_dir = 'test-upload-dir';
+
+		if ( file_exists( $upload_dir ) ) {
+
+			M()->info( "Directorio de upload: $upload_dir" ); 
+
+		} else {
+
+			M()->error( "El directorio de upload $upload_dir no existe o no es accesible, no se puede continuar" );
+			return;
+		}
+
+
+		if ( isset($_SERVER['HTTP_X_FILE_NAME']) ) {
+
+			M()->info( $fileName = $_SERVER['HTTP_X_FILE_NAME'] );
+
+		} else {
+
 			$this->error('Unknown file name');
 			return;
 		}
 
-		M()->info( $fileName = $_SERVER['HTTP_X_FILE_NAME'] );
+		/* print_r( $_SERVER ); exit; */
+
+		M()->info( "filenameEncoder: ". $_SERVER['HTTP_X_FILENAME_ENCODER'] );
 
 		if (isset($_SERVER['HTTP_X_FILENAME_ENCODER']) && 'base64' == $_SERVER['HTTP_X_FILENAME_ENCODER']) {
-		    M()->info( $fileName = base64_decode($fileName) );
-		}
 
-		M()->info( $fileName = htmlspecialchars($fileName) );
-		M()->info( $mimeType = htmlspecialchars($_SERVER['HTTP_X_FILE_TYPE']) );
-		M()->info( $size = intval($_SERVER['HTTP_X_FILE_SIZE']) );
+			M()->info( "filename base64 decode: ". $fileName = base64_decode($fileName) );
 
-		$inputStream = fopen('php://input', 'r');
-		M()->info( $outputFilename = $xpdoc->config->upload_dir . '/' . $fileName );
+		} else {
+
+                        M()->info( $fileName = mb_convert_encoding( $fileName, "UTF-8") );
+                }
+
+
+		M()->info( "filename: ". $fileName = htmlspecialchars($fileName) );
+
+		M()->info( "mimeType: ". $mimeType = htmlspecialchars($_SERVER['HTTP_X_FILE_TYPE']) );
+		M()->info( "fileSize: ". $size = intval($_SERVER['HTTP_X_FILE_SIZE']) );
+		M()->info( "outputFilename: ". $outputFilename = $upload_dir . '/' . $fileName );
 
 		$realSize = 0;
-		$data = '';
 
-		if ($inputStream) {
+		if ( $inputStream = fopen( 'php://input', 'r' ) ) {
 
-			$outputStream = fopen($outputFilename, 'w');
+			$outputStream = fopen( $outputFilename, 'w' );
 
 			if ( ! $outputStream) {
-				$this->error("Error creating local file $outputFilename");
+
+				$this->error( "Error al crear localmente el archivo $outputFilename" );
 				return;
 			}
 		    
 			while ( ! feof( $inputStream ) ) {
 
-				$bytesWritten = 0;
-				$data = fread($inputStream, 1024);
+				$bytesWritten = fwrite( $outputStream, fread( $inputStream, 1024 ) );
 			
-				$bytesWritten = fwrite($outputStream, $data);
-			
-				if (false === $bytesWritten) {
+				if ( $bytesWritten === false ) {
 
-					$this->error('Error writing data to file');
+					$this->error( 'error al escribir datos en el archivo' );
 					return;
 				}
 
 				$realSize += $bytesWritten;
 			}
 		    
-			fclose($outputStream);
+			fclose( $outputStream );
 
 		} else {
 
@@ -145,12 +169,14 @@ if ( file_grid ) {
 
 		if ( $realSize != $size ) {
 
-			$this->error('The actual size differs from the declared size in the headers');
+			$this->error('El tamaño actual difiere del tamaño declarado en los encabezados');
 			return;
 		}
 
-		M()->info(sprintf("[raw] Uploaded %s, %s, %d byte(s)", $fileName, $mimeType, $realSize));
+		M()->info( sprintf( "[raw] Subidos %s, %s, %d byte(s)", $fileName, $mimeType, $realSize ) );
 		$this->response();
+
+		return $outputFilename;
 
 	}/*}}}*/
 
@@ -200,95 +226,97 @@ if ( file_grid ) {
 		);
 
 
-		if ( count( $_FILES ) ) {
+		if ( ! count( $_FILES ) ) {
 
 			M()->user( "no se recibieron archivos" );
 			M()->status( "ERR" );
 
 
-		} else 
+		} else {
 
-		foreach ( $_FILES as $id => $file ) {
+			foreach ( $_FILES as $id => $file ) {
 
-			// Validate the upload
-			if (!isset($file)) {
-				M()->user('No upload found in \$_FILES for ' . $upload_name, $id);
+				// Validate the upload
+				if (!isset($file)) {
+					M()->user('No upload found in \$_FILES for ' . $upload_name, $id);
 
-			} else if (isset($file["error"]) && $file["error"] != 0) {
-				M()->user($uploadErrors[$file["error"]], $id);
+				} else if (isset($file["error"]) && $file["error"] != 0) {
+					M()->user($uploadErrors[$file["error"]], $id);
 
-			} else if (!isset($file["tmp_name"]) || !@is_uploaded_file($file["tmp_name"])) {
-				M()->user('Upload failed is_uploaded_file test.', $id);
+				} else if (!isset($file["tmp_name"]) || !@is_uploaded_file($file["tmp_name"])) {
+					M()->user('Upload failed is_uploaded_file test.', $id);
 
-			} else if (!isset($file['name'])) {
-				M()->user('File has no name.', $id);
-			} else $file_name = $file_name;
+				} else if (!isset($file['name'])) {
+					M()->user('File has no name.', $id);
+				} else $file_name = $file_name;
 
-			// Validate the file size (Warning: the largest files supported by this code is 2GB)
-			$file_size = @filesize($file["tmp_name"]);
+				// Validate the file size (Warning: the largest files supported by this code is 2GB)
+				$file_size = @filesize($file["tmp_name"]);
 
-			if (!$file_size || $file_size > $this->feat->max_file_size ) {
-				M()->user('File exceeds the maximum allowed size', $id);
-			}
-
-			if ($file_size <= 0) {
-				M()->user('File size outside allowed lower bound', $id);
-			}
-
-			// Validate file name (for our purposes we'll just remove invalid characters)
-			$file_name = preg_replace('/[^'.$valid_chars_regex.']|\.+$/i', "", basename($file['name']));
-			if (strlen($file_name) == 0 || strlen($file_name) > $MAX_FILENAME_LENGTH) {
-				M()->user('Invalid file name', $id );
-			}
-
-			/*
-			// Validate file extension
-			$path_info = pathinfo($file['name']);
-			$file_extension = $path_info["extension"];
-			$is_valid_extension = false;
-			foreach ($extension_whitelist as $extension) {
-				if (strcasecmp($file_extension, $extension) == 0) {
-					$is_valid_extension = true;
-					break;
+				if (!$file_size || $file_size > $this->feat->max_file_size ) {
+					M()->user('File exceeds the maximum allowed size', $id);
 				}
+
+				if ($file_size <= 0) {
+					M()->user('File size outside allowed lower bound', $id);
+				}
+
+				// Validate file name (for our purposes we'll just remove invalid characters)
+				$file_name = preg_replace('/[^'.$valid_chars_regex.']|\.+$/i', "", basename($file['name']));
+				if (strlen($file_name) == 0 || strlen($file_name) > $MAX_FILENAME_LENGTH) {
+					M()->user('Invalid file name', $id );
+				}
+
+				/*
+				// Validate file extension
+				$path_info = pathinfo($file['name']);
+				$file_extension = $path_info["extension"];
+				$is_valid_extension = false;
+				foreach ($extension_whitelist as $extension) {
+					if (strcasecmp($file_extension, $extension) == 0) {
+						$is_valid_extension = true;
+						break;
+					}
+				}
+				if (!$is_valid_extension) {
+					M()->user("Invalid file extension", $id);
+					exit(0);
+				}
+				*/
+
+				$tmp_file = $file["tmp_name"];
+				$tmp_file_ok = $tmp_file.'-OK';
+		
+				if (!@move_uploaded_file($tmp_file, $tmp_file_ok )) {
+					M()->user("File could not be saved.", $id );
+				}
+
+				$fh = fopen( $tmp_file_ok, 'rb' );
+
+				// success
+
+				$this->reset();
+				$this->fill_primary_key();
+				$this->parent_ID = $xpdoc->http->parent_ID;
+				$this->file_name = $file_name;
+				$this->mime_type = $file['type'];
+				$this->file_size = $file['size'];
+				// $this->content = fread($fh,filesize($tmp_file_ok));
+				$this->store();
+
+				// DEBUG: hotfix para que no se exceda con la memoria, haciendo bypass al subsistema de SQL, tanto xpquery como adodb
+
+				mysqli_multi_query($this->db->_connectionID, "UPDATE file set content = '". addslashes(fread($fh,filesize($tmp_file_ok)))."' WHERE ID = '$this->ID'");
+
+				unlink($tmp_file_ok);
+
+				$xpdoc->json = array(
+
+					'status' => M()->status('ERR'),
+					'message' => M()->get()
+				);
+
 			}
-			if (!$is_valid_extension) {
-				M()->user("Invalid file extension", $id);
-				exit(0);
-			}
-			*/
-
-			$tmp_file = $file["tmp_name"];
-			$tmp_file_ok = $tmp_file.'-OK';
-	
-			if (!@move_uploaded_file($tmp_file, $tmp_file_ok )) {
-				M()->user("File could not be saved.", $id );
-			}
-
-			$fh = fopen( $tmp_file_ok, 'rb' );
-
-			// success
-
-			$this->reset();
-			$this->fill_primary_key();
-			$this->parent_ID = $xpdoc->http->parent_ID;
-			$this->file_name = $file_name;
-			$this->mime_type = $file['type'];
-			$this->file_size = $file['size'];
-			// $this->content = fread($fh,filesize($tmp_file_ok));
-			$this->store();
-
-			// DEBUG: hotfix para que no se exceda con la memoria, haciendo bypass al subsistema de SQL, tanto xpquery como adodb
-
-			mysqli_multi_query($this->db->_connectionID, "UPDATE file set content = '". addslashes(fread($fh,filesize($tmp_file_ok)))."' WHERE ID = '$this->ID'");
-
-			unlink($tmp_file_ok);
-
-			$xpdoc->json = array(
-
-                        	'status' => M()->status('ERR'),
-                        	'message' => M()->get()
-                	);
 
 		}
 	}/*}}}*/
