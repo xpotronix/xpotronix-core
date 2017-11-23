@@ -74,7 +74,17 @@
 
 	}/*}}}*/
 
-	function upload() {/*{{{*/
+	function get_upload_dir() {/*{{{*/
+
+		global $xpdoc;
+
+		( $upload_dir = $xpdoc->config->upload_dir ) or ( $upload_dir = 'upload_dir' );
+
+		return $upload_dir;
+
+	}/*}}}*/
+
+	function upload( $perm_mime_types = null ) {/*{{{*/
 
 		/**
 		 * Example processing of raw PUT/POST uploaded files.
@@ -91,7 +101,7 @@
 
 		global $xpdoc;
 
-		( $upload_dir = $xpdoc->config->upload_dir ) or $upload_dir = 'test-upload-dir';
+		$upload_dir = $this->get_upload_dir();
 
 		if ( file_exists( $upload_dir ) ) {
 
@@ -133,6 +143,11 @@
 		M()->info( "mimeType: ". $mimeType = htmlspecialchars($_SERVER['HTTP_X_FILE_TYPE']) );
 		M()->info( "fileSize: ". $size = intval($_SERVER['HTTP_X_FILE_SIZE']) );
 		M()->info( "outputFilename: ". $outputFilename = $upload_dir . '/' . $fileName );
+
+		if ( is_array( $perm_mime_types ) and ! ( in_array( $mimeType, $perm_mime_types ) ) ) {
+			$this->error( "La imagen $fileName es de un tipo no permitido ($mimeType)" );
+			return;
+		}
 
 		$realSize = 0;
 
