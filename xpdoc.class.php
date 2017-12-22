@@ -96,6 +96,7 @@ class xpdoc extends xp {
 
 	function  __construct( $config_file = null, $feat_file = null ) {/*{{{*/
 
+		$xpid = $this->xpid( $this->get_hash() );
 
 		$this->load_ini();	
 		// $this->load_datatypes();
@@ -202,7 +203,6 @@ class xpdoc extends xp {
 
 	function init() {/*{{{*/
 
-		$xpid = $this->xpid( $this->get_hash() );
 
 		M()->info( "***** Proceso xpotronix iniciado con xpid [$xpid] *****" );
 
@@ -545,7 +545,7 @@ class xpdoc extends xp {
 
 	function xpid( $hash = null ) {/*{{{*/
 
-		( $hash === null ) and $this->_xpid = $hash;
+		( $hash === null ) or $this->_xpid = $hash;
 
 		return $this->_xpid;
 
