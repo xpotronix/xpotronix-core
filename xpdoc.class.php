@@ -97,9 +97,6 @@ class xpdoc extends xp {
 	function  __construct( $config_file = null, $feat_file = null ) {/*{{{*/
 
 
-		M()->info("current working directory: ". getcwd() );
-
-
 		$this->load_ini();	
 		// $this->load_datatypes();
 		$this->load_features( $feat_file );
@@ -149,22 +146,29 @@ class xpdoc extends xp {
 
 		$this->dbm = new xpdbm( $this->config );
 
+		$this->feat->base_path or $this->feat->base_path = getcwd();
+
+		M()->info("current working directory: {$this->feat->base_path}" );
+
 		return $this;
 
 	}/*}}}*/
 
-	function set_model( $model = null ) {/*{{{*/
+	function set_module( $model = null ) {/*{{{*/
 
 		/* el modulo del sistema tiene asociado un modelo */
 
-		( $this->module = $model and M()->info( 'asignando el modulo '. $this->module ) )
-		or ( $this->module and M()->info( 'iniciando proceso para el modulo '. $this->module ) ) 
-		or ( $this->module = $this->feat->default_module and M()->info( 'valor por default del modulo '. $this->module )) 
-		or ( $this->module = 'users' and M()->info( "Valor por omision para el modulo: ". $this->module ));
+		$msg = null; 
+
+		( $this->module = $model and $msg = "via parametro" ) or 
+		( $this->module and $msg = "previamente" ) or 
+		( $this->module = $this->feat->default_module and $msg = "via feat->default_module" ) or 
+		( $this->module = 'users' and $msg = "via fallback" );
+
+		M()->info( "modulo $this->module asignado $msg" );
 
 		$this->feat->module = $this->module;
 
-		$this->feat->base_path or $this->feat->base_path = getcwd(); 
 
 	}/*}}}*/
 
@@ -385,7 +389,7 @@ class xpdoc extends xp {
 		}
 
 
-		$this->http->m and $this->set_model( $this->http->m );
+		$this->http->m and $this->set_module( $this->http->m );
 
 		$this->action         = $this->http->a;
 
@@ -539,11 +543,12 @@ class xpdoc extends xp {
 		M()->info( 'OK' );
 	}/*}}}*/
 
-	function xpid( $value = NULL ) {/*{{{*/
+	function xpid( $hash = null ) {/*{{{*/
 
-		$value and $this->_xpid = $this->get_hash();
+		( $hash === null ) and $this->_xpid = $hash;
 
 		return $this->_xpid;
+
 	}/*}}}*/
 
 	function get_cache_dir( $suffix = null ) {/*{{{*/
@@ -598,7 +603,7 @@ class xpdoc extends xp {
 
 	function load_model() {/*{{{*/
 
-		isset( $this->module ) or $this->set_model();
+		isset( $this->module ) or $this->set_module();
 		$file = "modules/{$this->module}/{$this->module}.model.xml";
 
 		( @$this->model = simplexml_load_file( $file )
