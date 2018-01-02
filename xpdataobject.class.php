@@ -1020,7 +1020,7 @@ class xpDataObject extends xp {
 						array_push( $protect_list_attr, '_label' );
 						}
 
-					foreach ( $this->xsql->xpath( "attr|field" ) as $xattr ) {
+					foreach ( $query_xml->xpath( "attr|field" ) as $xattr ) {
 
 						/* crea un atributo, puede ser en base a un attr o field */
 
@@ -1038,13 +1038,12 @@ class xpDataObject extends xp {
 				}
 			}
 
-			if ( count( $protect_list_attr ) ) 
-				$this->protect_all( $protect_list_attr );
 		}
+
+		/* if ( $this->class_name == 'formato' ) {print_r( $protect_list_attr ); exit;} */
 
 		// crea la consulta principal
 		// agrego la tabla y su alias, si esta definido
-
 
 		foreach ( $this->xsql->xpath( "attr|field" ) as $xattr ) {
 
@@ -1054,8 +1053,12 @@ class xpDataObject extends xp {
 			$attr = $this->get_attr($name) or $attr = $this->attr( $name );
 			( $t = (string) $xattr['alias_of'] ) and $attr->alias_of = $t;
 			$attr->display = null;
+
+			array_push( $protect_list_attr, $name );
 		}
 
+		if ( count( $protect_list_attr ) ) 
+			$this->protect_all( $protect_list_attr );
 
 		/* DEBUG: queda el $this->table_name con el nombre del xsql->from */
 
@@ -1078,6 +1081,7 @@ class xpDataObject extends xp {
 		if ( $this->xsql->order_by )
 			$sql->addOrder( $this->quote_order( $this->replace_table_name( (string) $this->xsql->alias, $this->get_table_name(),  (string) $order ) ) );
 
+		if ( $this->class_name == 'formato' ) { $this->get_attr('precio')->display=''; }
 
 		// cargo los campos desde los atributos del objeto
 		if ( ! count( $this->attr ) ) 
@@ -1101,10 +1105,8 @@ class xpDataObject extends xp {
 
 		// comentados para debug
 		// if ( $this->class_name == 'dtNotificacionActor' ) { $this->metadata(); exit; }
-		// if ( $this->class_name == 'deudor_e' ) { echo '<pre>'; $this->debug_object(); print_r( $sql ) ; echo '</pre>'; exit; }
-
-		// if ( $this->class_name == 'antiguedad' ) { echo '<p>'; print_r( $sql->prepare() ); echo '</p>'; exit; }
-
+		// if ( $this->class_name == 'formato' ) { echo '<pre>'; $this->debug_object(); print_r( $sql ) ; echo '</pre>'; exit; }
+		// if ( $this->class_name == 'formato' ) { echo '<p>'; print_r( $sql->prepare() ); echo '</p>'; exit; }
 		// if ( $this->class_name == '_empleado' ) { $this->debug_object(); ob_flush(); exit; }
 
 		return $sql;
