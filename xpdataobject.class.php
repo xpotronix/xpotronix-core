@@ -778,13 +778,15 @@ class xpDataObject extends xp {
 				$objs_count++;
 			} 
 
+			$count = count( $objs );
+
 			// echo '<pre>'; print_r( $objs ); echo '</pre>';
 
-			M()->info( $this->class_name. ' cargados/contados: ' . count( $objs ). '/'.$objs_count);
+			M()->info( "$this->class_name cargados/contados: [$count/$objs_count]" );
 
-			if ( count( $objs ) < $objs_count ) 
+			if ( $count != $objs_count ) 
 
-				M()->warn( "en $this->class_name se han cargado menos items que los que se contaron. Revise la clave primaria (que deben ser valores unicos)" );
+				M()->warn( "en $this->class_name se han cargado menos items que los que se contaron. Revise la clave primaria (que deben ser valores unicos) [$count/$objs_count] " );
 
 			// unset( $this->recordset );
 
