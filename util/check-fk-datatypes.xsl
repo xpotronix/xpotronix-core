@@ -10,11 +10,18 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
+<!-- uso:
+
+saxonb-xsl ui.xml path=.
+
+-->
+
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+	<xsl:param name="path"/>
 
-	<xsl:variable name="queries" select="document('queries.xml')"/>
-	<xsl:variable name="tables" select="document('tables.xml')"/>
+	<xsl:variable name="queries" select="document(concat($path,'/queries.xml'))"/>
+	<xsl:variable name="tables" select="document(concat($path,'/tables.xml'))"/>
 
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="no"/>
 
