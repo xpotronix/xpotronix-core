@@ -50,53 +50,70 @@ class xpparam {
 			switch( $param ) {
 
 				case 'pageParam':
+
 					$xpdoc->pager[$obj_name]['cp'] = $value;
 					break;
 
 				case 'startParam':
-				break;
+
+					break;
 
 				case 'limitParam':
+
 					$xpdoc->pager[$obj_name]['pr'] = $value;
 					break;
 
 				case 'groupParam':
+
 					M()->info( 'no implementado' );
 					break;
 
 				case 'groupDirectionParam':
+
 					M()->info( 'no implementado' );
 					break;
 
 				case 'sortParam':
-					if ( is_array( $value ) )
-					foreach( $value as $val )
-						$xpdoc->order[$obj_name][$val->property] = $val->direction;
-						break;
 
-				case 'filterParam':
-					if ( is_array( $value ) )
-					foreach( $value as $val ) {
+					if ( is_array( $value ) ) {
 
-						if ( strstr( $xpdoc->controller_vars, $val->property. ';' ) ) 
-							continue; 
-
-						$xpdoc->search[$obj_name][$val->property] = $val->value;
-						break;
+						foreach( $value as $val )
+							$xpdoc->order[$obj_name][$val->property] = $val->direction;
 					}
 
+					break;
+
+				case 'filterParam':
+
+					if ( is_array( $value ) ) {
+
+						foreach( $value as $val ) {
+
+							if ( strstr( $xpdoc->controller_vars, $val->property. ';' ) ) 
+								continue; 
+
+							$xpdoc->search[$obj_name][$val->property] = $val->value;
+						}
+					}
+
+					break;
+
 				case 'directionParam':
+
 					break;
 
 				case 'idParam':
+
 					M()->info( 'no implementado' );
 					break;
 
 				case 'cacheString':
+
 					M()->info( 'no implementado' );
 					break;
 
 				default:
+
 					M()->info( "no entiendo el parametro $param" );
 
 			}
