@@ -974,12 +974,13 @@ class xpDataObject extends xp {
 
 		/* if ( $this->class_name == 'cliente' ) { $this->debug_object(); exit; } */
 
+		$protect_list_attr = array();
+
 		/* joins de queries asociadas */
+
 		if ( $this->queries_array ) {
 
 			M()->info( "queries_array" );
-
-			$protect_list_attr = array();
 
 			foreach( $this->queries_array as $query_name ) {
 
