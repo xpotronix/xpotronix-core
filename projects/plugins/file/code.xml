@@ -67,13 +67,6 @@
 
 	}/*}}}*/
 
-	function error($message) {/*{{{*/
-
-		M()->error( $message );
-		return $this->response(false, $message);
-
-	}/*}}}*/
-
 	function get_upload_dir() {/*{{{*/
 
 		global $xpdoc;
@@ -107,10 +100,14 @@
 
 			M()->info( "Directorio de upload: $upload_dir" ); 
 
+		} else if ( mkdir( $upload_dir ) ) {
+
+			M()->info( "Directorio de upload: $upload_dir creado" );
+
 		} else {
 
-			M()->error( "El directorio de upload $upload_dir no existe o no es accesible, no se puede continuar" );
-			return;
+			M()->error( "El directorio de upload $upload_dir no existe o no es accesible, ni tampoco pudo ser creado, no se puede continuar" );
+			return false;
 		}
 
 
@@ -120,15 +117,17 @@
 
 		} else {
 
-			$this->error('Unknown file name');
+			$M()->error( 'Nombre de archivo desconocido' );
 			return;
 		}
 
 		/* print_r( $_SERVER ); exit; */
 
-		M()->info( "filenameEncoder: ". $_SERVER['HTTP_X_FILENAME_ENCODER'] );
+		$encoder = @$_SERVER['HTTP_X_FILENAME_ENCODER'];
 
-		if (isset($_SERVER['HTTP_X_FILENAME_ENCODER']) && 'base64' == $_SERVER['HTTP_X_FILENAME_ENCODER']) {
+		M()->info( "HTTP_X_FILENAME_ENCODER: $encoder" );
+
+		if ( $encoder == 'base64' ) {
 
 			M()->info( "filename base64 decode: ". $fileName = base64_decode($fileName) );
 
@@ -145,6 +144,7 @@
 		M()->info( "outputFilename: ". $outputFilename = $upload_dir . '/' . $fileName );
 
 		if ( is_array( $perm_mime_types ) and ! ( in_array( $mimeType, $perm_mime_types ) ) ) {
+
 			$this->error( "La imagen $fileName es de un tipo no permitido ($mimeType)" );
 			return;
 		}
@@ -189,6 +189,7 @@
 		}
 
 		M()->info( sprintf( "[raw] Subidos %s, %s, %d byte(s)", $fileName, $mimeType, $realSize ) );
+
 		$this->response();
 
 		return $outputFilename;
