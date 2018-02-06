@@ -1383,6 +1383,9 @@ class xpDataObject extends xp {
 
 		M()->debug( "count(a_sql): ". count( $a_sql ) );
 
+
+		/*
+
 		if ( count( $a_sql ) > 1 ) {
 
 		// echo "<pre>"; print $xsql->asXML(); exit;
@@ -1393,7 +1396,10 @@ class xpDataObject extends xp {
 
 		// echo "<pre>"; print_r( $a_sql ); exit;
 
+		*/
+
 		$i = 1;
+		$truncate = true;
 
 		foreach( $a_sql as $sql ) {
 
@@ -1401,7 +1407,18 @@ class xpDataObject extends xp {
 					$sql->prepare():
 					$sql->prepare( false, $this->feat->count_rows );
 
-			M()->debug( $sql_text );
+
+			
+			$msg = "SQL[$i]: ";
+
+			if ( $truncate ) 
+
+				$msg .= "SELECT ... ". substr( $sql_text, strpos( $sql_text, 'FROM ' ) );
+
+			else
+				$msg .= $sql_text;
+
+			M()->debug( $msg );
 
 			try {
 
