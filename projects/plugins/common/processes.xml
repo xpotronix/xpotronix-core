@@ -39,12 +39,22 @@
 			<acl action="permit" role="admin"/>
 			<command name="sync_create" for="process_start"/>
 		</process>
+
 		<process name="sync_data" translate="Copiar desde Tabla" display="hide">
 			<acl action="permit" role="admin"/>
 			<!--  <command name="start_db_transaction" for="process_start"/> -->
 			<command name="sync_data" for="process_start"/>
 			<!-- <command name="complete_db_transaction" for="process_stop"/> -->
 		</process>
+
+		<process name="sync_info" translate="Info Sincronizacion" display="hide">
+			<acl action="permit" role="admin"/>
+			<!--  <command name="start_db_transaction" for="process_start"/> -->
+			<command name="sync_info" for="process_start"/>
+			<!-- <command name="complete_db_transaction" for="process_stop"/> -->
+		</process>
+
+
 
 		<process name="sync_data_locking" translate="Copiar desde Tabla" display="hide">
 			<acl action="permit" role="admin"/>

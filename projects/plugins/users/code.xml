@@ -18,10 +18,12 @@
 		var $ldap_host;
 		var $ldap_port;
 		var $ldap_version;
-		var $base_dn;
+		var $ldap_base_dn;
 		var $ldap_search_user;
 		var $ldap_search_pass;	
-		var $filter;
+		var $ldap_default_domain;	
+		var $ldap_bind_format;	
+		var $ldap_user_filter;
 		var $fallback;
 
 		var $state;
@@ -69,11 +71,11 @@
 
 		global $xpdoc;
 
-		$user = $xpdoc->instance('user');
+		$u = $xpdoc->instance('users');
 
-		if ( $user->load( array( 'user_username' => $this->user_username ) ) ) {
+		if ( $this->is_new() and $u->load( array( 'user_username' => $this->user_username ) ) ) {
 
-			M()->user( "usuario $this->user_username existente" );
+			M()->user( "Usuario $this->user_username existente" );
 			return false;
 		}
 
@@ -109,30 +111,13 @@
 		return true;
 	}/*}}}*/
 
-	function process_user( $xml ) {/*{{{*/
+	function add_login( $xml ) {/*{{{*/
 
 		// de ejemplo, no usar , falta agregar a un grupo
 
 		global $xpdoc;
-
-		$ID = (string) @$xml['ID'];
-
-		M()->info( "ID: [$ID]");
-
-		if ( $ID !== null ) {
-
-			if ( $this->load( $ID ) ) {
-
-				if ( $this->check() ) {
-
-					$this->update();
-					$this->post_check();
-				}
-			}
-		}
-
+		@$xml['ID'] and $this->load( $xml['ID'] ) and $xpdoc->perms->addLogin($this->user_id, $this->user_username);
 		return $this;
-
 	}/*}}}*/
 
         function default_prefs() {/*{{{*/
@@ -275,12 +260,15 @@
 		$this->ldap_host = $xpdoc->config->ldap_host;
 		$this->ldap_port = $xpdoc->config->ldap_port;
 		$this->ldap_version = $xpdoc->config->ldap_version;
-		$this->base_dn = $xpdoc->config->ldap_base_dn;
+		$this->ldap_base_dn = $xpdoc->config->ldap_base_dn;
 
-		$this->filter = $xpdoc->config->ldap_user_filter;
+		$this->ldap_user_filter = $xpdoc->config->ldap_user_filter;
 
 		$this->ldap_search_user = $xpdoc->config->ldap_search_user ? $xpdoc->config->ldap_search_user : $username;
 		$this->ldap_search_pass = $xpdoc->config->ldap_search_pass ? $xpdoc->config->ldap_search_pass : $password;
+
+		$this->ldap_default_domain = $xpdoc->config->ldap_default_domain;
+		$this->ldap_bind_format = $xpdoc->config->ldap_bind_format;
 
 		$this->user_username = $username;
 
@@ -305,7 +293,13 @@
 		ldap_set_option( $rs, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version );
 		ldap_set_option( $rs, LDAP_OPT_REFERRALS, 0 );
 
-		$ldap_bind_dn = "uid = {$this->ldap_search_user},{$this->base_dn}";
+		$ldap_bind_dn = null;
+
+		M()->info( "ldap_bind_format: $this->ldap_bind_format" );
+
+		$ldap_bind_dn = string_parse( $this->ldap_bind_format, get_object_vars( $this ) );
+
+		M()->info( "ldap_bind_dn: $ldap_bind_dn" );
 
 		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
 
@@ -316,9 +310,12 @@
 		} else {
 
 			M()->info( "pude conectarme al servidor LDAP" );
-			$filter_r = str_replace( "%USERNAME%", $username, $this->filter );
 
-			if ( $result = @ldap_search( $rs, $this->base_dn, $filter_r ) ) {
+			$filter_query = string_parse( $this->ldap_user_filter, get_object_vars( $this ) );
+
+			M()->info( "filter_query: $filter_query" );
+
+			if ( $result = @ldap_search( $rs, $this->ldap_base_dn, $filter_query ) ) {
 
 				M()->info( "ldap_search result: ". serialize( $result ) );
 
@@ -329,6 +326,8 @@
 			}
 
 			$result_user = ldap_get_entries($rs, $result);
+
+			M()->info( serialize( $result_user ) );
 
 			if ( $result_user["count"] == 0 ) {
 
@@ -369,7 +368,7 @@
 
 			} else {
 
-				M()->info( ldap_error( $rs ). " en $ldap_user_dn@{$this->ldap_host}:{$this->ldap_port}" );
+				M()->warn( ldap_error( $rs ). " en $ldap_user_dn@{$this->ldap_host}:{$this->ldap_port}" );
 				return $this->_login_ldap_fallback( $username, $password );
 			}
 		}
@@ -388,7 +387,7 @@
 
 		if ( $this->fallback ) {
 
-			M()->warn( "haciendo fallback en base de datos local via SQL" );
+			M()->info( "haciendo fallback en base de datos local via SQL" );
 			return $this->_login( $username, $password );
 
 

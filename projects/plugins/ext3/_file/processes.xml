@@ -17,7 +17,7 @@
                         <command name="download" for="process_start"/>
                 </process>
 
-               <process name="upload" translate="Subir Archivo">
+               <process name="upload" translate="Subir Archivo" view="json">
                         <acl action="permit" role="admin"/>
                         <command name="upload" for="process_start"/>
                 </process>
