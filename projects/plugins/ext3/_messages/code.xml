@@ -129,8 +129,8 @@
 		$this->mail->Port       = $xpdoc->config->mailer_smtp_port or M()->error( 'port no definido');
 
 		if ( $xpdoc->config->mailer_smtp_auth ) {
-			$this->mail->Username   = $xpdoc->config->mailer_username or M()->warn( 'charset no definido');
-			$this->mail->Password   = $xpdoc->config->mailer_password or M()->warn( 'charset no definido');
+			$this->mail->Username   = $xpdoc->config->mailer_username or M()->warn( 'usuario SMTP no definido');
+			$this->mail->Password   = $xpdoc->config->mailer_password or M()->warn( 'clave de usuario SMTP no definida');
 		}
 
 		$this->mail->SetLanguage('es');
