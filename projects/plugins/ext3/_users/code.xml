@@ -191,12 +191,12 @@
 
         }/*}}}*/ 
 
-        function POST_login() {/*{{{*/
+        function POST_login( $user = null, $pass = null ) {/*{{{*/
 
 		global $xpdoc;
 
-                $user = $xpdoc->http->loginUsername;
-                $pass = $xpdoc->http->loginPassword;
+                $user or $user = $xpdoc->http->loginUsername;
+                $pass or $pass = $xpdoc->http->loginPassword;
 
 		$user = strtolower(trim($user));
 
