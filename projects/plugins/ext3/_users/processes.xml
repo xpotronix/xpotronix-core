@@ -22,5 +22,23 @@
                         <acl action="deny" role="anon"/>
                         <command name="saveState" for="process_start"/>
                 </process>
+
+        </table>
+
+        <table name="users">
+
+               <process name="post_login" translate="post_login" view="json" display="hide">
+                        <acl action="permit" role="admin"/>
+                        <acl action="permit" role="*"/>
+                        <command name="POST_login" for="process_start"/>
+                </process>
+
+               <process name="logout" translate="logout" view="json" display="hide">
+                        <acl action="permit" role="admin"/>
+                        <acl action="permit" role="*"/>
+                        <acl action="deny" role="anon"/>
+                        <command name="logout" for="process_start"/>
+                </process>
+
         </table>
 </database>
