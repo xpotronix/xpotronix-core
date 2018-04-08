@@ -353,7 +353,7 @@ class dbdump extends xp {
 						// M()->user( serialize( $data ) );
 
 						if ( is_array( $data ) )
-							$xfield[$key] = implode( ',', $data );
+							$xfield[$key] = utf8_encode( implode( ',', $data ) );
 						else
 							$xfield[$key] = $data;
 					}
