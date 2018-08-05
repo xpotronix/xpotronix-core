@@ -11,4 +11,12 @@
 -->
 
 <menu n="Aplicacion de Ejemplo">
+
+	<menu n="Mi Módulo">
+		<item n="Test" h="?m=test" acl="access:test"/>
+		<item n="Test Detalle" h="?m=test_detalle" acl="access:test_detalle"/>
+	</menu>
+
 </menu>
+
+

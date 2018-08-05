@@ -11,14 +11,13 @@
 -->
 
 <database>
-<!-- example
 	<queries>
-		<query name="idServicio">
-			<id>Servicio.id</id>
-			<label>Servicio.Descripcion</label>
-			<from>Servicio</from>
-			<order_by>Servicio.Descripcion</order_by>
+		<query name="test_ID">
+			<id>t.ID</id>
+			<label>concat( t.apellido, ', ', t.nombre )</label>
+			<from>test</from>
+			<alias>t</alias>
+			<order_by>t.apellido</order_by>
 		</query>
 	</queries>
--->
 </database>

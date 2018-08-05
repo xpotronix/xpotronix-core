@@ -12,31 +12,55 @@
 
 <database name="xpotronix">
 
-   <table name="test" translate="test">
-      <panel type="xpGrid"/>
-      <panel type="xpForm" display="inspect"/>
-      <field name="id" translate="id" validate="" display=""/>
-      <field name="a_varchar" translate="a_varchar" validate="" display=""/>
-      <field name="a_text" translate="a_text" validate="" display=""/>
-      <field name="a_blob" translate="a_blob" validate="" display=""/>
-      <field name="an_enum" translate="an_enum" validate="" display=""/>
-      <field name="a_tiny" translate="a_tiny" validate="" display=""/>
-      <field name="an_int" translate="an_int" validate="" display=""/>
-      <field name="a_decimal" translate="a_decimal" validate="" display=""/>
-      <field name="a_float" translate="a_float" validate="" display=""/>
-      <field name="a_datetime" translate="a_datetime" validate="" display=""/>
-      <field name="a_time" translate="a_time" validate="" display=""/>
-   </table>
+	<table name="test" translate="test">
 
+		<panel type="xpGrid"/>
+		<panel type="xpForm" display="inspect"/>
 
-        <include path="../../plugins/_common"/>
-        <include path="../../plugins/_acl"/>
-        <include path="../../plugins/_audit"/>
-        <include path="../../plugins/_users"/>
+		<field name="ID" translate="ID" validate="" display=""/>
+		<field name="nombre" translate="nombre" validate="" display=""/>
+		<field name="apellido" translate="apellido" validate="" display=""/>
+		<field name="monto" translate="monto" validate="" display=""/>
+		<field name="veces" translate="veces" validate="" display=""/>
+		<field name="observaciones" translate="observaciones" validate="" display=""/>
+		<field name="hora" translate="hora" validate="" display=""/>
+		<field name="fecha" translate="fecha" validate="" display=""/>
+		<field name="fechahora" translate="fechahora" validate="" display=""/>
+		<field name="sino" translate="sino" validate="" display=""/>
+		<field name="archivo" translate="archivo" validate="" display=""/>
+		<field name="enumeracion" translate="enumeracion" validate="" display=""/>
 
-        <include path="../../plugins/_messages"/>
-        <include path="../../plugins/_sessions"/>
-        <include path="../../plugins/_file"/>
-        <include path="../../plugins/_home"/>
+		<table name="test_detalle">
+
+			<panel type="xpGrid"/>
+
+			<foreign_key type="wired">
+				<ref local="test_ID" remote="ID"/>
+			</foreign_key>
+		</table>
+
+	</table>
+
+	<table name="test_detalle" translate="test_detalle">
+
+		<panel type="xpGrid"/>
+		<panel type="xpForm" display="inspect"/>
+		<field name="ID" translate="ID" validate="" display=""/>
+		<field name="test_ID" translate="test_ID" validate="" display="" eh="test_ID"/>
+		<field name="linea" translate="linea" validate="" display=""/>
+		<field name="detalle" translate="detalle" validate="" display=""/>
+		<field name="monto" translate="monto" validate="" display=""/>
+
+	</table>
+
+	<!--Default Includes-->
+	<include path="projects/plugins/ext3/_common"/>
+	<include path="projects/plugins/ext3/_acl"/>
+	<include path="projects/plugins/ext3/_audit"/>
+	<include path="projects/plugins/ext3/_users"/>
+	<include path="projects/plugins/ext3/_messages"/>
+	<include path="projects/plugins/ext3/_sessions"/>
+	<include path="projects/plugins/ext3/_file"/>
+	<include path="projects/plugins/ext3/_home"/>
 
 </database>
