@@ -1,4 +1,4 @@
-<?
+<?php
 
 function string_parse( $data, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
 
