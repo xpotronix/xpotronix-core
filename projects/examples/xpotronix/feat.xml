@@ -12,15 +12,13 @@
 
 <feat>
 	<application>xpotronix</application>
-
 	<page_title>xpotronix Application</page_title>
 	<base_url>/xpotronix/</base_url>
-	<page_rows type="int">50</page_rows>
-	<default_module>users</default_module>
 
+        <menu_bar>false</menu_bar>
         <default_module>home</default_module>
         <defaultSrc>?m=test</defaultSrc>
-        <auto_load type="bool">true</auto_load>
-        <menu_bar>false</menu_bar>
 
+	<page_rows type="int">50</page_rows>
+        <auto_load type="bool">true</auto_load>
 </feat>

@@ -11,7 +11,7 @@
 -->
 
 <database>
-<file name="index.php"><![CDATA[<? include 'main.php' ?>]]></file>
+<file name="index.php"><![CDATA[<?php include 'main.php' ?>]]></file>
 
 <file name="cron/cleanup_sessions"><![CDATA[
 /usr/bin/xpotronix --path=/var/www/sites/xpotronix/mydns/ --m=sessions --a=process --p=cleanup

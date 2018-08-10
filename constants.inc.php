@@ -29,7 +29,7 @@ defined( 'MSG_STATS' ) or define( 'MSG_STATS', MSG_INFO << 6 );
 defined( 'DEFAULT_SYSLOG_FLAGS' ) or define( 'DEFAULT_SYSLOG_FLAGS', MSG_USER | MSG_ERROR | MSG_WARN | MSG_FATAL  );
 defined( 'DEFAULT_MESSAGES_FLAGS' ) or define( 'DEFAULT_MESSAGES_FLAGS', MSG_USER | MSG_ERROR | MSG_WARN );
 //defined( 'LOG_FUNCTION' ) or define( 'LOG_FUNCTION', '/(page)/si');
-defined( 'LOG_CLASS' ) or define( 'LOG_CLASS', '/(xpdoc)/si');
+//defined( 'LOG_CLASS' ) or define( 'LOG_CLASS', '/(xpdoc)/si');
 
 // class prefix namespace (php)
 

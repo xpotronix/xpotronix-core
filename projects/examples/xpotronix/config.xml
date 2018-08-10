@@ -13,7 +13,7 @@
 <config>
 	<application>xpotronix</application>
 	<db_instance>
-		<host>mysql-server</host>
+		<host>localhost</host>
 		<database>xpotronix</database>
 		<user>root</user>
 		<password>mephalmdg</password>
