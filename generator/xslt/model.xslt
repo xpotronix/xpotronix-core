@@ -127,13 +127,16 @@
 		<xsl:variable name="include" select="@include"/>
 
 		<xsl:element name="panel" namespace="">
+			<xsl:if test="@id">
+				<xsl:attribute name="id" select="@id"/>
+			</xsl:if>	
 			<xsl:sequence select="@*"/>
 			<xsl:sequence select="//panel[@id=$include]/@*"/>
 			<xsl:choose>
 				<xsl:when test="@include">
 				<xsl:message>include <xsl:value-of select="@include"/></xsl:message>
-						<!-- un override aca tambien? -->
-						<xsl:apply-templates select="//panel[@id=$include]/*" mode="copy"/>
+					<!-- un override aca tambien? -->
+					<xsl:apply-templates select="//panel[@id=$include]/*" mode="copy"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:apply-templates select="*" mode="copy"/>
@@ -143,6 +146,7 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="*" mode="copy"><!--{{{-->
+		<xsl:param name="id"/>
 		<xsl:copy>
 			<xsl:copy-of select="@*"/>
 			<xsl:copy-of select="./text()"/>

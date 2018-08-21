@@ -218,7 +218,7 @@ class xpmessages {
 			if ( is_object( $xpdoc )  ) {
 
 				// echo '<pre>'; var_dump( $xpdoc ); print_r( debug_backtrace( false ) ); exit;
-				$m->xpid = $xpdoc->xpid();
+				$m->xpid = $xpdoc->_xpid;
 				$m->ip = $xpdoc->http->remote_addr;
 			}
 
