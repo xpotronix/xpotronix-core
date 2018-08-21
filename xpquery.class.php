@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*Copyright 2003,2004 Adam Donnison <adam@saki.com.au>
 */

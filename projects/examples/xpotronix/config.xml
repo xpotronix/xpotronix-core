@@ -11,11 +11,12 @@
 -->
 
 <config>
+	<application>xpotronix</application>
 	<db_instance>
-		<host>mysql-server</host>
+		<host>localhost</host>
 		<database>xpotronix</database>
 		<user>root</user>
-		<password></password>
+		<password>mephalmdg</password>
                 <implementation>mysqli</implementation>
 	</db_instance>
 </config>

@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * @package xpotronix
  * @version 2.0 - Areco 

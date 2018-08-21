@@ -1,5 +1,5 @@
 #!/usr/bin/php
-<?
+<?php
 
 
 // ini_set( 'xdebug.profiler_enable_trigger', 0 );

@@ -218,6 +218,25 @@
       <primary name="group_id"/>
       <primary name="axo_id"/>
    </table>
+   <table name="gacl_phpgacl">
+      <field name="name" max_length="230" type="varchar" not_null="1" primary_key="1"/>
+      <field name="value" max_length="230" type="varchar" not_null="1"/>
+      <primary name="name"/>
+   </table>
+   <table name="help">
+      <field name="ID" max_length="32" type="char" not_null="1" primary_key="1"/>
+      <field name="div_id" max_length="32" type="char" not_null="1"/>
+      <field name="text" max_length="-1" type="text" not_null="1"/>
+      <primary name="ID"/>
+      <index name="div_id" unique="1">div_id</index>
+   </table>
+   <table name="home">
+      <field name="ID" max_length="32" type="char" not_null="1" primary_key="1"/>
+      <field name="div_id" max_length="32" type="char" not_null="1"/>
+      <field name="text" max_length="-1" type="text" not_null="1"/>
+      <primary name="ID"/>
+      <index name="div_id" unique="1">div_id</index>
+   </table>
    <table name="sessions">
       <field name="session_id" max_length="40" type="varchar" not_null="1" primary_key="1"/>
       <field name="session_data" max_length="-1" type="longblob" binary="1"/>
@@ -234,21 +253,35 @@
       <index name="session_created">session_created</index>
    </table>
    <table name="test">
-      <field name="id" max_length="11" type="int" not_null="1" primary_key="1"
-             auto_increment="1"/>
-      <field name="a_varchar" max_length="2000" type="varchar" not_null="1"/>
-      <field name="a_text" max_length="-1" type="longtext" not_null="1"/>
-      <field name="a_blob" max_length="-1" type="longblob" not_null="1" binary="1"/>
-      <field name="an_enum" max_length="1" type="enum" enums="'a','b','c','d','e','f'"
-             not_null="1"/>
-      <field name="a_tiny" max_length="4" type="tinyint" not_null="1"/>
-      <field name="an_int" max_length="11" type="int" not_null="1"/>
-      <field name="a_decimal" max_length="10" type="decimal" not_null="1"/>
-      <field name="a_float" max_length="-1" type="float" not_null="1"/>
-      <field name="a_date" max_length="-1" type="date" not_null="1"/>
-      <field name="a_datetime" max_length="-1" type="datetime" not_null="1"/>
-      <field name="a_time" max_length="-1" type="time" not_null="1"/>
-      <primary name="id"/>
+      <field name="ID" max_length="32" type="char" not_null="1" primary_key="1"/>
+      <field name="nombre" max_length="100" type="varchar"/>
+      <field name="apellido" max_length="100" type="varchar"/>
+      <field name="monto" max_length="11" type="double" scale="2"/>
+      <field name="veces" max_length="11" type="int"/>
+      <field name="observaciones" max_length="-1" type="text"/>
+      <field name="hora" max_length="-1" type="time"/>
+      <field name="fecha" max_length="-1" type="date"/>
+      <field name="fechahora" max_length="-1" type="datetime"/>
+      <field name="sino" max_length="4" type="tinyint"/>
+      <field name="archivo" max_length="-1" type="blob" binary="1"/>
+      <field name="enumeracion" max_length="8" type="enum"
+             enums="'','blanco','amarillo','azul','rojo','verde'"/>
+      <primary name="ID"/>
+   </table>
+   <table name="test_detalle">
+      <field name="ID" max_length="32" type="char" not_null="1" primary_key="1"/>
+      <field name="test_ID" max_length="32" type="char"/>
+      <field name="linea" max_length="11" type="int"/>
+      <field name="detalle" max_length="100" type="varchar"/>
+      <field name="monto" max_length="12" type="double" scale="2"/>
+      <primary name="ID"/>
+   </table>
+   <table name="tip">
+      <field name="ID" max_length="32" type="char" not_null="1" primary_key="1"/>
+      <field name="div_id" max_length="32" type="char" not_null="1"/>
+      <field name="text" max_length="-1" type="text" not_null="1"/>
+      <primary name="ID"/>
+      <index name="div_id">div_id</index>
    </table>
    <table name="user_preferences">
       <field name="id" max_length="32" type="char" not_null="1" primary_key="1"/>

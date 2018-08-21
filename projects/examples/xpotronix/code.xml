@@ -11,15 +11,25 @@
 -->
 
 <database>
-<file name="index.php"><![CDATA[<? include 'main.php'; ?>]]></file>
-<file name="common.php"><![CDATA[<?
+
+<file name="index.php"><![CDATA[<?php 
+
+/* descomentar la siguiente linea si no se puede acceder a la configuracion del web server */
+/* ini_set( 'include_path', '.:/usr/share/php:/usr/share/php/adodb:/usr/share/xpotronix' ); */
+
+include 'main.php'; 
+
+?>]]></file>
+
+<file name="common.php"><![CDATA[<?php
+
+/* fragmento de codigo PHP para todas los modulos */
 
 $up = $xpdoc->instance('user_preferences');
 
 $xpdoc->user->attr( 'ui_state' )
 ->set('virtual', true )
 ->set('value', json_encode( $up->getState() ) );
-
 
 ?>]]></file>
 
