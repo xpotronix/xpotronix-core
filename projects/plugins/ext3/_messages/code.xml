@@ -122,18 +122,25 @@
                         M()->error( 'Error al enviar: '. $e->errorMessage() );
                 }
 
-		$this->mail->CharSet    = $xpdoc->config->mailer_charset or M()->warn( 'charset no definido');
+		$this->mail->CharSet    = $xpdoc->config->mailer_charset or M()->warn('charset no definido');
 		$this->mail->SMTPDebug  = $xpdoc->config->mailer_smtp_debug;
 		$this->mail->SMTPAuth   = $xpdoc->config->mailer_smtp_auth;
-		$this->mail->Host       = $xpdoc->config->mailer_host or M()->error( 'host no definido');
-		$this->mail->Port       = $xpdoc->config->mailer_smtp_port or M()->error( 'port no definido');
+		$this->mail->Host       = $xpdoc->config->mailer_host or M()->error('host no definido');
+		$this->mail->Port       = $xpdoc->config->mailer_smtp_port or M()->error('port no definido');
 
 		if ( $xpdoc->config->mailer_smtp_auth ) {
-			$this->mail->Username   = $xpdoc->config->mailer_username or M()->warn( 'usuario SMTP no definido');
-			$this->mail->Password   = $xpdoc->config->mailer_password or M()->warn( 'clave de usuario SMTP no definida');
+			$this->mail->Username   = $xpdoc->config->mailer_username or M()->warn('usuario SMTP no definido');
+			$this->mail->Password   = $xpdoc->config->mailer_password or M()->warn('clave de usuario SMTP no definida');
 		}
 
-		$this->mail->SetLanguage('es');
+		if ( $xpdoc->config->mailer_smtp_secure ) {
+			$this->mail->SMTPSecure = $xpdoc->config->mailer_smtp_secure;
+		}
+
+		if ( $xpdoc->config->mailer_language )
+			$this->mail->SetLanguage( $xpdoc->config->mailer_laguage );
+		else 
+			$this->mail->SetLanguage('es');
 
 		return $this;
 
@@ -217,7 +224,6 @@
                 }
 		return $this;
 	}/*}}}*/
-
 
 	function img_inline( $filename, $cid, $name = null ) {/*{{{*/
 
