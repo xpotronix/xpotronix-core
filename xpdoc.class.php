@@ -209,7 +209,10 @@ class xpdoc extends xp {
 		// DEBUG: algo tiene que devolver false?
 
 		$this->dbm->init();
-		$this->load_session();
+
+		if ( ! $this->load_session() )
+			return false;
+
 		$this->load_acl();
 
 		M()->info('OK');
@@ -258,7 +261,7 @@ class xpdoc extends xp {
 		if ( ! $this->feat->class_session ) {
 
 			M()->warn('no hay una clase definida para el manejo de sesiones');
-			return;
+			return true;
 		}
 
 
@@ -292,7 +295,15 @@ class xpdoc extends xp {
 
 		$sid = $this->session->start( $this->application );
 
+		try {
+
 		$this->session->read( $sid ); 
+
+		} catch (Throwable $t) {
+
+			M()->error( "No puedo leer la sesion" );
+			return false;
+		}
 
 		// print var_dump( $this->session->user_id ); exit;
 
@@ -354,6 +365,8 @@ class xpdoc extends xp {
 
 		M()->info( 'Cargada Sesion con Usuario ID '. $this->user->user_id );
 		M()->info('OK');
+
+		return true;
 
 	}/*}}}*/
 
@@ -1079,7 +1092,12 @@ class xpdoc extends xp {
 		if ( $this->query ) $obj->add_query( $this->query );
 
 		if ( $do = $this->feat->display_only ) 
-			$obj->hide_all( $do );
+			$obj->change_attr( 'display', 'ignore', $do );
+
+		foreach( $obj->get_primary_key_array() as $key ) 
+			$obj->get_attr( $key )->display = '';
+
+		// $obj->debug_object(); exit;
 
 		return $obj->json();
 

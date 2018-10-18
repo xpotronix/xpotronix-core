@@ -23,7 +23,7 @@ class xpparam {
 
 		global $xpdoc;
 
-		$this->obj_name = $xpdoc->req_object;
+		$this->obj_name = $xpdoc->req_object or $this->obj_name = $xpdoc->module;
 
 		foreach( $this->params as $param => $key ) {
 			$this->result[$param] = json_decode( $xpdoc->http->$key );
@@ -118,6 +118,7 @@ class xpparam {
 
 			}
 		}
+
 	}/*}}}*/
 
 }
