@@ -1953,7 +1953,7 @@ class xpDataObject extends xp {
 
 		M()->debug( 'update ' . $sql );
 
-		// $this->debug_object( $this->sql ); exit; }
+		// $this->debug_object( $this->sql ); exit;
 
 		try {
 			$this->affected_records = $this->db->Execute( $sql );

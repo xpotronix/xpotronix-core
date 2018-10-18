@@ -20,10 +20,10 @@ class xpjson {
 	private $attr_list = array();
 	private $download_name;
 	private $timestamp;
-	private $delim = array( 'field' => ";", 'row' => "\n", 'bom' => "\xEF\xBB\xBF", 'string' => '"' );
+	private $delim = ['field' => ";", 'row' => "\n", 'bom' => "\xEF\xBB\xBF", 'string' => '"' ];
 	// private $delim = array( 'field' => "", 'row' => "<br/>" );
 
-	private $ret;
+	private $ret = [];
 
 	function __construct( $obj, $flags = null ) {/*{{{*/
 
@@ -88,14 +88,13 @@ class xpjson {
 			if ( $rc and ( ++$tt >= $rc ) ) break;
 		} 
 
-		$last_page = 1;
-
-		if ( $this->obj->feat->page_rows !== 0 )
-			$last_page = round( $this->obj->total_records / $this->obj->feat->page_rows) + 1;
+		$last_page = ( $this->obj->feat->page_rows !== 0 ) ?
+			round( $this->obj->total_records / $this->obj->feat->page_rows ) + 1:
+			1;
 
 		return ["last_page" => $last_page, 
 			"page_rows" => $this->obj->feat->page_rows,
-			"total_records" => $this->obj->total_records, 
+			"total_records" => (int) $this->obj->total_records, 
 			"data" => $this->ret];
 
 	}/*}}}*/
