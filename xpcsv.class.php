@@ -99,7 +99,6 @@ class xpcsv {
 
 		foreach ( $this->obj->load_set() as $obj ) {
 
-			$this->obj->prepare_data( $obj );
 			$t = $this->serialize_row();
 
 			echo $t;
@@ -150,8 +149,9 @@ class xpcsv {
 
 		global $xpdoc;
 
-		// $this->obj->debug_object();
+		$this->obj->prepare_data();
 
+		// $this->obj->debug_object();
 		$ret = array();
 
 		M()->debug( "serializando instancia objeto {$this->obj->class_name}" );

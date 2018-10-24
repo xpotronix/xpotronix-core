@@ -1,5 +1,9 @@
 <?php
 
+function is_binary($str) {/*{{{*/
+    return preg_match('~[^\x20-\x7E\t\r\n]~', $str) > 0;
+}/*}}}*/
+
 function string_parse( $data, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
 
 	return preg_replace_callback( $pattern, 

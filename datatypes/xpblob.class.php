@@ -14,13 +14,12 @@ class xpblob extends xpattr {
 
 	function serialize( $value = null ) {/*{{{*/
 
-		/* devuelve valor si se ha asignado con prepare_data() */
+		$value or $value = $this->value;
 
-		if ( $this->modified )
-			return $this->value;
-		else
+		if ( is_binary( $value ) and $this->blob_serialize !== true )
 			return null;
-
+		else
+			return $value;
 	}/*}}}*/
 
 	function unserialize( $value = null ) {/*{{{*/

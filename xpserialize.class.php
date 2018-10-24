@@ -91,7 +91,6 @@ class xpserialize {
 
 			foreach ( $objs as $obj ) {
 
-				$this->obj->prepare_data( $obj ); // DEBUG: prepare_data deberia ir directamente en el iterador?
 				simplexml_append( $xc, $this->serialize_row( $flags ) );
 			} 
 
@@ -114,6 +113,7 @@ class xpserialize {
 
 		global $xpdoc;
 
+		$this->obj->prepare_data();
 		// $this->obj->debug_object();
 
 		M()->debug( "serializando instancia objeto {$this->obj->class_name} con flags = $flags" );

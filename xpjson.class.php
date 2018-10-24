@@ -43,14 +43,11 @@ class xpjson {
 		}
 
 		$date = date_create();
-
 		$this->timestamp = $date->format ( "Ymd-His" );
-
 		$this->download_name = $xpdoc->config->application. '-'. $xpdoc->module. '-'. $this->timestamp. '-'. $xpdoc->user->user_username. '.json';
 
-		// $this->tmpf = tmpfile();
-
-		// $obj->debug_object();
+		/* $this->tmpf = tmpfile();
+		$obj->debug_object(); */
 
 	}/*}}}*/
 
@@ -80,8 +77,7 @@ class xpjson {
 
 		foreach ( $this->obj->load_set() as $obj ) {
 
-			$obj->prepare_data();
-			$this->ret[] = $obj->serialize_row();
+			$this->ret[] = $this->serialize_row( $obj );
 
 			// fwrite( $this->tmpf, $t );
 
@@ -102,15 +98,18 @@ class xpjson {
 
 	}/*}}}*/
 
-	function serialize_row() {/*{{{*/
+	function serialize_row( $obj = null ) {/*{{{*/
 
 		global $xpdoc;
 
+		$obj or $obj = $this->obj;
 		// $this->obj->debug_object();
 
 		$ret = [];
 
-		M()->debug( "serializando instancia objeto {$this->obj->class_name}" );
+		M()->debug( "serializando instancia objeto {$obj->class_name}" );
+
+		$obj->prepare_data();
 
 		foreach ( $this->attr_list as $key => $attr ) {
 

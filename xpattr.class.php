@@ -73,6 +73,7 @@ class xpattr extends xp {
 	    case 'search_type':
 	    case 'virtual':
 	    case 'encoding':
+	    case 'blob_serialize':
 
 	       return NULL;
 	       break;
