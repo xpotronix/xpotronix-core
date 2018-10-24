@@ -353,9 +353,9 @@ class xpthumb {
 		} 
 	}/*}}}*/
 
-	function output() {/*{{{*/
+	function output( $headers_do = true ) {/*{{{*/
 
-		$this->headers();
+		$headers_do and $this->headers();
 		echo $this->image;
 	}/*}}}*/
 

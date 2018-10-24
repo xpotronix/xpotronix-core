@@ -26,6 +26,7 @@ require_once 'xpiterator.class.php';
 require_once 'xpmessages.class.php';
 require_once 'xpkey.class.php';
 require_once 'xpsearch.class.php';
+require_once 'xpjson.class.php';
 
 class xpDataObject extends xp {
 
@@ -2068,7 +2069,7 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function get_data( $data ) {/*{{{*/
+	function get_data() {/*{{{*/
 
 		return $this->data;
 
@@ -2142,8 +2143,6 @@ class xpDataObject extends xp {
 	}/*}}}*/
 
 	function json() {/*{{{*/
-
-		require_once 'xpjson.class.php';
 
 		$s = new xpjson( $this );
 		return $s->serialize();
@@ -2620,8 +2619,8 @@ function main_sql () {/*{{{*/
 		return $this;
 	}/*}}}*/
 
-	function prepare_data( $obj ) {/*{{{*/
-		return $obj;
+	function prepare_data() {/*{{{*/
+		return $this;
 	}/*}}}*/
 
 	function check() {/*{{{*/

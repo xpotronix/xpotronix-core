@@ -17,11 +17,11 @@ class xpjson {
 	private $obj;
 	private $flags;
 	private $tmpf;
-	private $attr_list = array();
+	private $attr_list = [];
 	private $download_name;
 	private $timestamp;
 	private $delim = ['field' => ";", 'row' => "\n", 'bom' => "\xEF\xBB\xBF", 'string' => '"' ];
-	// private $delim = array( 'field' => "", 'row' => "<br/>" );
+	// private $delim = ['field' => "", 'row' => "<br/>" ];
 
 	private $ret = [];
 
@@ -80,8 +80,8 @@ class xpjson {
 
 		foreach ( $this->obj->load_set() as $obj ) {
 
-			$this->obj->prepare_data( $obj );
-			$this->ret[] = $this->serialize_row();
+			$obj->prepare_data();
+			$this->ret[] = $obj->serialize_row();
 
 			// fwrite( $this->tmpf, $t );
 
@@ -108,7 +108,7 @@ class xpjson {
 
 		// $this->obj->debug_object();
 
-		$ret = array();
+		$ret = [];
 
 		M()->debug( "serializando instancia objeto {$this->obj->class_name}" );
 
