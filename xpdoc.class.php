@@ -36,8 +36,8 @@ class xpdoc extends xp {
 
 	/* client stock */
 
-	var $css = array();
-	var $js = array();
+	var $css = [];
+	var $js = [];
 
 	/* xml buffers */
 	var $xmenu;
@@ -80,17 +80,17 @@ class xpdoc extends xp {
 	var $extra_param;
 	var $xml; // post buffer
 	var $json;
-	var $pager = array();
+	var $pager = [];
 
 	/* array de instancias de objetos creados */
-	var $instances = array();
+	var $instances = [];
 
 	/* Permissions */
 
 	var $perms;
-	var $roles = array();
+	var $roles = [];
 
-	var $obj_collection = array();
+	var $obj_collection = [];
 
 	/* construct */
 
@@ -128,21 +128,21 @@ class xpdoc extends xp {
 		if ( file_exists( 'modules/file_utils/file_utils.class.php' ) ) {
 
 			require_once 'modules/file_utils/file_utils.class.php';
-			foreach( array( 'app', 'data', 'acl' ) as $dir )
+			foreach( [ 'app', 'data', 'acl' ] as $dir )
 				Cfile_utils::mkdir( $this->get_cache_dir( $dir ) );
 		}
 
-		$this->cache_options = array(
+		$this->cache_options = [ 
 
 			'caching' => (bool) $this->config->app_cache_time,
 			'cacheDir' => $this->get_cache_dir( 'app' ),
 			'lifeTime' => $this->config->app_cache_time,
-			'fileLocking' => TRUE,
-			'writeControl' => FALSE,
-			'readControl' => FALSE,
-			'memoryCaching' => TRUE,
-			'automaticSerialization' => FALSE
-		);
+			'fileLocking' => true,
+			'writeControl' => false,
+			'readControl' => false,
+			'memoryCaching' => true,
+			'automaticSerialization' => false
+		];
 
 
 		$this->dbm = new xpdbm( $this->config );
@@ -203,8 +203,9 @@ class xpdoc extends xp {
 
 	function init() {/*{{{*/
 
+		$xpid = $this->xpid();
 
-		M()->info( "***** Proceso xpotronix iniciado con xpid [$xpid] *****" );
+		M()->info( "***** Proceso xpotronix iniciado con xpid [$this->xpid] *****" );
 
 		// DEBUG: algo tiene que devolver false?
 
@@ -240,7 +241,7 @@ class xpdoc extends xp {
 			if ( ! $acl_db = $this->dbm->instance( 'default-acl' ) )
 				$acl_db = $this->dbm->instance(); // default 
 
-			$params = array();
+			$params = [];
 
 			$params['db'] = $acl_db;
 			$params['caching'] = (bool) $this->config->gacl_cache_time;
@@ -269,7 +270,7 @@ class xpdoc extends xp {
 
 		/* trusted_host_ip */
 
-		$trusted_host_ip = array();
+		$trusted_host_ip = [];
 
 		if ( $this->config->trusted_host_ip ) {
 
@@ -280,7 +281,7 @@ class xpdoc extends xp {
 
 		/* trusted_host_name */
 
-		$trusted_host_name = array();
+		$trusted_host_name = [];
 
 		if ( $this->config->trusted_host_name ) {
 
@@ -504,7 +505,7 @@ class xpdoc extends xp {
 
 					/* DEBUG: chequear si el nombre del objeto existe */
 
-					$op = array();
+					$op = [];
 					
 					foreach( $param as $key => $value ) {
 
@@ -847,13 +848,13 @@ class xpdoc extends xp {
 
 	function add_css( $href, $media = "all" ) {/*{{{*/
 
-		$this->css[] = array( 'href' => $href, 'media' => $media ) ;
+		$this->css[] = [ 'href' => $href, 'media' => $media ];
 
 	}/*}}}*/
 
 	function add_js( $href, $extra = NULL ) {/*{{{*/
 
-		$this->js[] = array( 'href' => $href, 'extra' => $extra );
+		$this->js[] = [ 'href' => $href, 'extra' => $extra ];
 
 	}/*}}}*/
 
@@ -1321,7 +1322,7 @@ class xpdoc extends xp {
 				require_once 'xpotronize.class.php';
 				$x = new xpotronize;
 
-				$x->init( array( 'xpotronize', $this->application ));
+				$x->init( [ 'xpotronize', $this->application ]  );
 				$x->check_params_xpotronize();
 				$x->transform();
 
@@ -1375,14 +1376,15 @@ class xpdoc extends xp {
 
 	function view_ID () {/*{{{*/
 
-		$ret[] = $this->user->user_username;
-		$ret[] = $this->session->session_id;
-		$ret[] = $this->config->application;
-		$ret[] = $this->module;
-		$ret[] = $this->req_object;
-		$ret[] = $this->view;
+		return implode( ':', [ 
+			$this->user->user_username,
+			$this->session->session_id,
+			$this->config->application,
+			$this->module,
+			$this->req_object,
+			$this->view 
+		]);
 
-		return implode( ':', $ret );
 	}/*}}}*/
 
 	function transform( $view = null, $xdoc = null, $params = null, $transform_type = null, $cache = true ) {/*{{{*/
@@ -1657,6 +1659,8 @@ class xpdoc extends xp {
 				case 'php':
 
 					$xsl = new DOMDocument;
+					$xsl->resolveExternals = true;
+					$xsl->substituteEntities = true;
 					if ( ! $xsl->load( $view_file ) ) {
 
 						M()->error( "Template de transformación no válido en transform/PHP" );

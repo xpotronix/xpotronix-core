@@ -2133,12 +2133,12 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function serialize_row ( $flags = null ) {/*{{{*/
+	function serialize_row ( $flags = null, $params = [] ) {/*{{{*/
 
 		require_once 'xpserialize.class.php';
 
 		$s = new xpserialize( $this, $flags );
-		return $s->serialize_row( $flags );
+		return $s->serialize_row( $flags, $params );
 
 	}/*}}}*/
 

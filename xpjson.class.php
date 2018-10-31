@@ -36,8 +36,7 @@ class xpjson {
 
 			if ( ( 	$attr->display == 'protect' or 
 				$attr->display == 'ignore' or 
-				$attr->display == 'sql' or 
-				$attr->display == 'hide' ) and ! $attr->is_primary_key() ) continue;
+				$attr->display == 'sql' ) and ! $attr->is_primary_key() ) continue;
 
 			$this->attr_list[$key] = $attr;
 		}

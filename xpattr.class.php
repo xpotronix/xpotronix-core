@@ -207,31 +207,30 @@ class xpattr extends xp {
 		// codifica los valores para la base de datos
 
 		if ( $value === NULL ) $value = $this->value;
-
 		return addslashes( $value );
+
 	}/*}}}*/
 
 	function decode( $value = NULL ) {/*{{{*/
 
 		// decodifica los valores de la base de datos
 		if ( $value === NULL ) $value = $this->value;
-
 		return stripslashes( $value );
+
 	}/*}}}*/
 
 	function serialize( $value = NULL ) {/*{{{*/
 	
 		if ( $value === NULL ) $value = $this->value;
-			return htmlspecialchars( $value ); 
+		return htmlspecialchars( $value ); 
 
 	}/*}}}*/
 
 	function unserialize( $value = NULL ) {/*{{{*/
 
-		if ( $value === NULL) 
-			$value = $this->value;
-
+		if ( $value === NULL) $value = $this->value;
 		return html_entity_decode( $value ); 
+
 	}/*}}}*/
 
 function metadata() {/*{{{*/

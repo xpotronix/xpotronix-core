@@ -103,17 +103,20 @@ class xpserialize {
 
 	}/*}}}*/
 
-	function serialize_row( $flags = null, $params = null ) {/*{{{*/
+	function serialize_row( $flags = null, $params = [] ) {/*{{{*/
 
 		$normalized = $flags & DS_NORMALIZED;
 		$recursive = $flags & DS_RECURSIVE;
 		$blank = $flags & DS_BLANK;
 		$defaults = $flags & DS_DEFAULTS;
 
-
 		global $xpdoc;
 
-		$this->obj->prepare_data();
+		if( ! isset( $params['prepare_data'] ) or $params['prepare_data'] == true ) {
+			M()->info( "llamando a prepare_data()" );
+			$this->obj->prepare_data();
+		}
+
 		// $this->obj->debug_object();
 
 		M()->debug( "serializando instancia objeto {$this->obj->class_name} con flags = $flags" );
@@ -163,7 +166,7 @@ class xpserialize {
 
 					M()->info( "recursivo, hacia el objeto $iname" );
 
-					if ( is_array( $params ) and is_array( $params['ignore'] ) and ( in_array( $iname, $params['ignore'] ) ) )
+					if ( isset( $params['ignore'] ) and is_array( $params['ignore'] ) and ( in_array( $iname, $params['ignore'] ) ) )
 						continue;
 					else
 						simplexml_append( $xobj, $xpdoc->instances[$iname]->serialize( $flags ) );
