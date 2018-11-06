@@ -101,6 +101,10 @@ class xpjson {
 
 		global $xpdoc;
 
+		/* DEBUG: fix para que las fechas no salgan en UTC
+		$prev = $xpdoc->param_schema;
+		$xpdoc->param_schema = null; */
+
 		$obj or $obj = $this->obj;
 		// $this->obj->debug_object();
 
@@ -115,6 +119,8 @@ class xpjson {
 				$ret[$attr->name] = $attr->serialize();
 				$attr->entry_help and $ret[$attr->name. '_label'] = $attr->label;
 			}
+
+		/* $xpdoc->param_schema = $prev; */
 
 		return $ret;
 

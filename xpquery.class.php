@@ -196,16 +196,12 @@ class DBQuery {
 
 	}/*}}}*/
 
-
-
 	function addModifiers( $query ) {/*{{{*/
 
 		$this->addClause('modifiers', $query );
 		return $this;
 
 	}/*}}}*/
-
-
 
 	function addInsert($field, $value, $set = false, $func = false) {/*{{{*/
 
