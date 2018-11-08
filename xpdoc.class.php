@@ -416,9 +416,13 @@ class xpdoc extends xp {
 		$this->query          = $this->http->q;
 		// $this->view           = $this->http->v;
 		$this->data	      = $this->http->d;
-		$this->search 	      = $this->http->s;
+
+		$this->search = ( is_array( $this->http->s ) ) ?
+			$this->http->s:
+			$this->search = [];
+
 		$this->order          = $this->http->o;
-		$this->req_object     = $this->http->r or $this->http->m;
+		( $this->req_object     = $this->http->r ) or $this->req_object = $this->http->m;
 		$this->features       = $this->http->f;
 		$this->template       = $this->http->t;
 		$this->html           = $this->http->h;
@@ -428,6 +432,9 @@ class xpdoc extends xp {
 		$this->pager	      = $this->http->g;
 
 		// echo var_dump( $_REQUEST ); exit;
+
+		M()->info("module:$this->module");
+		M()->info("req_object:$this->req_object");
 
 		try {
 			if ( $this->http->x )
