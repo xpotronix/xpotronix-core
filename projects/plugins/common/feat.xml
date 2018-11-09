@@ -83,6 +83,7 @@
 	<key_delimiter>^</key_delimiter>
 	<container_tag>c_</container_tag>
 	<try_update_on_fail type="bool">true</try_update_on_fail>
+	<blob_load type="bool">false</blob_load>
 
 	<!-- transformacion de la aplicacion -->
 

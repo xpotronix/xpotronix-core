@@ -1094,7 +1094,8 @@ class xpDataObject extends xp {
 		foreach( $this->attr as $key => $attr ) {
 
 			if ( 	( $attr->display == 'ignore' ) or 
-				( $attr->virtual and !$attr->alias_of ) )
+				( $attr->virtual and !$attr->alias_of ) or
+				( $attr->binary == 1 and $this->feat->blob_load == false ) )
 				continue;
 
 			/* if ( $this->class_name == '_empleado' ) { print $key. "<br/>"; } */
