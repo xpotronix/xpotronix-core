@@ -431,7 +431,8 @@ class xpdoc extends xp {
 		$this->extra_param    = $this->http->e;
 		$this->pager	      = $this->http->g;
 
-		// echo var_dump( $_REQUEST ); exit;
+		// echo var_dump( $_REQUEST );
+		// exit;
 
 		M()->info("module:$this->module");
 		M()->info("req_object:$this->req_object");
@@ -463,15 +464,17 @@ class xpdoc extends xp {
 
 		} else {
 
-			/* search keys */
+			/* search sobre las GET vars solamente */
 
-			foreach ( $this->http->var as $key => $data ) {
+			foreach ( $this->http->get_get_vars() as $key ) {
 
 				if ( strstr( $this->controller_vars, $key. ';' ) ) 
 					continue; 
 
-				$this->search[$this->req_object][$key] = $data;
+				$this->search[$this->req_object][$key] = $this->http->$key;
 			}
+
+			// print_r( $this->search ); 
 
 			/* query_field: sobre que campo alias tiene que buscar (ej.: _label) */
 
@@ -1141,6 +1144,8 @@ class xpdoc extends xp {
 
 		switch ( $this->action ) {
 
+			/* process y abm */
+
 			case 'process': 
 				$this->set_xdoc( $this->process() );
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
@@ -1156,23 +1161,7 @@ class xpdoc extends xp {
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
-			// serializacion de la base de datos
-
-			case 'blank':
-				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS ) );
-				break;
-
-			case 'blank_r':
-				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS | DS_RECURSIVE ) );
-				break;
-
-			case 'blank_dataset':
-				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS | DS_NORMALIZED ) );
-				break;
-
-			case 'blank_dataset_r':
-				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS | DS_RECURSIVE | DS_NORMALIZED ) );
-				break;
+			/* serializacion de datos */
 
 			case 'data':
 				$this->set_xdoc( $this->get_dataset( DS_ANY ) );
@@ -1190,21 +1179,32 @@ class xpdoc extends xp {
 				$this->set_xdoc( $this->get_dataset( DS_RECURSIVE | DS_NORMALIZED ) );
 				break;
 
+			/* blanks */
+
+			case 'blank':
+				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS ) );
+				break;
+
 			case 'datab':
-				$this->set_xdoc( $this->get_dataset( DS_ANY | DS_BLANK | DS_DEFAULTS ) );
+				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS | DS_ANY ) );
 				break;
 
+			case 'blank_r':
 			case 'datab_r':
-				$this->set_xdoc( $this->get_dataset( DS_RECURSIVE | DS_BLANK | DS_DEFAULTS ) );
+				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS | DS_RECURSIVE ) );
 				break;
 
+			case 'blank_dataset':
 			case 'databset':
-				$this->set_xdoc( $this->get_dataset( DS_NORMALIZED | DS_BLANK | DS_DEFAULTS ) );
+				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS | DS_NORMALIZED ) );
 				break;
 
+			case 'blank_dataset_r':
 			case 'databset_r':
-				$this->set_xdoc( $this->get_dataset( DS_RECURSIVE | DS_NORMALIZED | DS_BLANK | DS_DEFAULTS ) );
+				$this->set_xdoc( $this->get_dataset( DS_BLANK | DS_DEFAULTS | DS_RECURSIVE | DS_NORMALIZED ) );
 				break;
+
+			/* json y csv */
 
 			case 'json':
 				$this->json = $this->get_json(); 
@@ -1217,7 +1217,7 @@ class xpdoc extends xp {
 				break;
 
 
-			// menu
+			/* menu */
 
 			case 'menu':
 
@@ -1227,7 +1227,7 @@ class xpdoc extends xp {
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
-			// config 
+			/* secciones xpotronix document */
 
 			case 'session':
 
@@ -1286,7 +1286,7 @@ class xpdoc extends xp {
 
 				break;
 
-			// user
+			/* user */
 
 			case 'login':
 
@@ -1308,6 +1308,8 @@ class xpdoc extends xp {
 				$this->json = $this->user->change_password();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
+
+			/* xpotronize */
 
 			case 'xpotronize':
 

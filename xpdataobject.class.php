@@ -696,11 +696,11 @@ class xpDataObject extends xp {
 
 		$this->sql = $this->sql_prepare();
 
-		// el loadc() vacio carga la consulta actual paginada
+		$this->set_search(); // global search
+
 		if ( $key === null ) {
 
-			M()->debug( "recibiendo una clave nula. no hay criterios definidos. Aplicando la busqueda global" ); 
-			$this->set_search(); // global search
+			M()->debug( "recibiendo una clave nula. no hay criterios definidos. Aplicando solo la busqueda global" ); 
 
 		} else {
 

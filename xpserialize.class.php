@@ -81,14 +81,18 @@ class xpserialize {
 		$xc['page_rows'] = $this->obj->pager['pr'];
 		$xc['current_page'] = $this->obj->pager['cp'];
 
-		M()->info( "serialize con any: $any, normalized: $normalized, recursive: $recursive, blank: $blank, defaults: $defaults, con cantidad de objetos: ". count( $objs ) );
+		M()->info( "serialize con any: $any, normalized: $normalized, recursive: $recursive, blank: $blank, defaults: $defaults" );
+		$objs and M()->info( "con cantidad de objetos: ". $objs->count() );
 		
-		if ( $blank and ( $any or $normalized or $recursive ) and ( $objs ) )
+		if ( $blank and ( $any or $normalized or $recursive ) and ( $objs->count() ) ) { 
 
-			{ $flags = $flags ^ DS_BLANK; }
+			M()->info( "is blank" );
+			// $flags = $flags ^ DS_BLANK; 
+		}
 		
-		if ( $objs ) {
+		if ( $objs and $objs->count() ) {
 
+			M()->info( "has objs, count: ". $objs->count() );
 			foreach ( $objs as $obj ) {
 
 				simplexml_append( $xc, $this->serialize_row( $flags ) );
@@ -96,6 +100,7 @@ class xpserialize {
 
 		} else if ( $blank ) {  
 
+			M()->info( "recurse blank" );
 			simplexml_append( $xc, $this->serialize_row( $flags ) );
 		} 
 
