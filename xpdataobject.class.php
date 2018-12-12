@@ -2323,6 +2323,26 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
+	function bind_post_vars() {/*{{{*/
+
+		global $xpdoc;
+
+		foreach( $xpdoc->http->get_post_vars() as $var_name ) {
+
+			$value = $xpdoc->http->$var_name;
+
+			if ( $attr = $this->get_attr( $var_name ) ) {
+
+				$attr->value = ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' ) ?
+					$attr->human( $value ):
+					$attr->unserialize( $value );
+
+				M()->info( "$var_name: {$value}" );
+			}
+		}
+
+	}/*}}}*/
+
 	/* keys handling */ 
 	/* primary */
 
