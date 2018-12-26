@@ -201,6 +201,7 @@ class xpDataObject extends xp {
 		$this->set_flag( 'validate', true );
 		$this->set_flag( 'check', true );
 		$this->set_flag( 'post_check', true );
+		$this->set_flag( 'set_global_search', true );
 
 		
 
@@ -277,13 +278,23 @@ class xpDataObject extends xp {
 
 	function set_flag( $name, $value ) {/*{{{*/
 
+		M()->info( "{$this->class_name}:$name=". ($value ? 'true': 'false') );
+
 		return $this->flags[$name] = $value;
+
 	}/*}}}*/
 
 	function get_flag( $name ) {/*{{{*/
 
-		if ( !in_array( $name, $this->flags ) ) return null;
-		return $this->flags[$name];
+		if ( !in_array( $name, $this->flags ) ) 
+			$value = null;
+		else
+			$value = $this->flags[$name];
+		
+		M()->info( "{$this->class_name}:$name=". ($value ? 'true': 'false') );
+
+		return $value;
+
 	}/*}}}*/
 
 	function get_name() {/*{{{*/
@@ -696,7 +707,15 @@ class xpDataObject extends xp {
 
 		$this->sql = $this->sql_prepare();
 
-		$this->set_search(); // global search
+		/* global search aplicado a la consulta actual */
+
+		if ( $this->get_flag('set_global_search') ) {
+
+			M()->info( "{$this->class_name} aplicando busqueda global" );
+			 $this->set_global_search();
+		} else {
+			M()->info( "{$this->class_name} NO aplicando busqueda global" );
+		}
 
 		if ( $key === null ) {
 
@@ -1118,7 +1137,7 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-	function set_search() {/*{{{*/
+	function set_global_search() {/*{{{*/
 
 		global $xpdoc;
 

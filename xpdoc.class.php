@@ -292,7 +292,9 @@ class xpdoc extends xp {
 		
 
 		$this->session = $this->instance( $this->feat->class_session );
+		$this->session->set_flag('set_global_search', false);
 		$this->user = $this->instance( $this->feat->class_user );
+		$this->user->set_flag('set_global_search', false);
 
 		$sid = $this->session->start( $this->application );
 
@@ -307,6 +309,9 @@ class xpdoc extends xp {
 		}
 
 		// print var_dump( $this->session->user_id ); exit;
+
+		$this->user->set_flag('set_global_search',true);
+		$this->session->set_flag('set_global_search',true);
 
 
 		if ( CLI ) {
