@@ -310,10 +310,6 @@ class xpdoc extends xp {
 
 		// print var_dump( $this->session->user_id ); exit;
 
-		$this->user->set_flag('set_global_search',true);
-		$this->session->set_flag('set_global_search',true);
-
-
 		if ( CLI ) {
 
 			// sesion CLI
@@ -368,6 +364,9 @@ class xpdoc extends xp {
 		
 		$this->user->load( $this->session->user_id );
 		$this->user->attr( '_anon' )->set( 'virtual', true )->set( 'type' , 'int' )->set( 'value', $this->user->user_id == $this->config->anonymous_user_id );
+
+		$this->user->set_flag('set_global_search',true);
+		$this->session->set_flag('set_global_search',true);
 
 		M()->info( 'Cargada Sesion con Usuario ID '. $this->user->user_id );
 		M()->info('OK');
