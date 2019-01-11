@@ -16,6 +16,7 @@
 
 	<xsl:param name="base_dir"/>
 	<xsl:param name="base_url"/>
+	<xsl:param name="a" select="'data'"/>
 	<xsl:param name="dry" select="'no'"/>
 
 	<xsl:variable name="app">
@@ -25,7 +26,7 @@
 	<xsl:variable name="help">
 check-tables.xsl 
 recorre los flujos XML de datos de todos los objetos y sus entry_helpers
-uso: saxonb-xslt tables.xml ../../util/check-tables.xsl base_dir=`pwd` base_url=http://localhost/app dry=yes
+uso: saxonb-xslt tables.xml ../../util/check-tables.xsl base_dir=`pwd` base_url=http://localhost/xpay dry=yes
 	</xsl:variable>
 
 	<xsl:template match="/">
@@ -37,6 +38,7 @@ uso: saxonb-xslt tables.xml ../../util/check-tables.xsl base_dir=`pwd` base_url=
 
 	<xsl:template match="database">
 
+		<xsl:message>base url: <xsl:value-of select="$base_url"/></xsl:message>
 		<xsl:result-document method="xml" omit-xml-declaration="no" encoding="UTF-8" href="check-tables.xml" indent="yes">
 		<database>
 		<xsl:apply-templates select="table"/>
@@ -46,24 +48,26 @@ uso: saxonb-xslt tables.xml ../../util/check-tables.xsl base_dir=`pwd` base_url=
 	</xsl:template>
 
 	<xsl:template match="table">
+
 		<xsl:variable name="table_name" select="@name"/>
-		<xsl:variable name="href" select="concat($base_url,'?a=data&amp;v=xml&amp;m=',@name,'&amp;r=',@name,'&amp;f[page_rows]=1')"/>
+		<xsl:variable name="href" select="concat($base_url,'?&amp;a=data&amp;f[include_dataset]=2&amp;v=xml&amp;m=',@name,'&amp;r=',@name,'&amp;f[page_rows]=1')"/>
 
 		<xsl:element name="table">
 			<xsl:attribute name="name" select="@name"/>
 			<xsl:attribute name="href" select="$href"/>
 			<xsl:if test="$dry!='yes' or not($dry)">
-				<xsl:variable name="container" select="document($href)/c_"/>
-				<xsl:attribute name="total_records" select="$container/@total_records"/>
-				<xsl:copy-of select="$container"/>
+				<xsl:message>href: <xsl:value-of select="$href"/></xsl:message>
+				<xsl:variable name="response" select="document($href)"/>
+				<xsl:attribute name="total_records" select="$response/@total_records"/>
+				<xsl:copy-of select="$response"/>
 				<xsl:for-each select="document(concat($base_dir,'/queries.xml'))/queries/query[from=$table_name]">
-
 					<xsl:variable name="href_eh" select="concat($href,'&amp;q=',@name)"/>
+					<xsl:message>href_eh: <xsl:value-of select="$href_eh"/></xsl:message>
 					<xsl:element name="entry_help">
 						<xsl:attribute name="name" select="@name"/>
 						<xsl:attribute name="href" select="$href_eh"/>
 						<xsl:attribute name="total_records" select="document($href_eh)/c_/@total_records"/>
-						<xsl:copy-of select="$container"/>
+						<xsl:copy-of select="$response"/>
 					</xsl:element>
 				</xsl:for-each>
 			</xsl:if>
