@@ -243,7 +243,7 @@ class dbdump extends xp {
 		M()->debug( "implementation: ". $this->implementation = (string) $this->instance->implementation );
 
 		$encoding = (string) $this->instance->encoding or
-			$encoding = 'UTF-8';
+			$encoding = 'UTF8';
 
 		M()->debug( "codificacion de la base de datos: $encoding" );
 
@@ -257,6 +257,8 @@ class dbdump extends xp {
 			M()->error( 'no puede abrir la base de datos' );
 			return;
 		}
+
+		$this->db->Execute("set names '$encoding'");
 
 		$this->dd = NewDataDictionary( $this->db );
 

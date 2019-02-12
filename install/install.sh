@@ -30,13 +30,13 @@ if [ -z $DOCUMENT_ROOT ]; then
 fi
 
 # these are mandatory
-apt-get install php5 php5-cli php5-mysql php5-xsl php5-curl php-pear php5-ldap
+apt-get install php7.0 php7.0-cli php7.0-mysql php7.0-xsl php7.0-curl php-pear php7.0-ldap
 apt-get install libphp-adodb php-cache-lite
 apt-get install libsaxonb-java
 
 # these are optional
-apt-get install php5-gd php5-imagick
-#apt-get install php5-ldap
+apt-get install php7.0-gd php7.0-imagick
+#apt-get install php7.0-ldap
 apt-get install apg
 
 # fop
