@@ -17,6 +17,7 @@ class xphttp {
 	var $http_host;
 	var $request_scheme;
 	var $request_uri;
+	var $context_prefix;
 	var $remote_addr;
 	var $remote_host;
 
@@ -74,6 +75,7 @@ class xphttp {
 			$this->method 		= $_SERVER['REQUEST_METHOD'];
 			$this->request_uri 	= $_SERVER['REQUEST_URI'];
 			$this->http_host	= $_SERVER['HTTP_HOST'];
+			$this->context_prefix 	= $_SERVER['CONTEXT_PREFIX'];
 			$this->request_scheme	= $_SERVER['REQUEST_SCHEME'];
 
 			if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) )
