@@ -24,7 +24,6 @@ class xpkey {
 	var $parent;
 	var $remote;
 	var $set;
-	var $expr;
 	var $refs = array();
 
 	function __construct( $obj, SimpleXMLElement $xk ) {/*{{{*/
@@ -37,10 +36,10 @@ class xpkey {
 
 			$ref = new ref;
 
-			( $t = (string) $xref['local'] ) and $ref->local = $t;
-			( $t = (string) $xref['remote'] ) and $ref->remote = $t;
-			( $t = (string) $xref['expr'] ) and $ref->expr = $t;
-		
+			( $t = (string) $xref['local'] ) and $ref->local = $t and M()->info( "local: $t" );
+			( $t = (string) $xref['remote'] ) and $ref->remote = $t and M()->info( "remote: $t" );
+			( $t = (string) $xref['expr'] ) and $ref->expr = $t and M()->info( "expr: $t" );
+
 			$this->refs[] = $ref;
 		} 
 		
