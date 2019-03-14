@@ -479,10 +479,10 @@ class xpDataObject extends xp {
 
 	}/*}}}*/
 
-		function has_role( $role ) {/*{{{*/
+	function has_role() {/*{{{*/
 
 		global $xpdoc;
-		return $xpdoc->has_role( $role );
+		return $xpdoc->has_role( func_get_args() );
 
 	}/*}}}*/
 

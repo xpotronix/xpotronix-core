@@ -1,5 +1,12 @@
 <?php
 
+function array_flatten(array $array) {/*{{{*/
+
+    $return = array();
+    array_walk_recursive($array, function($a) use (&$return) { $return[] = $a; });
+    return $return;
+}/*}}}*/
+
 function is_binary($str) {/*{{{*/
     return preg_match('~[^\x20-\x7E\t\r\n]~', $str) > 0;
 }/*}}}*/

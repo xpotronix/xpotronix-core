@@ -899,15 +899,11 @@ class xpdoc extends xp {
 
 	function has_role() {/*{{{*/
 
-		$args = func_get_args();
-		$arr_role = is_array( $args[0] ) ? $args[0]: $args;
-
+		$arr_role = array_flatten( func_get_args() );
 		$test_role = [];
 
 		foreach( $this->roles as $role )
 			$test_role[] = $role['value'];
-
-		// print_r( $test_role );
 
 		return (bool) count( array_intersect( $test_role, $arr_role ) );
 
