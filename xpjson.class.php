@@ -87,8 +87,13 @@ class xpjson {
 		/* para tabulator.info */
 
 		/* last_page == 1 cuando page_rows == 0 O BIEN $last_page == 0 */
-		if  ( ( ( $page_rows = $this->obj->feat->page_rows ) == 0 ) or ( ( $last_page = round( $this->obj->total_records / $page_rows ) ) == 0 ) )
+		if  ( ( $page_rows = $this->obj->feat->page_rows ) == 0 ) {
 			$last_page = 1;
+		}
+		else {
+
+			$last_page = round( $this->obj->total_records / $page_rows ) + 1;
+		}
 		
 		return ["last_page" => $last_page, 
 			"page_rows" => $this->obj->feat->page_rows,
