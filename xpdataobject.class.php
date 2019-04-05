@@ -2013,29 +2013,45 @@ class xpDataObject extends xp {
 			return $this->transac_status = NOT_VALID;
 		}
 
+		foreach ( $this->model->xpath( "obj[foreign_key/@type='wired']" ) as $obj ) {
+
+			/* borra recursivamente los childs que el foreign_key/@type='wired' en el model */
+
+			$child_name = (string) $obj['name'];
+
+			$cond = array();
+
+			foreach ( $obj->xpath( "foreign_key/ref" ) as $ref ) {
+
+				$local = (string) $ref['local'];
+				$remote = (string) $ref['remote'];
+
+				$cond[$local] = $this->$remote;
+
+				M()->info( "cond/local: $local, remote: $remote = {$cond[$local]}" );
+			}
+
+			M()->debug( "borrando recursivamente $child_name" );
+
+			$childs = $xpdoc->get_instance( $child_name );
+
+			foreach( $childs->load_set( $cond ) as $child ) {
+			
+				$child->delete(); 
+			
+			}
+		}
+
+
 		$this->sql = new DBQuery( $this->db );
 
 		$this->sql->setDelete( $this->get_update_name() );
 
-		foreach ( $this->primary_key as $field => $value ) 
-
-			$this->sql->addWhere( $this->quote_name( $this->get_update_name(). '.'. $field ). sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
-
-		foreach ( $this->model->xpath( "obj[foreign_key/@type='wired']" ) as $obj ) {
-
-			// borra recursivamente los hijos que el foreign_key/@type='wired' en el model
-
-			$child_name = (string) $obj['name'];
-			M()->debug( "a borrar $child_name" );
-
-			$cond = array();
-			foreach ( $obj->xpath( "foreign_key/ref" ) as $ref )
-				$cond[(string)$ref['local']] = $this->$ref['remote'];
-
-			$childs = $xpdoc->get_instance( $child_name );
-
-			foreach( $childs->load_set( $cond ) as $child )
-				$child->delete(); 
+		foreach ( $this->primary_key as $field => $value ) {
+		
+			$this->sql->addWhere( 
+				$this->quote_name( $this->get_update_name(). '.'. $field ). 
+				sprintf( $value === null ? 'IS NULL' : "='%s'", $value ) ) ;
 		}
 
 		$sql = $this->sql->prepare();
