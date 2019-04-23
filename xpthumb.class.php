@@ -74,7 +74,7 @@ class xpthumb {
 
 		$this->cache_pathinfo = pathinfo($this->http->src);
 
-		M()->debug( 'request url '. $this->http->request_uri );
+		M()->debug( "request_uri: {$this->http->request_uri}, cache_key: {$this->cache_key}" );
 
 	}/*}}}*/
 

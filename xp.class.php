@@ -326,8 +326,10 @@ class xp {
 
 			$jars = array( 
 				"/usr/share/java/fop.jar",
+				"/usr/share/fop/fop-hyph.jar",
 				"/usr/share/java/xmlgraphics-commons.jar",
-				"/usr/share/java/avalon-framework.jar",
+				"/usr/share/java/batik-all.jar",
+				// "/usr/share/java/avalon-framework.jar",
 				"/usr/share/java/commons-logging.jar",
 				"/usr/share/java/commons-io.jar" );
 
@@ -343,17 +345,19 @@ class xp {
 
 
 	            	// configure fopFactory as desired
-
 			// org.apache.fop.configuration.Configuration.put("baseDir",appPath);
+			//
+
+			M()->info( $base_path = getcwd(). "/conf/fop.xconf" );
+			$confFile = new Java( "java.io.File", $base_path );
 
 			$cfopFactory = new JavaClass("org.apache.fop.apps.FopFactory");
-			$fopFactory = $cfopFactory->newInstance();
 
-			M()->info( $t = getcwd() );
-
-			$fopFactory->setBaseURL( $t );
+			$fopFactory = $cfopFactory->newInstance( $confFile );
 
 			$foUserAgent = $fopFactory->newFOUserAgent();
+
+			// $foUserAgent->setBaseURL( $t );
 
 			// Setup output
 
