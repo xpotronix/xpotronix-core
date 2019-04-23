@@ -92,7 +92,7 @@ class xpjson {
 		}
 		else {
 
-			$last_page = round( $this->obj->total_records / $page_rows ) + 1;
+			$last_page = floor( $this->obj->total_records / $page_rows ) + 1;
 		}
 		
 		return ["last_page" => $last_page, 
