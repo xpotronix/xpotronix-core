@@ -344,7 +344,7 @@ class dbdump extends xp {
 			$xtable['name'] = $table_name;
 			$this->db_name and $xtable['dbi'] = $this->db_name;
 
-			if ( count( $table_data['fields'] ) > 0 ) {
+			if ( isset( $table_data['fields'] ) ) {
 
 				foreach( $table_data['fields'] as $field ) {
 	
@@ -362,7 +362,7 @@ class dbdump extends xp {
 				}
 			}
 
-			if ( count( @$table_data['primary'] ) > 0 ) {
+			if ( isset( $table_data['primary'] ) ) {
 
 				foreach( $table_data['primary'] as $primary ) 
 
@@ -372,11 +372,11 @@ class dbdump extends xp {
 					}
 			}
 
-			if ( count( @$table_data['index'] ) > 0 ) {
+			if ( isset( $table_data['index'] ) ) {
 
 				foreach( $table_data['index'] as $index => $keys ) {
 
-					if ( count( $keys['columns'] ) ) {
+					if ( isset( $keys['columns'] ) ) {
 						$xindex = $xtable->addChild('index', implode(',', $keys['columns'] ));
 						$xindex['name'] = str_replace(' ', '_',$index );
 
@@ -388,9 +388,11 @@ class dbdump extends xp {
 				}
 			}
 
-			if ( count( @$table_data['sql_view'] ) > 0 )
+			if ( isset( $table_data['sql_view'] ) ) {
 
 				$xtable->addChild( 'sql_view', $table_data['sql_view']);
+
+			}
 
 		}
 
