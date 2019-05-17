@@ -345,7 +345,12 @@ class xpmessages {
 				// DEBUG: por ahora devuelve todos los atributos, no hay diferencia entre modificados o no.
 				// agregar DS_MODIFIED para poder traer solo los modificados
 
-				if ( $full ) $obj->load();
+				if ( $full ) {
+					$t = $obj->get_flag('set_global_search');
+					$obj->set_flag('set_global_search', false);
+					$obj->loadc( $obj->primary_key );
+					$obj->set_flag('set_global_search', $t);
+				}
 
 				$xo = $obj->serialize_row( DS_ANY );
 			break;
