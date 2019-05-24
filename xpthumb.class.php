@@ -52,6 +52,7 @@ class xpthumb {
 	var $cache_options;
 	var $cache_pathinfo;
 	var $cached_image;
+	var $request_uri;
 	var $loaded = false;
 
 	function __construct( $doc_root = null, $cache_root = null ) {/*{{{*/
@@ -68,7 +69,9 @@ class xpthumb {
 		else
 			$this->cache_root = $doc_root;
 
-		$this->cache_key = md5($this->http->request_uri);
+		$this->request_uri = htmlspecialchars_decode( $this->http->request_uri );
+
+		$this->cache_key = md5( );
 
 		$this->file_pathinfo = pathinfo("{$this->doc_root}/{$this->http->src}");
 
@@ -76,13 +79,51 @@ class xpthumb {
 
 		M()->debug( "request_uri: {$this->http->request_uri}, cache_key: {$this->cache_key}" );
 
-	}/*}}}*/
-
-	function get_cache() {/*{{{*/
+		// print_r( $this->build_hash( 'ID' ) ); exit;
 
 		$this->set_cache();
 
-		if ( $this->cached_image = $this->cache->get( $this->cache_key ) ) {
+	}/*}}}*/
+
+	function build_hash( $key_var ) {/*{{{*/
+
+		$request_url = $this->request_uri;
+
+		M()->info( "request_url: $request_url" );
+
+		$param_keys = ['q','ar','wp','hl','filtr'];
+		$params = parse_url( $request_url );
+		$query = $params['query'];
+		parse_str( $query, $result );
+
+		$suffix = http_build_query( array_intersect_key( $result, array_flip( $param_keys )) );
+
+		// print_r( $result ); exit;
+
+		$id = $result['m'].'@'.$result[$key_var];
+
+		$return = [ 'id' => $id, 'suffix' => $suffix ];
+
+		M()->info( "id: $id, suffix: $suffix" ); 
+
+		return $return;
+	}/*}}}*/
+
+	function get_cache( $arr = null ) {/*{{{*/
+
+		// $this->set_cache();
+		//
+
+		if ( is_array( $arr ) ) {
+
+			$this->cached_image = $this->cache->get( $arr['suffix'], $arr['id'] );
+		
+		} else {
+		
+			$this->cached_image = $this->cache->get( $this->cache_key );
+		}
+
+		if ( $this->cached_image ) {
 
 			M()->info( 'pagina de cache encontrada: '. $this->cache_key );
                         return $this->cached_image;
@@ -90,16 +131,25 @@ class xpthumb {
                 } else 
 
 			M()->info( 'pagina de cache NO encontrada: '. $this->cache_key );
+			return null;
+
 	}/*}}}*/
 
-	function cache() {/*{{{*/
+	function cache( $arr = null ) {/*{{{*/
 
 		$cache_filename = $this->cache_filename();
 
 		M()->info( "guardando cache en $this->cache_key con el path: $cache_filename" );
 
-		$this->set_cache();	
-		$this->cache->save( $this->image, $this->cache_key );
+		// $this->set_cache();	
+		//
+		if ( is_array( $arr ) ) {
+
+			$this->cache->save( $this->image, $arr['suffix'], $arr['id'] );
+		
+		} else {
+			$this->cache->save( $this->image, $this->cache_key );
+		}
 
 	}/*}}}*/
 
@@ -155,7 +205,8 @@ class xpthumb {
                         'writeControl' => FALSE,
                         'readControl' => FALSE,
                         'memoryCaching' => TRUE,
-                        'automaticSerialization' => FALSE
+			'automaticSerialization' => FALSE,
+			'hashedDirectoryLevel' => 0
                 );
 
 		$this->cache = new xpcache($this->cache_options);
