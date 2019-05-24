@@ -31,7 +31,7 @@ if ( ! @chdir( $params['path'] ) ) {
 	exit(1);
 }
 
-ini_set( 'include_path', ini_get( 'include_path' ). ".:/usr/share/php/adodb:{$ini['paths']['lib']}" );
+ini_set( 'include_path', ini_get( 'include_path' ). ":.:/usr/share/php/adodb:{$ini['paths']['lib']}" );
 
 
 include_once $ini['paths']['lib']. "main.php";
