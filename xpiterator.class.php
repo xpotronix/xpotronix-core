@@ -43,7 +43,10 @@ class xpIterator implements Iterator {
 	function count() {/*{{{*/
 
 		M()->info();
-		return count( $this->data );
+		if ( isset( $this->data ) )
+			return count( $this->data );
+		else
+			return null;
 
 	}/*}}}*/
 

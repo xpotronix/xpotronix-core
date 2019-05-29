@@ -82,15 +82,17 @@ class xpdoc extends xp {
 	var $json;
 	var $pager = [];
 
-	/* array de instancias de objetos creados */
+	/* array de instancias de objetos del model */
 	var $instances = [];
+
+	/* array de instancias de todos los objetos creados */
+	var $obj_collection = [];
 
 	/* Permissions */
 
 	var $perms;
 	var $roles = [];
 
-	var $obj_collection = [];
 
 	/* construct */
 
@@ -703,17 +705,16 @@ class xpdoc extends xp {
 			return null;
 		} 
 
-		if ( !$obj_name ) {
+		if ( ! $obj_name ) {
 
 			M()->info( "devolviendo la primera instancia del modulo" );
-			reset( $this->instances );
-			return current( $this->instances );
+			return reset( $this->instances );
 		} 
 
 		if ( array_key_exists( $obj_name, $this->obj_collection ) ) {
 
 			M()->info( "devolviendo una instacia existente" );
-			return $this->obj_collection[$obj_name][0];
+			return reset( $this->obj_collection[$obj_name] );
 
 		} else {
 
@@ -1736,6 +1737,12 @@ class xpdoc extends xp {
 			M()->$mesg_fn( "class_name $class_name count: ". count( $obj_collection ) );
 		}
 	}/*}}}*/
+
+
+	function remove_obj_collection( $class_name, $id_hash ) {
+
+		unset( $this->obj_collection[$class_name][$id_hash] );
+	}
 
 }
 

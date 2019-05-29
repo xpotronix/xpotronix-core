@@ -52,48 +52,6 @@ class xp {
 
 	}/*}}}*/
 
-	function __get( $var_name ) {/*{{{*/
-
-		if ( $this->check_vars and $this->debug and !isset( $this->__xml_data->$var_name ) ) {
-
-			echo "<p>__get(): La variable $var_name no esta definida en este objeto</p>";
-			$this->debug_backtrace();
-		}
-
-		if ( ! $this->__xml_data ) /* DEBUG: no esta inicializado todavia el objeto? */
-			return null;
-
-		$tmp = $this->__xml_data->$var_name;
-
-		$tmp_type = $tmp['type'];
-
-		settype( $tmp, ($tmp_type ? (string) $tmp_type : 'string' ) ) ;
-
-		return $tmp;
-
-	}/*}}}*/ 
-
-	function __set( $var_name, $var_value ) {/*{{{*/
-
-		if ( is_object( $var_value ) or is_array( $var_value ) ) {
-
-			echo "no se puede asignar un objeto o array a un elemento simple, para la propiedad $var_name";
-			echo $this->debug_backtrace( $var_value );
-			ob_flush();
-			exit;
-		}
-
-		$this->__xml_data->$var_name = (string) $var_value;
-
-		if ( !is_string( $var_value ) ) {
-
-			$tmp =& $this->__xml_data->$var_name;
-			$tmp['type'] = gettype( $var_value );
-		}
-
-		return $var_value;
-	}/*}}}*/
-
 	function dup() {/*{{{*/
 
 		return unserialize(serialize($this));

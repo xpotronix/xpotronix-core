@@ -39,6 +39,7 @@ class xpDataObject extends xp {
 	// nombre de la clase 
 
 	var $class_name;
+	var $id_hash;
 
 	// array atributos
 	var $attr;
@@ -193,7 +194,9 @@ class xpDataObject extends xp {
 
 		// registro este objeto en obj_collection
 
-		$xpdoc and $xpdoc->obj_collection[$this->class_name][] = $this;
+		$this->id_hash = $this->get_hash();
+
+		$xpdoc and $xpdoc->obj_collection[$this->class_name][$this->id_hash] = $this;
 
 		$this->constructed = true; // __construct fue llamado OK
 
@@ -212,11 +215,24 @@ class xpDataObject extends xp {
 	function __destruct() {/*{{{*/
 
 		// elimino la referencia circular para que no me genere memory leaks (espero)
+		//
+		
+		global $xpdoc;
 
 		if ( $this->attr ) 
 			foreach( $this->attr as $key => $attr ) 
 				unset ( $this->attr[$key]->obj );
 
+		M()->info( "llamando a destruct para el objeto $this->class_name con el ID $this->id_hash" );
+
+		$xpdoc->remove_obj_collection( $this->class_name, $this->id_hash );
+
+	}/*}}}*/
+
+	function destroy() {/*{{{*/
+
+		$this->__destruct();
+	
 	}/*}}}*/
 
 		function __get( $var_name ) {/*{{{*/
