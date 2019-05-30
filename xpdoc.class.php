@@ -207,7 +207,7 @@ class xpdoc extends xp {
 
 		$xpid = $this->xpid();
 
-		M()->info( "***** Proceso xpotronix iniciado con xpid [$this->xpid] *****" );
+		M()->info( "***** Proceso xpotronix iniciado con xpid [$xpid] *****" );
 
 		// DEBUG: algo tiene que devolver false?
 

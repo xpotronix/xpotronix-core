@@ -71,7 +71,7 @@ class xpthumb {
 
 		$this->request_uri = htmlspecialchars_decode( $this->http->request_uri );
 
-		$this->cache_key = md5( );
+		$this->cache_key = md5( $this->request_uri );
 
 		$this->file_pathinfo = pathinfo("{$this->doc_root}/{$this->http->src}");
 
