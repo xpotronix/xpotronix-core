@@ -31,8 +31,6 @@ $imagick->rotateImage(new ImagickPixel(), 90)
 
 */
 
-
-
 require_once 'includes/misc_functions.php';
 require_once 'xphttp.class.php';
 require_once 'xpmessages.class.php';
@@ -85,6 +83,163 @@ class xpthumb {
 
 	}/*}}}*/
 
+	function show_image( $config, $obj ) {/*{{{*/
+
+		global $xpdoc;
+
+		extract( $config );
+
+		/* list( $id_http_var,
+			$id_key,
+			$image_field,
+			$mime_type_field,
+			$filesize_field,
+			$last_modified_field ) = $config; */
+
+		@M()->info( "id_http_var: $id_http_var, id_key: $id_key, image_field: $image_field, mime_type_field: $mime_type_field, filesize_field: $filesize_field, last_modified_field: $last_modified_field, dirname_field: $dirname_field, basename_field: $basename_field" );
+
+		$image_hash = $this->build_hash( $id_http_var );
+
+		$ID = $xpdoc->http->$id_http_var;
+
+		$obj->load( $ID );
+
+		if ( ! $obj->loaded() ) {
+		
+			M()->info( "no encontre el objeto con ID $ID" );	
+			return false;
+		}
+
+		header_remove("Pragma");
+		header_remove("Expires");
+		$xpdoc->header('Cache-Control: private, must-revalidate');
+
+		$last_modified_time = $obj->$last_modified_field; 
+
+		$etag = md5( $image_hash['id'].'@'.$image_hash['suffix'].'@'.$last_modified_time ); 
+		$gmdate = gmdate("D, d M Y H:i:s", $last_modified_time);
+
+		M()->info( "last_modified_time: $last_modified_time $gmdate" );
+
+		$xpdoc->header("Last-Modified: $gmdate GMT");
+		$xpdoc->header("Etag: $etag"); 
+
+		M()->info("Etag/Last-Modified: $etag/$gmdate");
+
+		if ( $use_etag = true ) {
+
+			$hims = @$_SERVER['HTTP_IF_MODIFIED_SINCE'];
+			$hinm = @$_SERVER['HTTP_IF_NONE_MATCH'];
+
+			M()->info( "HTTP_IF_MODIFIED_SINCE: $hims, HTTP_IF_NONE_MATCH: $hinm" );
+
+			$test1 = ( $hims == $last_modified_time );
+			$test2 = ( $hinm == $etag );
+
+			if ( $test1 || $test2 ) {
+
+				M()->info("Not Modified $etag $gmdate");
+				header('HTTP/1.1 304 Not Modified');
+				return true;
+			}
+			else 	M()->info( "Modified" );
+		}
+
+		$obj->feat->blob_load = true;
+
+		if ( false and $this->get_cache( $image_hash ) ) { 
+
+			$this->output_cached_image();
+			return true;
+		} 
+
+		/* si es blob o path */
+
+		if ( $obj->load( $ID ) ) {
+
+			if ( $obj->$image_field ) {
+
+				M()->info( "encontre BLOB" );
+				$this->read_blob( $obj->$image_field );
+			}
+			else {
+
+				if ( isset( $dirname_field ) and isset( $basename_field ) ) {
+					M()->info( "busco archivo" );
+					$this->load( $this->doc_root. '/'. $obj->$dirname_field. '/'. $obj->$basename_field );
+				} else {
+					M()->info( "no hay imagen definida" );
+					return false;
+				}
+			}
+		}
+
+		if ( $this->loaded ) {	
+
+			M()->info("aplico filtros");
+
+			if ( $this->http->q )
+				$this->compress( $this->http->q );
+
+			if ( $this->http->wp or $this->http->hl )
+				$this->thumb();
+
+			if ( $this->http->ar == 'x' )
+				$this->adjust_orientation();
+
+			if ( $this->http->filtr )
+				foreach( $this->http->filtr as $f ) 
+					$this->filter( $f );
+
+			if ( isset( $force_image_format ) ) {
+				$this->setImageFormat( $force_image_format );
+				$xpdoc->header("Content-type: image/$force_image_format");
+			} else {
+			
+				$mime_type = $obj->$mime_type_field 
+					or $mime_type = 'image/jpeg';
+				$xpdoc->header("Content-type: $mime_type");
+			}
+
+			$image_length = ( isset( $filesize_field ) ) ?
+				$obj->$filesize_field:
+				$this->length();
+
+			$xpdoc->header( "Content-Length: $image_length" );
+
+			$this->cache( $image_hash );
+			$this->output( false );
+
+		} else {
+
+			M()->info( "no encontrada, envia warning.jpg" );
+			$this->readfile( null );
+			return true;
+		}
+
+		return true;
+
+	}/*}}}*/
+
+	function readfile( $filename = null ) {/*{{{*/
+
+		global $xpdoc;
+
+		header_remove("Pragma");
+		header_remove("Expires");
+		$xpdoc->header('Cache-Control: public, max-age=86400');
+		$xpdoc->header('Content-Type: image/jpeg');
+
+		if ( ($filename == null) or (!file_exists( $filename )) ) {
+			M()->info( "no encuentro el archivo $filename" );	
+			return readfile( 'images/warning.jpg' ); 
+		}
+		else {
+			return readfile( $filename );
+		}
+
+	}/*}}}*/
+
 	function build_hash( $key_var ) {/*{{{*/
 
 		$request_url = $this->request_uri;
@@ -99,8 +254,15 @@ class xpthumb {
 		$suffix = http_build_query( array_intersect_key( $result, array_flip( $param_keys )) );
 
 		// print_r( $result ); exit;
+		//
 
-		$id = $result['m'].'@'.$result[$key_var];
+		$value_key_var = null;
+		if ( isset( $result[$key_var] ) )
+			$value_key_var = $result[$key_var];
+		else
+			M()->warn( "no ecuentro la variable del request con el nombre $key_var" );
+
+		$id = $result['m'].'@'.$value_key_var;
 
 		$return = [ 'id' => $id, 'suffix' => $suffix ];
 
@@ -426,6 +588,12 @@ class xpthumb {
 		header($ExpStr);
 		header("Content-Type: image/jpg");
 
+	}/*}}}*/
+
+	function length() {/*{{{*/
+	
+		return strlen( $this->image );
+	
 	}/*}}}*/
 
 	function setImageFormat( $format ) {/*{{{*/

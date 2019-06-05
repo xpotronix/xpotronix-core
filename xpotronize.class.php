@@ -319,6 +319,19 @@ class dbdump extends xp {
 			$table_info['sql_view'] = $field['Create View'];
 		}
 
+
+		/* para triggers 
+		$rs = $this->db->Execute("SELECT * FROM INFORMATION_SCHEMA.TRIGGERS where EVENT_OBJECT_SCHEMA=`{$this->db_name}` AND EVENT_OBJECT_TABLE=`$table_name`");
+
+		if ( is_object( $rs ) and !$rs->EOF ) { 
+
+			$field = $rs->fields;
+			$table_info['trigger'] = $field['ACTION_STATEMENT'];
+
+			print_r( $table_info );exit;
+		}
+		*/
+
 		return $table_info;
 
 	}/*}}}*/
