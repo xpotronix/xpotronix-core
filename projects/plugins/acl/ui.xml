@@ -108,7 +108,7 @@
 
 			<config>listeners: { 
 				load: function(){ 
-					App.store.lookup('gacl_axo').filter_axo();
+					App.store.lookup(App.feat.module + '.gacl_axo').filter_axo();
 					}
 				}
 			</config>
@@ -123,10 +123,10 @@
 
 			filter_axo: function(){
 
-				var s = App.store.lookup('gacl_axo');
+				var s = App.store.lookup(App.feat.module + '.gacl_axo');
 				s.clearFilter( true );
 
-				var cs = App.store.lookup('gacl_groups_axo_map');
+				var cs = App.store.lookup(App.feat.module + '.gacl_groups_axo_map');
 
 				s.filterBy( function( r ) {
 
