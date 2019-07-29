@@ -215,7 +215,7 @@ class xpmessages {
 
 			global $xpdoc;
 
-			if ( is_object( $xpdoc )  ) {
+			if ( is_object( $xpdoc ) and get_class( $xpdoc ) == 'xpDoc' ) {
 
 				// echo '<pre>'; var_dump( $xpdoc ); print_r( debug_backtrace( false ) ); exit;
 				$m->xpid = $xpdoc->xpid();
