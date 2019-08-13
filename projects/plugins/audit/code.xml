@@ -162,13 +162,11 @@
 
 		}/*}}}*/
 
-	function prepare_data( $obj ) {/*{{{*/
-
-		global $xpdoc;
+	function prepare_data() {/*{{{*/
 
 		/* solo visible por admin por que por aqui van los passwords */
-		if ( $obj->action == 'login' and ! $this->has_role('admin') )
-		 	$obj->transac_data = '******';
+		if ( $this->action == 'login' and ! $this->has_role('admin') )
+		 	$this->transac_data = '******';
 	}/*}}}*/
 
 	</code>
