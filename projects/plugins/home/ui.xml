@@ -23,8 +23,7 @@
 
 			<items>
 
-
-			<cmp><config>region:'north',html:'Bienvenido a la aplicacion',minHeight:60</config></cmp>
+			<cmp><config>region:'north',html:'Bienvenido a la aplicacion',minHeight:60, loader: { url: '?m=home&amp;v=banner&amp;f[include_dataset]=6', autoLoad: true }</config></cmp>
 
 			<cmp><config>title:'Aplicacion',region:'west',width:250,split:true,collapsible:true,collapseMode:'header',collapseDirection:'left',layout:{type:'accordion',animate:true}</config>
 			<items>
