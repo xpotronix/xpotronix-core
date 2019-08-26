@@ -470,7 +470,13 @@ class xpDataObject extends xp {
 		if ( $xpdoc->perms ) {
 
 			$this->acl = $xpdoc->perms->get_module_permissions( $this->class_name, $xpdoc->user->user_id );
-			M()->info("usuario: {$xpdoc->user->user_id}, objeto: {$this->class_name}, permisos:". serialize( $this->acl ) );
+
+			$message = [];
+			foreach( $this->acl as $action => $value) {
+				$value and $message[] = "$action";
+			}
+
+			M()->info("usuario: {$xpdoc->user->user_username} [{$xpdoc->user->user_id}], objeto: {$this->class_name}, permisos:". implode( ',', $message ) );
 
 			// if ( $this->class_name == 'web_session' ) { echo '<pre>'; print_r( $this->acl ); exit; }
 

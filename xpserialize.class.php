@@ -49,7 +49,7 @@ class xpserialize {
                         return $xc;
                 }
 
-		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('list') and $this->obj->can('view') ) ) ) {
+		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('view') or $this->obj->can('list') ) ) ) {
 
 			M()->info( "Acceso denegado para el objeto {$this->obj->class_name}" );
 			$xc['msg']='ACC_DENIED';

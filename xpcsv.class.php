@@ -74,7 +74,7 @@ class xpcsv {
                         return 'IS_VIRTUAL';
                 }
 
-		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('list') and $this->obj->can('view') ) ) ) {
+		if ( is_object( $xpdoc->perms ) and ( ! ( $this->obj->can('view') or $this->obj->can('list') ) ) ) {
 
 			M()->info( "acceso denegado para el objeto {$this->obj->class_name}" );
 			return 'ACC_DENIED';
