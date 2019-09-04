@@ -2384,19 +2384,34 @@ class xpDataObject extends xp {
 
 		global $xpdoc;
 
+		$ok = true;
+
 		foreach( $xpdoc->http->get_post_vars() as $var_name ) {
 
 			$value = $xpdoc->http->$var_name;
 
 			if ( $attr = $this->get_attr( $var_name ) ) {
 
-				$attr->value = ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' ) ?
-					$attr->human( $value ):
-					$attr->unserialize( $value );
+
+				if  ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' ) {
+
+					$attr->value = $attr->human( $value );
+
+					if ( $attr->value == null ) {
+						M()->user( "fecha inválida $value" );
+						$ok = false;
+					}
+				
+				} else {
+
+					$attr->value = $attr->unserialize( $value );
+				}
 
 				M()->info( "$var_name: {$value}" );
 			}
 		}
+
+		return $ok;
 
 	}/*}}}*/
 
