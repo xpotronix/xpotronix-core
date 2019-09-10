@@ -119,7 +119,7 @@
 
                 } catch (phpmailerException $e) {
 
-                        M()->error( 'Error al enviar: '. $e->errorMessage() );
+                        M()->error( 'Error al instanciar PHPMailer: '. $e->errorMessage() );
                 }
 
 		$this->mail->CharSet    = $xpdoc->config->mailer_charset or M()->warn('charset no definido');
