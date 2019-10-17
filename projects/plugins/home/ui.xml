@@ -32,7 +32,9 @@
 			</items>
 			</cmp>
 
-			<cmp type="tabmenu"><config>id:'mainAppTabPanel',border:false,region:'center',width:250,plain:true,tabPosition:'left',defaults:{closable:true}</config>
+			<cmp type="tabmenu"><config>id:'mainAppTabPanel',border:false,reorderable:true
+				/*,plugins: [Ext.create('Ext.ux.TabReorderer')]*/,
+				region:'center',width:250,plain:true,tabPosition:'left',defaults:{closable:true}</config>
 			<items>
 				<cmp><config>title:'Ayuda',closable:false,html:'Ayuda de la aplicacion'</config></cmp>
 			</items>
