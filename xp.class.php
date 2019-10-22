@@ -291,10 +291,10 @@ class xp {
 				"/usr/share/java/batik-all.jar",
 				"/usr/share/java/commons-logging.jar",
 				"/usr/share/java/xercesImpl.jar",
+				"/usr/share/java/fop.jar",
 				"/usr/share/java/xmlgraphics-commons.jar",
 				"/usr/share/java/xml-apis-ext.jar",
 				// "/usr/share/java/fontbox.jar",
-				"/usr/share/java/fop.jar",
 				"/usr/share/fop/fop-hyph.jar"
 			);
 
