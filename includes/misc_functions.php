@@ -1,5 +1,29 @@
 <?php
 
+function periodo_add( $periodo, $value ) {/*{{{*/
+
+	/* suma un entero a un string de periodo */
+
+	$pos = 4;
+
+	$anio = (int) substr($periodo, 0, $pos);
+	$mes = (int) substr($periodo, $pos);
+
+	$meses = ( $anio * 12 ) + $mes + $value;
+
+	$r_anio = (int) ($meses / 12);
+	$r_mes = $meses % 12;
+
+	if ( $r_mes === 0 ) {
+
+		$r_mes = 12;
+		$r_anio -= 1;
+	}
+
+	return str_pad($r_anio, 4, '0', STR_PAD_LEFT ).
+		str_pad($r_mes, 2, '0', STR_PAD_LEFT );
+}/*}}}*/
+
 function array_flatten(array $array) {/*{{{*/
 
     $return = array();
