@@ -165,18 +165,23 @@ class xpserialize {
 
 				$iname = (string) $obj['name'];
 
-				if ( ! isset( $xpdoc->instances[$iname] ) ) 
+				/*
+				print( $iname ); print( "<br/>" );
+				$xpdoc->instances[$iname]->debug_backtrace(); continue;print( "<br/>" );
+				print var_dump( isset( $params['ignore'] ) and is_array( $params['ignore'] ) and ( in_array( $iname, $params['ignore'] ) ) ); exit;
+				*/
+
+				if ( ! isset( $xpdoc->instances[$iname] ) ) {
 					M()->warn( "instancia $iname ignorada: no la encuentro");
-				else {
+
+				} else if ( isset( $params['ignore'] ) and is_array( $params['ignore'] ) and ( in_array( $iname, $params['ignore'] ) ) ) {
+					M()->info( "instancia $iname ignorada: via parametro");
+
+				} else {
 
 					M()->info( "recursivo, hacia el objeto $iname" );
-
-					if ( isset( $params['ignore'] ) and is_array( $params['ignore'] ) and ( in_array( $iname, $params['ignore'] ) ) )
-						continue;
-					else
-						simplexml_append( $xobj, $xpdoc->instances[$iname]->serialize( $flags ) );
-
-				} 
+					simplexml_append( $xobj, $xpdoc->instances[$iname]->serialize( $flags ) );
+				}
 			}
 		}
 
