@@ -20,16 +20,22 @@ class xpattr extends xp {
 
    function __construct( $xml_node = NULL ) {/*{{{*/
 
-	   global $xpdoc;
 
 	   if ( $xml_node ) {
 		$this->metadata = clone $xml_node;
 		$this->name = (string) $xml_node['name'];
-		}
-	   else 
-		$this->metadata = new SimpleXMLElement('<attr/>');
+	   }
 
-	   if ( !$this->metadata['type'] ) $this->metadata['type'] = 'varchar';
+	   else {
+	   
+		$this->metadata = new SimpleXMLElement('<attr/>');
+	   } 
+
+	   /* defaults */
+
+	   $this->metadata['type'] or $this->metadata['type'] = 'varchar';
+	   /* si aplica o no htmlspecialchar en serialize */
+	   $this->metadata['escape'] or $this->metadata['escape'] = true;
 
 	   $this->metadata['modified'] = false; // DEBUG: los modified no van en el metadata, van el data
 
@@ -63,6 +69,7 @@ class xpattr extends xp {
 	    case 'alias_of':
 	    case 'entry_help':
 	    case 'entry_help_table':
+	    case 'escape':
 	    case 'validate':
 	    case 'filters':
 	    case 'display':
@@ -222,7 +229,7 @@ class xpattr extends xp {
 	function serialize( $value = NULL ) {/*{{{*/
 	
 		if ( $value === NULL ) $value = $this->value;
-		return htmlspecialchars( $value ); 
+		return ( $this->escape ) ? htmlspecialchars( $value ): $value;
 
 	}/*}}}*/
 

@@ -200,7 +200,13 @@ class xpserialize {
 		/* value */
 
 		try {
-			$xattr = new SimpleXMLElement( $normalized ? "<attr name=\"$attr_name\">$value</attr>" : "<$attr_name>$value</$attr_name>" );
+			/* normalizado o no */
+
+			$xattr = new SimpleXMLElement( 
+				$normalized ? 
+				"<attr name=\"$attr_name\">$value</attr>" : 
+				"<$attr_name>$value</$attr_name>" 
+			);
 
 		} catch (Exception $e)  { 
 
