@@ -175,9 +175,7 @@
             '<desc></desc>'."\n";
 
             $output =
-            '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">'."\n".
-            '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'">'."\n".
+            '<svg:svg xmlns:svg="http://www.w3.org/2000/svg" xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" width="'.$imgW * $pixelPerPoint.'" height="'.$imgH * $pixelPerPoint.'" viewBox="0 0 '.$imgW * $pixelPerPoint.' '.$imgH * $pixelPerPoint.'">'."\n".
             '<desc></desc>'."\n";
                 
             if(!empty($back_color)) {
@@ -186,10 +184,10 @@
             }
                 
             $output .= 
-            '<defs>'."\n".
-            '<rect id="p" width="'.$pixelPerPoint.'" height="'.$pixelPerPoint.'" />'."\n".
-            '</defs>'."\n".
-            '<g fill="#'.str_pad(dechex($fore_color), 6, "0", STR_PAD_LEFT).'">'."\n";
+            '<svg:defs>'."\n".
+            '<svg:rect id="p" width="'.$pixelPerPoint.'" height="'.$pixelPerPoint.'" />'."\n".
+            '</svg:defs>'."\n".
+            '<svg:g fill="#'.str_pad(dechex($fore_color), 6, "0", STR_PAD_LEFT).'">'."\n";
                 
                 
             // Convert the matrix into pixels
@@ -199,13 +197,13 @@
                     if( $frame[$i][$j] == '1') {
                         $y = ($i + $outerFrame) * $pixelPerPoint;
                         $x = ($j + $outerFrame) * $pixelPerPoint;
-                        $output .= '<use x="'.$x.'" y="'.$y.'" xlink:href="#p" />'."\n";
+                        $output .= '<svg:use x="'.$x.'" y="'.$y.'" xlink:href="#p" />'."\n";
                     }
                 }
             }
             $output .= 
-            '</g>'."\n".
-            '</svg>';
+            '</svg:g>'."\n".
+            '</svg:svg>';
             
             return $output;
         }
