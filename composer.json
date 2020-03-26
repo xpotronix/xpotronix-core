@@ -1,0 +1,14 @@
+{
+    "name": "xpotronix/xpotronix-core",
+
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/xpotronix/xpotronix-core.git"
+        }
+    ],
+
+    "require": {
+        "monolog/monolog": "1.0.*"
+    }
+}
