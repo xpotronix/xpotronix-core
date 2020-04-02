@@ -45,6 +45,9 @@
 
 namespace App;
 use \Xpotronix\DataObject;
+<xsl:for-each select="$code_collection//table[@name=$table_name]/code[@mode='use_decl' and @type='php']">
+	<xsl:value-of select="."/>
+</xsl:for-each>
 
 global $xpdoc;
 <xsl:for-each select="$code_collection//table[@name=$table_name]/code[@mode='include' and @type='php']"><xsl:value-of select="."/></xsl:for-each><![CDATA[

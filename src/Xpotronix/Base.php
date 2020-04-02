@@ -286,8 +286,6 @@ class Base {
 		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
 		try {
-			require_once __DIR__ . '/../../lib/Java.inc';
-
 			$jars = array( 
 				"/usr/share/java/commons-io.jar",
 				"/usr/share/java/avalon-framework.jar",

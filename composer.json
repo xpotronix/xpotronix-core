@@ -27,14 +27,17 @@
         "monolog/monolog": "1.0.*",
     "psr/log": "^1.1",
     "adodb/adodb-php": "^5.20",
-    "pear/cache_lite": "^1.8"
+    "pear/cache_lite": "^1.8",
+    "endroid/qr-code": "^3.7"
     },
 
   "autoload": {
 
     "psr-4": {"Xpotronix\\": "src/Xpotronix/"},
-    "files": ["includes/misc_functions.php","includes/Java.inc","includes/gacl.class.php","includes/gacl_api.class.php"]
-
+    "files": ["includes/misc_functions.php",
+	    	"includes/Java.inc",
+		"includes/gacl.class.php",
+		"includes/gacl_api.class.php"]
   }
 
 }
