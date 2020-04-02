@@ -115,11 +115,11 @@
 			$this->session_id = $xpdoc->session->session_id;
 			$this->xpid = $xpdoc->xpid();
 
-			( ! CLI ) and $this->URL = 'http://'. $_SERVER['SERVER_NAME']. $_SERVER['REQUEST_URI'];
+			( ! \Xpotronix\Doc::CLI ) and $this->URL = 'http://'. $_SERVER['SERVER_NAME']. $_SERVER['REQUEST_URI'];
 
 			$this->module = $xpdoc->module;
 			$this->action = $xpdoc->action;
-			$this->type = (CLI) ? 'CLI' : $_SERVER['REQUEST_METHOD'];
+			$this->type = (\Xpotronix\Doc::CLI) ? 'CLI' : $_SERVER['REQUEST_METHOD'];
 
 			// echo '&lt;pre&gt;', print_r( $_SERVER ); exit;
 
@@ -135,7 +135,7 @@
 
 			if ( (bool) $xpdoc->config->audit_silent_action and ! preg_match( $xpdoc->config->audit_silent_action, $xpdoc->action ) ) {
 
-				$this->transac_data = (CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
+				$this->transac_data = (\Xpotronix\Doc::CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
 			}
 
 			$this->messages = $xpdoc->get_messages( true )->asXML();

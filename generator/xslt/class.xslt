@@ -21,14 +21,15 @@
 		<xsl:variable name="type" select="string('class')"/>
 
 		<xsl:variable name="path_prefix">
-			<xsl:value-of select="concat($application_path,'/modules/',@name,'/')"/>
+			<xsl:value-of select="concat($application_path,'/modules/')"/>
 		</xsl:variable>
 
 		<xsl:variable name="class_name">
 			<xsl:value-of select="@name"/>
 		</xsl:variable>
 
-		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/>
+		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
+		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 		<xsl:variable name="license" select="document($license_file)/license"/>
@@ -38,31 +39,22 @@
 /*
 	Archivo: ]]><xsl:value-of select="$class_file_name"/><![CDATA[
 
-]]><xsl:value-of select="$license"/><![CDATA[
+]]><xsl:value-of select="$license"/>
 
 */
 
+namespace App;
+use \Xpotronix\DataObject;
+
 global $xpdoc;
-
-require_once ']]><xsl:choose>
-	<xsl:when test="@extends">
-		<xsl:value-of select="concat('modules/',@extends,'/',@extends,'.class.php')"/>
-	</xsl:when>
-	<xsl:otherwise>
-		<xsl:value-of select="'xpdataobject.class.php'"/>
-	</xsl:otherwise>
-	</xsl:choose><xsl:text>';
-
-</xsl:text>
-
 <xsl:for-each select="$code_collection//table[@name=$table_name]/code[@mode='include' and @type='php']"><xsl:value-of select="."/></xsl:for-each><![CDATA[
 
-class C]]><xsl:value-of select="$class_name"/><![CDATA[ extends ]]><xsl:choose>
+class ]]><xsl:value-of select="$class_name"/><![CDATA[ extends ]]><xsl:choose>
 	<xsl:when test="@extends">
-		<xsl:value-of select="concat('C',@extends)"/>
+		<xsl:value-of select="@extends"/>
 	</xsl:when>
 	<xsl:otherwise>
-		<xsl:value-of select="'xpDataObject'"/>
+		<xsl:value-of select="'DataObject'"/>
 	</xsl:otherwise>
 	</xsl:choose><![CDATA[ {
 

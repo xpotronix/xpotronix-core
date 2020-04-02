@@ -15,7 +15,7 @@
 		<table_prefix>gacl_</table_prefix>
 		<fetch_mode type="int">1</fetch_mode>
 	</db_instance>
-	<gacl_class>xpacl</gacl_class>
+	<gacl_class>\Xpotronix\Acl</gacl_class>
 	<gacl_table_prefix>gacl_</gacl_table_prefix>
 	<gacl_cache_time type="int">0</gacl_cache_time>
 </config>

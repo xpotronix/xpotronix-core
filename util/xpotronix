@@ -7,23 +7,17 @@
 // ini_set( 'xdebug.show_mem_delta', 1); 
 // xdebug_start_trace('/tmp/xpotronix-trace.xt');
 
+//ini_set( 'display_errors', 0 );
+//ini_set( 'log_errors', 1 );
+//ini_set( 'error_log', 'syslog' );
 
-ini_set( 'display_errors', 1 );
-ini_set( 'log_errors', 1 );
-ini_set( 'error_log', 'syslog' );
+//ini_set( 'include_path', ini_get( 'include_path' ). ':/usr/share/php/adodb' );
 
-
-$ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
-require_once $ini['paths']['lib']. "xpmessages.class.php";
-require_once $ini['paths']['lib']. "includes/misc_functions.php";
+require __DIR__. '/../vendor/autoload.php';
 
 $params = parseParameters();
 
-if ( ! isset( $params['path'] ) ) {
-
-	M()->fatal( "debe especificar el base path de la aplicacion con el parametro --path" );
-	exit( 1 );
-}
+isset( $params['path'] ) or $params['path'] = '.';
 
 if ( ! @chdir( $params['path'] ) ) {
 
@@ -31,11 +25,7 @@ if ( ! @chdir( $params['path'] ) ) {
 	exit(1);
 }
 
-ini_set( 'include_path', ini_get( 'include_path' ). ":.:/usr/share/php/adodb:{$ini['paths']['lib']}" );
-
-
-include_once $ini['paths']['lib']. "main.php";
-
+require $params['path']. "/index.php";
 
 // xdebug_stop_trace();
 

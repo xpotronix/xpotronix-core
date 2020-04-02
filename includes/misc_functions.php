@@ -1,5 +1,14 @@
 <?php
 
+use Xpotronix\Messages;
+use Xpotronix\Constants;
+
+function M() {/*{{{*/
+	static $mess;
+	$mess or $mess = new Messages;
+	return $mess;
+}/*}}}*/
+
 function periodo_add( $periodo, $value ) {/*{{{*/
 
 	/* suma un entero a un string de periodo */
@@ -211,31 +220,11 @@ function microtime_float() {/*{{{*/
 
 }/*}}}*/
 
-function __autoload_disabled( $class_name ) {/*{{{*/
-
-	$class_path = "$class_name.class.php";
-
-	if ( ! file_exists( $class_path ) ) {
-
-		$class_name = str_replace( "C", NULL, $class_name );
-		$class_path = "modules/$class_name/$class_name.class.php";
-
-		if ( ! file_exists( $class_path ) ) die ( "no puedo incluir el archivo $class_path" );
-	} 
-
-	xpmessage::_( '__autoload', 10, 'Incluyendo el archivo '. $class_path );
-
-	require_once $class_path;
-
-
-}/*}}}*/
-
 function array2xml( $root_tag, $array ) {/*{{{*/
 
 	global $xpdoc;
 
 	try {
-
 
 		$x = new array2xml( $root_tag, $array ); 
 		return simplexml_import_dom( $x->data );
@@ -331,6 +320,7 @@ class array2xml {/*{{{*/
 	 * @param dom element $obj
 	 */
 	private function recurse_node($data, $obj){
+		require_once 'constants.inc.php';
 		$i = 0;
 		foreach($data as $key=>$value){
 

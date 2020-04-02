@@ -7,27 +7,32 @@
 // xdebug_start_trace('/tmp/xpotronix-trace.xt');
 
 
-ini_set( 'display_errors', 0 );
-ini_set( 'log_errors', 1 );
-ini_set( 'error_log', 'syslog' );
+//ini_set( 'display_errors', 0 );
+//ini_set( 'log_errors', 1 );
+//ini_set( 'error_log', 'syslog' );
 
-ini_set( 'include_path', ini_get( 'include_path' ). ':/usr/share/php/adodb' );
+//ini_set( 'include_path', ini_get( 'include_path' ). ':/usr/share/php/adodb' );
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Xpotronix\Doc;
+use Xpotronix\Messages;
+use Xpotronix\Xpotronize;
+use Xpotronix\DBDump;
 
 $ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
-require_once $ini['paths']['lib']. "xpotronize.class.php";
-require_once $ini['paths']['lib']. "xpdoc.class.php";
 
-$x = new xpotronize;
+$x = new Xpotronize;
 $x->check_params_xpotronize();
 
-$xpdoc = new xpdoc( $x->config, $x->feat );
+$xpdoc = new Doc( $x->config, $x->feat );
 $xpdoc->dbm->db_driver( 'ADODB' );
 
 if ( @$x->opts['f'] ) {
 
 	M()->user( "dbdump: aplicacion {$x->config->application}" );
 
-	$db = new dbdump( $x->ini );
+	$db = new DBDump( $x->ini );
 	$db->get_database_info();
 
 	$pp = $x->transform['params']['project_path'];

@@ -1,5 +1,19 @@
 {
-    "name": "xpotronix/xpotronix-core",
+
+  "name": "xpotronix/xpotronix-core",
+  "description": "xpotronix Core Libraries",
+  "keywords": ["application","development"],
+  "homepage": "http://xpotronix.com/",
+  "type": "library",
+  "license": "GPL 3.0",
+
+  "authors": [
+    {
+      "name": "Eduardo Spotorno",
+      "email": "eduardo@spotorno.com.ar",
+      "homepage": "http://eduardo.spotorno.com.ar"
+    }
+  ],
 
     "repositories": [
         {
@@ -9,6 +23,18 @@
     ],
 
     "require": {
-        "monolog/monolog": "1.0.*"
-    }
+    	"php": ">=7.0",
+        "monolog/monolog": "1.0.*",
+    "psr/log": "^1.1",
+    "adodb/adodb-php": "^5.20",
+    "pear/cache_lite": "^1.8"
+    },
+
+  "autoload": {
+
+    "psr-4": {"Xpotronix\\": "src/Xpotronix/"},
+    "files": ["includes/misc_functions.php","includes/Java.inc","includes/gacl.class.php","includes/gacl_api.class.php"]
+
+  }
+
 }

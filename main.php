@@ -15,6 +15,16 @@
 // ini_set( 'xdebug.show_mem_delta', 1); 
 // xdebug_start_trace('/tmp/xpotronix-trace.xt');
 
+require __DIR__ . '/vendor/autoload.php';
+
+use Xpotronix\Doc;
+use Xpotronix\Messages;
+
+/*
+use Xpotronix\Constants as Constants;
+print Constants::VERSION;
+exit;
+ */
 
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
@@ -22,19 +32,20 @@ ini_set( 'error_log', 'syslog' );
 
 global $xpdoc;
 
-require_once 'includes/misc_functions.php';
 $t_start = microtime_float();
 
 /* main includes */
 
-require_once 'xpmessages.class.php';
-require_once "xpdoc.class.php";
+// require_once 'xpmessages.class.php';
+// require_once "xpdoc.class.php";
 
 M()->stats( '*** inicio de ejecucion de xpotronix ***' ); 
 M()->mem_stats();
 // M()->sys_load();
+//
 
-$xpdoc = new xpdoc;
+
+$xpdoc = new Doc;
 
 $xpdoc->params_process();
 

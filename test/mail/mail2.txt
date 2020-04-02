@@ -1,0 +1,28 @@
+Received: from central1-ex1.ad.jusbaires.gob.ar (10.45.12.91) by
+ central2-ex1.ad.jusbaires.gob.ar (10.49.12.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+ 15.1.669.32 via Mailbox Transport; Mon, 21 Oct 2019 13:25:04 -0300
+Received: from localhost.localdomain (10.54.15.8) by
+ central1-ex1.ad.jusbaires.gob.ar (10.45.12.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+ 15.1.669.32; Mon, 21 Oct 2019 13:25:04 -0300
+Date: Mon, 21 Oct 2019 13:25:04 -0300
+Return-Path: licencias@jusbaires.gob.ar
+To: "espotorno@jusbaires.gob.ar" <espotorno@jusbaires.gob.ar>
+From: "Licencias :: CMCABA" <licencias@jusbaires.gob.ar>
+Reply-To: "Licencias :: CMCABA" <licencias@jusbaires.gob.ar>
+Subject: miPortal/Licencias: #1082 SPOTORNO, EDUARDO ORLANDO,  Razones Particulares
+Message-ID: <a1f225cb66c773f829b2967f8e20e0be@localhost.localdomain>
+X-Priority: 3
+X-Mailer: PHPMailer 5.1 (phpmailer.worxware.com)
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="b1_a1f225cb66c773f829b2967f8e20e0be"
+X-MS-Exchange-Organization-Network-Message-Id: 704db648-f799-4222-819d-08d756433aa9
+X-MS-Exchange-Organization-AuthSource: central1-ex1.ad.jusbaires.gob.ar
+X-MS-Exchange-Organization-AuthAs: Internal
+X-MS-Exchange-Organization-AuthMechanism: 07
+X-Originating-IP: [10.54.15.8]
+X-ClientProxiedBy: central2-ex3.ad.jusbaires.gob.ar (10.49.12.93) To
+ central1-ex1.ad.jusbaires.gob.ar (10.45.12.91)
+X-MS-Exchange-Transport-EndToEndLatency: 00:00:00.1636611

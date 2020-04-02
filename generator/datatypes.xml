@@ -11,26 +11,26 @@
 -->
 
 <types>
-	<xtype name="xpdate" type="time">
+	<xtype name="xpdate" class="xpDate" type="time">
 		<type name="date"/>
 	</xtype>
-	<xtype name="xpdatetime" type="time">
+	<xtype name="xpdatetime" class="xpDateTime" type="time">
 		<type name="datetime"/>
 		<type name="timestamp"/>
 	</xtype>
-	<xtype name="xptime" type="time">
+	<xtype name="xptime" class="xpTime" type="time">
 		<type name="time"/>
 	</xtype>
 
-	<xtype name="xpenum" type="string">
+	<xtype name="xpenum" class="xpEnum" type="string">
 		<type name="enum"/>
 	</xtype>
 
-	<xtype name="xpstring" type="string">
+	<xtype name="xpstring" class="xpString" type="string">
 		<type name="char"/>
 		<type name="varchar"/>
 	</xtype>
-	<xtype name="xptext" type="string">
+	<xtype name="xptext" class="xpText" type="string">
 		<type name="text"/>
 		<type name="tinytext"/>
 		<type name="smalltext"/>
@@ -38,17 +38,17 @@
 		<type name="largetext"/>
 		<type name="longtext"/>
 	</xtype>
-	<xtype name="xpblob" type="string">
+	<xtype name="xpblob" class="xpBlob" type="string">
 		<type name="tinyblob"/>
 		<type name="mediumblob"/>
 		<type name="blob"/>
 		<type name="longblob"/>
 	</xtype>
-	<xtype name="xpboolean" type="numeric">
+	<xtype name="xpboolean" class="xpBoolean" type="numeric">
 		<type name="tinyint"/>
 		<type name="bit"/>
 	</xtype>
-	<xtype name="xpint" type="numeric">
+	<xtype name="xpint" class="xpInt" type="numeric">
 		<type name="int"/>
 		<type name="smallint"/>
 		<type name="longint"/>
@@ -57,7 +57,7 @@
 		<!-- mssql -->
 		<type name="numeric"/>
 	</xtype>
-	<xtype name="xpdecimal" type="numeric">
+	<xtype name="xpdecimal" class="xpDecimal" type="numeric">
 		<type name="float"/>
 		<type name="double"/>
 		<type name="decimal"/>

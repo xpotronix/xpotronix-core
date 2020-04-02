@@ -699,7 +699,7 @@ class SoapAuth {
 
 		M()->user( "en login, user: $user" );
 
-                $s = new xpSoap;
+                $s = new Soap;
 
                 $xpdoc = new xpdoc;
 
