@@ -28,7 +28,11 @@
     "psr/log": "^1.1",
     "adodb/adodb-php": "^5.20",
     "pear/cache_lite": "^1.8",
-    "endroid/qr-code": "^3.7"
+    "endroid/qr-code": "^3.7",
+    "symfony/routing": "^4.4",
+    "symfony/property-access": "^4.4",
+    "symfony/config": "^4.4",
+    "symfony/yaml": "^4.4"
     },
 
   "autoload": {

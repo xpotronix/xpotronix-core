@@ -37,7 +37,7 @@ class Params {
 		return $this->result;
 	}/*}}}*/
 
-	function process () {/*{{{*/
+	function process() {/*{{{*/
 
 		global $xpdoc;
 

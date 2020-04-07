@@ -12,20 +12,35 @@
 
 namespace Xpotronix;
 
-use \Xpotronix\DataTypes;
+use Xpotronix\DataTypes;
+
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Loader\YamlFileLoader;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
+
 
 class Doc extends Base {
 
 	private $_xpid;
 
+	/* data base manager */
 	var $dbm;
 
+	/* config private public */
 	var $config;
 	var $feat;
 
+	/* session & user */
 	var $session;
 	var $user;
 
+	/* request mgr */
 	var $http;
 
 	/* client stock */
@@ -38,7 +53,7 @@ class Doc extends Base {
 	var $xdoc;
 
 	var $output_buffer; // the output buffer
-	var $mode;
+	// var $mode;
 
 	var $application;
 	var $model;
@@ -46,6 +61,7 @@ class Doc extends Base {
 	var $datatypes;
 
 	private $_content_type;
+	private $data = []; 
 
 	/* types matching for views */
 
@@ -53,25 +69,25 @@ class Doc extends Base {
 	var $cache;
 	var $cache_options;
 
-	var $module;
+	// var $module;
 	var $action;
 	var $query;
 	var $view;
-	var $data; // array con las variables del request
 	var $search;
 	var $req_object;
 	var $param_schema;
 	var $order;
 	var $features;
 	var $process;
-	var $current_process;
 	var $template;
 	var $html;
-	var $write;
 	var $extra_param;
+	var $pager = [];
+
 	var $xml; // post buffer
 	var $json;
-	var $pager = [];
+
+	var $current_process;
 
 	/* array de instancias de objetos del model */
 	var $instances = [];
@@ -92,6 +108,12 @@ class Doc extends Base {
 
 	const NAMESPACE_URI = 'http://xpotronix.com/namespace/xpotronix/';
 	const CLI = ( PHP_SAPI == 'cli' );
+	const ROUTER_CONFIG_FILE = 'routes.yaml';
+
+	/* symfony */
+
+	private $router;
+	private $fileLocator;
 
 	/* construct */
 
@@ -124,7 +146,15 @@ class Doc extends Base {
 
 		M()->info( "app encoding: {$this->feat->encoding}" );
 
+		$this->fileLocator = new FileLocator([getcwd(),__DIR__]);
+
 		$this->http = new Http();
+
+		$this->router = new Router(
+	                new YamlFileLoader($this->fileLocator),
+	                self::ROUTER_CONFIG_FILE,
+                	['cache_dir' => getcwd().'/cache'],
+	                $this->http );
 
 		/* genera directorios cache */
 
@@ -148,7 +178,6 @@ class Doc extends Base {
 			'automaticSerialization' => false
 		];
 
-
 		$this->dbm = new DBm( $this->config );
 
 		$this->feat->base_path or $this->feat->base_path = getcwd();
@@ -162,7 +191,6 @@ class Doc extends Base {
 	function set_module( $model = null ) {/*{{{*/
 
 		/* el modulo del sistema tiene asociado un modelo */
-
 		$msg = null; 
 
 		( $this->module = $model and $msg = "via parametro" ) or 
@@ -173,7 +201,6 @@ class Doc extends Base {
 		M()->info( "modulo $this->module asignado $msg" );
 
 		$this->feat->module = $this->module;
-
 
 	}/*}}}*/
 
@@ -410,6 +437,32 @@ class Doc extends Base {
 			return;
 		}
 
+		$route_param = null;
+
+		try {
+			/* Find the current route */
+			$route_param = $this->router->match( $this->http->getPathInfo() );
+
+		} catch ( FileLocatorFileNotFoundException $e ) {
+		
+			M()->error( $e->getMessage() );
+
+		} catch ( ResourceNotFoundException $e ) {
+
+			M()->error( $e->getMessage() );
+		}
+
+		/* ejecuta la ruta */
+
+		// echo '<pre>'; print_r( $route_param );
+
+		if ( is_array( $route_param ) ) {
+
+			list( $class, $method ) = explode( '::', $route_param['controller'] );
+			$ret = $class::$method( $route_param );
+			// print_r( $ret ); exit;
+		
+		} 
 
 		$this->http->m and $this->set_module( $this->http->m );
 
@@ -423,7 +476,7 @@ class Doc extends Base {
 
 		$this->query          = $this->http->q;
 		// $this->view           = $this->http->v;
-		$this->data	      = $this->http->d;
+		// $this->data	      = $this->http->d;
 
 		$this->search = ( is_array( $this->http->s ) ) ?
 			$this->http->s:
@@ -509,7 +562,7 @@ class Doc extends Base {
 					$this->order[$this->req_object][$g['sort']]=$g['dir'];
 			}
 
-			/* nueva version de paginado para todos los objetos del modelo */
+			/* version de paginado para todos los objetos del modelo */
 
 			if ( $this->http->gp ) {
 
@@ -1728,11 +1781,12 @@ class Doc extends Base {
 		}
 	}/*}}}*/
 
+	function remove_obj_collection( $class_name, $id_hash ) {/*{{{*/
 
-	function remove_obj_collection( $class_name, $id_hash ) {
+		M()->info( "removing class_name: $class_name, id_hash: $id_hash" );
+		@$this->obj_collection[$class_name][$id_hash] = null;
 
-		unset( $this->obj_collection[$class_name][$id_hash] );
-	}
+	}/*}}}*/
 
 }
 

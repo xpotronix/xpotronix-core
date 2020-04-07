@@ -44,7 +44,6 @@ M()->mem_stats();
 // M()->sys_load();
 //
 
-
 $xpdoc = new Doc;
 
 $xpdoc->params_process();

@@ -29,8 +29,11 @@ class Messages {
 	var $syslog_flags; 
 	var $messages_flags;
 
-	var $log_function = '/(attr)/si';
-	var $log_class = '/(Doc|Data)/si';
+	// var $log_function = '/(attr)/si';
+	var $log_function = '';
+
+	// var $log_class = '';
+	var $log_class = '/(Doc)/si';
 
 	var $buffer = [];
 	var $buffer_length = 500;

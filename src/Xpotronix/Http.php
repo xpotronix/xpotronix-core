@@ -12,7 +12,16 @@
 
 namespace Xpotronix;
 
-class Http {
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Routing\Loader\YamlFileLoader;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+
+class Http extends RequestContext {
 	
 	var $var = array();
 	var $server_var;
@@ -65,7 +74,10 @@ class Http {
 
 		} else {
 
+
 			M()->info("Recibidos los parametros via la web");
+
+			$this->fromRequest(Request::createFromGlobals());
 
 			foreach ( $_REQUEST as $key => $value ) {
 
