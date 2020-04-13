@@ -449,7 +449,8 @@ class Doc extends Base {
 
 		} catch ( ResourceNotFoundException $e ) {
 
-			M()->error( $e->getMessage() );
+			/* DEBUG: por ahora no hace nada hasta implementar rutas */
+			/* M()->info( $e->getMessage() ); */
 		}
 
 		/* ejecuta la ruta */
@@ -495,8 +496,10 @@ class Doc extends Base {
 		// echo var_dump( $_REQUEST );
 		// exit;
 
+		/*
 		M()->info("module:$this->module");
 		M()->info("req_object:$this->req_object");
+		*/
 
 		try {
 			if ( $this->http->x )

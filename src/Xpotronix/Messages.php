@@ -32,8 +32,8 @@ class Messages {
 	// var $log_function = '/(attr)/si';
 	var $log_function = '';
 
-	// var $log_class = '';
-	var $log_class = '/(Doc)/si';
+	// var $log_class = '/(Doc)/si';
+	var $log_class = '';
 
 	var $buffer = [];
 	var $buffer_length = 500;
