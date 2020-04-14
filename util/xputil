@@ -1,15 +1,11 @@
 #!/usr/bin/php
 <?php
 
-ini_set( 'display_errors', 1 );
-ini_set( 'log_errors', 1 );
-ini_set( 'error_log', 'syslog' );
+require __DIR__. '/../vendor/autoload.php';
 
+use Xpotronix\Xpotronize;
 
-$ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
-require_once $ini['paths']['lib']. "xpotronize.class.php";
-
-$x = new xpotronize;
+$x = new Xpotronize;
 
 $x->check_params_xputil();
 $x->transform();

@@ -565,14 +565,20 @@ class DataObject extends Base {
 
 		M()->info( "attr: $name, node: ". $node->asXML() );
 
-		$class_name = self::DATATYPE_CLASS_PREFIX . $this->map_type_to_class( $node );
+		$class_name = $this->map_type_to_class( $node );
+		$full_class_name = self::DATATYPE_CLASS_PREFIX . $class_name;
 
-		$this->attr[$name] = new $class_name( $node );
+		$this->attr[$name] = new $full_class_name( $node );
 
 		// print $node->asXML(); exit;
 
 		$this->attr[$name]->obj = $this;
-		$this->attr[$name]->type = $type;
+
+
+		/* DEBUG: aca pisa el tipo de datos a xpentry_help (no deberia) */
+		$this->attr[$name]->type = ( $class_name == 'xpEntryHelp' ) ? 
+			'xpentry_help': 
+			$type;
 
 		if ( (bool) $node['alias'] ) {
 
