@@ -29,11 +29,11 @@ class Messages {
 	var $syslog_flags; 
 	var $messages_flags;
 
-	// var $log_function = '/(attr)/si';
-	var $log_function = '';
+	var $log_function = '/(param)/si';
+	//var $log_function = '';
 
-	// var $log_class = '/(Doc)/si';
-	var $log_class = '';
+	// var $log_class = '';
+	var $log_class = '/(Doc|DataObject)/si';
 
 	var $buffer = [];
 	var $buffer_length = 500;
@@ -50,7 +50,7 @@ class Messages {
 
 		/* defaults */
 
-		$this->syslog_flags = self::MSG_USER | self::MSG_ERROR | self::MSG_WARN | self::MSG_FATAL;
+		$this->syslog_flags = self::MSG_USER | self::MSG_ERROR | self::MSG_WARN | self::MSG_FATAL | self::MSG_STATS;
 		$this->messages_flags = self::MSG_USER | self::MSG_ERROR | self::MSG_WARN;
 
 		$this->status = new \SimpleXMLElement( '<status/>' );

@@ -29,7 +29,7 @@ class Base {
 	// xml buffers
 	var $xml_buff;
 
-	// ui   
+	// ui
 	var $__xml_data;
 
 	// flow control
@@ -52,6 +52,7 @@ class Base {
 		$this->__xml_data = new \SimpleXMLElement( '<data/>' );
 
 	}/*}}}*/
+
 
 	/* misc */
 
@@ -244,13 +245,13 @@ class Base {
 
 		try {
 
-			$oXmlSource = new \java("javax.xml.transform.stream.StreamSource", $xml_file);
-			$oXslSource = new \java("javax.xml.transform.stream.StreamSource", $xsl_file);
+			$oXmlSource = new \Java("javax.xml.transform.stream.StreamSource", $xml_file);
+			$oXslSource = new \Java("javax.xml.transform.stream.StreamSource", $xsl_file);
 
 
 			$oFeatureKeys = new \JavaClass("net.sf.saxon.FeatureKeys");
 
-			$oTransformerFactory = new \java("net.sf.saxon.TransformerFactoryImpl");
+			$oTransformerFactory = new \Java("net.sf.saxon.TransformerFactoryImpl");
 
 			// $oTransformerFactory->setAttribute($oFeatureKeys->SCHEMA_VALIDATION, 4);
 
@@ -258,8 +259,8 @@ class Base {
 
 			$oTransFormer = $oTransformerFactory->newTransformer($oXslSource);
 
-			$oResultStringWriter = new \java("java.io.StringWriter");
-			$oResultStream = new \java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
+			$oResultStringWriter = new \Java("java.io.StringWriter");
+			$oResultStream = new \Java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
 
 
 			// carga los parametros (si los hay)
@@ -306,11 +307,11 @@ class Base {
 
 			// java_require( "/usr/share/java/" );
 
-			$oXmlSource = new \java("javax.xml.transform.stream.StreamSource", $xml_file);
-			$oXslSource = new \java("javax.xml.transform.stream.StreamSource", $xsl_file);
+			$oXmlSource = new \Java("javax.xml.transform.stream.StreamSource", $xml_file);
+			$oXslSource = new \Java("javax.xml.transform.stream.StreamSource", $xsl_file);
 
-			$oResultStringWriter = new \java("java.io.StringWriter");
-			$oResultStream = new \java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
+			$oResultStringWriter = new \Java("java.io.StringWriter");
+			$oResultStream = new \Java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
 
 
 	            	// configure fopFactory as desired

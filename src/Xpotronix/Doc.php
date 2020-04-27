@@ -437,33 +437,40 @@ class Doc extends Base {
 			return;
 		}
 
-		$route_param = null;
 
-		try {
-			/* Find the current route */
-			$route_param = $this->router->match( $this->http->getPathInfo() );
+		if ( ! self::CLI ) {
 
-		} catch ( FileLocatorFileNotFoundException $e ) {
-		
-			M()->error( $e->getMessage() );
+			$route_param = null;
 
-		} catch ( ResourceNotFoundException $e ) {
+			try {
+				/* Find the current route */
+				$route_param = $this->router->match( $this->http->getPathInfo() );
 
-			/* DEBUG: por ahora no hace nada hasta implementar rutas */
-			/* M()->info( $e->getMessage() ); */
+				M()->info( "route_param: ". serialize( $route_param ) );
+
+			} catch ( FileLocatorFileNotFoundException $e ) {
+			
+				M()->error( $e->getMessage() );
+
+			} catch ( ResourceNotFoundException $e ) {
+
+				/* DEBUG: por ahora no hace nada hasta implementar rutas */
+				/* M()->info( $e->getMessage() ); */
+			}
+
+			/* ejecuta la ruta */
+
+			// echo '<pre>'; print_r( $route_param );
+
+			if ( is_array( $route_param ) ) {
+
+				list( $class, $method ) = explode( '::', $route_param['controller'] );
+				$ret = $class::$method( $route_param );
+				// print_r( $ret ); exit;
+			
+			} 
+
 		}
-
-		/* ejecuta la ruta */
-
-		// echo '<pre>'; print_r( $route_param );
-
-		if ( is_array( $route_param ) ) {
-
-			list( $class, $method ) = explode( '::', $route_param['controller'] );
-			$ret = $class::$method( $route_param );
-			// print_r( $ret ); exit;
-		
-		} 
 
 		$this->http->m and $this->set_module( $this->http->m );
 
