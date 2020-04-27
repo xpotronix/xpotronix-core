@@ -26,7 +26,7 @@ exif orientation
 examples:
 
 $imagick->readImage('castle.jpg'); 
-$imagick->rotateImage(new ImagickPixel(), 90)
+$imagick->rotateImage(new \ImagickPixel(), 90)
 
 
  */
@@ -417,7 +417,7 @@ class Thumb {
 
 	function read_blob( $image ) {/*{{{*/
 
-		$this->image = new \imagick;
+		$this->image = new \Imagick;
 
 
 		try {
@@ -469,7 +469,7 @@ class Thumb {
 			break;
 
 			case 'b/n':
-				$this->image->setImageColorSpace(Imagick::COLORSPACE_GRAY);
+				$this->image->setImageColorSpace(\Imagick::COLORSPACE_GRAY);
 			break;
 
 			case 'sepia':
@@ -507,7 +507,7 @@ class Thumb {
 
 	function compress( $index ) {/*{{{*/
 
-		$this->image->setImageCompression(Imagick::COMPRESSION_JPEG);
+		$this->image->setImageCompression(\Imagick::COMPRESSION_JPEG);
 		$this->image->setImageCompressionQuality($index);
 		$this->image->stripImage();
 

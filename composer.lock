@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4e0afaeec40f0a77b88d461005228cf",
+    "hash": "6e05a2147fc8948dd7cdf71b04dfaf02",
+    "content-hash": "23503e72c8aae9436e15ddee5083952b",
     "packages": [
         {
             "name": "adodb/adodb-php",
@@ -58,7 +59,7 @@
                 "library",
                 "php"
             ],
-            "time": "2020-03-31T17:32:58+00:00"
+            "time": "2020-03-31 17:32:58"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -107,7 +108,7 @@
             ],
             "description": "BaconQrCode is a QR code generator for PHP.",
             "homepage": "https://github.com/Bacon/BaconQrCode",
-            "time": "2018-04-25T17:53:56+00:00"
+            "time": "2018-04-25 17:53:56"
         },
         {
             "name": "dasprid/enum",
@@ -149,7 +150,7 @@
                 "enum",
                 "map"
             ],
-            "time": "2017-10-25T22:45:27+00:00"
+            "time": "2017-10-25 22:45:27"
         },
         {
             "name": "endroid/qr-code",
@@ -212,7 +213,7 @@
                 "qr",
                 "qrcode"
             ],
-            "time": "2020-04-25T15:40:37+00:00"
+            "time": "2020-04-25 15:40:37"
         },
         {
             "name": "khanamiryan/qrcode-detector-decoder",
@@ -262,7 +263,7 @@
                 "qr",
                 "zxing"
             ],
-            "time": "2020-04-19T16:18:51+00:00"
+            "time": "2020-04-19 16:18:51"
         },
         {
             "name": "monolog/monolog",
@@ -305,7 +306,7 @@
                 "log",
                 "logging"
             ],
-            "time": "2011-10-24T09:39:02+00:00"
+            "time": "2011-10-24 09:39:02"
         },
         {
             "name": "myclabs/php-enum",
@@ -351,7 +352,7 @@
             "keywords": [
                 "enum"
             ],
-            "time": "2020-02-14T08:15:52+00:00"
+            "time": "2020-02-14 08:15:52"
         },
         {
             "name": "pear/cache_lite",
@@ -401,7 +402,7 @@
             "keywords": [
                 "cache"
             ],
-            "time": "2019-11-19T21:29:11+00:00"
+            "time": "2019-11-19 21:29:11"
         },
         {
             "name": "php-imap/php-imap",
@@ -460,7 +461,7 @@
                 "pop3",
                 "receive emails"
             ],
-            "time": "2020-04-10T11:43:19+00:00"
+            "time": "2020-04-10 11:43:19"
         },
         {
             "name": "phpmailer/phpmailer",
@@ -522,7 +523,7 @@
                 }
             ],
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
-            "time": "2020-03-14T14:23:48+00:00"
+            "time": "2020-03-14 14:23:48"
         },
         {
             "name": "psr/log",
@@ -569,36 +570,36 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2020-03-23T09:12:05+00:00"
+            "time": "2020-03-23 09:12:05"
         },
         {
             "name": "symfony/config",
-            "version": "v4.4.7",
+            "version": "v5.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "3f4a3de1af498ed0ea653d4dc2317794144e6ca4"
+                "reference": "3e633c31a34738f7f4ed7a225c43fc45ca74c986"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/3f4a3de1af498ed0ea653d4dc2317794144e6ca4",
-                "reference": "3f4a3de1af498ed0ea653d4dc2317794144e6ca4",
+                "url": "https://api.github.com/repos/symfony/config/zipball/3e633c31a34738f7f4ed7a225c43fc45ca74c986",
+                "reference": "3e633c31a34738f7f4ed7a225c43fc45ca74c986",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1.3",
-                "symfony/filesystem": "^3.4|^4.0|^5.0",
+                "php": "^7.2.5",
+                "symfony/filesystem": "^4.4|^5.0",
                 "symfony/polyfill-ctype": "~1.8"
             },
             "conflict": {
-                "symfony/finder": "<3.4"
+                "symfony/finder": "<4.4"
             },
             "require-dev": {
-                "symfony/event-dispatcher": "^3.4|^4.0|^5.0",
-                "symfony/finder": "^3.4|^4.0|^5.0",
-                "symfony/messenger": "^4.1|^5.0",
+                "symfony/event-dispatcher": "^4.4|^5.0",
+                "symfony/finder": "^4.4|^5.0",
+                "symfony/messenger": "^4.4|^5.0",
                 "symfony/service-contracts": "^1.1|^2",
-                "symfony/yaml": "^3.4|^4.0|^5.0"
+                "symfony/yaml": "^4.4|^5.0"
             },
             "suggest": {
                 "symfony/yaml": "To use the yaml reference dumper"
@@ -606,7 +607,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.4-dev"
+                    "dev-master": "5.0-dev"
                 }
             },
             "autoload": {
@@ -633,7 +634,7 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2020-03-27T16:54:36+00:00"
+            "time": "2020-03-27 16:56:45"
         },
         {
             "name": "symfony/filesystem",
@@ -683,7 +684,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2020-03-27T16:54:36+00:00"
+            "time": "2020-03-27 16:54:36"
         },
         {
             "name": "symfony/http-foundation",
@@ -738,7 +739,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2020-03-30T14:07:33+00:00"
+            "time": "2020-03-30 14:07:33"
         },
         {
             "name": "symfony/inflector",
@@ -796,7 +797,7 @@
                 "symfony",
                 "words"
             ],
-            "time": "2020-03-27T16:54:36+00:00"
+            "time": "2020-03-27 16:54:36"
         },
         {
             "name": "symfony/mime",
@@ -858,7 +859,7 @@
                 "mime",
                 "mime-type"
             ],
-            "time": "2020-03-27T16:54:36+00:00"
+            "time": "2020-03-27 16:54:36"
         },
         {
             "name": "symfony/options-resolver",
@@ -912,7 +913,7 @@
                 "configuration",
                 "options"
             ],
-            "time": "2020-03-27T16:54:36+00:00"
+            "time": "2020-03-27 16:54:36"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -970,7 +971,7 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2020-02-27T09:26:54+00:00"
+            "time": "2020-02-27 09:26:54"
         },
         {
             "name": "symfony/polyfill-intl-idn",
@@ -1032,7 +1033,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2020-03-09T19:04:49+00:00"
+            "time": "2020-03-09 19:04:49"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -1091,7 +1092,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2020-03-09T19:04:49+00:00"
+            "time": "2020-03-09 19:04:49"
         },
         {
             "name": "symfony/polyfill-php72",
@@ -1146,7 +1147,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2020-02-27T09:26:54+00:00"
+            "time": "2020-02-27 09:26:54"
         },
         {
             "name": "symfony/property-access",
@@ -1213,7 +1214,7 @@
                 "property path",
                 "reflection"
             ],
-            "time": "2020-03-27T16:54:36+00:00"
+            "time": "2020-03-27 16:54:36"
         },
         {
             "name": "symfony/routing",
@@ -1289,7 +1290,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2020-03-30T11:41:10+00:00"
+            "time": "2020-03-30 11:41:10"
         },
         {
             "name": "symfony/yaml",
@@ -1348,7 +1349,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2020-03-30T11:41:10+00:00"
+            "time": "2020-03-30 11:41:10"
         },
         {
             "name": "thiagoalessio/tesseract_ocr",
@@ -1393,7 +1394,7 @@
                 "Tesseract",
                 "text recognition"
             ],
-            "time": "2020-01-27T19:53:35+00:00"
+            "time": "2020-01-27 19:53:35"
         }
     ],
     "packages-dev": [],
