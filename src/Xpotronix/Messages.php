@@ -29,11 +29,11 @@ class Messages {
 	var $syslog_flags; 
 	var $messages_flags;
 
-	var $log_function = '/(param)/si';
-	//var $log_function = '';
+	// var $log_function = '/(param)/si';
+	var $log_function = '';
 
-	// var $log_class = '';
-	var $log_class = '/(Doc|DataObject)/si';
+	var $log_class = '';
+	// var $log_class = '/(Doc|DataObject)/si';
 
 	var $buffer = [];
 	var $buffer_length = 500;
