@@ -200,7 +200,7 @@ class Serialize {
 
 	}/*}}}*/ 
 
-	function serialize_attr( $attr, $flags ) {/*{{{*/
+	function serialize_attr( $attr, $flags = 0 ) {/*{{{*/
 
 		$normalized = $flags & self::DS_NORMALIZED;
 		$defaults = $flags & self::DS_DEFAULTS;
