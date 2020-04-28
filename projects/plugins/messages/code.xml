@@ -41,9 +41,7 @@
 		$this->ErrorInfo = null;
 		$success = false;
 
-		require_once 'xpcurl.class.php';
-
-		$c = new xpCurl();
+		$c = new Curl();
 
 		foreach ( SplitByLength2( $text, $xpdoc->feat->sms_size ) as $line ) {
 
@@ -95,6 +93,14 @@
    </table>
 
    <table name="mailer">
+
+      <code mode="use_decl" type="php">
+	 use PHPMailer\PHPMailer\PHPMailer;
+	 use PHPMailer\PHPMailer\SMTP;
+	 use PHPMailer\PHPMailer\Exception;
+      </code>
+
+
 	<code type="php" mode="var_def">
 
 	var $mail;
@@ -111,13 +117,11 @@
 
 		parent::__construct();
 
-		require_once 'lib/phpmailer/class.phpmailer.php';
-
 		try {
 			$this->mail = new PHPMailer(true);
                 	$this->mail->IsSMTP();
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
                         M()->error( 'Error al enviar: '. $e->errorMessage() );
                 }

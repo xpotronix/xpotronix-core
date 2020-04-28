@@ -27,8 +27,7 @@
 
 	global $xpdoc;
 
-	require_once 'xpthumb.class.php';
-	$image = new xpthumb;
+	$image = new Thumb;
 
 	$file_utils = $xpdoc->get_instance('file_utils');
 
