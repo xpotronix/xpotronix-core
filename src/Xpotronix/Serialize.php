@@ -20,7 +20,7 @@ class Serialize {
 	/* constantes para la serializacion */
 
 	const DS_ANY = 1;
-	const DS_NORMALIZED = 2;
+	const DS_NORMALIZED = 1 << 1;
 	const DS_RECURSIVE = 1 << 2;
 	const DS_BLANK = 1 << 3;
 	const DS_DEFAULTS = 1 << 4;
