@@ -25,7 +25,7 @@ class Json {
 
 	private $ret = [];
 
-	function __construct( $obj, $flags = null ) {/*{{{*/
+	function __construct( $obj, $flags = 0 ) {/*{{{*/
 
 		global $xpdoc;
 
@@ -50,7 +50,7 @@ class Json {
 
 	}/*}}}*/
 
-	function serialize ( $flags = null ) {/*{{{*/
+	function serialize ( $flags = 0 ) {/*{{{*/
 
 		global $xpdoc;
 

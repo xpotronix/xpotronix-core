@@ -25,9 +25,7 @@
 				return false;
 			}
 
-			require_once 'xpcurl.class.php';
-
-			$c = new xpCurl();
+			$c = new Curl();
 
 			$params = array();
 

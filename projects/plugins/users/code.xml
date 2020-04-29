@@ -444,8 +444,7 @@
 
 	function load_prefs( $user_id=0 ) {/*{{{*/
 
-		require_once 'modules/user_preferences/user_preferences.class.php';
-		$this->user_prefs = new Cuser_preferences;
+		$this->user_prefs = new App\user_preferences;
 		$this->user_prefs->load( $user_id );
 
 	}/*}}}*/
@@ -701,11 +700,11 @@ class SoapAuth {
 
                 $s = new Soap;
 
-                $xpdoc = new xpdoc;
+                $xpdoc = new Doc;
 
                 $xpdoc->init();
 
-		$Response = new SimpleXMLElement('<Response/>');
+		$Response = new \SimpleXMLElement('<Response/>');
 
 		$Response->Status = ( $xpdoc->user->_login_ldap( $user, $pass ) ) ? '1' : '0';
 
@@ -738,8 +737,6 @@ ini_set( 'error_log', 'syslog' );
 
 // requires
 
-require_once "xpsoap.class.php";
-
 global $xpdoc;
 
 $t_start = microtime_float();
@@ -747,7 +744,7 @@ $t_start = microtime_float();
 M()->stats( 'START' ); 
 M()->mem_stats();
 
-$server = new SoapServer("soapauth8.wsdl"); 
+$server = new \SoapServer("soapauth8.wsdl"); 
 $server->setClass("SoapAuth"); 
 $server->handle(); 
 

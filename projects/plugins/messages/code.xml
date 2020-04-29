@@ -41,9 +41,7 @@
 		$this->ErrorInfo = null;
 		$success = false;
 
-		require_once 'xpcurl.class.php';
-
-		$c = new xpCurl();
+		$c = new Curl();
 
 		foreach ( SplitByLength2( $text, $xpdoc->feat->sms_size ) as $line ) {
 
@@ -95,6 +93,14 @@
    </table>
 
    <table name="mailer">
+
+      <code mode="use_decl" type="php">
+	 use PHPMailer\PHPMailer\PHPMailer;
+	 use PHPMailer\PHPMailer\SMTP;
+	 use PHPMailer\PHPMailer\Exception;
+      </code>
+
+
 	<code type="php" mode="var_def">
 
 	var $mail;
@@ -111,13 +117,11 @@
 
 		parent::__construct();
 
-		require_once 'lib/phpmailer/class.phpmailer.php';
-
 		try {
 			$this->mail = new PHPMailer(true);
                 	$this->mail->IsSMTP();
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
                         M()->error( 'Error al enviar: '. $e->errorMessage() );
                 }
@@ -146,7 +150,7 @@
 		try {
 			$this->mail->SetFrom( $mail, $name );
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
                         M()->error( 'Error en la direccion: '. $e->errorMessage() );
 
@@ -161,7 +165,7 @@
 		try {
 			$this->mail->AddAddress( $mail, $name );
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
                         M()->error( 'Error en la direccion: '. $e->errorMessage() );
                 }
@@ -175,7 +179,7 @@
 		try {
 			$this->mail->AddReplyTo( $mail, $name );
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
                         M()->error( 'Error en la direccion: '. $e->errorMessage() );
                 }
@@ -199,7 +203,7 @@
 		try {
 			$this->mail->MsgHTML( $html );
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
                         M()->error( 'Error en la direccion: '. $e->errorMessage() );
                 }
@@ -211,19 +215,24 @@
 		try { 
 			$this->mail->AddAttachment( $file );
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
                         M()->error( 'Error al adjuntar archivo: '. $e->errorMessage() );
                 }
 		return $this;
 	}/*}}}*/
 
-
 	function img_inline( $filename, $cid, $name = null ) {/*{{{*/
 
 		$name or $name = $filename;
 
-		$this->mail->AddEmbeddedImage( $filename, $cid, $name );
+		try { 
+			$this->mail->AddEmbeddedImage( $filename, $cid, $name );
+
+                } catch (Exception $e) {
+
+                        M()->error( 'Error al incrustar imagen: '. $e->errorMessage() );
+                }
 
 		return $this;
 
@@ -234,7 +243,7 @@
 		try {
 			$this->mail->Send();
 
-                } catch (phpmailerException $e) {
+                } catch (Exception $e) {
 
 			$this->ErrorInfo = $e->errorMessage(); 
 
