@@ -2,6 +2,7 @@
 
 XPATH=/usr/share/xpotronix
 EXT_VERSION="3.4.0"
+PHP_VERSION="7.2"
 UG_PERMS=www-data.www-data
 
 #http_proxy=http://username:password@host:port/
@@ -30,18 +31,16 @@ if [ -z $DOCUMENT_ROOT ]; then
 fi
 
 # these are mandatory
-apt-get install php7.0 php7.0-cli php7.0-mysql php7.0-xsl php7.0-curl php-pear php7.0-ldap
-apt-get install libphp-adodb php-cache-lite
+apt-get install php$PHP_VERSION php$PHP_VERSION-cli php$PHP_VERSION-mysql php$PHP_VERSION-xsl php$PHP_VERSION-curl php$PHP_VERSION-ldap
 apt-get install libsaxonb-java
 
 # these are optional
-apt-get install php7.0-gd php7.0-imagick
-#apt-get install php7.0-ldap
+apt-get install php$PHP_VERSION-gd php$PHP_VERSION-imagick
+#apt-get install php$PHP_VERSION-ldap
 apt-get install apg
 
 # fop
 apt-get install fop
-apt-get install libservlet2.4-java
 
 mkdir -p $XPATH
 
