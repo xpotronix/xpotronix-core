@@ -11,7 +11,7 @@
  */
 
 
-nampespace Xpotronix;
+namespace Xpotronix;
 
 class Sync {
 
