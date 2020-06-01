@@ -53,7 +53,13 @@ class Thumb {
 
 	function __construct( $doc_root = null, $cache_root = null ) {/*{{{*/
 
-		$this->http = new Http();
+		global $xpdoc;
+
+		if ( is_object( $xpdoc ) )
+		
+			$this->http = $xpdoc->http;	
+		else
+			$this->http = new Http();
 
 		if ( $doc_root )
 			$this->doc_root = $doc_root;
