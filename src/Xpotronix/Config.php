@@ -52,7 +52,7 @@ class Config {
 				M()->info("cargando el config desde $param" );
 			}
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 
 			M()->fatal( 'No puedo inicializar una configuracion: o no es un obejto valido o hubo errores al abrir el archivo '. $param. '. Causa: '. $e->getMessage() );
 

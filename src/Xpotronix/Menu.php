@@ -25,7 +25,7 @@ class Menu {
 	       	  	$this->xmenu = simplexml_load_file( $file );
 	        	M()->info( "cargando el menu desde $file" );
 
-		} catch (Exception $e) {
+		} catch ( \Exception $e ) {
 
 	        	M()->info( "no puedo encontrar el menu en $file" );
 	       	  	$this->xmenu = \SimpleXMLElement( '<menu/>' );

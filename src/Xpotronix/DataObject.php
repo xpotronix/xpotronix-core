@@ -754,7 +754,7 @@ class DataObject extends Base {
 				try { 
 					M()->debug( 'la clave es un array: '. serialize( $key ) ); 
 
-				} catch( Exception $e ) {
+				} catch( \Exception $e ) {
 
 					M()->error( "En el array de busqueda hay objetos o valores complejos. NO puedo buscar" );
 					return null;

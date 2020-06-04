@@ -404,7 +404,7 @@ class Thumb {
 			$this->loaded = true;
 			return $this;
 
-		} catch (Exception $e) {
+		} catch ( \Exception $e ) {
 
 			M()->error( "no ecuentro la imagen $file_path" );
 
@@ -434,7 +434,7 @@ class Thumb {
 			$this->loaded = true;
 			return $this;
 
-		} catch (Exception $e) {
+		} catch ( \Exception $e ) {
 
 			M()->error( "no se pudo cargar la imagen desde BLOB" );
 
@@ -617,7 +617,7 @@ class Thumb {
 		try {
 			$this->image->writeImage( $file );
 
-		} catch( Exception $e ) {
+		} catch( \Exception $e ) {
 
 			M()->error("no puedo guardar la imagen en $file" );
 		}
