@@ -33,7 +33,7 @@ class Messages {
 	var $log_function = '';
 
 	var $log_class = '';
-	// var $log_class = '/(Doc|DataObject)/si';
+	// var $log_class = '/(Thumb)/si';
 
 	var $buffer = [];
 	var $buffer_length = 500;
@@ -50,7 +50,7 @@ class Messages {
 
 		/* defaults */
 
-		$this->syslog_flags = self::MSG_USER | self::MSG_ERROR | self::MSG_WARN | self::MSG_FATAL | self::MSG_STATS;
+		$this->syslog_flags = self::MSG_USER | self::MSG_ERROR | self::MSG_WARN | self::MSG_FATAL;
 		$this->messages_flags = self::MSG_USER | self::MSG_ERROR | self::MSG_WARN;
 
 		$this->status = new \SimpleXMLElement( '<status/>' );
