@@ -81,7 +81,7 @@ class Message {
 
 			$xml = new \SimpleXMLElement( '<message>'. htmlspecialchars($this->text). '</message>' );
 
-		} catch( Exception $e ) {
+		} catch( \Exception $e ) {
 
 			$xml = new \SimpleXMLElement( '<message>no pude decodificar el mensaje de error!</message>' );
 

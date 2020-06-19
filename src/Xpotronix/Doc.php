@@ -511,7 +511,7 @@ class Doc extends Base {
 		try {
 			if ( $this->http->x )
 				$this->xml  = new \SimpleXMLElement( stripslashes( $this->http->x ));
-		} catch (Exception $e) {
+		} catch ( \Exception $e ) {
 			M()->error( "el fragmento XML recibido en el parametro x no es valido, no se puede procesar: ". $e->getMessage() );
 		}
 
@@ -744,7 +744,7 @@ class Doc extends Base {
 			$instance = new $class_name( $model );
 			return $instance;
 		
-		} catch (Exception $e) {
+		} catch ( \Exception $e ) {
 		
 			M()->error( "No pude crear la clase $class_name" );
 			return null;
@@ -818,7 +818,7 @@ class Doc extends Base {
 	function load_views( $vf ) {/*{{{*/
 
 		try { $this->views = simplexml_load_file( $this->get_template_file( $vf ) ) ; } 
-		catch (Exception $e) {
+		catch ( \Exception $e ) {
 			M()->fatal( "No encuentro el archivo $vf" );
 		}
 

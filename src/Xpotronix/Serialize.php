@@ -219,7 +219,7 @@ class Serialize {
 				"<$attr_name>$value</$attr_name>" 
 			);
 
-		} catch (Exception $e)  { 
+		} catch ( \Exception $e )  { 
 
 			M()->warn( 'problemas con la codificacion en la serializacion, verificar la codificacion de caracteres de la base de datos y la aplicacion. Forzando la codificacion a utf8' );
 			$value = utf8_encode( $value );
@@ -227,7 +227,7 @@ class Serialize {
 			try {
 				$xattr = new \SimpleXMLElement( $normalized ? "<attr name=\"$attr_name\">$value</attr>" : "<$attr_name>$value</$attr_name>" );
 
-			} catch (Exception $e)  { 
+			} catch ( \Exception $e )  { 
 
 				M()->warn( "No puedo serializar el objeto {$this->obj->class_name} con la clave [". $this->obj->pack_primary_key(). "] en el atributo [$attr_name] con el valor [$value]. Motivo: ". $e->getMessage() );
 			}

@@ -91,7 +91,7 @@ class Soap {
 		try {
 			$xml = new \SimpleXMLElement( stripslashes( $data ) );
 
-		} catch (Exception $e) {
+		} catch ( \Exception $e ) {
 
 			throw new \SoapFault("Server", "el documento recibido no es un XML" );
 			return;
