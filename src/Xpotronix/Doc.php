@@ -51,6 +51,7 @@ class Doc extends Base {
 	/* xml buffers */
 	var $xmenu;
 	var $xdoc;
+	var $xstylesheet;
 
 	var $output_buffer; // the output buffer
 	// var $mode;
@@ -660,6 +661,16 @@ class Doc extends Base {
 
 	}/*}}}*/
 
+	function set_stylesheet( $uri ) {
+
+		return $this->xstylesheet = $uri;
+	}
+
+	function get_stylesheet( $uri ) {
+	
+		return $this->xstylesheet;
+	}
+
 	// head
 
 	function headers_do() {/*{{{*/
@@ -1118,6 +1129,14 @@ class Doc extends Base {
 		$d = new \DOMDocument;
 		$x = simplexml_import_dom( $d->createElementNs(self::NAMESPACE_URI, "xpotronix:document") );
 
+		if ( $this->xstylesheet ) {
+
+
+
+		   	M()->info( "xml-stylesheet href={$this->xstylesheet}" );
+			$x->addProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="'. $this->xstylesheet.'"'); 
+		
+		}
 
 		simplexml_append( $x, $this->get_session() );
 		simplexml_append( $x, $this->get_model() );

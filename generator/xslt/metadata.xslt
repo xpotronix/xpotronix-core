@@ -78,6 +78,7 @@
 
 			<!-- index -->
 			<xsl:sequence select="$tb_table/index"/>
+			<xsl:sequence select="$ui_table/button"/>
 
 		</xsl:element>
 
