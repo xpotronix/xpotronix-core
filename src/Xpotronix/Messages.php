@@ -38,7 +38,6 @@ class Messages {
 	var $messages_flags;
 
 	var $log_function = '';
-
 	var $log_class = '';
 
 	var $buffer = [];
@@ -84,7 +83,7 @@ class Messages {
 
 			if ( $t = $this->config_data['log_function'] ) {
 				$this->log_function = $t;
-				/* syslog( LOG_INFO, "log_class: $this->log_function" ); */
+				/* syslog( LOG_INFO, "log_function: $this->log_function" ); */
 			}
 
 		} catch (ParseException $exception) {

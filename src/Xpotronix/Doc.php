@@ -447,6 +447,8 @@ class Doc extends Base {
 				/* Find the current route */
 				$route_param = $this->router->match( $this->http->getPathInfo() );
 
+			   	// print_r( $this->http->getPathInfo() );
+			   	M()->info( $this->http->getPathInfo() );
 				M()->info( "route_param: ". serialize( $route_param ) );
 
 			} catch ( FileLocatorFileNotFoundException $e ) {
@@ -456,7 +458,7 @@ class Doc extends Base {
 			} catch ( ResourceNotFoundException $e ) {
 
 				/* DEBUG: por ahora no hace nada hasta implementar rutas */
-				/* M()->info( $e->getMessage() ); */
+				M()->info( $e->getMessage() );
 			}
 
 			/* ejecuta la ruta */
@@ -661,15 +663,15 @@ class Doc extends Base {
 
 	}/*}}}*/
 
-	function set_stylesheet( $uri ) {
+	function set_stylesheet( $uri ) {/*{{{*/
 
 		return $this->xstylesheet = $uri;
-	}
+	}/*}}}*/
 
-	function get_stylesheet( $uri ) {
+	function get_stylesheet( $uri ) {/*{{{*/
 	
 		return $this->xstylesheet;
-	}
+	}/*}}}*/
 
 	// head
 
