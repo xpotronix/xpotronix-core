@@ -109,7 +109,7 @@ class Doc extends Base {
 
 	const NAMESPACE_URI = 'http://xpotronix.com/namespace/xpotronix/';
 	const CLI = ( PHP_SAPI == 'cli' );
-	const ROUTER_CONFIG_FILE = 'routes.yaml';
+	const ROUTER_CONFIG_FILE = 'conf/routes.yaml';
 
 	/* symfony */
 
