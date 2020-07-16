@@ -12,6 +12,10 @@
 
 namespace Xpotronix;
 
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
+
 class Messages {
 
 	/* messages */
@@ -24,16 +28,17 @@ class Messages {
 	const MSG_DEBUG = 1 << 5;
 	const MSG_STATS = 1 << 6;
 
+	const MSG_CONFIG_FILE = 'conf/messages.yaml';
+
+	var $config_data;
+
 	/* control de mensajes al syslog y al cliente web */
 
 	var $syslog_flags; 
 	var $messages_flags;
 
-	// var $log_function = '/(param)/si';
 	var $log_function = '';
-
 	var $log_class = '';
-	// var $log_class = '/(Thumb)/si';
 
 	var $buffer = [];
 	var $buffer_length = 500;
@@ -55,6 +60,38 @@ class Messages {
 
 		$this->status = new \SimpleXMLElement( '<status/>' );
 		$this->xml_changes = new \SimpleXMLElement( '<changes/>' );	
+
+		/* Yaml */
+		try {
+
+			$this->config_data = Yaml::parseFile( self::MSG_CONFIG_FILE, Yaml::PARSE_CONSTANT );
+
+			if ( $t = $this->config_data['syslog_flags'] ) {
+				$this->syslog_flags = eval( 'return '. str_replace( 'MSG_', 'self::MSG_', $t ). ';' );
+				/* syslog( LOG_INFO, "syslog_flags: $this->syslog_flags" ); */
+			}
+
+			if ( $t = $this->config_data['messages_flags'] ) {
+				$this->messages_flags = eval( 'return '. str_replace( 'MSG_', 'self::MSG_', $t ). ';' );
+				/* syslog( LOG_INFO, "messages_flags: $this->messages_flags" ); */
+			}
+
+			if ( $t = $this->config_data['log_class'] ) {
+				$this->log_class = $t;
+				/* syslog( LOG_INFO, "log_class: $this->log_class" ); */
+			}
+
+			if ( $t = $this->config_data['log_function'] ) {
+				$this->log_function = $t;
+				/* syslog( LOG_INFO, "log_function: $this->log_function" ); */
+			}
+
+		} catch (ParseException $exception) {
+
+			syslog( LOG_CRIT, "No puedo leer el archivo ". self::MSG_CONFIG_FILE );
+		}
+
+		return $this;
 
 	}/*}}}*/
 

@@ -51,6 +51,7 @@ class Doc extends Base {
 	/* xml buffers */
 	var $xmenu;
 	var $xdoc;
+	var $xstylesheet;
 
 	var $output_buffer; // the output buffer
 	// var $mode;
@@ -108,7 +109,7 @@ class Doc extends Base {
 
 	const NAMESPACE_URI = 'http://xpotronix.com/namespace/xpotronix/';
 	const CLI = ( PHP_SAPI == 'cli' );
-	const ROUTER_CONFIG_FILE = 'routes.yaml';
+	const ROUTER_CONFIG_FILE = 'conf/routes.yaml';
 
 	/* symfony */
 
@@ -446,6 +447,8 @@ class Doc extends Base {
 				/* Find the current route */
 				$route_param = $this->router->match( $this->http->getPathInfo() );
 
+			   	// print_r( $this->http->getPathInfo() );
+			   	M()->info( $this->http->getPathInfo() );
 				M()->info( "route_param: ". serialize( $route_param ) );
 
 			} catch ( FileLocatorFileNotFoundException $e ) {
@@ -455,7 +458,7 @@ class Doc extends Base {
 			} catch ( ResourceNotFoundException $e ) {
 
 				/* DEBUG: por ahora no hace nada hasta implementar rutas */
-				/* M()->info( $e->getMessage() ); */
+				M()->info( $e->getMessage() );
 			}
 
 			/* ejecuta la ruta */
@@ -658,6 +661,16 @@ class Doc extends Base {
 
 		return "{$this->config->log_dir}/{$this->config->application}/$suffix";
 
+	}/*}}}*/
+
+	function set_stylesheet( $uri ) {/*{{{*/
+
+		return $this->xstylesheet = $uri;
+	}/*}}}*/
+
+	function get_stylesheet( $uri ) {/*{{{*/
+	
+		return $this->xstylesheet;
 	}/*}}}*/
 
 	// head
@@ -1118,6 +1131,14 @@ class Doc extends Base {
 		$d = new \DOMDocument;
 		$x = simplexml_import_dom( $d->createElementNs(self::NAMESPACE_URI, "xpotronix:document") );
 
+		if ( $this->xstylesheet ) {
+
+
+
+		   	M()->info( "xml-stylesheet href={$this->xstylesheet}" );
+			$x->addProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="'. $this->xstylesheet.'"'); 
+		
+		}
 
 		simplexml_append( $x, $this->get_session() );
 		simplexml_append( $x, $this->get_model() );

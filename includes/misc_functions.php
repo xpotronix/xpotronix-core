@@ -4,8 +4,13 @@ use Xpotronix\Messages;
 use Xpotronix\Constants;
 
 function M() {/*{{{*/
+
 	static $mess;
-	$mess or $mess = new Messages;
+
+	if ( ! is_object( $mess ) ) {
+		$mess = new Messages;
+		/* syslog( LOG_INFO, "nueva instancia de Messages" ); */
+	}
 	return $mess;
 }/*}}}*/
 

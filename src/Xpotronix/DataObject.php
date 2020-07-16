@@ -2697,6 +2697,10 @@ class DataObject extends Base {
 			foreach( $this->metadata->index as $index ) 
 				simplexml_append( $xom, $index );
 
+		if ( count( $this->metadata->xpath("button") ) )
+			foreach( $this->metadata->xpath("button")as $button ) 
+				simplexml_append( $xom, $button );
+
 		simplexml_append( $xom, array2xml( 'acl', $this->acl ) );
 
 		simplexml_append( $xom, $this->processes );

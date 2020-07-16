@@ -45,10 +45,15 @@
 			<xsl:sequence select="$tb_table/@*"/>
 			<xsl:sequence select="$db_table/@*"/>
 
-			<xsl:if test="not($tb_table)">
+			<xsl:choose>
+				<xsl:when test="not($tb_table)">
 				<xsl:attribute name="virtual" select="1"/>
 				<xsl:message>la tabla <xsl:value-of select="$table_name"/> no esta definida en tables.xml</xsl:message>
-			</xsl:if>
+				</xsl:when>
+			     	<xsl:otherwise>
+					<xsl:attribute name="persistent" select="1"/>
+				</xsl:otherwise>
+			</xsl:choose>
 
 			<xsl:sequence select="$ui_table/sync"/>
 			<xsl:sequence select="$ui_table/dbi"/>
@@ -78,6 +83,7 @@
 
 			<!-- index -->
 			<xsl:sequence select="$tb_table/index"/>
+			<xsl:sequence select="$ui_table/button"/>
 
 		</xsl:element>
 
