@@ -110,6 +110,7 @@ class Doc extends Base {
 	const NAMESPACE_URI = 'http://xpotronix.com/namespace/xpotronix/';
 	const CLI = ( PHP_SAPI == 'cli' );
 	const ROUTER_CONFIG_FILE = 'conf/routes.yaml';
+	const TMP_DIR = '/tmp/xpotronix';
 
 	/* symfony */
 
@@ -162,6 +163,7 @@ class Doc extends Base {
 		foreach( [ 'app', 'data', 'acl' ] as $subdir ) {
 
 			$path = $this->get_cache_dir( $subdir );
+		   	M()->debug( "cache path: $path" );
 			file_exists( $path ) 
 				or @mkdir( $path, 0777, true ) 
 				or M()->error( "No pude crear el directorio $path: ". error_get_last()['message'] );
@@ -649,9 +651,13 @@ class Doc extends Base {
 
 	function get_cache_dir( $suffix = null ) {/*{{{*/
 
+	   	$base_path = (string) $this->config->cache_dir || self::TMP_DIR;
+
 		$suffix and $suffix = "$suffix/";
 
-		return "{$this->config->cache_dir}/{$this->config->application}/$suffix";
+		$ret = "$base_path/{$this->config->application}/$suffix";
+	   	M()->info( "path $ret" );
+		return $ret;
 
 	}/*}}}*/
 

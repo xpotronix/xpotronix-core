@@ -88,7 +88,7 @@ class Messages {
 
 		} catch (ParseException $exception) {
 
-			syslog( LOG_CRIT, "No puedo leer el archivo ". self::MSG_CONFIG_FILE );
+			syslog( LOG_INFO, "No puedo leer el archivo ". getcwd(). '/'. self::MSG_CONFIG_FILE );
 		}
 
 		return $this;
