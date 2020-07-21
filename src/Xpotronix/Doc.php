@@ -651,7 +651,8 @@ class Doc extends Base {
 
 	function get_cache_dir( $suffix = null ) {/*{{{*/
 
-	   	$base_path = (string) $this->config->cache_dir || self::TMP_DIR;
+		$base_path = ( $t = (string) $this->config->cache_dir ) ? 
+	   	   	$t : self::TMP_DIR;
 
 		$suffix and $suffix = "$suffix/";
 
