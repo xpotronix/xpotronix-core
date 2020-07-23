@@ -2721,7 +2721,7 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-function main_sql () {/*{{{*/
+	function main_sql () {/*{{{*/
 		return $this;
 	}/*}}}*/
 
