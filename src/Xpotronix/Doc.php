@@ -682,6 +682,53 @@ class Doc extends Base {
 
 	// head
 
+   function recaptcha_verify() {/*{{{*/
+
+	 if ( ! $this->http->token ) {
+
+		 M()->user('no hay token de reCapcha, no se puede validar');
+		 return null;
+	 }
+
+	 $version = $this->config->recaptcha_version;
+	 $url = $this->config->recaptcha_site_verify;
+	 $secret = $this->config->recaptcha_private_key;
+
+	 if ( ! ( $url and $secret ) ) {
+
+	    M()->error( 'no esta definido reCaptcha en config.xml' );
+	    return null;
+	 }
+
+	 if ( ! $this->http->token ) {
+
+	    M()->error( 'no se recibió la variable token, no se puede verificar' );
+	    return null;
+	 }
+
+	 $token = $this->http->token;
+
+	 M()->info( "reCaptcha version: $version, secret: $secret, url: $url, token: $token" );
+
+	 $content = http_build_query([ 'secret' => $secret, 'response' => $token ]);
+
+	 $options = 
+	    [ 'http' => [ 
+		 'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+		 'method'  => 'POST',
+		 'content' => $content ] ];
+
+	 $context  = stream_context_create($options);
+	 $response = file_get_contents($url, false, $context);
+	 $responseKeys = json_decode($response,true);
+	 $success = $responseKeys['success'];
+
+	 M()->info( "reCaptcha response: $success" );
+
+	 return $success;
+
+   }/*}}}*/
+
 	function headers_do() {/*{{{*/
 
 		$this->header( "Expires: Mon, 26 Jul 1997 05:00:00 GMT" ); // Date in the past

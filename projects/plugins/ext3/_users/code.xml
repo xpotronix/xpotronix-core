@@ -199,29 +199,41 @@
 
 		global $xpdoc;
 
-                $user or $user = $xpdoc->http->loginUsername;
-                $pass or $pass = $xpdoc->http->loginPassword;
+		$result = [];
 
-		$user = strtolower(trim($user));
+		if ( $xpdoc->recaptcha and ! $xpdoc->recaptcha_verify() ) {
 
-		$login_fn = $xpdoc->config->login_fn;
-
-		$this->set_flag('main_sql', false);
-
-                if ( $this->$login_fn( $user, $pass ) ) {
-
-			$xpdoc->session->set_user_session( $xpdoc->user->user_id );
-			$result["success"] = true;
-			M()->info("ingreso usuario $user" );
+			$result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
+			$result["success"] = false;
+			M()->user("fallo ingreso usuario $user" );
 
 		} else {
 
-			$result["errors"]["reason"] = "Ingreso fallido: intente nuevamente";
-			$result["success"] = false;
-			M()->user("fallo ingreso usuario $user" );
-                }
+	                $user or $user = $xpdoc->http->loginUsername;
+			$pass or $pass = $xpdoc->http->loginPassword;
 
-		$this->set_flag('main_sql',true);
+			$user = strtolower(trim($user));
+
+			$login_fn = $xpdoc->config->login_fn;
+
+			$this->set_flag('main_sql', false);
+
+	                if ( $this->$login_fn( $user, $pass ) ) {
+
+				$xpdoc->session->set_user_session( $xpdoc->user->user_id );
+				$result["success"] = true;
+				M()->info("ingreso usuario $user" );
+
+			} else {
+
+				$result["errors"]["reason"] = "Ingreso fallido: intente nuevamente";
+				$result["success"] = false;
+				M()->user("fallo ingreso usuario $user" );
+        	        }
+
+			$this->set_flag('main_sql',true);
+		}
+
 		return $result;
 
         }/*}}}*/ 
