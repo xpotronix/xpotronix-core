@@ -110,6 +110,7 @@ class Doc extends Base {
 	const NAMESPACE_URI = 'http://xpotronix.com/namespace/xpotronix/';
 	const CLI = ( PHP_SAPI == 'cli' );
 	const ROUTER_CONFIG_FILE = 'conf/routes.yaml';
+	const TMP_DIR = '/tmp/xpotronix';
 
 	/* symfony */
 
@@ -162,6 +163,7 @@ class Doc extends Base {
 		foreach( [ 'app', 'data', 'acl' ] as $subdir ) {
 
 			$path = $this->get_cache_dir( $subdir );
+		   	M()->debug( "cache path: $path" );
 			file_exists( $path ) 
 				or @mkdir( $path, 0777, true ) 
 				or M()->error( "No pude crear el directorio $path: ". error_get_last()['message'] );
@@ -649,9 +651,14 @@ class Doc extends Base {
 
 	function get_cache_dir( $suffix = null ) {/*{{{*/
 
+		$base_path = ( $t = (string) $this->config->cache_dir ) ? 
+	   	   	$t : self::TMP_DIR;
+
 		$suffix and $suffix = "$suffix/";
 
-		return "{$this->config->cache_dir}/{$this->config->application}/$suffix";
+		$ret = "$base_path/{$this->config->application}/$suffix";
+	   	M()->info( "path $ret" );
+		return $ret;
 
 	}/*}}}*/
 
@@ -674,6 +681,58 @@ class Doc extends Base {
 	}/*}}}*/
 
 	// head
+
+   function recaptcha_verify() {/*{{{*/
+
+	 if ( ! $this->http->token ) {
+
+		 M()->user('no hay token de reCapcha, no se puede validar');
+		 return null;
+	 }
+
+	 $version = $this->config->recaptcha_version;
+	 $url = $this->config->recaptcha_site_verify;
+	 $secret = $this->config->recaptcha_private_key;
+
+	 if ( ! ( $url and $secret ) ) {
+
+	    M()->error( 'no esta definido reCaptcha en config.xml' );
+	    return null;
+	 }
+
+	 if ( ! $this->http->token ) {
+
+	    M()->error( 'no se recibió la variable token, no se puede verificar' );
+	    return null;
+	 }
+
+	 $token = $this->http->token;
+
+	 M()->info( "reCaptcha version: $version, secret: $secret, url: $url, token: $token" );
+
+	 $content = http_build_query([ 'secret' => $secret, 'response' => $token ]);
+
+	 $options = 
+	    [ 'http' => [ 
+		 'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+		 'method'  => 'POST',
+		 'content' => $content ] ];
+
+	 if ( $t = $this->config->proxy ) {
+		 $options['http']['proxy'] = "tcp://{$t}/";
+		 M()->error( "usando proxy en $t" );
+	}
+
+	$context  = stream_context_create($options);
+	$response = file_get_contents($url, false, $context);
+	$responseKeys = json_decode($response,true);
+	$success = $responseKeys['success'];
+
+	M()->info( "reCaptcha response: $success" );
+
+	return $success;
+
+   }/*}}}*/
 
 	function headers_do() {/*{{{*/
 

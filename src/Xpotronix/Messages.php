@@ -66,29 +66,29 @@ class Messages {
 
 			$this->config_data = Yaml::parseFile( self::MSG_CONFIG_FILE, Yaml::PARSE_CONSTANT );
 
-			if ( $t = $this->config_data['syslog_flags'] ) {
+			if ( @$t = $this->config_data['syslog_flags'] ) {
 				$this->syslog_flags = eval( 'return '. str_replace( 'MSG_', 'self::MSG_', $t ). ';' );
 				/* syslog( LOG_INFO, "syslog_flags: $this->syslog_flags" ); */
 			}
 
-			if ( $t = $this->config_data['messages_flags'] ) {
+			if ( @$t = $this->config_data['messages_flags'] ) {
 				$this->messages_flags = eval( 'return '. str_replace( 'MSG_', 'self::MSG_', $t ). ';' );
 				/* syslog( LOG_INFO, "messages_flags: $this->messages_flags" ); */
 			}
 
-			if ( $t = $this->config_data['log_class'] ) {
+			if ( @$t = $this->config_data['log_class'] ) {
 				$this->log_class = $t;
 				/* syslog( LOG_INFO, "log_class: $this->log_class" ); */
 			}
 
-			if ( $t = $this->config_data['log_function'] ) {
+			if ( @$t = $this->config_data['log_function'] ) {
 				$this->log_function = $t;
 				/* syslog( LOG_INFO, "log_function: $this->log_function" ); */
 			}
 
 		} catch (ParseException $exception) {
 
-			syslog( LOG_CRIT, "No puedo leer el archivo ". self::MSG_CONFIG_FILE );
+			syslog( LOG_INFO, "No puedo leer el archivo ". getcwd(). '/'. self::MSG_CONFIG_FILE );
 		}
 
 		return $this;
