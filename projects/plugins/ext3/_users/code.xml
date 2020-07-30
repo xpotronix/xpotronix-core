@@ -201,7 +201,7 @@
 
 		$result = [];
 
-		if ( $xpdoc->recaptcha and ! $xpdoc->recaptcha_verify() ) {
+		if ( $xpdoc->config->recaptcha and ! $xpdoc->recaptcha_verify() ) {
 
 			$result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
 			$result["success"] = false;

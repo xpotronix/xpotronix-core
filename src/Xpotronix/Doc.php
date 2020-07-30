@@ -718,17 +718,19 @@ class Doc extends Base {
 		 'method'  => 'POST',
 		 'content' => $content ] ];
 
-	 if ( $t = $xpdoc->config->proxy )
-	    $options['http']['proxy'] = "tcp://{$t}/";
+	 if ( $t = $this->config->proxy ) {
+		 $options['http']['proxy'] = "tcp://{$t}/";
+		 M()->error( "usando proxy en $t" );
+	}
 
-	 $context  = stream_context_create($options);
-	 $response = file_get_contents($url, false, $context);
-	 $responseKeys = json_decode($response,true);
-	 $success = $responseKeys['success'];
+	$context  = stream_context_create($options);
+	$response = file_get_contents($url, false, $context);
+	$responseKeys = json_decode($response,true);
+	$success = $responseKeys['success'];
 
-	 M()->info( "reCaptcha response: $success" );
+	M()->info( "reCaptcha response: $success" );
 
-	 return $success;
+	return $success;
 
    }/*}}}*/
 
