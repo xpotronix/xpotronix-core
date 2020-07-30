@@ -718,6 +718,9 @@ class Doc extends Base {
 		 'method'  => 'POST',
 		 'content' => $content ] ];
 
+	 if ( $t = $xpdoc->config->proxy )
+	    $options['http']['proxy'] = "tcp://{$t}/";
+
 	 $context  = stream_context_create($options);
 	 $response = file_get_contents($url, false, $context);
 	 $responseKeys = json_decode($response,true);
