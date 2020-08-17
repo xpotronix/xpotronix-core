@@ -1146,8 +1146,10 @@ class DataObject extends Base {
 
 			if ( 	( $attr->display == 'ignore' ) or 
 				( $attr->virtual and !$attr->alias_of ) or
-				( $attr->binary == 1 and $this->feat->blob_load == false ) )
+				( $attr->binary == 1 and $this->feat->blob_load == false ) ) {
+				M()->info( "ignorando contenido atributo $this->class_name::$attr->name" );
 				continue;
+			}
 
 			/* if ( $this->class_name == '_empleado' ) { print $key. "<br/>"; } */
 

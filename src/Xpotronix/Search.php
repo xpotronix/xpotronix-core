@@ -276,7 +276,7 @@ class Search {
 			} else if ( count( $date_time_array ) == 1 ) {
 				M()->debug( 'datetime incompleto' );
 				$c->search_type = ( $this->obj->db_type() == 'dblib' ) ? 'to_date_mssql' : 'to_date';
-				$attr2 = new Date;
+				$attr2 = new \Date;
 				$c->value = $attr2->human( $value );
 
 			} else {
