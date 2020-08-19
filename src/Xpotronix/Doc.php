@@ -720,11 +720,18 @@ class Doc extends Base {
 
 	 if ( $t = $this->config->proxy ) {
 		 $options['http']['proxy'] = "tcp://{$t}/";
-		 M()->error( "usando proxy en $t" );
+		 M()->info( "usando proxy en $t" );
 	}
 
 	$context  = stream_context_create($options);
 	$response = file_get_contents($url, false, $context);
+
+	if ( $response === false ) {
+	
+		M()->error( 'no se pudo conectar con el servidor de reCaptcha' );
+		return null;
+	}
+
 	$responseKeys = json_decode($response,true);
 	$success = $responseKeys['success'];
 

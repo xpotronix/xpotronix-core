@@ -18,7 +18,7 @@ class xpDate extends \Xpotronix\Attr {
 
 		if ( function_exists( 'DateTime::getLastErrors' ) ) {
 
-			$mess = DateTime::getLastErrors(); 
+			$mess = \DateTime::getLastErrors(); 
 
 			if ( $mess['warning_count'] ) M()->info( "warnings para la fecha $value: " . implode( '; ', $mess['warnings'] ) );
 			if ( $mess['error_count'] ) M()->info( "errors para la fecha $value: " . implode( '; ', $mess['errors'] ) );
