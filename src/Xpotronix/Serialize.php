@@ -164,7 +164,6 @@ class Serialize {
 			if ( $attr->display == 'protect' or $attr->display == 'ignore' or $attr->display == 'sql' ) continue;
 			if ( !$blank and $attr->value === null and $this->obj->feat->ignore_null_fields ) continue;
 
-
 			simplexml_append( $xobj, $this->serialize_attr( $attr, $flags ) );
 		}
 
@@ -210,8 +209,34 @@ class Serialize {
 
 		/* value */
 
+		if ( $attr->cdata == 'true' )
+
+				try {
+
+					/* TRY 3 */
+
+					$xattr = new SimpleXMLExtended( 
+						$normalized ? 
+							"<attr name=\"$attr_name\"/>" : 
+							"<$attr_name/>" );
+
+					$xattr->addCData( $value );
+					$xattr->addAttribute( 'name', $attr_name );
+
+				} catch ( \Exception $e )  { 
+
+					M()->warn( "No puedo serializar el objeto {$this->obj->class_name} con la clave [". 
+						$this->obj->pack_primary_key(). 
+						"] en el atributo [$attr_name] con el valor [$value]. Motivo: ". 
+						$e->getMessage() );
+				}
+		
+		else 	
+
 		try {
 			/* normalizado o no */
+
+			/* TRY 1 */
 
 			$xattr = new \SimpleXMLElement( 
 				$normalized ? 
@@ -225,12 +250,37 @@ class Serialize {
 			$value = utf8_encode( $value );
 
 			try {
-				$xattr = new \SimpleXMLElement( $normalized ? "<attr name=\"$attr_name\">$value</attr>" : "<$attr_name>$value</$attr_name>" );
+
+				/* TRY 2 */
+
+				$xattr = new \SimpleXMLElement( 
+					$normalized ? 
+						"<attr name=\"$attr_name\">$value</attr>" : 
+						"<$attr_name>$value</$attr_name>" );
 
 			} catch ( \Exception $e )  { 
 
-				M()->warn( "No puedo serializar el objeto {$this->obj->class_name} con la clave [". $this->obj->pack_primary_key(). "] en el atributo [$attr_name] con el valor [$value]. Motivo: ". $e->getMessage() );
+				try {
+
+					/* TRY 3 */
+
+					$xattr = new SimpleXMLExtended( 
+						$normalized ? 
+							"<attr name=\"$attr_name\"/>" : 
+							"<$attr_name/>" );
+
+					$xattr->addCData( $value );
+					$xattr->addAttribute( 'name', $attr_name );
+
+				} catch ( \Exception $e )  { 
+
+					M()->warn( "No puedo serializar el objeto {$this->obj->class_name} con la clave [". 
+						$this->obj->pack_primary_key(). 
+						"] en el atributo [$attr_name] con el valor [$value]. Motivo: ". 
+						$e->getMessage() );
+				}
 			}
+
 		}
 
 		/* DEBUG: deberia ser al reves, que en text() quede el valor real y en un @label el otro */
