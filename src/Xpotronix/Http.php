@@ -90,7 +90,8 @@ class Http extends RequestContext {
 			$this->server_var 	= $_SERVER;
 			$this->method 		= $_SERVER['REQUEST_METHOD'];
 			$this->request_uri 	= $_SERVER['REQUEST_URI'];
-			$this->http_host	= $_SERVER['HTTP_HOST'];
+			isset( $_SERVER['HTTP_HOST'] ) and 
+				$this->http_host	= $_SERVER['HTTP_HOST'];
 			$this->context_prefix 	= $_SERVER['CONTEXT_PREFIX'];
 			$this->request_scheme	= $_SERVER['REQUEST_SCHEME'];
 

@@ -309,7 +309,7 @@ class Doc extends Base {
 		if ( $this->config->trusted_host_ip ) {
 
 			$trusted_host_ip = explode( ';', $this->config->trusted_host_ip );
-			M()->info( "trusted_host_ip: ". serialize( $trusted_host_ip ) );
+			M()->info( "trusted_host_ip: ". json_encode( $trusted_host_ip ) );
 		}
 
 
@@ -425,7 +425,7 @@ class Doc extends Base {
 
 			$this->roles = $this->perms->getUserRoles();
 
-			M()->info('roles para el usuario '. serialize( $this->roles ) );	
+			M()->info('roles para el usuario '. json_encode( $this->roles ) );	
 		}
 
 		M()->info( 'OK' );
@@ -451,7 +451,7 @@ class Doc extends Base {
 
 			   	// print_r( $this->http->getPathInfo() );
 			   	M()->info( $this->http->getPathInfo() );
-				M()->info( "route_param: ". serialize( $route_param ) );
+				M()->info( "route_param: ". json_encode( $route_param ) );
 
 			} catch ( FileLocatorFileNotFoundException $e ) {
 			
@@ -532,7 +532,7 @@ class Doc extends Base {
 		if ( $this->param_schema == 'ext4' ) {
 
 			$params = new Params();
-			M()->info( "params: ". serialize( $params->get() ) );
+			M()->info( "params: ". json_encode( $params->get() ) );
 			$params->process();
 			// print_r( $params->get() );
 
@@ -581,7 +581,7 @@ class Doc extends Base {
 
 			if ( $this->http->gp ) {
 
-				M()->info( "gp con valor: ". serialize( $gp ) );
+				M()->info( "gp con valor: ". json_encode( $gp ) );
 
 				foreach( $this->http->gp as $obj_name => $param ) {
 
