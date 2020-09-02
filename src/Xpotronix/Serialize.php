@@ -202,75 +202,62 @@ class Serialize {
 	function serialize_attr( $attr, $flags = 0 ) {/*{{{*/
 
 		$normalized = $flags & self::DS_NORMALIZED;
-		$defaults = $flags & self::DS_DEFAULTS;
 
 		$attr_name = $attr->name;
 		$value = $attr->serialize();
 
 		/* value */
 
-		if ( $attr->cdata == 'true' )
+		if ( $attr->cdata == 'true' ) {
 
-				try {
-
-					/* TRY 3 */
-
-					$xattr = new SimpleXMLExtended( 
-						$normalized ? 
-							"<attr name=\"$attr_name\"/>" : 
-							"<$attr_name/>" );
-
-					$xattr->addCData( $value );
-					$xattr->addAttribute( 'name', $attr_name );
-
-				} catch ( \Exception $e )  { 
-
-					M()->warn( "No puedo serializar el objeto {$this->obj->class_name} con la clave [". 
-						$this->obj->pack_primary_key(). 
-						"] en el atributo [$attr_name] con el valor [$value]. Motivo: ". 
-						$e->getMessage() );
-				}
-		
-		else 	
-
-		try {
-			/* normalizado o no */
-
-			/* TRY 1 */
-
-			$xattr = new \SimpleXMLElement( 
-				$normalized ? 
-				"<attr name=\"$attr_name\">$value</attr>" : 
-				"<$attr_name>$value</$attr_name>" 
-			);
-
-		} catch ( \Exception $e )  { 
-
-			M()->warn( 'problemas con la codificacion en la serializacion, verificar la codificacion de caracteres de la base de datos y la aplicacion. Forzando la codificacion a utf8' );
-			$value = utf8_encode( $value );
+			// print "cdata $attr->name"; exit;
+			//
+			//
+			// $value = $attr->serialize( $attr->value );
+			$value = $attr->value;
 
 			try {
 
-				/* TRY 2 */
+				/* print "hola [$value]"; exit; */
 
-				$xattr = new \SimpleXMLElement( 
+				/* CDATA */
+				$xattr = new SimpleXMLExtended( 
 					$normalized ? 
-						"<attr name=\"$attr_name\">$value</attr>" : 
-						"<$attr_name>$value</$attr_name>" );
+						"<attr name=\"$attr_name\"><![CDATA[$value]]></attr>" : 
+						"<$attr_name><![CDATA[$value]]></$attr_name>" );
 
 			} catch ( \Exception $e )  { 
 
+				M()->warn( "No puedo serializar el objeto {$this->obj->class_name} con la clave [". 
+					$this->obj->pack_primary_key(). 
+					"] en el atributo [$attr_name] con el valor [$value]. Motivo: ". 
+					$e->getMessage() );
+			}
+
+		} else {
+
+			try {
+
+				/* normalizado o no */
+				/* TRY 1 */
+				$xattr = new \SimpleXMLElement( 
+					$normalized ? 
+					"<attr name=\"$attr_name\">$value</attr>" : 
+					"<$attr_name>$value</$attr_name>" 
+				);
+
+			} catch ( \Exception $e ) { 
+
+				M()->warn( 'problemas con la codificacion en la serializacion, verificar la codificacion de caracteres de la base de datos y la aplicacion. Forzando la codificacion a utf8' );
+				$value = utf8_encode( $value );
+
 				try {
 
-					/* TRY 3 */
-
-					$xattr = new SimpleXMLExtended( 
+					/* TRY 2 */
+					$xattr = new \SimpleXMLElement( 
 						$normalized ? 
-							"<attr name=\"$attr_name\"/>" : 
-							"<$attr_name/>" );
-
-					$xattr->addCData( $value );
-					$xattr->addAttribute( 'name', $attr_name );
+							"<attr name=\"$attr_name\">$value</attr>" : 
+							"<$attr_name>$value</$attr_name>" );
 
 				} catch ( \Exception $e )  { 
 
@@ -280,7 +267,6 @@ class Serialize {
 						$e->getMessage() );
 				}
 			}
-
 		}
 
 		/* DEBUG: deberia ser al reves, que en text() quede el valor real y en un @label el otro */
@@ -303,8 +289,8 @@ class Serialize {
 			// M()->user( "label " . $attr->label );
 		}
 
-
 		return $xattr;
+
 	}/*}}}*/
 
 }
