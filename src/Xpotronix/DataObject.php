@@ -2680,7 +2680,10 @@ class DataObject extends Base {
 
  	function metadata() {/*{{{*/
 
-		$xom = new \SimpleXMLElement( '<obj/>' );
+	   	$xom = new \SimpleXMLElement( '<obj/>' );
+
+	   	/* aca se genera la metadata final para la transformacion
+		 * cualquier nuevo elemento agregarlo aca */
 
 		foreach( $this->metadata->attributes() as $key => $value )
 			$xom[$key] = $value;
@@ -2700,8 +2703,12 @@ class DataObject extends Base {
 				simplexml_append( $xom, $index );
 
 		if ( count( $this->metadata->xpath("button") ) )
-			foreach( $this->metadata->xpath("button")as $button ) 
-				simplexml_append( $xom, $button );
+			foreach( $this->metadata->xpath("button") as $button ) 
+			   simplexml_append( $xom, $button );
+
+		if ( count( $this->metadata->xpath("storeCbk") ) )
+			foreach( $this->metadata->xpath("storeCbk") as $storeCbk ) 
+			   simplexml_append( $xom, $storeCbk );
 
 		simplexml_append( $xom, array2xml( 'acl', $this->acl ) );
 
@@ -2718,6 +2725,10 @@ class DataObject extends Base {
 
 			simplexml_append( $xom, $files );
 		}
+
+		/* var_dump( $this->metadata->attributes() ); */
+
+		/* $this->debug_backtrace(); */
 
 		return $xom;
 

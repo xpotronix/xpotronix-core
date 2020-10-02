@@ -83,7 +83,10 @@
 
 			<!-- index -->
 			<xsl:sequence select="$tb_table/index"/>
+
+			<!-- aca se copian los elementos para la transformacion -->
 			<xsl:sequence select="$ui_table/button"/>
+			<xsl:sequence select="$ui_table/storeCbk"/>
 
 		</xsl:element>
 
