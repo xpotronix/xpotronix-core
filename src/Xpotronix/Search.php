@@ -226,6 +226,11 @@ class Search {
 			M()->debug( "el valor es nulo" );
 			$c->search_type = ( $operator == 'NOT' ? 'not_null' : 'null' );
 
+		} else if ( $value === '@@' ) {
+		
+			M()->debug( "el valor es nulo estricto (strict)" );
+			$c->search_type = ( $operator == 'NOT' ? 'not_null_strict' : 'null_strict' );
+		
 		} else if ( $c->attr_type == 'xpdate' ) {
 
 			$value = trim( $value );
@@ -276,7 +281,7 @@ class Search {
 			} else if ( count( $date_time_array ) == 1 ) {
 				M()->debug( 'datetime incompleto' );
 				$c->search_type = ( $this->obj->db_type() == 'dblib' ) ? 'to_date_mssql' : 'to_date';
-				$attr2 = new \Date;
+				$attr2 = new DataTypes\xpDate;
 				$c->value = $attr2->human( $value );
 
 			} else {
@@ -370,8 +375,15 @@ class Search {
 		$c->operator = '=';
 
 	$term_syntaxes = array( 
+
+		/* nulos usuario */
 		'null'	=> "$c->sql_var IS NULL OR $c->sql_var = ''",
 		'not_null' => "$c->sql_var IS NOT NULL OR $c->sql_var <> ''",
+
+		/* nulos estrictos */
+		'null_strict'	=> "$c->sql_var IS NULL",
+		'not_null_strict' => "$c->sql_var IS NOT NULL",
+
 		'compare' => "$c->sql_var $c->operator '$c->value'",
 		'like' => "$c->sql_var $c->operator '$c->value'",
 		'numeric' => "$c->sql_var $c->operator $c->value",
