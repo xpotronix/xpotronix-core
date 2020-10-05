@@ -53,6 +53,7 @@
 		<type name="smallint"/>
 		<type name="longint"/>
 		<type name="bigint"/>
+		<type name="bigint unsigned"/>
 		<type name="year"/>
 		<!-- mssql -->
 		<type name="numeric"/>
