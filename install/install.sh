@@ -23,11 +23,11 @@ fi
 
 echo "In which path did you defined your web server DOCUMENT_ROOT?"
 echo "If you dont know, please press CTRL+C and check your apache2 installation"
-echo "or press [ENTER] to use /var/www"
+echo "or press [ENTER] to use /var/www/sites"
 read DOCUMENT_ROOT
 
 if [ -z $DOCUMENT_ROOT ]; then
-	DOCUMENT_ROOT="/var/www"
+	DOCUMENT_ROOT="/var/www/sites"
 fi
 
 # these are mandatory
