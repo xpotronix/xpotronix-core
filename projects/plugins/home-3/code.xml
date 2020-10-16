@@ -84,7 +84,7 @@ Ext.onReady(function() {
 				showDetail(n.parentNode.id);
 
 			else if ( typeof console != 'undefined' ) 
-				console.error('no hay detail para el div_id: '+ n.id );
+				console.log('no hay detail para el div_id: '+ n.id );
 
 			// handle iframe
 			if(n.attributes.href ) {

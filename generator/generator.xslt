@@ -16,6 +16,7 @@
 	<xsl:param name="project_path"/>
 	<xsl:param name="config_path"/>
 	<xsl:param name="application_path"/>
+	<!-- default template directory -->
 	<xsl:param name="config_file" select="string(concat($project_path,'/config.xml'))"/>
 	<xsl:param name="feat_file" select="string(concat($project_path,'/feat.xml'))"/>
 	<xsl:param name="module"/>
@@ -27,7 +28,7 @@
 	<xsl:variable name="database_file" 	select="string(concat($project_path,'/database.xml'))"/>
 	<xsl:variable name="queries_file" 	select="string(concat($project_path,'/queries.xml'))"/>
 
-	<xsl:variable name="ui_file" 		select="string(concat($project_path,'/ui.xml'))"/>
+	<xsl:variable name="model_file"		select="string(concat($project_path,'/model.xml'))"/>
 	<xsl:variable name="code_file" 		select="string(concat($project_path,'/code.xml'))"/>
 
 	<xsl:variable name="processes_file" 	select="string(concat($project_path,'/processes.xml'))"/>
@@ -53,7 +54,7 @@
 
 	<!-- includes list -->
 
-	<xsl:variable name="includes" select="document($ui_file)//include"/>
+	<xsl:variable name="includes" select="document($model_file)//include"/>
 
 	<!-- collections -->
 
@@ -70,12 +71,12 @@
 
 	</xsl:variable><!--}}}-->
 
-	<xsl:variable name="ui_collection"><!--{{{-->
+	<xsl:variable name="model_collection"><!--{{{-->
 
 		<xsl:variable name="tmp">
-			<xsl:sequence select="document($ui_file)/database/table"/>
+			<xsl:sequence select="document($model_file)/database/table"/>
 			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'ui.xml')/database/table"/>
+				<xsl:sequence select="xp:get_document(@path,'model.xml')/database/table"/>
 			</xsl:for-each>
 		</xsl:variable>
 
@@ -86,7 +87,7 @@
 	<xsl:variable name="code_collection"><!--{{{-->
 
 		<!-- merge de los metodos del objeto entre la configuracion y los common/code -->
-		<xsl:for-each select="$ui_collection/table">
+		<xsl:for-each select="$model_collection/table">
 			<xsl:variable name="name" select="@name"/>
 			<xsl:copy>
 				<xsl:sequence select="@name"/>
@@ -244,8 +245,8 @@
 				<xsl:sequence select="$database_collection"/>
 			</xsl:result-document>
 
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="ui_collection.xml">
-				<xsl:sequence select="$ui_collection"/>
+			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="model_collection.xml">
+				<xsl:sequence select="$model_collection"/>
 			</xsl:result-document>
 
 			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="code_collection.xml">
@@ -338,20 +339,20 @@
 		<xsl:choose>
 			<xsl:when test="$module=''">
 				<xsl:message>transformando todos los modulos</xsl:message>
-				<xsl:apply-templates select="$ui_collection/table" mode="class_main"/>
-				<xsl:apply-templates select="$ui_collection/table" mode="metadata"/>
-				<xsl:apply-templates select="$ui_collection/table" mode="model"/>
-				<xsl:apply-templates select="$ui_collection/table" mode="processes"/>
-				<xsl:apply-templates select="$ui_collection/table" mode="views"/>
+				<xsl:apply-templates select="$model_collection/table" mode="class_main"/>
+				<xsl:apply-templates select="$model_collection/table" mode="metadata"/>
+				<xsl:apply-templates select="$model_collection/table" mode="model"/>
+				<xsl:apply-templates select="$model_collection/table" mode="processes"/>
+				<xsl:apply-templates select="$model_collection/table" mode="views"/>
 				<xsl:apply-templates select="$code_collection/table" mode="js_code"/>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:message>transformando solo el modulo <xsl:value-of select="$module"/></xsl:message>
-				<xsl:apply-templates select="$ui_collection/table[@name=$module]" mode="class_main"/>
-				<xsl:apply-templates select="$ui_collection/table[@name=$module]" mode="metadata"/>
-				<xsl:apply-templates select="$ui_collection/table[@name=$module]" mode="model"/>
-				<xsl:apply-templates select="$ui_collection/table[@name=$module]" mode="processes"/>
-				<xsl:apply-templates select="$ui_collection/table[@name=$module]" mode="views"/>
+				<xsl:apply-templates select="$model_collection/table[@name=$module]" mode="class_main"/>
+				<xsl:apply-templates select="$model_collection/table[@name=$module]" mode="metadata"/>
+				<xsl:apply-templates select="$model_collection/table[@name=$module]" mode="model"/>
+				<xsl:apply-templates select="$model_collection/table[@name=$module]" mode="processes"/>
+				<xsl:apply-templates select="$model_collection/table[@name=$module]" mode="views"/>
 				<xsl:apply-templates select="$code_collection/table[@name=$module]" mode="js_code"/>
 			</xsl:otherwise>
 		</xsl:choose>

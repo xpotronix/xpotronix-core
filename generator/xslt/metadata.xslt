@@ -31,7 +31,7 @@
 	<xsl:template match="table" mode="get_metadata"><!--{{{-->
 
 		<xsl:variable name="table_name" select="@name"/>
-		<xsl:variable name="ui_table" select="$ui_collection/table[@name=$table_name]"/>
+		<xsl:variable name="ui_table" select="$model_collection/table[@name=$table_name]"/>
 		<xsl:variable name="tb_table" select="$table_collection/table[@name=$table_name]"/>
 		<xsl:variable name="db_table" select="$database_collection/table[@name=$table_name]"/>
 
@@ -93,7 +93,7 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="table" mode="field_collection"><!--{{{-->
-		<!-- recorre $ui_collection -->
+		<!-- recorre $model_collection -->
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -103,7 +103,7 @@
 		</xsl:variable>
 
 		<xsl:variable name="in_fields">
- 			<xsl:sequence select="$ui_collection/table[@name=$table_name]/field"/>
+ 			<xsl:sequence select="$model_collection/table[@name=$table_name]/field"/>
 		</xsl:variable>
 
 		<xsl:variable name="tb_fields">

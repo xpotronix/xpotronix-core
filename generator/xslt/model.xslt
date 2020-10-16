@@ -31,9 +31,9 @@
 			<xsl:value-of select="concat(@name,$suffix)"/>
 		</xsl:variable>
 
+		<!-- genera el nombre del archivo final -->
 		<xsl:variable name="file_type" select="string('.model.xml')"/>
 		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,$file_type)"/>
-		<xsl:variable name="table_name" select="@name"/>
 
 		<!-- <xsl:message>Creando archivo <xsl:value-of select="$class_file_name"/></xsl:message> -->
 		<xsl:result-document method="xml" 
@@ -48,12 +48,14 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="table" mode="get_model"><!--{{{-->
-		<xsl:element name="obj">
+		<xsl:element name="obj" namespace="">
 			<xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
 			<xsl:sequence select="@*"/>
+
 			<xsl:sequence select="layout"/>
 			<xsl:sequence select="config"/>
-			<xsl:apply-templates select="panel" mode="copy"/>
+			<xsl:sequence select="panel"/>
+
 			<xsl:apply-templates select="." mode="get_primary_key"/>
 			<xsl:sequence select="foreign_key"/>
 			<xsl:sequence select="order_by"/>
@@ -63,39 +65,36 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="table" mode="get_queries"><!--{{{-->
-		<xsl:variable name="table_name" select="@name"/>
 		<xsl:element name="queries">
 
 			<xsl:apply-templates select="." mode="get_main_sql"/>
 
 			<!-- para los from relativos -->
-			<xsl:sequence select="$queries_collection//query[from=$table_name]"/>
+			<xsl:sequence select="$queries_collection//query[from=current()/@name]"/>
 
 			<!-- para los from absolutos (database.table) -->
-			<xsl:sequence select="$queries_collection//query[substring-after(from,'.')=$table_name]"/>
+			<xsl:sequence select="$queries_collection//query[substring-after(from,'.')=current()/@name]"/>
 
 		</xsl:element>
 	</xsl:template><!--}}}-->
 
         <xsl:template match="table" mode="get_main_sql"><!--{{{-->
-                <xsl:variable name="table_name" select="@name"/>
                 <query name="main_sql">
 		<xsl:choose>
-			<xsl:when test="$database_collection//table[@name=$table_name]/sql">
+		   <xsl:when test="$database_collection//table[@name=current()/@name]/sql">
 				<!-- el sql estatico en su elemento -->
-				<xsl:sequence select="$database_collection//table[@name=$table_name]/sql"/>
+				<xsl:sequence select="$database_collection//table[@name=current()/@name]/sql"/>
 			</xsl:when>
 			<xsl:otherwise>
 				<!-- automatico -->
-				<xsl:sequence select="$database_collection//table[@name=$table_name]/*[name()='modifiers' or name()='join' or name()='group_by']"/>
+				<xsl:sequence select="$database_collection//table[@name=current()/@name]/*[name()='modifiers' or name()='join' or name()='group_by']"/>
 
 				<xsl:variable name="queries">
 
 					<!-- para los queries que definen la consulta ppal (en ui) -->
-					<xsl:for-each select="$ui_collection//table[@name=$table_name]/query">
-						<xsl:variable name="query_name" select="@name"/>
+					<xsl:for-each select="$model_collection//table[@name=current()/@name]/query">
 						<!-- solo los elementos contenidos por query -->
-						<xsl:copy-of select="$queries_collection//query[@name=$query_name]/*" copy-namespaces="no"/>
+						<xsl:copy-of select="$queries_collection//query[@name=current()/@name]/*" copy-namespaces="no"/>
 					</xsl:for-each>
 
 				</xsl:variable>
@@ -106,7 +105,7 @@
 		                	<from><xsl:value-of select="@name"/></from>
 				</xsl:if>
 
-	        	        <xsl:for-each select="$ui_collection//table[@name=$table_name]/field[@eh!='' or @entry_help!='']">
+				<xsl:for-each select="$model_collection//table[@name=current()/@name]/field[@eh!='' or @entry_help!='']">
 	                	        <xsl:variable name="query_name" select="@eh|@entry_help"/>
 					<xsl:variable name="query" select="$queries_collection//query[@name=$query_name]"/>
 					<xsl:choose>
@@ -123,20 +122,19 @@
        	        </query>
         </xsl:template><!--}}}-->
 
-	<xsl:template match="panel" mode="copy"><!--{{{-->
-		<xsl:variable name="include" select="@include"/>
+	<xsl:template match="panel|config|layout" mode="copy"><!--{{{-->
 
-		<xsl:element name="panel" namespace="">
+	   <xsl:element name="{name()}" namespace="">
 			<xsl:if test="@id">
 				<xsl:attribute name="id" select="@id"/>
 			</xsl:if>	
 			<xsl:sequence select="@*"/>
-			<xsl:sequence select="//panel[@id=$include]/@*"/>
+			<xsl:sequence select="//*[name()=current()/name() and @id=current()/@include]/@*"/>
 			<xsl:choose>
 				<xsl:when test="@include">
 				<xsl:message>include <xsl:value-of select="@include"/></xsl:message>
 					<!-- un override aca tambien? -->
-					<xsl:apply-templates select="//panel[@id=$include]/*" mode="copy"/>
+					<xsl:apply-templates select="//*[name()=current()/name() and @id=current()/@include]/*" mode="copy"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:apply-templates select="*" mode="copy"/>
@@ -154,6 +152,3 @@
 		</xsl:copy>
 	</xsl:template>
 </xsl:stylesheet><!--}}}-->
-
-<!-- vim600: fdm=marker sw=3 ts=8 ai: 
--->
