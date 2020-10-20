@@ -17,7 +17,7 @@
 	<xsl:template match="table">
 		<xsl:copy>
 			<xsl:copy-of select="@name | @n"/><xsl:comment>{{{</xsl:comment>
-			<xsl:apply-templates select="process"/>
+			<xsl:apply-templates select="process[script or dialog]"/>
 			</xsl:copy><xsl:comment>}}}</xsl:comment><xsl:text>
 
 	</xsl:text>
@@ -27,7 +27,7 @@
 	<xsl:template match="process">
 
 		<xsl:copy>
-			<xsl:copy-of select="../@name | ../@n"/>
+			<xsl:copy-of select="@name | @n"/>
 			<xsl:apply-templates select="script|dialog"/>
 		</xsl:copy>
 
