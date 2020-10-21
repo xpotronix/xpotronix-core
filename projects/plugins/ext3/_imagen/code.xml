@@ -27,7 +27,7 @@
 
 	global $xpdoc;
 
-	$image = new Thumb;
+	$image = new \Xpotronix\Thumb;
 
 	$file_utils = $xpdoc->get_instance('file_utils');
 
