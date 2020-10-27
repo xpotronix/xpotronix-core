@@ -2403,16 +2403,23 @@ class DataObject extends Base {
 
 			if ( $attr = $this->get_attr( $var_name ) ) {
 
-
 				if  ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' ) {
 
-					$attr->value = $attr->human( $value );
+					if ( $attr->value ) {
 
-					if ( $attr->value == null ) {
-						M()->user( "fecha inválida $value" );
-						$ok = false;
-					}
-				
+					   $ret = $attr->human( $attr->value );
+
+						if ( $ret === null ) {
+			   
+							M()->user( "$attr->name: fecha inválida '$attr->value'" );
+							$ok = false;
+				   
+						} else {
+
+							$attr->value = $ret;
+						}
+					} 				
+
 				} else {
 
 					$attr->value = $attr->unserialize( $value );
@@ -2986,7 +2993,5 @@ class DataObject extends Base {
 	}/*}}}*/
 
 } /* xpDataObject */
-
-// vim600: fdm=marker sw=3 ts=8 ai:
 
 ?>
