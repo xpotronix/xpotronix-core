@@ -195,17 +195,33 @@
 
         }/*}}}*/ 
 
+	function recaptcha_validate() {
+
+
+		global $xpdoc;
+
+		/* var_dump( $xpdoc->http->http_host ); exit; */
+
+		$ret =  (bool) $xpdoc->config->recaptcha 
+			and in_array( $xpdoc->http->http_host, explode(';',$xpdoc->config->recaptcha_domains)) 
+			and ! $xpdoc->recaptcha_verify(); 
+
+		M()->info( "ret: $ret" );
+
+		return $ret;
+	}
+
         function POST_login( $user = null, $pass = null ) {/*{{{*/
 
 		global $xpdoc;
 
 		$result = [];
 
-		if ( $xpdoc->config->recaptcha and ! $xpdoc->recaptcha_verify() ) {
+		if ( ! $this->recaptcha_validate() ) {
 
-			$result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
-			$result["success"] = false;
-			M()->user("fallo ingreso usuario $user" );
+			   $result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
+			   $result["success"] = false;
+			   M()->user("fallo ingreso usuario $user" );
 
 		} else {
 

@@ -682,11 +682,13 @@ class Doc extends Base {
 
 	// head
 
-   function recaptcha_verify() {/*{{{*/
+	function recaptcha_verify() {/*{{{*/
+
+	/* DEBUG: aca hay que ser mas estricto xq asi no */
 
 	 if ( ! $this->http->token ) {
 
-		 M()->user('no hay token de reCapcha, no se puede validar');
+		 M()->error('no hay token de reCapcha, no se puede validar');
 		 return null;
 	 }
 
@@ -1083,7 +1085,7 @@ class Doc extends Base {
 
 		} 
 
-		simplexml_append( $x, $this->get_menu() );
+		/* simplexml_append( $x, $this->get_menu() ); */
 
 		return $x;
 
