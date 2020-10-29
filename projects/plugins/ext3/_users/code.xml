@@ -195,8 +195,7 @@
 
         }/*}}}*/ 
 
-	function recaptcha_validate() {
-
+	function recaptcha_validate() {/*{{{*/
 
 		global $xpdoc;
 
@@ -209,7 +208,8 @@
 		M()->info( "ret: $ret" );
 
 		return $ret;
-	}
+
+	}/*}}}*/
 
         function POST_login( $user = null, $pass = null ) {/*{{{*/
 

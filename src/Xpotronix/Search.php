@@ -25,7 +25,7 @@ class Search {
 		$this->obj = $obj;
 	}/*}}}*/
 
-	function process( $search, $condition = null ) { /*{{{*/
+	function process( $search, $condition = null, $as_variables = false ) { /*{{{*/
 
 		$result = array();
 
@@ -126,7 +126,7 @@ class Search {
 
 					$value = array_shift( $token_array2 );
 
-					$c = $this->clasify( $key, $value, $operator );
+					$c = $this->clasify( $key, $value, $operator, $as_variables );
 
 					if ( is_object( $c ) and $c->valid ) 
 						$term_array[] = $c->result_term;
@@ -158,7 +158,7 @@ class Search {
 
 	}/*}}}*/
 
-	function clasify( $key, $value, $operator ) {/*{{{*/
+	function clasify( $key, $value, $operator, $as_variables = false ) {/*{{{*/
 
 		global $xpdoc;
 
@@ -224,13 +224,32 @@ class Search {
 		if ( $value === null ) {
 
 			M()->debug( "el valor es nulo" );
-			$c->search_type = ( $operator == 'NOT' ? 'not_null' : 'null' );
+
+			if ( $as_variables ) {
+
+				M()->debug( "as variables == true" );
+				$c->search_type = 'compare';
+				$c->value = 'NULL';
+
+			} else {
+			
+				$c->search_type = ( $operator == 'NOT' ? 'not_null' : 'null' );
+			}
 
 		} else if ( $value === '@@' ) {
 		
 			M()->debug( "el valor es nulo estricto (strict)" );
-			$c->search_type = ( $operator == 'NOT' ? 'not_null_strict' : 'null_strict' );
-		
+
+			if ( $as_variables ) {
+
+				M()->debug( "as variables == true" );
+				$c->search_type = 'compare';
+				$c->value = 'NULL';
+
+			} else {
+				$c->search_type = ( $operator == 'NOT' ? 'not_null_strict' : 'null_strict' );
+			}
+
 		} else if ( $c->attr_type == 'xpdate' ) {
 
 			$value = trim( $value );

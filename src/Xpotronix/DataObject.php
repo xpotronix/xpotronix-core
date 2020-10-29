@@ -775,8 +775,12 @@ class DataObject extends Base {
 				$search[key( $this->primary_key )] = $key;
 			} 
 
-			// M()->debug( 'clave a buscar: '. serialize( $search ) );
-			$this->set_const( $this->search->process( $search ) );
+			$this->set_const( $const = $this->search->process( $search, null, true ) );
+
+			/*
+			M()->debug( 'clave a buscar: '. json_encode( $search ) );
+			M()->debug( 'const: '. json_encode( $const ) );
+			*/
 
 		} // else !$key
 
@@ -1324,6 +1328,8 @@ class DataObject extends Base {
 			} catch ( \PDOException $e ) {
 
 				M()->db_error( $this->db, 'set_variables', $sql );
+				// M()->user( print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ) );
+				exit;
 			}
 
 		} else { 
@@ -2405,13 +2411,14 @@ class DataObject extends Base {
 
 				if  ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' ) {
 
-					if ( $attr->value ) {
+					if ( $value ) {
 
-					   $ret = $attr->human( $attr->value );
+					   $ret = $attr->human( $value );
+						M()->info( "date_human: $ret" );
 
 						if ( $ret === null ) {
 			   
-							M()->user( "$attr->name: fecha inválida '$attr->value'" );
+							M()->user( "$attr->name: fecha inválida '$value'" );
 							$ok = false;
 				   
 						} else {
