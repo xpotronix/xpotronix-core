@@ -718,7 +718,7 @@ class DataObject extends Base {
 
 	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
 
-		// M()->debug( "key: ". serialize( $key ).", where: ". serialize( $where ). ", order: ". serialize( $order ). ", page: $page" );
+		// M()->debug( "key: ". json_encode( $key ).", where: ". json_encode( $where ). ", order: ". json_encode( $order ). ", page: $page" );
 
 		if ( !$this->db() ) {
 
@@ -752,7 +752,7 @@ class DataObject extends Base {
 			if ( is_array( $key ) ) {
 
 				try { 
-					M()->debug( 'la clave es un array: '. serialize( $key ) ); 
+					M()->debug( 'la clave es un array: '. json_encode( $key ) ); 
 
 				} catch( \Exception $e ) {
 
@@ -775,7 +775,7 @@ class DataObject extends Base {
 				$search[key( $this->primary_key )] = $key;
 			} 
 
-			$this->set_const( $const = $this->search->process( $search, null, true ) );
+			$this->set_const( $const = $this->search->process( $search, null, $this->as_variables() ) );
 
 			/*
 			M()->debug( 'clave a buscar: '. json_encode( $search ) );
@@ -853,7 +853,7 @@ class DataObject extends Base {
 
 	function load_page( $key = null, $where = null ) {/*{{{*/
 
-		M()->debug( "key: ". serialize( $key ).", where: $where" );
+		M()->debug( "key: ". json_encode( $key ).", where: $where" );
 
 		return new Iterator( $this, $key, $where, null, false );
 
@@ -1179,7 +1179,7 @@ class DataObject extends Base {
 
 		global $xpdoc;
 
-		M()->debug( "xpdoc->search: ". serialize( $xpdoc->search ) );
+		M()->debug( "xpdoc->search: ". json_encode( $xpdoc->search ) );
 
 		if ( ( $xpdoc->search )
 
@@ -1187,12 +1187,12 @@ class DataObject extends Base {
 			and is_array( $xpdoc->search[$this->class_name] ) ) {
 
 
-			M()->info( 'search key: aplicando busqueda global con '. serialize( $xpdoc->search ) );
+			M()->info( 'search key: aplicando busqueda global con '. json_encode( $xpdoc->search ) );
 
 			$search = new Search( $this );
 			$search->match_type = $xpdoc->feat->match_type ? $xpdoc->feat->match_type : 'anywhere';
 
-			$this->set_const( $search->process( $xpdoc->search[$this->class_name] ) );
+			$this->set_const( $search->process( $xpdoc->search[$this->class_name] ), null, $this->as_variables() );
 		}
 
 		/*		
@@ -1239,7 +1239,7 @@ class DataObject extends Base {
 
 	function set_order( $order = null ) {/*{{{*/
 
-		M()->info( 'order: '. serialize( $order ) );
+		M()->info( 'order: '. json_encode( $order ) );
 
 		global $xpdoc;
 
@@ -1300,12 +1300,11 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-	function set_const( $const ) {/*{{{*/
-
+	function set_const( $const = null ) {/*{{{*/
 
 		if ( ! count( $const ) ) return;
 
-		M()->debug( 'constraints: '. serialize( $const ) );
+		M()->debug( 'constraints: '. json_encode( $const ) );
 
 		if ( @$this->xsql->sql['set'] == 'variables' ) {
 
@@ -1366,6 +1365,21 @@ class DataObject extends Base {
 
 	}/*}}}*/ 
 
+	function as_variables() {/*{{{*/
+
+		$ret = false;
+
+		if ( isset( $this->xsql->sql['set'] ) ) {
+
+			$ret = $this->xsql->sql['set'] == 'variables';
+		} 
+
+		M()->debug( "as_variables: $ret" );
+
+		return $ret;
+	
+	}/*}}}*/
+
 	function page ( $page = null, $page_rows = null ) {/*{{{*/
 
 		global $xpdoc;
@@ -1389,8 +1403,8 @@ class DataObject extends Base {
 			isset( $xpdoc->pager[$cn]['cp'] ) and $cp = $xpdoc->pager[$cn]['cp'];
 		}
 
-		M()->debug( "pager: ". serialize( $this->pager ) );
-		M()->debug( "xpdoc::pager: ". serialize( $xpdoc->pager ) );
+		M()->debug( "pager: ". json_encode( $this->pager ) );
+		M()->debug( "xpdoc::pager: ". json_encode( $xpdoc->pager ) );
 
 		if ( $this->feat->page_rows !== null  and !$pr ) 
 			$pr = $this->feat->page_rows;
@@ -2568,7 +2582,7 @@ class DataObject extends Base {
 		foreach ( $this->primary_key as $key => $data )
 			$keys[$key] = $values[$i++];
 
-		M()->debug( 'devulevo claves: '. serialize( $keys ) );
+		M()->debug( 'devulevo claves: '. json_encode( $keys ) );
 
 		return $keys;
 
@@ -2929,10 +2943,10 @@ class DataObject extends Base {
 	function debug_object() {/*{{{*/
 
 
-		$primary_key = serialize( $this->primary_key );
+		$primary_key = json_encode( $this->primary_key );
 		$foreign_key = null;
 
-		// $foreign_key = serialize( $this->foreign_key );
+		// $foreign_key = json_encode( $this->foreign_key );
 
 		$new = $this->is_new() ? 'true' : 'false';
 		$loaded = $this->loaded() ? 'true' : 'false';

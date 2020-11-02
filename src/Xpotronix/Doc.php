@@ -729,17 +729,34 @@ class Doc extends Base {
 	$response = file_get_contents($url, false, $context);
 
 	if ( $response === false ) {
+
+		/* DEBUG: pruebo sin proxy por las dudas */
+
+		if ( isset( $options['http']['proxy'] ) ) {
+
+			M()->info( "falla la conexion proxy via ". $options['http']['proxy'] ." haciendo fallback con conexion directa" );
+		
+			unset( $options['http']['proxy'] );
+
+			$context  = stream_context_create($options);
+			$response = file_get_contents($url, false, $context);
+		}
 	
-		M()->error( 'no se pudo conectar con el servidor de reCaptcha' );
-		return null;
 	}
 
-	$responseKeys = json_decode($response,true);
-	$success = $responseKeys['success'];
+	if ( $response === false ) {
 
-	M()->info( "reCaptcha response: $success" );
+		M()->error( 'no se pudo conectar con el servidor de reCaptcha' );
+		return null;
 
-	return $success;
+	} else {
+	
+		$responseKeys = json_decode($response,true);
+		$success = $responseKeys['success'];
+
+		M()->info( "reCaptcha response: $success" );
+		return $success;
+	}
 
    }/*}}}*/
 
@@ -1889,5 +1906,4 @@ class Doc extends Base {
 
 }
 
-// vim600: fdm=marker sw=3 ts=8 ai:
 ?>
