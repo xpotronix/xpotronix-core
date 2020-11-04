@@ -14,7 +14,7 @@ if [ `id -u $USERNAME` != 0 ]; then
 fi
 
 test ! -x /usr/bin/wget && apt-get install wget
-test ! -x /usr/bin/unzip && apt-get install unzip
+test ! -x /bin/gzip && apt-get install gzip
 
 if [ ! -e install.sh ]; then
    echo "Im not in the install directory!!"
@@ -36,7 +36,6 @@ apt-get install libsaxonb-java
 
 # these are optional
 apt-get install php$PHP_VERSION-gd php$PHP_VERSION-imagick
-#apt-get install php$PHP_VERSION-ldap
 apt-get install apg
 
 # fop
@@ -70,8 +69,8 @@ ln -sf $XPATH/util/xpotronize /usr/bin/xpotronize
 ln -sf $XPATH/util/xpdumpbase-mysql /usr/bin/xpdumpbase-mysql
 ln -sf $XPATH/util/xputil /usr/bin/xputil
 
-rm ext-$EXT_VERSION.zip*
-wget http://extjs.cachefly.net/ext-$EXT_VERSION.zip
-rm -rf $XPATH/lib/ext-$EXT_VERSION
-unzip ext-$EXT_VERSION.zip -d $XPATH/lib 
+rm ext-$EXT_VERSION.tar.gz*
+wget https://github.com/bjornharrtell/extjs/archive/$EXT_VERSION.tar.gz
+rm -rf $XPATH/lib/$EXT_VERSION
+tar xzfp $EXT_VERSION.tar.gz -C $XPATH/lib 
 ln -sf $XPATH/lib/ext-$EXT_VERSION $XPATH/lib/ext

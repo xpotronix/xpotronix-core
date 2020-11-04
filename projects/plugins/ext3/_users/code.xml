@@ -24,6 +24,7 @@
 		private $ldap_default_domain;	
 		private $ldap_bind_format;	
 		private $ldap_user_filter;
+		private $user_username;
 		private $fallback;
 
 		var $state;
@@ -201,9 +202,16 @@
 
 		/* var_dump( $xpdoc->http->http_host ); exit; */
 
-		$ret =  (bool) $xpdoc->config->recaptcha 
-			and in_array( $xpdoc->http->http_host, explode(';',$xpdoc->config->recaptcha_domains)) 
-			and ! $xpdoc->recaptcha_verify(); 
+		if ( $xpdoc->config->recaptcha and
+			in_array( $xpdoc->http->http_host, explode(';',$xpdoc->config->recaptcha_domains)) ){
+
+			$ret = $xpdoc->recaptcha_verify();
+		
+		} else {
+
+			/* devuelve -1 porque no esta habilitado */	
+			$ret = -1;
+		}
 
 		M()->info( "ret: $ret" );
 
@@ -342,7 +350,7 @@
 
 		$ldap_bind_dn = string_parse( $this->ldap_bind_format, get_object_vars( $this ) );
 
-		M()->info( "ldap_bind_dn: $ldap_bind_dn" );
+		M()->info( "ldap_bind_dn: $ldap_bind_dn, ldap_search_pass: {$this->ldap_search_pass}" );
 
 		if ( ! ( @$bindok = ldap_bind( $rs, $ldap_bind_dn, $this->ldap_search_pass ) ) ) {
 
@@ -352,7 +360,9 @@
 		
 		} else {
 
-			M()->info( "pude conectarme al servidor LDAP" );
+		M()->info( "pude conectarme al servidor LDAP" );
+
+			/* var_dump( get_object_vars( $this )['user_username'] ); exit;	*/
 
 			$filter_query = string_parse( $this->ldap_user_filter, get_object_vars( $this ) );
 
