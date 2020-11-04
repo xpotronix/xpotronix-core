@@ -360,7 +360,7 @@
 
 			if ( $result = @ldap_search( $rs, $this->ldap_base_dn, $filter_query ) ) {
 
-				M()->info( "ldap_search result: ". serialize( $result ) );
+				M()->info( "ldap_search result: ". json_encode( $result ) );
 
 			} else {
 
@@ -370,7 +370,7 @@
 
 			$result_user = ldap_get_entries($rs, $result);
 
-			M()->info( serialize( $result_user ) );
+			M()->info( json_encode( $result_user ) );
 
 			if ( $result_user["count"] == 0 ) {
 
@@ -393,7 +393,7 @@
 					M()->info( "el usuario existe. Actualizando la clave" );
 
 					$this->user_password = $password;
-					$this->store();
+					$this->update();
 
 				} else { 
 
