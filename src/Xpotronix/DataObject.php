@@ -1457,6 +1457,7 @@ class DataObject extends Base {
 		}
 
 		M()->debug( "count(a_sql): ". count( $a_sql ) );
+		M()->debug( "no_where_check: {$this->feat->no_where_check}" );
 
 
 		/*
@@ -1474,7 +1475,7 @@ class DataObject extends Base {
 		*/
 
 		$i = 1;
-		$truncate = false;
+		$truncate = true;
 		$rows = null;
 
 		foreach( $a_sql as $sql ) {
@@ -1482,6 +1483,15 @@ class DataObject extends Base {
 			$sql_text = ( $this->db_type() == 'dblib' ) ?
 					$sql->prepare():
 					$sql->prepare( false, $this->feat->count_rows );
+
+
+			if ( ( $this->sql->where === null and $this->sql->having === null ) 
+				and $this->feat->no_where_check ) {
+
+				M()->user( "tabla sin condicion de WHERE o HAVING, no se puede procesar" );
+				$this->total_records = -3;
+				return;
+			}
 
 			if ( ! $sql_text ) {
 			

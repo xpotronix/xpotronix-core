@@ -11,7 +11,11 @@
 -->
 
 <database>
+
 	<table name="audit" translate="Auditoría de Accesos"><!--{{{-->
+
+		<feat><no_where_check>1</no_where_check></feat>
+
 		<panel type="xpGrid"/>
 		<panel type="xpForm"/>
 		<panel type="xpPanel" display="inspect"/>
@@ -28,4 +32,5 @@
 		<field name="proc_required" translate="Proceso Req."/>
 		<field name="transac_data" translate="Datos de la Transacción"/>
 	</table><!--}}}-->
+
 </database>
