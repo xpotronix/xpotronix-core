@@ -12,9 +12,14 @@
 
 <database>
 	<table name="audit">
-               <process name="repost" translate="Volver a Postear">
-                        <acl action="permit" role="admin"/>
-                        <command name="repost" for="obj_start"/>
-                </process>
-        </table>
+		<process name="repost" translate="Volver a Postear">
+			<acl action="permit" role="admin"/>
+			<command name="repost" for="obj_start"/>
+		</process>
+
+		<process name="fix_transact_data" translate="fix_transact_data">
+			<acl action="permit" role="admin"/>
+			<command name="fix_transact_data" for="obj_start"/>
+		</process>
+	</table>
 </database>

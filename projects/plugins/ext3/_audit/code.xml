@@ -63,12 +63,35 @@
 
 			*/
 
-
 			return $c->request( $this->URL );
 
 		}/*}}}*/
 
-		function record() {/*{{{*/
+		function fix_transact_data( $xml ) {/*{{{*/
+
+		/* arregla las transaciones que no hayan sido filtradas por filter_audit_transact_data */
+
+			global $xpdoc;
+
+			$ID = $xml['ID'];
+
+			$this->loaded() or $this->load( $ID );
+
+			if ( ! $this->loaded() ) {
+
+				M()->error( "no encontrado audit [$ID]" );
+				return false;
+			}
+
+			$this->transac_data = serialize( $xpdoc->get_instance( $this->module )
+				->filter_audit_transact_data( unserialize( $this->transac_data ) ) );
+
+			$this->store_xml_response();
+
+		}/*}}}*/
+
+		function check_audit_ignore() {/*{{{*/
+
 
 			global $xpdoc;
 
@@ -88,10 +111,9 @@
 				if ( preg_match( $xpdoc->config->audit_ignore_action, $xpdoc->action ) ) {
 
 					M()->info( "action $xpdoc->action ignorada, no registra en audit" );
-					return;
+					return false;
 				}
 			}
-
 
 			if( (bool) $xpdoc->config->audit_ignore_proc ) {
 
@@ -104,36 +126,52 @@
 						if ( preg_match( $xpdoc->config->audit_ignore_proc, $process ) ) {
 
 							M()->info( "process $process ignorado, no registra en audit" );
-							return;
+							return false;
 						}
-			}
+					}
+
+
+			return true;
+
+		}/*}}}*/
+
+		function record() {/*{{{*/ 
+
+		global $xpdoc;
+
+			if ( ! $this->check_audit_ignore() ) return false;
 
 			$this->fill_primary_key();
 			$this->user_id = $xpdoc->user->user_id;
 			$this->session_id = $xpdoc->session->session_id;
 			$this->xpid = $xpdoc->xpid();
-
-			( ! \Xpotronix\Doc::CLI ) and $this->URL = 'http://'. $_SERVER['SERVER_NAME']. $_SERVER['REQUEST_URI'];
-
 			$this->module = $xpdoc->module;
 			$this->action = $xpdoc->action;
-			$this->type = (\Xpotronix\Doc::CLI) ? 'CLI' : $_SERVER['REQUEST_METHOD'];
-
-			// echo '&lt;pre&gt;', print_r( $_SERVER ); exit;
-
 			$this->source_ip = $xpdoc->http->remote_addr;
 
+			/* guarda la URL cuando no sea CLI */
+			( ! \Xpotronix\Doc::CLI ) 
+				and $this->URL = 'http://'. $_SERVER['SERVER_NAME']. $_SERVER['REQUEST_URI'];
+
+			$this->type = (\Xpotronix\Doc::CLI) ? 'CLI' : $_SERVER['REQUEST_METHOD'];
 			$this->get_attr('when')->now();
 
 			if ( is_array( $xpdoc->process ) )
 				$this->proc_required = implode( ',', $xpdoc->process );
 
+			/* echo '&lt;pre&gt;', print_r( $_SERVER ); exit; */
 
 			/* con audit_silent_action no guarda los datos de la transaccion */
 
-			if ( (bool) $xpdoc->config->audit_silent_action and ! preg_match( $xpdoc->config->audit_silent_action, $xpdoc->action ) ) {
+			if ( (bool) $xpdoc->config->audit_silent_action and 
+				! preg_match( $xpdoc->config->audit_silent_action, $xpdoc->action ) ) {
 
-				$this->transac_data = (\Xpotronix\Doc::CLI) ? serialize( $xpdoc->http->var ) : serialize( $_POST );
+				$transact_data = (\Xpotronix\Doc::CLI) ? $xpdoc->http->var : $_POST;
+
+				$transact_data = $xpdoc->get_instance( $this->module )->filter_audit_transact_data( $transact_data );
+				
+				$this->transac_data = serialize( $transact_data );
+
 			}
 
 			$this->messages = $xpdoc->get_messages( true )->asXML();
@@ -171,6 +209,4 @@
    </table>
 
 </database>
-<!-- vim600: fdm=marker sw=3 ts=8 ai: 
--->
 

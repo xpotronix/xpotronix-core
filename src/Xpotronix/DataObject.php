@@ -3023,6 +3023,12 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
+	function filter_audit_transact_data( $transact_data ) {/*{{{*/
+
+		return $transact_data;
+	
+	}/*}}}*/
+
 } /* xpDataObject */
 
 ?>
