@@ -30,6 +30,9 @@
 		<type name="char"/>
 		<type name="varchar"/>
 	</xtype>
+	<xtype name="xpjson" class="xpJson" type="json">
+		<type name="json"/>
+	</xtype>
 	<xtype name="xptext" class="xpText" type="string">
 		<type name="text"/>
 		<type name="tinytext"/>
