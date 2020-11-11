@@ -24,7 +24,7 @@
 		private $ldap_default_domain;	
 		private $ldap_bind_format;	
 		private $ldap_user_filter;
-		private $user_username;
+		private $username;
 		private $fallback;
 
 		var $state;
@@ -66,9 +66,11 @@
 
 		M()->info();
 
-		$this->get_attr( 'user_username' )->modified and $this->user_username = strtolower(trim($this->user_username)); // DEBUG: falta sanitize
-		$this->get_attr( 'user_password' )->modified and strlen( $this->user_password ) != 32 and $this->user_password = $this->crypt( $this->user_password ) ;
+		$this->get_attr( 'user_username' )->modified 
+			and $this->user_username = strtolower(trim($this->user_username)); // DEBUG: falta sanitize
 
+		$this->get_attr( 'user_password' )->modified 
+			and strlen( $this->user_password ) != 32 and $this->user_password = $this->crypt( $this->user_password ) ;
 
 		global $xpdoc;
 
@@ -76,7 +78,7 @@
 
 		if ( $this->is_new() and $u->load( array( 'user_username' => $this->user_username ) ) ) {
 
-			M()->user( "Usuario $this->user_username existente" );
+			M()->user( "Usuario [$this->user_username] existente" );
 			return false;
 		}
 
@@ -302,6 +304,38 @@
 
 	}/*}}}*/
 
+	function _login_fake( $username, $password ) {/*{{{*/
+
+		global $xpdoc;
+
+		M()->info( "login fake $username:$password" );
+
+		$this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+
+		if ( $this->user_exists( $username ) ) {
+
+			M()->info( "el usuario existe. Actualizando la clave" );
+
+			$this->user_password = $password;
+			$this->update();
+
+		} else { 
+
+			// DEBUG: mmm le estoy dando permisos al anon para crear usuarios por un segundo, revisar
+
+			$this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+
+			M()->info( "el usuario no existe, creando uno" );
+
+			$ret = (bool) $this->create( $username, $password );
+
+		}
+
+		$this->pop_privileges();
+		return true;
+
+	}/*}}}*/
+
 	function _login_ldap( $username, $password ) {/*{{{*/
 
 		global $xpdoc;
@@ -321,7 +355,7 @@
 		$this->ldap_default_domain = $xpdoc->config->ldap_default_domain;
 		$this->ldap_bind_format = $xpdoc->config->ldap_bind_format;
 
-		$this->user_username = $username;
+		$this->username = $username;
 
 		if ( strlen( $password ) == 0) {
 
