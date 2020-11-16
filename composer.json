@@ -36,7 +36,8 @@
     "php-imap/php-imap": "^3.1",
     "thiagoalessio/tesseract_ocr": "^2.9",
     "phpmailer/phpmailer": "^6.1",
-    "symfony/http-foundation": "^4.4"
+    "symfony/http-foundation": "^4.4",
+    "soluble/japha": "^2.8"
     },
 
   "autoload": {
