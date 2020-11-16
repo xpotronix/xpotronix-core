@@ -288,8 +288,8 @@ class Base {
 		try {
 			$jars = array( 
 				"/usr/share/java/commons-io.jar",
-				"/usr/share/java/avalon-framework.jar",
 				"/usr/share/java/xmlgraphics-commons.jar",
+				"/usr/share/java/avalon-framework.jar",
 				"/usr/share/java/batik-all.jar",
 				"/usr/share/java/serializer.jar",
 				"/usr/share/java/xalan2.jar",
