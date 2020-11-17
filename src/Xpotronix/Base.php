@@ -238,7 +238,7 @@ class Base {
 		try {
 			java_require( $this->ini['java']['saxon_jar'].";" );
 
-		} catch (java_ConnectException $e) {
+		} catch (\java_ConnectException $e) {
 
 			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
 		}
@@ -274,9 +274,8 @@ class Base {
 
 			return java_cast($oResultStringWriter->toString(), "string");
 
-		}
+		} catch(\JavaException $e) {
 
-		catch(JavaException $e) {
 			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> ". java_cast($e->getCause()->toString(), "string") );
 			return null;
 		}
@@ -289,8 +288,8 @@ class Base {
 		try {
 			$jars = array( 
 				"/usr/share/java/commons-io.jar",
-				"/usr/share/java/avalon-framework.jar",
 				"/usr/share/java/xmlgraphics-commons.jar",
+				"/usr/share/java/avalon-framework.jar",
 				"/usr/share/java/batik-all.jar",
 				"/usr/share/java/serializer.jar",
 				"/usr/share/java/xalan2.jar",
@@ -342,7 +341,7 @@ class Base {
 			$out = new \Java( 'java.io.BufferedOutputStream', $tmp );
 
 
-		} catch (java_ConnectException $e) {
+		} catch (\java_ConnectException $e) {
 
 			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
 		}
@@ -382,9 +381,8 @@ class Base {
 
 			return java_cast($out->toString(), "string");
 
-		}
+		} catch(\JavaException $e) {
 
-			catch(JavaException $e) {
 			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> ". java_cast($e->getCause()->toString(), "string") );
 			return null;
 		}
