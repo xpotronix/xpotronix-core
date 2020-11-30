@@ -1,9 +1,6 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<!--Identity template, 
-		provides default behavior that copies all content into the output -->
-
 	<xsl:output method="xml" cdata-section-elements="config event renderer" indent="no"/>
 
 	<xsl:template match="/database"><xsl:text>

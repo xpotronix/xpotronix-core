@@ -35,8 +35,8 @@ if ( @$x->opts['f'] ) {
 	$db = new DBDump( $x->ini );
 	$db->get_database_info();
 
-	$pp = $x->transform['params']['project_path'];
-	$db->output( implode( '/', array( $pp, 't.xml' ) ) );
+	$project_path = $x->transform['params']['project_path'];
+	$db->output( implode( '/', [ $project_path, 't.xml' ] ) );
 
 	$y = clone $x;
 
@@ -44,25 +44,23 @@ if ( @$x->opts['f'] ) {
 
 	$y->check_params_xputil();
 
-	$y->transform['xml'] = implode( '/', array( $pp, 't.xml' ) );
+	$y->transform['xml'] = implode( '/', [ $project_path, 't.xml' ] );
 
-	$y->transform( implode( '/', array( $pp, 'tables.xml' ) ) );
+	$y->transform( implode( '/', [ $project_path, 'tables.xml' ] ) );
 
 	unlink( $y->transform['xml'] );
 }
-
 
 if ( @$x->opts['d'] ) { 
 
 	M()->user( 'opción -d: sólo generación tables.txt, sin transformación'); 
 
-	}
-
-else {
+} else {
 
 	M()->user( "xpotronize: aplicacion {$x->config->application}" );
 
-	( $x->config->self === true or $x->config->self === null ) or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
+	( $x->config->self === true or $x->config->self === null ) 
+		or M()->fatal( 'esta aplicacion es para ser incluida dentro de otra. No puedo transformar' );
 
 	$x->transform();
 
