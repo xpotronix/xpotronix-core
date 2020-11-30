@@ -437,7 +437,7 @@
 					M()->info( "el usuario existe. Actualizando la clave" );
 
 					$this->user_password = $password;
-					$this->update();
+					$this->store();
 
 				} else { 
 
