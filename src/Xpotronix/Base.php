@@ -12,6 +12,10 @@
 
 namespace Xpotronix;
 
+use Soluble\Japha\Bridge\Adapter as BridgeAdapter;
+use Soluble\Japha\Bridge\Exception as BridgeException;
+use Soluble\Japha\Bridge\Exception\JavaException as JavaException;
+
 class Base {
 
 	private $name;
@@ -150,22 +154,177 @@ class Base {
 		M()->info( 'processing obj (climbing up)', 10 , $obj->get_name(). ': '. $var_d  );	
 	}/*}}}*/
 
-	/* xml */
-
-	function xml_elem_attrs( $array ) {/*{{{*/
-		$r = " ";
-		foreach( $array as $attr => $value )
-			$r .= "$attr=\"$value\" ";
-		return $r;
-	}/*}}}*/
-
-	function remove_xml_decl( $xml ) {/*{{{*/
-
-		return preg_replace( "/<\?xml.*\?>/", "", $xml );
-
-	}/*}}}*/
-
 	/* transform */
+
+	function saxon_bridge_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
+
+		M()->info("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
+
+		try {
+
+			$options = [
+				'servlet_address' => 'localhost:8080/JavaBridgeTemplate/servlet.phpjavabridge'
+			];
+
+			$ba = new BridgeAdapter($options);
+
+		} catch ( BridgeException $e) {
+
+			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
+		}
+
+		try {
+
+			$oXmlSource = $ba->java("javax.xml.transform.stream.StreamSource", $xml_file);
+			$oXslSource = $ba->java("javax.xml.transform.stream.StreamSource", $xsl_file);
+
+
+			$oFeatureKeys = $ba->javaClass("net.sf.saxon.FeatureKeys");
+
+			$oTransformerFactory = $ba->java("net.sf.saxon.TransformerFactoryImpl");
+
+			// $oTransformerFactory->setAttribute($oFeatureKeys->SCHEMA_VALIDATION, 4);
+
+			$oTransformerFactory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
+
+			$oTransFormer = $oTransformerFactory->newTransformer($oXslSource);
+
+			$oResultStringWriter = $ba->java("java.io.StringWriter");
+			$oResultStream = $ba->java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
+
+
+			// carga los parametros (si los hay)
+
+			if ( is_array( $params ) )
+				foreach( $params as $key => $value )
+					$oTransFormer->setParameter( $key, $value );
+
+
+			$oTransFormer->transform($oXmlSource, $oResultStream );
+
+			return $oResultStringWriter->toString();
+
+		} catch( JavaException $e ) {
+
+			$msg = $e->getCause();
+			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file: $msg" );
+			return null;
+		}
+	}/*}}}*/ 
+
+	function fop_transform( $xml_file, $xsl_file, $params = null, $output_path, $output_file ) {/*{{{*/
+
+		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
+
+		try {
+			$jars = array( 
+				"/usr/share/java/commons-io.jar",
+				"/usr/share/java/xmlgraphics-commons.jar",
+				"/usr/share/java/avalon-framework.jar",
+				"/usr/share/java/batik-all.jar",
+				"/usr/share/java/serializer.jar",
+				"/usr/share/java/xalan2.jar",
+				"/usr/share/java/xml-apis.jar",
+				"/usr/share/java/commons-logging.jar",
+				"/usr/share/java/xercesImpl.jar",
+				"/usr/share/java/fop.jar",
+				"/usr/share/java/xml-apis-ext.jar",
+				// "/usr/share/java/fontbox.jar",
+				"/usr/share/fop/fop-hyph.jar"
+			);
+
+			$options = [
+				'servlet_address' => 'localhost:8080/JavaBridgeTemplate/servlet.phpjavabridge'
+			];
+
+			$ba = new BridgeAdapter($options);
+
+			$oXmlSource = $ba->java("javax.xml.transform.stream.StreamSource", $xml_file);
+			$oXslSource = $ba->java("javax.xml.transform.stream.StreamSource", $xsl_file);
+
+			$oResultStringWriter = $ba->java("java.io.StringWriter");
+			$oResultStream = $ba->java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
+
+
+	            	// configure fopFactory as desired
+			// org.apache.fop.configuration.Configuration.put("baseDir",appPath);
+			//
+
+			M()->info( $base_path = getcwd(). "/conf/fop.xconf" );
+			$confFile = $ba->java( "java.io.File", $base_path );
+
+			$cfopFactory = $ba->javaClass("org.apache.fop.apps.FopFactory");
+
+			$fopFactory = $cfopFactory->newInstance( $confFile );
+
+			$foUserAgent = $fopFactory->newFOUserAgent();
+
+			// $foUserAgent->setBaseURL( $t );
+
+			// Setup output
+
+			/* $tmpDir = $ba->java( "java.io.File", '/tmp' ); */
+			$outDir = $ba->java( "java.io.File", $output_path );
+
+			$outDir->mkdirs();
+
+			$pdffile = $ba->java( "java.io.File", $outDir, $output_file );
+
+			$tmp = $ba->java( "java.io.FileOutputStream", $pdffile );
+			$out = $ba->java( 'java.io.BufferedOutputStream', $tmp );
+
+
+		} catch ( BridgeException $e) {
+
+			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
+		}
+
+		try {
+
+
+			java_require( $this->ini['java']['saxon_jar'].";" );
+
+			// Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);	
+
+			$mimeConstants = $ba->javaClass( "org.apache.fop.apps.MimeConstants" );
+
+			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
+			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
+
+			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.FeatureKeys");
+
+			// $cfactory = $ba->javaClass( 'javax.xml.transform.TransformerFactory' );
+			$factory = $ba->java( "net.sf.saxon.TransformerFactoryImpl" );
+
+			// $cfactory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
+
+			// $factory = $cfactory->newInstance();
+
+			$factory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
+
+			$transformer = $factory->newTransformer( $oXslSource );
+
+			$transformer->setParameter("versionParam", "2.0");
+
+			$res = $ba->java( 'javax.xml.transform.sax.SAXResult', $fop->getDefaultHandler() );
+
+			$transformer->transform( $oXmlSource, $res );
+
+			$out->close();
+
+			return $out->toString();
+
+		} catch( JavaException $e) {
+
+			$msg = $e->getCause()->toString();
+
+			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file: $msg" );
+			return null;
+		}
+	
+
+
+	}/*}}}*/
 
 	function saxon_transform( $xml_file, $xsl_file, $params = null, $validation = false ) {/*{{{*/
 
@@ -231,166 +390,6 @@ class Base {
 
 	}/*}}}*/
 
-	function saxon_bridge_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
-
-		M()->info("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
-
-		try {
-			java_require( $this->ini['java']['saxon_jar'].";" );
-
-		} catch (\java_ConnectException $e) {
-
-			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
-		}
-
-		try {
-
-			$oXmlSource = new \Java("javax.xml.transform.stream.StreamSource", $xml_file);
-			$oXslSource = new \Java("javax.xml.transform.stream.StreamSource", $xsl_file);
-
-
-			$oFeatureKeys = new \JavaClass("net.sf.saxon.FeatureKeys");
-
-			$oTransformerFactory = new \Java("net.sf.saxon.TransformerFactoryImpl");
-
-			// $oTransformerFactory->setAttribute($oFeatureKeys->SCHEMA_VALIDATION, 4);
-
-			$oTransformerFactory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
-
-			$oTransFormer = $oTransformerFactory->newTransformer($oXslSource);
-
-			$oResultStringWriter = new \Java("java.io.StringWriter");
-			$oResultStream = new \Java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
-
-
-			// carga los parametros (si los hay)
-
-			if ( is_array( $params ) )
-				foreach( $params as $key => $value )
-					$oTransFormer->setParameter( $key, $value );
-
-
-			$oTransFormer->transform($oXmlSource, $oResultStream );
-
-			return java_cast($oResultStringWriter->toString(), "string");
-
-		} catch(\JavaException $e) {
-
-			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> ". java_cast($e->getCause()->toString(), "string") );
-			return null;
-		}
-	}/*}}}*/ 
-
-	function fop_transform( $xml_file, $xsl_file, $params = null, $output_path, $output_file ) {/*{{{*/
-
-		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
-
-		try {
-			$jars = array( 
-				"/usr/share/java/commons-io.jar",
-				"/usr/share/java/xmlgraphics-commons.jar",
-				"/usr/share/java/avalon-framework.jar",
-				"/usr/share/java/batik-all.jar",
-				"/usr/share/java/serializer.jar",
-				"/usr/share/java/xalan2.jar",
-				"/usr/share/java/xml-apis.jar",
-				"/usr/share/java/commons-logging.jar",
-				"/usr/share/java/xercesImpl.jar",
-				"/usr/share/java/fop.jar",
-				"/usr/share/java/xml-apis-ext.jar",
-				// "/usr/share/java/fontbox.jar",
-				"/usr/share/fop/fop-hyph.jar"
-			);
-
-			java_require( implode( ';', $jars ) );
-
-			// java_require( "/usr/share/java/" );
-
-			$oXmlSource = new \Java("javax.xml.transform.stream.StreamSource", $xml_file);
-			$oXslSource = new \Java("javax.xml.transform.stream.StreamSource", $xsl_file);
-
-			$oResultStringWriter = new \Java("java.io.StringWriter");
-			$oResultStream = new \Java("javax.xml.transform.stream.StreamResult", $oResultStringWriter);
-
-
-	            	// configure fopFactory as desired
-			// org.apache.fop.configuration.Configuration.put("baseDir",appPath);
-			//
-
-			M()->info( $base_path = getcwd(). "/conf/fop.xconf" );
-			$confFile = new \Java( "java.io.File", $base_path );
-
-			$cfopFactory = new \JavaClass("org.apache.fop.apps.FopFactory");
-
-			$fopFactory = $cfopFactory->newInstance( $confFile );
-
-			$foUserAgent = $fopFactory->newFOUserAgent();
-
-			// $foUserAgent->setBaseURL( $t );
-
-			// Setup output
-
-			/* $tmpDir = new \Java( "java.io.File", '/tmp' ); */
-			$outDir = new \Java( "java.io.File", $output_path );
-
-			$outDir->mkdirs();
-
-			$pdffile = new \Java( "java.io.File", $outDir, $output_file );
-
-			$tmp = new \Java( "java.io.FileOutputStream", $pdffile );
-			$out = new \Java( 'java.io.BufferedOutputStream', $tmp );
-
-
-		} catch (\java_ConnectException $e) {
-
-			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
-		}
-
-		try {
-
-
-			java_require( $this->ini['java']['saxon_jar'].";" );
-
-			// Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);	
-
-			$mimeConstants = new \JavaClass( "org.apache.fop.apps.MimeConstants" );
-
-			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
-			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
-
-			$oFeatureKeys = new \JavaClass("net.sf.saxon.FeatureKeys");
-
-			// $cfactory = new JavaClass( 'javax.xml.transform.TransformerFactory' );
-			$factory = new \java( "net.sf.saxon.TransformerFactoryImpl" );
-
-			// $cfactory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
-
-			// $factory = $cfactory->newInstance();
-
-			$factory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
-
-			$transformer = $factory->newTransformer( $oXslSource );
-
-			$transformer->setParameter("versionParam", "2.0");
-
-			$res = new \Java( 'javax.xml.transform.sax.SAXResult', $fop->getDefaultHandler() );
-
-			$transformer->transform( $oXmlSource, $res );
-
-			$out->close();
-
-			return java_cast($out->toString(), "string");
-
-		} catch(\JavaException $e) {
-
-			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> ". java_cast($e->getCause()->toString(), "string") );
-			return null;
-		}
-	
-
-
-	}/*}}}*/
-
 	/* hash */
 
 	function get_hash( $length = 32 ) {/*{{{*/
@@ -448,6 +447,23 @@ class Base {
 		 
 		  $xpdoc->output_buffer = (string) $tidy;
 	}/*}}}*/
+
+	/* xml */
+
+	function xml_elem_attrs( $array ) {/*{{{*/
+		$r = " ";
+		foreach( $array as $attr => $value )
+			$r .= "$attr=\"$value\" ";
+		return $r;
+	}/*}}}*/
+
+	function remove_xml_decl( $xml ) {/*{{{*/
+
+		return preg_replace( "/<\?xml.*\?>/", "", $xml );
+
+	}/*}}}*/
+
+
 
 }
 

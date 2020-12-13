@@ -20,7 +20,7 @@ class Xpotronize extends Base {
 	var $application;
 	var $config ;
 	var $feat ;
-	var $transform = array();
+	var $transform = [];
 
 	const DS = '/';
 
@@ -30,7 +30,7 @@ class Xpotronize extends Base {
 
 		parent::__construct();
 
-		$this->opts = parseParameters( array( 'f', 'a', 'd', 't', 'm', 'h' ) );
+		$this->opts = parseParameters( ['f', 'a', 'd', 't', 'm', 'h'] );
 
 		if ( isset( $this->opts['h'] ) ) {
 
@@ -77,7 +77,7 @@ class Xpotronize extends Base {
 
 			if ( $tmp = realpath( $this->argv[1] ) )
 				$project_path = $tmp;
-			else if (( $tmp = realpath( implode( self::DS, array( $projects_dir, $this->argv[1] ) ) ) ) )
+			else if (( $tmp = realpath( implode( self::DS, [ $projects_dir, $this->argv[1] ] ) ) ) )
 				$project_path = $tmp;
 			else 
 				M()->fatal( "la ruta de origen de la aplicacion {$this->argv[1]} es invalida" );
@@ -118,8 +118,8 @@ class Xpotronize extends Base {
 		$ini_paths_app = $this->ini['paths']['apps'];
 
 		$p = ( $app_path ) ? 
-			implode( self::DS, array( $ini_paths_app, $app_path ) ) : 
-			implode( self::DS, array( $ini_paths_app, (string) $this->feat->application ) );
+			implode( self::DS, [ $ini_paths_app, $app_path ] ) : 
+			implode( self::DS, [ $ini_paths_app, (string) $this->feat->application ] );
 
 		M()->info( "application_path: $p" );
 
@@ -127,7 +127,7 @@ class Xpotronize extends Base {
 
 		/* armo los parametros en un array */
 
-		M()->info( "xsl: ". $this->transform['xsl'] = realpath( implode( self::DS, array(  $this->ini['paths']['lib'], 'generator', 'generator.xslt'))));
+		M()->info( "xsl: ". $this->transform['xsl'] = realpath( implode( self::DS, [ $this->ini['paths']['lib'], 'generator', 'generator.xslt'] )));
 		M()->info( "xml: ". $this->transform['xml'] = $config_file );
 
 	}/*}}}*/
@@ -146,7 +146,7 @@ class Xpotronize extends Base {
 
 		$this->transform['params']['project_path'] = $project_path;
 
-		$command_path = implode( self::DS, array(  $this->ini['paths']['lib'], 'util', $this->argv[1] ) );
+		$command_path = implode( self::DS, [ $this->ini['paths']['lib'], 'util', $this->argv[1] ] );
 
 		if ( file_exists( $tmp = $this->argv[1] ) )
 			$xsl_file = $tmp;
@@ -162,7 +162,7 @@ class Xpotronize extends Base {
 			$this->argv[2] : 
 			'tables.xml';
 
-		$this->transform['xml'] = implode( self::DS, array( $project_path, $xml_file ) );
+		$this->transform['xml'] = implode( self::DS, [ $project_path, $xml_file ] );
 
 	}/*}}}*/
 

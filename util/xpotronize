@@ -33,7 +33,7 @@ if ( @$x->opts['f'] ) {
 	M()->user( "dbdump: aplicacion {$x->config->application}" );
 
 	$db = new DBDump( $x->ini );
-	$db->get_database_info();
+	if ( !$db->get_database_info() ) exit(1);
 
 	$project_path = $x->transform['params']['project_path'];
 	$db->output( implode( '/', [ $project_path, 't.xml' ] ) );

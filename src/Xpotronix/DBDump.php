@@ -55,7 +55,7 @@ class DBDump extends Base {
 
 		if ( ! ( $this->db = $xpdoc->dbm->instance() ) ) {
 			M()->error( 'no puede abrir la base de datos' );
-			return;
+			return false;
 		}
 
 		$this->db->Execute("set names '$encoding'");
@@ -74,7 +74,7 @@ class DBDump extends Base {
 	
 		$this->close();
 
-		return $this;
+		return true;
 
 	}/*}}}*/
 
