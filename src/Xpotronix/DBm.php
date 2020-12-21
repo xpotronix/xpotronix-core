@@ -150,13 +150,15 @@ class DBm {
 
 		switch( $this->db_driver ) {
 
-		case 'ADODB':
+			case 'ADODB':
 				$dbi = $this->instance( $name, NewADOConnection( $implementation ) );
+				M()->info( 'ADODB driver' );
 				break;
+
 			default:
 				$dbi = $this->instance( $name, new ADOdb( $name, $implementation ) );
+				M()->info( 'PDO driver' );
 		}
-
 
 		( $table_prefix ) and ( $dbi->tablePrefix = $table_prefix ) and M()->info( "table_prefix: $table_prefix" );
 
