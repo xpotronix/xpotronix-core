@@ -179,7 +179,7 @@ class Base {
 			$oXslSource = $ba->java("javax.xml.transform.stream.StreamSource", $xsl_file);
 
 
-			$oFeatureKeys = $ba->javaClass("net.sf.saxon.FeatureKeys");
+			$oFeatureKeys = $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
 
 			$oTransformerFactory = $ba->java("net.sf.saxon.TransformerFactoryImpl");
 
@@ -217,7 +217,7 @@ class Base {
 		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
 		try {
-			$jars = array( 
+			/* $jars = array( 
 				"/usr/share/java/commons-io.jar",
 				"/usr/share/java/xmlgraphics-commons.jar",
 				"/usr/share/java/avalon-framework.jar",
@@ -231,7 +231,7 @@ class Base {
 				"/usr/share/java/xml-apis-ext.jar",
 				// "/usr/share/java/fontbox.jar",
 				"/usr/share/fop/fop-hyph.jar"
-			);
+			);*/
 
 			$options = [
 				'servlet_address' => 'localhost:8080/JavaBridgeTemplate/servlet.phpjavabridge'
@@ -281,8 +281,7 @@ class Base {
 
 		try {
 
-
-			java_require( $this->ini['java']['saxon_jar'].";" );
+			/* java_require( $this->ini['java']['saxon_jar'].";" ); */
 
 			// Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);	
 
@@ -291,7 +290,7 @@ class Base {
 			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
 			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
 
-			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.FeatureKeys");
+			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
 
 			// $cfactory = $ba->javaClass( 'javax.xml.transform.TransformerFactory' );
 			$factory = $ba->java( "net.sf.saxon.TransformerFactoryImpl" );
@@ -332,7 +331,7 @@ class Base {
 
 		/* procesador */
 
-		$saxonProc = new \Saxon\SaxonProcessor();
+		$saxonProc = new \Saxon\SaxonProcessor(true);
 		$proc = $saxonProc->newXsltProcessor();
 		$version = $saxonProc->version();
 
