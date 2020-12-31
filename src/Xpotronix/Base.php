@@ -217,22 +217,6 @@ class Base {
 		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
 		try {
-			/* $jars = array( 
-				"/usr/share/java/commons-io.jar",
-				"/usr/share/java/xmlgraphics-commons.jar",
-				"/usr/share/java/avalon-framework.jar",
-				"/usr/share/java/batik-all.jar",
-				"/usr/share/java/serializer.jar",
-				"/usr/share/java/xalan2.jar",
-				"/usr/share/java/xml-apis.jar",
-				"/usr/share/java/commons-logging.jar",
-				"/usr/share/java/xercesImpl.jar",
-				"/usr/share/java/fop.jar",
-				"/usr/share/java/xml-apis-ext.jar",
-				// "/usr/share/java/fontbox.jar",
-				"/usr/share/fop/fop-hyph.jar"
-			);*/
-
 			$options = [
 				'servlet_address' => 'localhost:8080/JavaBridgeTemplate/servlet.phpjavabridge'
 			];
@@ -270,8 +254,12 @@ class Base {
 
 			$pdffile = $ba->java( "java.io.File", $outDir, $output_file );
 
+			/*
 			$tmp = $ba->java( "java.io.FileOutputStream", $pdffile );
 			$out = $ba->java( 'java.io.BufferedOutputStream', $tmp );
+			*/
+
+			$out = $ba->java( 'java.io.ByteArrayOutputStream' );
 
 
 		} catch ( BridgeException $e) {

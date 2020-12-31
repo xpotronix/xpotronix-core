@@ -1753,20 +1753,31 @@ class Doc extends Base {
 					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
 
 					M()->debug( "xml_file: $xml_file" );
-					$this->fop_transform( $xml_file, $view_file, $params, $tmp_path, "$tmp_filename.pdf" );
+					$ret = $this->fop_transform( $xml_file, $view_file, $params, $tmp_path, "$tmp_filename.pdf" );
 
+					$this->content_type( 'application/pdf' );
+					$this->output_buffer = $ret;
+
+					/*
 					if ( $handle = fopen( $tmp_pdf_file, 'r' ) ) {
 
 						$this->content_type( 'application/pdf' );
 						$this->output_buffer = fread( $handle, filesize( $tmp_pdf_file ) );
 						fclose( $handle );
 						unlink( $tmp_pdf_file );
+
+					} else {
+
+						M()->error("No pude abrir el archivo $tmp_pdf_file");	
+						$this->output_buffer = $this->get_messages()->asXML(); 
+					
 					}
+
+					 */
 
 					if ( $this->output_buffer === null ) {
 
 						$this->content_type() or $this->content_type( 'text/html' );
-						$this->output_buffer = $this->get_messages()->asXML(); 
 					}
 
 					break;
