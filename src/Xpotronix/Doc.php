@@ -376,12 +376,17 @@ class Doc extends Base {
 					} else if ( $this->config->trusted_host_name !== NULL ) {
 
 						if ( in_array( $trusted_host_name, $this->http->remote_host_name(), true ) ) {
+
 							M()->info( "trusted_host_name machea remote_host: {$this->http->remote_host}" );
 							$this->session->user_id = $this->config->trusted_host_user_id;
+
 						} else {
+
 							M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
 							$this->session->user_id = $this->config->anonymous_user_id;
+
 						}
+
 					} else {
 
 						M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
@@ -1755,10 +1760,12 @@ class Doc extends Base {
 					M()->debug( "xml_file: $xml_file" );
 					$ret = $this->fop_transform( $xml_file, $view_file, $params, $tmp_path, "$tmp_filename.pdf" );
 
+
+					/* 
 					$this->content_type( 'application/pdf' );
 					$this->output_buffer = $ret;
 
-					/*
+					 */
 					if ( $handle = fopen( $tmp_pdf_file, 'r' ) ) {
 
 						$this->content_type( 'application/pdf' );
@@ -1773,11 +1780,11 @@ class Doc extends Base {
 					
 					}
 
-					 */
 
 					if ( $this->output_buffer === null ) {
 
 						$this->content_type() or $this->content_type( 'text/html' );
+						$this->output_buffer = $this->get_messages()->asXML(); 
 					}
 
 					break;

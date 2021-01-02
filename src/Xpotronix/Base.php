@@ -254,12 +254,10 @@ class Base {
 
 			$pdffile = $ba->java( "java.io.File", $outDir, $output_file );
 
-			/*
 			$tmp = $ba->java( "java.io.FileOutputStream", $pdffile );
 			$out = $ba->java( 'java.io.BufferedOutputStream', $tmp );
-			*/
 
-			$out = $ba->java( 'java.io.ByteArrayOutputStream' );
+			/*$out = $ba->java( 'java.io.ByteArrayOutputStream' ); */
 
 
 		} catch ( BridgeException $e) {

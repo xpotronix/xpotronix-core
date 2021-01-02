@@ -47,7 +47,8 @@
     "ext-imagick": "*",
     "ext-mbstring": "*",
     "ext-json": "*",
-    "ext-readline": "*"
+    "ext-readline": "*",
+    "guzzlehttp/guzzle": "^7.2"
 
     },
 
