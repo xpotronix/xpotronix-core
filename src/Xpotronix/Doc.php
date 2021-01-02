@@ -376,12 +376,17 @@ class Doc extends Base {
 					} else if ( $this->config->trusted_host_name !== NULL ) {
 
 						if ( in_array( $trusted_host_name, $this->http->remote_host_name(), true ) ) {
+
 							M()->info( "trusted_host_name machea remote_host: {$this->http->remote_host}" );
 							$this->session->user_id = $this->config->trusted_host_user_id;
+
 						} else {
+
 							M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
 							$this->session->user_id = $this->config->anonymous_user_id;
+
 						}
+
 					} else {
 
 						M()->debug('cargando anonymous_user_id con id '. $this->config->anonymous_user_id );
@@ -1753,15 +1758,28 @@ class Doc extends Base {
 					$xml_file = $tmp_file_uri ? $tmp_file_uri : $tmp_file;
 
 					M()->debug( "xml_file: $xml_file" );
-					$this->fop_transform( $xml_file, $view_file, $params, $tmp_path, "$tmp_filename.pdf" );
+					$ret = $this->fop_transform( $xml_file, $view_file, $params, $tmp_path, "$tmp_filename.pdf" );
 
+
+					/* 
+					$this->content_type( 'application/pdf' );
+					$this->output_buffer = $ret;
+
+					 */
 					if ( $handle = fopen( $tmp_pdf_file, 'r' ) ) {
 
 						$this->content_type( 'application/pdf' );
 						$this->output_buffer = fread( $handle, filesize( $tmp_pdf_file ) );
 						fclose( $handle );
 						unlink( $tmp_pdf_file );
+
+					} else {
+
+						M()->error("No pude abrir el archivo $tmp_pdf_file");	
+						$this->output_buffer = $this->get_messages()->asXML(); 
+					
 					}
+
 
 					if ( $this->output_buffer === null ) {
 

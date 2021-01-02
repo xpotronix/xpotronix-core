@@ -37,14 +37,25 @@
     "thiagoalessio/tesseract_ocr": "^2.9",
     "phpmailer/phpmailer": "^6.1",
     "symfony/http-foundation": "^4.4",
-    "soluble/japha": "^2.8"
+    "soluble/japha": "^2.8",
+    "samejack/php-argv": "^1.0",
+    "ext-xsl": "*",
+    "ext-mysqli": "*",
+    "ext-ldap": "*",
+    "ext-imap": "*",
+    "ext-curl": "*",
+    "ext-imagick": "*",
+    "ext-mbstring": "*",
+    "ext-json": "*",
+    "ext-readline": "*",
+    "guzzlehttp/guzzle": "^7.2"
+
     },
 
   "autoload": {
 
     "psr-4": {"Xpotronix\\": "src/Xpotronix/"},
     "files": ["includes/misc_functions.php",
-	    	"includes/Java.inc",
 		"includes/gacl.class.php",
 		"includes/gacl_api.class.php"]
   }

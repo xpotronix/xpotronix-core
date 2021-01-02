@@ -25,45 +25,28 @@
 				return false;
 			}
 
-			$c = new Curl();
+			$client = new \GuzzleHttp\Client([
+				// Base URI is used with relative requests
+				'base_uri' => 'http://httpbin.org',
+				// You can set any number of default request options.
+				'timeout'  => 2.0,
+			]);
 
-			$params = array();
+			if ( $this->type !== 'POST' ) {
 
-			$this->action and $params['action'] = $this->action;
-			$this->module and $params['action'] = $this->module;
-			$this->proc_required and $params['process'] = $this->proc_required;
-
-
-			if ( $this->type == 'POST' ) {
-
-				// print_r( urlencode( unserialize( $this->transac_data ) ) ) );
-
-				$vars = unserialize( ( $this->transac_data ) );
-				$x = $vars['x'];
-				$vars['x'] = stripslashes( $x ); // saco \" a los xml
-
-				$c->setPost( http_build_query( $vars ) ); 
-
-
-
-			} else if ( $this->type == 'GET' ) { 
-
-				// nothing
-
-			} else {
-
-				M()->error( "{$this->type} no se que tipo de request es" );
+				M()->error( "Solo POST requests, solicitada {$this->type}" );
 				return false;
-			}
 
-			/*
+			} 
 
-				// $params['x'] = addslashes( $this->transac_data );
-				// $params['j'] = $this->transac_data;
+			$vars = unserialize( ( $this->transac_data ) );
+			$x = $vars['x'];
+			$vars['x'] = stripslashes( $x ); // saco \" a los xml
 
-			*/
+			return $client->request( $this->type, $this->URL, [ 'form_params' => $vars ] );
 
-			return $c->request( $this->URL );
+
+			https://docs.guzzlephp.org/en/stable/quickstart.html			
 
 		}/*}}}*/
 
