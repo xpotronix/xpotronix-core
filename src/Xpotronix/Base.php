@@ -301,7 +301,7 @@ class Base {
 
 		} catch( JavaException $e) {
 
-			$msg = $e->getCause()->toString();
+			$msg = $e->getCause();
 
 			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file: $msg" );
 			return null;
