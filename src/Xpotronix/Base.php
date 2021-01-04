@@ -179,7 +179,7 @@ class Base {
 			$oXslSource = $ba->java("javax.xml.transform.stream.StreamSource", $xsl_file);
 
 
-			$oFeatureKeys = $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
+			$oFeatureKeys = $ba->javaClass("net.sf.saxon.FeatureKeys");
 
 			$oTransformerFactory = $ba->java("net.sf.saxon.TransformerFactoryImpl");
 
@@ -276,7 +276,7 @@ class Base {
 			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
 			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
 
-			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
+			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.FeatureKeys");
 
 			// $cfactory = $ba->javaClass( 'javax.xml.transform.TransformerFactory' );
 			$factory = $ba->java( "net.sf.saxon.TransformerFactoryImpl" );
