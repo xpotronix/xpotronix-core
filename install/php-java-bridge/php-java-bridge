@@ -14,10 +14,7 @@ XPOTRONIX_LIB=/usr/share/xpotronix/lib
 
 case "$1" in
   start)
-    echo "Starting JavaBridge "
-    touch /var/log/JavaBridge.log
-    chown www-data.www-data /var/log/JavaBridge.log
-#    sudo -u www-data java -Xms32m -Xmx64m -jar /usr/share/xpotronix/lib/JavaBridge.jar SERVLET_LOCAL:8787 3 /var/log/JavaBridge.log&
+    echo "Starting JavaBridge ..."
     sudo -u www-data java -Xms32m -Xmx64m -jar $XPOTRONIX_LIB/webapp-runner.jar --access-log  $XPOTRONIX_LIB/JavaBridgeTemplate.war&
     echo $! > /var/run/JavaBridge.pid
     ;;
