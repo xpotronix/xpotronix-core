@@ -7,6 +7,7 @@
 
 
 	<xsl:param name="path" select="'/usr/share/xpotronix/projects'"/>
+	<xsl:variable name="auth_plugin" select="'mysql_native_password'"/>
 
 	<xsl:output method="text" encoding="UTF-8" indent="yes"/>
 
@@ -20,8 +21,9 @@
 	</xsl:template>
 
 	<xsl:template match="db_instance" mode="mysql-grant">
-CREATE USER '<xsl:value-of select="user"/>'@'%' IDENTIFIED BY '<xsl:value-of select="password"/>';
-	GRANT ALL PRIVILEGES ON `<xsl:value-of select="database"/>`.* TO '<xsl:value-of select="user"/>'@'%' WITH GRANT OPTION;
+CREATE USER '<xsl:value-of select="user"/>'@'%' IDENTIFIED WITH <xsl:value-of select="$auth_plugin"/> BY '<xsl:value-of select="password"/>';
+GRANT ALL PRIVILEGES ON `<xsl:value-of select="database"/>`.* TO '<xsl:value-of select="user"/>'@'%' WITH GRANT OPTION;
+ALTER USER '<xsl:value-of select="user"/>'@'%' IDENTIFIED WITH <xsl:value-of select="$auth_plugin"/> BY '<xsl:value-of select="password"/>';
 	<!--  GRANT ALL PRIVILEGES ON *.`<xsl:value-of select="database"/>` to `<xsl:value-of select="user"/>`@`%` identified by '<xsl:value-of select="password"/>'; -->
 	</xsl:template>
 

@@ -1,0 +1,20 @@
+/*
+Gradle init script to add mysql jdbc connector dependencies to the build
+*/
+
+initscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+    }
+}
+
+allprojects {
+    apply plugin: 'java'
+    dependencies {
+	// https://mvnrepository.com/artifact/net.sf.saxon/Saxon-HE
+	// compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '10.3'
+	compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.5.1-5'
+    }
+}

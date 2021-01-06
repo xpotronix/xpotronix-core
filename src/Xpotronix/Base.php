@@ -179,7 +179,7 @@ class Base {
 			$oXslSource = $ba->java("javax.xml.transform.stream.StreamSource", $xsl_file);
 
 
-			$oFeatureKeys = $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
+			$oFeatureKeys = $ba->javaClass("net.sf.saxon.FeatureKeys");
 
 			$oTransformerFactory = $ba->java("net.sf.saxon.TransformerFactoryImpl");
 
@@ -254,12 +254,10 @@ class Base {
 
 			$pdffile = $ba->java( "java.io.File", $outDir, $output_file );
 
-			/*
 			$tmp = $ba->java( "java.io.FileOutputStream", $pdffile );
 			$out = $ba->java( 'java.io.BufferedOutputStream', $tmp );
-			*/
 
-			$out = $ba->java( 'java.io.ByteArrayOutputStream' );
+			/*$out = $ba->java( 'java.io.ByteArrayOutputStream' ); */
 
 
 		} catch ( BridgeException $e) {
@@ -278,7 +276,7 @@ class Base {
 			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
 			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
 
-			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
+			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.FeatureKeys");
 
 			// $cfactory = $ba->javaClass( 'javax.xml.transform.TransformerFactory' );
 			$factory = $ba->java( "net.sf.saxon.TransformerFactoryImpl" );
@@ -303,7 +301,7 @@ class Base {
 
 		} catch( JavaException $e) {
 
-			$msg = $e->getCause()->toString();
+			$msg = $e->getCause();
 
 			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file: $msg" );
 			return null;

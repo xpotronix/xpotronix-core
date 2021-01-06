@@ -48,7 +48,8 @@
     "ext-mbstring": "*",
     "ext-json": "*",
     "ext-readline": "*",
-    "ext-intl": "^1.1"
+    "ext-intl": "^1.1",
+    "guzzlehttp/guzzle": "^7.2"
 
     },
 
