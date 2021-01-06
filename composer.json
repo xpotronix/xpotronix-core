@@ -47,7 +47,8 @@
     "ext-imagick": "*",
     "ext-mbstring": "*",
     "ext-json": "*",
-    "ext-readline": "*"
+    "ext-readline": "*",
+    "ext-intl": "^1.1"
 
     },
 
