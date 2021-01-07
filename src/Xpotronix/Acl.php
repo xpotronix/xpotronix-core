@@ -17,7 +17,7 @@ Adaptado para xpotronix, Eduardo Spotorno
 
 namespace Xpotronix;
 
-class Acl extends \gacl_api {
+class Acl extends \Xpotronix\GaclApi {
 
 	var $user_id;
 
@@ -39,7 +39,7 @@ class Acl extends \gacl_api {
 
                         M()->fatal('Por favor defina las opciones: no ecuentro la base de datos');
 
-		parent::gacl_api($opts);
+		parent::__construct($opts);
 	}/*}}}*/
 
 	function setUserId( $user_id = null ) {/*{{{*/

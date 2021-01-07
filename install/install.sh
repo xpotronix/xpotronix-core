@@ -3,7 +3,7 @@
 XPATH=/usr/share/xpotronix
 EXT_VERSION="3.4.0"
 PHP_VERSION="7.2"
-UG_PERMS=tomcat.www-data
+UG_PERMS=www-data.www-data
 UG_MODE=775
 
 #http_proxy=http://username:password@host:port/
@@ -28,11 +28,7 @@ if [ -z $DOCUMENT_ROOT ]; then
 	DOCUMENT_ROOT="/var/www/sites"
 fi
 
-# tomcat9 fop
-apt-get install tomcat9 saxonb-xsl fop
-
 mkdir -p $XPATH
-
 
 # directorios y permisos
 mkdir -p /etc/xpotronix
@@ -54,12 +50,4 @@ ln -sf $XPATH/util/xpotronix /usr/bin/xpotronix
 ln -sf $XPATH/util/xpotronize /usr/bin/xpotronize
 ln -sf $XPATH/util/xpdumpbase-mysql /usr/bin/xpdumpbase-mysql
 ln -sf $XPATH/util/xputil /usr/bin/xputil
-
-# para FOP estas librerias adicionales
-find_java_runtime openjdk || find_java_runtime
-
-find_jars commons-io avalon-framework serializer xalan2 xml-apis
-find_jars batik-all commons-logging xercesImpl xmlgraphics-commons
-find_jars xml-apis-ext fontbox2
-
 
