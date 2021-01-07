@@ -14,6 +14,7 @@ namespace Xpotronix;
 
 use Soluble\Japha\Bridge\Adapter as BridgeAdapter;
 use Soluble\Japha\Bridge\Exception as BridgeException;
+use Soluble\Japha\Bridge\Exception\ConnectionException as ConnectionException;
 use Soluble\Japha\Bridge\Exception\JavaException as JavaException;
 
 class Base {
@@ -168,7 +169,7 @@ class Base {
 
 			$ba = new BridgeAdapter($options);
 
-		} catch ( BridgeException $e) {
+		} catch ( ConnectionException $e) {
 
 			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
 		}
