@@ -16,15 +16,32 @@
 			<acl action="permit" role="admin"/>
 			<command name="repost" for="obj_start"/>
 			<dialog>
-				<panel type="Window" obj="usuario"><config>title:'Confirmar'</config>
+				<panel type="Window" obj="audit"><config>title:'Confirmar'</config>
 				<items>
 					<cmp><config>buttonAlign:'center',
 						region:'center'
-						,html: '<h1>Realmente desea invitar estos usuarios?</h1>' 
+						,padding: '5px' 
+						, items: [{
+								xtype: 'textfield',
+								name: 'URL',
+								fieldLabel: 'Ingrese una URL valida',
+								anchor:'100%'
+
+							}]
+
 						,buttons: [
-							{text:'Aceptar',handler:function(){ command.call(); panel.hide();}} 
-							,{text:'Cancelar',handler:function(){ panel.hide();}}
-						]</config>
+							{text:'Aceptar',handler:function(){ 
+
+							const URL = this.findParentByType('panel').find('textarea[name="URL"')[0].getValue();
+
+							command.call(
+								this,
+								{ URL: URL }); 
+								panel.hide();}
+							} 
+							,{text:'Cancelar',handler:function(){ 
+								panel.hide();}}
+							]</config>
 					</cmp>
 				</items>
 				</panel>

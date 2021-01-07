@@ -17,6 +17,8 @@
 	
 		function repost( $xml ) {/*{{{*/
 
+			global $xpdoc;
+
 			$this->loaded() or $this->load( $xml['ID'] );
 
 			if ( ! $this->loaded() ) {
@@ -27,9 +29,10 @@
 
 			$client = new \GuzzleHttp\Client([
 				// Base URI is used with relative requests
-				'base_uri' => 'http://httpbin.org',
+				// 'base_uri' => 'http://httpbin.org',
 				// You can set any number of default request options.
 				'timeout'  => 2.0,
+				'cookies' => true
 			]);
 
 			if ( $this->type !== 'POST' ) {
@@ -39,14 +42,46 @@
 
 			} 
 
+			$URL = ( $xpdoc->http->URL ) ? $xpdoc->http->URL : $this->URL;
+
+			M()->user("URL: $URL");
+
 			$vars = unserialize( ( $this->transac_data ) );
-			$x = $vars['x'];
-			$vars['x'] = stripslashes( $x ); // saco \" a los xml
 
-			return $client->request( $this->type, $this->URL, [ 'form_params' => $vars ] );
+			if ( isset( $vars['x'] ) ) {
+			
+				$vars['x'] = stripslashes( $vars['x'] );
+			}
 
+			$ret = $client->request( $this->type, $URL, [ 
 
-			https://docs.guzzlephp.org/en/stable/quickstart.html			
+				'query' => [ 'a' => 'login' ]
+				,'form_params' => [
+				
+					'loginUsername' => 'espotorno',
+					'loginPassword' => 'tirulito'
+				] 
+			]);
+
+			$ret = $client->request( $this->type, $URL, [ 
+
+				'query' => [
+					'm' => $this->module,
+					'a' => $this->action,
+					'p' => $this->proc_required ]
+
+				,'form_params' => $vars
+				] );
+
+			M()->info( "reasonPhrase: ". $ret->getReasonPhrase() );
+			M()->info( "statusCode: ". $ret->getStatusCode() );
+			M()->info( "headers: ". json_encode( $ret->getHeaders() ) );
+
+			return true;
+
+			/*
+				https://docs.guzzlephp.org/en/stable/quickstart.html			
+			*/
 
 		}/*}}}*/
 
