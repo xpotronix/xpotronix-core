@@ -423,14 +423,14 @@ function SplitByLength2($string, $chunkLength=1){/*{{{*/
 
         reset( $params );
 
-        while ( list( $tmp, $p ) = each( $params) ) {
+        foreach( $params as $tmp => $p ) {
 
-            if ( $p{0} == '-' ) {
+            if ( $p[0] == '-' ) {
 
                 $pname = substr( $p, 1 );
                 $value = true;
 
-                if ( $pname{0} == '-' ) {
+                if ( $pname[0] == '-' ) {
 
                     // long-opt (--<param>)
                     $pname = substr( $pname, 1 );
@@ -446,7 +446,9 @@ function SplitByLength2($string, $chunkLength=1){/*{{{*/
                 // check if next parameter is a descriptor or a value
 
                 $nextparm = current($params);
-                if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
+		if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] != '-') 
+			list($tmp, $value) = $params;
+
                 $result[$pname] = $value;
 
             } else {

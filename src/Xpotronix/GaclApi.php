@@ -54,7 +54,9 @@
  *
  */
 
-class gacl_api extends \gacl {
+namespace Xpotronix;
+
+class GaclApi extends \Xpotronix\Gacl {
 
 	/*
 	 *
@@ -729,7 +731,7 @@ class gacl_api extends \gacl {
 		$query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aco_map a, ".$this->_db_table_prefix."aco b, ".$this->_db_table_prefix."aco_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
-		$rows = $rs->fetchAll( PDO::FETCH_NUM );
+		$rows = $rs->fetchAll( \PDO::FETCH_NUM );
 
 		$retarr['aco'] = array();
 		while (list(,$row) = @each($rows)) {
@@ -745,7 +747,7 @@ class gacl_api extends \gacl {
 		$query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."aro_map a, ".$this->_db_table_prefix."aro b, ".$this->_db_table_prefix."aro_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
-		$rows = $rs->fetchAll( PDO::FETCH_NUM );
+		$rows = $rs->fetchAll( \PDO::FETCH_NUM );
 
 		$retarr['aro'] = array();
 		while (list(,$row) = @each($rows)) {
@@ -761,7 +763,7 @@ class gacl_api extends \gacl {
 		$query = "select distinct a.section_value, a.value, c.name, b.name from ".$this->_db_table_prefix."axo_map a, ".$this->_db_table_prefix."axo b, ".$this->_db_table_prefix."axo_sections c
 							where ( a.section_value=b.section_value AND a.value = b.value) AND b.section_value=c.value AND a.acl_id = $acl_id";
 		$rs = $this->db->Execute($query);
-		$rows = $rs->fetchAll( PDO::FETCH_NUM );
+		$rows = $rs->fetchAll( \PDO::FETCH_NUM );
 
 		$retarr['axo'] = array();
 		while (list(,$row) = @each($rows)) {
@@ -1308,7 +1310,7 @@ class gacl_api extends \gacl {
 		 */
 		$sorted_groups = array();
 
-		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
+		while ($row = $rs->fetch(\PDO::FETCH_NUM)) {
 			$id = &$row[0];
 			$parent_id = &$row[1];
 			$name = &$row[2];
@@ -1473,7 +1475,7 @@ class gacl_api extends \gacl {
 			return false;
 		}
 
-		$row = $rs->fetch(PDO::FETCH_NUM);
+		$row = $rs->fetch(\PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -1626,7 +1628,7 @@ class gacl_api extends \gacl {
 			return false;
 		}
 
-		$row = $rs->fetch(PDO::FETCH_NUM);
+		$row = $rs->fetch(\PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -1670,7 +1672,7 @@ class gacl_api extends \gacl {
 
 		switch ($row_count) {
 			case 1:
-				$row = $rs->fetch(PDO::FETCH_NUM);
+				$row = $rs->fetch(\PDO::FETCH_NUM);
 				// Return the ID.
 				return $row[0];
 			case 0:
@@ -1908,7 +1910,7 @@ class gacl_api extends \gacl {
 		$retarr = array();
 
 		//format return array.
-		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
+		while ($row = $rs->fetch(\PDO::FETCH_NUM)) {
 			$section = &$row[0];
 			$value = &$row[1];
 
@@ -1976,7 +1978,7 @@ class gacl_api extends \gacl {
 			return FALSE;
 		}
 
-		$row = $rs->fetch(PDO::FETCH_NUM);
+		$row = $rs->fetch(\PDO::FETCH_NUM);
 
 		if ($row[1] != $group_id) {
 			M()->error('add_group_object(): Group ID ('. $group_id .') is invalid. Does this group exist?');
@@ -2272,7 +2274,7 @@ class gacl_api extends \gacl {
 		// the right value of this node is the left value + 1
 		$right = $left + 1;
 
-		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
+		while ($row = $rs->fetch(\PDO::FETCH_NUM)) {
 			// recursive execution of this function for each
 			// child of this node
 			// $right is the current right value, which is
@@ -2731,7 +2733,7 @@ class gacl_api extends \gacl {
 
 		$retarr = array();
 
-		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
+		while ($row = $rs->fetch(\PDO::FETCH_NUM)) {
 			$retarr[$row[0]][] = $row[1];
 		}
 
@@ -2795,7 +2797,7 @@ class gacl_api extends \gacl {
 		}
 
 		// Return all objects
-		return $rs->fetchAll( PDO::FETCH_NUM );
+		return $rs->fetchAll( \PDO::FETCH_NUM );
 	}/*}}}*/
 
 	/**
@@ -2864,7 +2866,7 @@ class gacl_api extends \gacl {
 			return false;
 		}
 
-		$row = $rs->fetch(PDO::FETCH_NUM);
+		$row = $rs->fetch(\PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -2932,7 +2934,7 @@ class gacl_api extends \gacl {
 			return false;
 		}
 
-		$row = $rs->fetch(PDO::FETCH_NUM);
+		$row = $rs->fetch(\PDO::FETCH_NUM);
 
 		//Return the ID.
 		return $row[0];
@@ -2999,7 +3001,7 @@ class gacl_api extends \gacl {
 
 		$retarr = array();
 
-		while ($row = $rs->fetch(PDO::FETCH_NUM)) {
+		while ($row = $rs->fetch(\PDO::FETCH_NUM)) {
 			$retarr[] = $row[0];
 		}
 
@@ -3090,7 +3092,7 @@ class gacl_api extends \gacl {
 			return false;
 		}
 
-		$row = $rs->fetch(PDO::FETCH_NUM);
+		$row = $rs->fetch(\PDO::FETCH_NUM);
 
 		if ($row[0] == 1) {
 			M()->info( 'el objeto ya existe' );
@@ -3499,7 +3501,7 @@ class gacl_api extends \gacl {
 		// If only one row is returned
 		if ($row_count == 1) {
 			// Return only the ID in the first row.
-			$row = $rs->fetch(PDO::FETCH_NUM);
+			$row = $rs->fetch(\PDO::FETCH_NUM);
 			return $row[0];
 		}
 
