@@ -203,7 +203,7 @@ class Base {
 
 			$oTransFormer->transform($oXmlSource, $oResultStream );
 
-			return $oResultStringWriter->toString();
+			return (string) $oResultStringWriter->toString();
 
 		} catch( JavaException $e ) {
 
