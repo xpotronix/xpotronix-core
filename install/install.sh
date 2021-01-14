@@ -2,7 +2,7 @@
 
 XPATH=/usr/share/xpotronix
 EXT_VERSION="3.4.0"
-PHP_VERSION="7.2"
+PHP_VERSION="7.4"
 UG_PERMS=www-data.www-data
 UG_MODE=775
 
