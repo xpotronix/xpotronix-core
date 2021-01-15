@@ -14,6 +14,7 @@ namespace Xpotronix;
 
 use Soluble\Japha\Bridge\Adapter as BridgeAdapter;
 use Soluble\Japha\Bridge\Exception as BridgeException;
+use Soluble\Japha\Bridge\Exception\ConnectionException as ConnectionException;
 use Soluble\Japha\Bridge\Exception\JavaException as JavaException;
 
 class Base {
@@ -168,7 +169,7 @@ class Base {
 
 			$ba = new BridgeAdapter($options);
 
-		} catch ( BridgeException $e) {
+		} catch ( ConnectionException $e) {
 
 			M()->fatal( "No puedo iniciar la conexion con la maquina virtual Java. Mensaje: ". $e->getMessage() );
 		}
@@ -179,7 +180,7 @@ class Base {
 			$oXslSource = $ba->java("javax.xml.transform.stream.StreamSource", $xsl_file);
 
 
-			$oFeatureKeys = $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
+			$oFeatureKeys = $ba->javaClass("net.sf.saxon.FeatureKeys");
 
 			$oTransformerFactory = $ba->java("net.sf.saxon.TransformerFactoryImpl");
 
@@ -202,7 +203,7 @@ class Base {
 
 			$oTransFormer->transform($oXmlSource, $oResultStream );
 
-			return $oResultStringWriter->toString();
+			return (string) $oResultStringWriter->toString();
 
 		} catch( JavaException $e ) {
 
@@ -276,7 +277,7 @@ class Base {
 			// $fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $oResultStream );
 			$fop = $fopFactory->newFop( $mimeConstants->MIME_PDF, $foUserAgent, $out );
 
-			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.lib.FeatureKeys");
+			$oFeatureKeys =  $ba->javaClass("net.sf.saxon.FeatureKeys");
 
 			// $cfactory = $ba->javaClass( 'javax.xml.transform.TransformerFactory' );
 			$factory = $ba->java( "net.sf.saxon.TransformerFactoryImpl" );
@@ -301,7 +302,7 @@ class Base {
 
 		} catch( JavaException $e) {
 
-			$msg = $e->getCause()->toString();
+			$msg = $e->getCause();
 
 			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file: $msg" );
 			return null;

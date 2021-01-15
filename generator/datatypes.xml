@@ -53,6 +53,7 @@
 	</xtype>
 	<xtype name="xpint" class="xpInt" type="numeric">
 		<type name="int"/>
+		<type name="int unsigned"/>
 		<type name="smallint"/>
 		<type name="longint"/>
 		<type name="bigint"/>

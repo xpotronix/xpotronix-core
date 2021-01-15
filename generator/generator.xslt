@@ -380,8 +380,7 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template name="datatypes"><!--{{{-->
-		<!-- <xsl:variable name="href" select="concat($application_path,'/conf/datatypes.xml')"/> -->
-		<xsl:variable name="href" select="'/var/www/sites/xpotronix/xpay/conf/datatypes.xml'"/>
+		<xsl:variable name="href" select="concat($application_path,'/conf/datatypes.xml')"/>
 		<xsl:result-document method="xml" encoding="UTF-8" href="{$href}">
 			<xsl:sequence select="$datatypes" />
 		</xsl:result-document>

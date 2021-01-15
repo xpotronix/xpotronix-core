@@ -31,12 +31,7 @@
  * @package phpGACL
  */
 
-/*
- * Path to ADODB.
- */
-if ( !defined('ADODB_DIR') ) {
-   define('ADODB_DIR', '/usr/share/php/adodb');
-}
+namespace Xpotronix;
 
 /**
 * phpGACL main class
@@ -47,7 +42,7 @@ if ( !defined('ADODB_DIR') ) {
 * @package phpGACL
 * @author Mike Benoit <ipso@snappymail.ca>
 */
-class gacl {
+class Gacl {
 	/*
 	--- phpGACL Configuration path/file ---
 	*/
@@ -108,7 +103,7 @@ class gacl {
 	 * @param array An arry of options to oeverride the class defaults
 	 */
 
-	function gacl($options = NULL) {/*{{{*/
+	function __construct($options = NULL) {/*{{{*/
 
 		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 
@@ -469,7 +464,7 @@ class gacl {
 				return FALSE;
 			}
 
-			$row = $rs->fetch( PDO::FETCH_NUM );
+			$row = $rs->fetch( \PDO::FETCH_NUM );
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
@@ -595,7 +590,7 @@ class gacl {
 			// DEBUG: devuelve dos arrays 
 			//  Unbuffered query?
 
-			while ( $row = $rs->fetch( PDO::FETCH_NUM ) )
+			while ( $row = $rs->fetch( \PDO::FETCH_NUM ) )
 				$retarr[] = $row[0];
 
 			//Cache data.

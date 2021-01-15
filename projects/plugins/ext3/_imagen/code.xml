@@ -23,38 +23,46 @@
 
 	}/*}}}*/
 
-	function cargar_imagenes( $usuario_ID = null ) {/*{{{*/
+	function cargar_imagenes( $param = null ) {/*{{{*/
 
 	global $xpdoc;
 
 	$image = new \Xpotronix\Thumb;
 
-	$file_utils = $xpdoc->get_instance('file_utils');
+	M()->user( "legajo: [{$xpdoc->http->legajo}]" );
 
-	$legajo_dir = $xpdoc->instance( 'C3_data' );
+        $usuario_ID = ( gettype( $param ) == 'string' ) ? $param : null;
 
-	if ( $usuario_ID === null ) 
+	if ( $usuario_ID === null ) {
 
-		if ( $xpdoc->http->usuario_ID ) {
+		M()->user( "el usuario_ID es nulo" );
+
+		if ( $xpdoc->http->usuario_ID !== null ) {
 
 			$usuario_ID = $xpdoc->http->usuario_ID;
+			M()->user( "tiene usuario_ID [$usuario_ID]" );
+
+		} else if ( $xpdoc->http->legajo !== null ) {
+
+			$usuario_ID = $xpdoc->http->legajo;
+			M()->user( "tiene legajo [$usuario_ID]" );
+
+			/* var_dump( $xpdoc->http->legajo ); */
+			
+		} else if ( $xpdoc->user->legajo !== null ) {
+
+			$usuario_ID = $xpdoc->user->legajo;
+			M()->user( "tiene user->legajo [$usuario_ID]" );
 
 		} else {
 
-			if ( $xpdoc->user->legajo ) {
-
-				$usuario_ID = $xpdoc->user->legajo;
-
-
-			} else {
-
-				M()->user( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, no puedo continuar. Consulte con el administrador" );
+			M()->user( "El usuario {$xpdoc->user->user_username} no tiene un legajo asociado, 
+			no puedo continuar. Consulte con el administrador" );
 				return;
-			}
 		}
+	}
 
-
-	M()->user( "Escaneando para el usuario/legajo $usuario_ID" );
+	M()->user( "Escaneando para el usuario/legajo [$usuario_ID]" );
 
 	$nuevas = 0;
 	$existentes = 0;
@@ -70,12 +78,14 @@
 
 	$imagen = $xpdoc->get_instance('imagen');
 
-	$sql = new DBQuery( $this->db() );
+	$sql = new \Xpotronix\DBQuery( $this->db() );
 	$sql->addTable("imagen")->addUpdate("encontrada", 0)->addWhere("imagen.usuario_ID = '{$usuario_ID}'")->Exec();
 
 	M()->debug( "reset de imagen->encontrada: ". $sql->prepare() ) ;
 
 	M()->debug( "escaneando imagenes para el usuario $usuario_ID y el directorio $working_path" );
+
+	$file_utils = $xpdoc->get_instance('file_utils');
 
 	$files = $file_utils->list_directory( $working_path, array( 'jpg', 'JPG', 'TIF', 'tif' ));
 
