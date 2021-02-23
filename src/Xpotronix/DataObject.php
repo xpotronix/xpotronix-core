@@ -71,6 +71,7 @@ class DataObject extends Base {
 	// consulta del objeto;
 	var $sql;
 	var $xsql;
+	var $a_sql;
 	var $affected_records;
 
 	// recordset de la ultima consulta
@@ -88,6 +89,7 @@ class DataObject extends Base {
 	// search obj
 
 	var $search;
+	var $search_keys = [];
 
 	// control consulta
 	var $order_array;
@@ -720,28 +722,58 @@ class DataObject extends Base {
 
 		// M()->debug( "key: ". json_encode( $key ).", where: ". json_encode( $where ). ", order: ". json_encode( $order ). ", page: $page" );
 
+		/* dbi */
+
 		if ( !$this->db() ) {
 
 			M()->error( "No hay manejador de base de datos, cancelando loadc" );
-
 			$this->total_records = -2;
 			return;
 		}
 
-		if ( !$this->acl ) 
-			$this->set_acl();
+		$this->sql = $this->sql_generate();
 
-		$this->sql = $this->sql_prepare();
+		$this->set_keys( $key );
 
+		if ( is_string( $where ) ) {
+
+			M()->debug( "recibiendo una directiva para WHERE: $where" );
+			$this->sql->addWhere( $where );
+		}
+
+		// $this->set_const( $this->set_foreign_key() );
+		// $this->set_const( $this->set_user_key() );
+
+		$this->set_order( $order );
+
+		/* $this->main_sql(); */
+
+		// echo "<pre>"; print( $this->sql->prepare() ); exit; 
+
+		/* page */
+		$recs = $this->page( $page );
+
+		is_array( $recs ) and M()->debug( "devolviendo ". count( $recs ). " registros" );
+
+		return $recs;
+
+	}/*}}}*/
+
+	function set_keys( $key ) {/*{{{*/
+	
 		/* global search aplicado a la consulta actual */
 
 		if ( $this->get_flag('set_global_search') ) {
 
 			M()->info( "{$this->class_name} aplicando busqueda global" );
-			 $this->set_global_search();
+			$this->set_global_search();
+
 		} else {
+
 			M()->info( "{$this->class_name} NO aplicando busqueda global" );
 		}
+
+		/* resuelve la clave de busqueda */
 
 		if ( $key === null ) {
 
@@ -775,35 +807,11 @@ class DataObject extends Base {
 				$search[key( $this->primary_key )] = $key;
 			} 
 
-			$this->set_const( $const = $this->search->process( $search, null, $this->as_variables() ) );
 
-			/*
-			M()->debug( 'clave a buscar: '. json_encode( $search ) );
-			M()->debug( 'const: '. json_encode( $const ) );
-			*/
+			$this->search_keys[] = $this->search->process( $search, null, $this->as_variables() );
+
 
 		} // else !$key
-
-		if ( is_string( $where ) ) {
-
-			M()->debug( "recibiendo una directiva para WHERE: $where" );
-			$this->sql->addWhere( $where );
-		}
-
-		// $this->set_const( $this->set_foreign_key() );
-		// $this->set_const( $this->set_user_key() );
-
-
-		$this->set_order( $order );
-		$this->main_sql();
-
-		// echo "<pre>"; print( $this->sql->prepare() ); exit; 
-
-		$recs = $this->page( $page );
-
-		is_array( $recs ) and M()->debug( "devolviendo ". count( $recs ). " registros" );
-
-		return $recs;
 
 	}/*}}}*/
 
@@ -929,7 +937,7 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-	function sql_prepare ( $sql = null ) {/*{{{*/
+	function sql_generate () {/*{{{*/
 
 		// is_object( $sql ) or 
 		$sql = new DBQuery( $this->db );
@@ -1182,7 +1190,6 @@ class DataObject extends Base {
 		M()->debug( "xpdoc->search: ". json_encode( $xpdoc->search ) );
 
 		if ( ( $xpdoc->search )
-
 			and array_key_exists($this->class_name, $xpdoc->search)
 			and is_array( $xpdoc->search[$this->class_name] ) ) {
 
@@ -1192,7 +1199,7 @@ class DataObject extends Base {
 			$search = new Search( $this );
 			$search->match_type = $xpdoc->feat->match_type ? $xpdoc->feat->match_type : 'anywhere';
 
-			$this->set_const( $search->process( $xpdoc->search[$this->class_name] ), null, $this->as_variables() );
+			$this->search_keys[] = $search->process( $xpdoc->search[$this->class_name], null, $this->as_variables() );
 		}
 
 		/*		
@@ -1300,11 +1307,11 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-	function set_const( $const = null ) {/*{{{*/
+	function set_const( $search = null ) {/*{{{*/
 
-		if ( ! count( $const ) ) return;
+		if ( ! count( $search ) ) return;
 
-		M()->debug( 'constraints: '. json_encode( $const ) );
+		M()->debug( 'constraints: '. json_encode( $search ) );
 
 		if ( @$this->xsql->sql['set'] == 'variables' ) {
 
@@ -1312,7 +1319,7 @@ class DataObject extends Base {
 
 			$set = array();
 
-			foreach( $const as $key => $vars )
+			foreach( $search as $key => $vars )
 
 				$set = array_merge( $set, $vars );
 
@@ -1335,7 +1342,7 @@ class DataObject extends Base {
 
 			/* carga los OR en la consulta sql */
 
-			if ( is_array ( @$const['OR'] ) and count( $or_array = $const['OR'] ) ) {
+			if ( is_array ( @$search['OR'] ) and count( $or_array = $search['OR'] ) ) {
 
 				$constraint_fn = ( $this->db_type() == 'dblib' ) ? 'addWhere' : 'addHaving' ;
 
@@ -1345,17 +1352,17 @@ class DataObject extends Base {
 
 			/* carga los where en la consulta sql */
 
-			if ( is_array ( @$const['where'] ) ) 
+			if ( is_array ( @$search['where'] ) ) 
 
-				foreach ( $const['where'] as $where ) 
+				foreach ( $search['where'] as $where ) 
 
 					$this->sql->addWhere( $where );
 
 			/* carga los having en la consulta sql */
 
-			if ( is_array( @$const['having'] ) )
+			if ( is_array( @$search['having'] ) )
 
-				foreach ( $const['having'] as $having ) 
+				foreach ( $search['having'] as $having ) 
 
 					$this->sql->addHaving( $having );
 		}
@@ -1380,8 +1387,8 @@ class DataObject extends Base {
 	
 	}/*}}}*/
 
-	function page ( $page = null, $page_rows = null ) {/*{{{*/
-
+	function set_page ( $page = null, $page_rows = null ) {/*{{{*/
+	
 		global $xpdoc;
 
 		$page && M()->debug( "class_name: $this->class_name, page: $page" );
@@ -1413,13 +1420,35 @@ class DataObject extends Base {
 
 		M()->info( "object: {$cn}, page_rows: $pr, current_page: $cp" );
 
+		return [ $cp, $pr ];
+	}/*}}}*/
+
+	function log_sql( $i, $sql_text, $truncate = true ) {/*{{{*/
+
+		$msg = "SQL[$i]: ";
+
+		if ( $truncate ) 
+
+			$msg .= "SELECT ... ". substr( $sql_text, strpos( $sql_text, 'FROM ' ) );
+
+		else
+			$msg .= $sql_text;
+
+		M()->debug( $msg );
+
+	}/*}}}*/
+
+	function page ( $page = null, $page_rows = null ) {/*{{{*/
+
+		list( $cp, $pr ) = $this->set_page( $page, $page_rows );
+
 		$c = count( $this->xsql->sql ); 
 		M()->debug( "cuenta $c" );
 
 		if ( $this->sql and $c == 0 )
-			$a_sql = array( $this->sql );
+			$this->a_sql = array( $this->sql );
 		else
-			$a_sql = array();
+			$this->a_sql = array();
 
 		/* c) por cada fragmento, lo ejecuta */
 
@@ -1451,39 +1480,44 @@ class DataObject extends Base {
 
 			}
 
-			$a_sql[] = $sql;
+			$this->a_sql[] = $sql;
 
 			$i++;
 		}
 
-		M()->debug( "count(a_sql): ". count( $a_sql ) );
+		M()->debug( "# fragmentos SQL: ". count( $this->a_sql ) );
 		M()->debug( "no_where_check: {$this->feat->no_where_check}" );
-
 
 		/*
 
-		if ( count( $a_sql ) > 1 ) {
+		if ( count( $this->a_sql ) > 1 ) {
 
 		// echo "<pre>"; print $xsql->asXML(); exit;
 
 		// echo "<pre>"; print_r( $this->xsql ); exit;
-			// echo "<pre>"; print_r( $a_sql ); exit;
+			// echo "<pre>"; print_r( $this->a_sql ); exit;
 		}
 
-		// echo "<pre>"; print_r( $a_sql ); exit;
+		// echo "<pre>"; print_r( $this->a_sql ); exit;
 
 		*/
 
 		$i = 1;
-		$truncate = true;
 		$rows = null;
 
-		foreach( $a_sql as $sql ) {
+		foreach( $this->a_sql as $sql ) {
+
+			$this->sql = $sql;
+ 
+			foreach ( $this->search_keys as $search ) {
+			
+				$this->set_const( $search );
+				M()->info( 'clave a buscar: '. json_encode( $search ) ); 
+			}
 
 			$sql_text = ( $this->db_type() == 'dblib' ) ?
 					$sql->prepare():
 					$sql->prepare( false, $this->feat->count_rows );
-
 
 			if ( ( $this->sql->where === null and $this->sql->having === null ) 
 				and $this->feat->no_where_check ) {
@@ -1499,16 +1533,10 @@ class DataObject extends Base {
 				continue;
 			}
 
-			$msg = "SQL[$i]: ";
 
-			if ( $truncate ) 
+			$this->log_sql( $i, $sql_text, true );
 
-				$msg .= "SELECT ... ". substr( $sql_text, strpos( $sql_text, 'FROM ' ) );
-
-			else
-				$msg .= $sql_text;
-
-			M()->debug( $msg );
+			/* Ejecuta el SQL */
 
 			try {
 
@@ -1527,6 +1555,9 @@ class DataObject extends Base {
 					} else {
 
 						/* ultimo fragmento */
+
+						/* override main_sql del objeto */
+						$this->main_sql();
 
 						if ( $this->db_type() == 'dblib' ) {
 
