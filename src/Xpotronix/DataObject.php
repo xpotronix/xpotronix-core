@@ -803,9 +803,20 @@ class DataObject extends Base {
 				$search[key( $this->primary_key )] = $key;
 			} 
 
-			$this->search_keys[] = $this->search->process( $search, null, $this->as_variables() );
+			$this->add_search_key( $this->search->process( $search, null, $this->as_variables() ) );
 		}
 
+	}/*}}}*/
+
+	function add_search_key( $key ) {/*{{{*/
+
+		M()->debug( "add_search_key: ". json_encode( $key ) );
+
+		if ( !empty( $key ) ) {
+		
+			return array_push( $this->search_keys, $key );
+		
+		}
 	}/*}}}*/
 
 	function load_array_recordset( $rows ) {/*{{{*/
@@ -1192,7 +1203,7 @@ class DataObject extends Base {
 			$search = new Search( $this );
 			$search->match_type = $xpdoc->feat->match_type ? $xpdoc->feat->match_type : 'anywhere';
 
-			$this->search_keys[] = $search->process( $xpdoc->search[$this->class_name], null, $this->as_variables() );
+			$this->add_search_key( $search->process( $xpdoc->search[$this->class_name], null, $this->as_variables() ) );
 		}
 
 		/*		
@@ -1434,20 +1445,18 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-	function page ( $page = null, $page_rows = null ) {/*{{{*/
-
-		list( $cp, $pr ) = $this->set_page( $page, $page_rows );
-
+	function load_xsql_frags() {/*{{{*/
+	
 		$xsql_frags = count( $this->xsql->sql ); 
-		M()->debug( "cuenta $xsql_frags" );
-
-		$this->a_sql = [];
-
-		$this->sql and $xsql_frags == 0 and $this->a_sql[] = $this->sql;
+		M()->debug( "# fragmentos xsql: $xsql_frags" );
 
 		$i = 1;
-
 		foreach( $this->xsql->sql as $xsql ) {
+
+			if ( ! trim( $xsql."" ) ) {
+				$i++;
+				continue;
+			}
 
 			if ( $i < $xsql_frags ) {
 
@@ -1466,11 +1475,30 @@ class DataObject extends Base {
 			}
 
 			$this->a_sql[] = $sql;
-
 			$i++;
+
 		}
 
-		M()->debug( "# fragmentos SQL: ". count( $this->a_sql ) );
+		$sql_frags = count( $this->a_sql );
+
+		M()->debug( "# fragmentos SQL: $sql_frags"  );
+
+		return $sql_frags;
+	
+	}/*}}}*/
+
+	function page ( $page = null, $page_rows = null ) {/*{{{*/
+
+		list( $cp, $pr ) = $this->set_page( $page, $page_rows );
+
+		$this->a_sql = [];
+
+		$this->load_xsql_frags() or 
+			$this->a_sql[] = $this->sql;
+
+		$sql_frags = count( $this->a_sql );
+
+		M()->debug( "sql_frags: $sql_frags" );
 		M()->debug( "no_where_check: {$this->feat->no_where_check}" );
 
 		$i = 1;
@@ -1481,20 +1509,21 @@ class DataObject extends Base {
 			$this->sql = $sql;
 
 			foreach ( $this->search_keys as $search ) {
+
 				$this->set_variables( $search );
 			}
 
 			try {
 
-				if ( $i < $xsql_frags ) {
+				if ( $i < $sql_frags ) {
+
+					M()->debug( "fragmento #$i/$sql_frags (sin paginar)" );
 
 					/* primeros: sin paginar */
 					$sql_text = ( $this->db_type() == 'dblib' ) ?
 						$sql->prepare():
 						$sql->prepare( false, $this->feat->count_rows );
-
 		
-					M()->debug( "Execute (sin paginar)" );
 					$this->log_sql( $i, $sql_text, true );
 
 					$this->recordset = $this->db->Execute( $sql_text );
@@ -1504,7 +1533,7 @@ class DataObject extends Base {
 
 				} else {
 
-					/* ultimo fragmento */
+					M()->debug( "ultimo fragmento #$i/$sql_frags" );
 
 					foreach ( $this->search_keys as $search ) {
 					
@@ -1512,9 +1541,18 @@ class DataObject extends Base {
 						M()->info( 'clave a buscar: '. json_encode( $search ) ); 
 					}
 
+					M()->debug( "ejecutando main_sql()" );
+					$this->main_sql();
+
 					$sql_text = ( $this->db_type() == 'dblib' ) ?
 						$sql->prepare():
 						$sql->prepare( false, $this->feat->count_rows );
+
+					if ( ! $sql_text ) {
+					
+						M()->error( "sql_text vacio, revisar database.xml, ignorando" );
+						continue;
+					}
 
 					if ( ( $this->sql->where === null and $this->sql->having === null ) 
 						and $this->feat->no_where_check ) {
@@ -1524,17 +1562,8 @@ class DataObject extends Base {
 						return;
 					}
 
-					if ( ! $sql_text ) {
-					
-						M()->error( "sql_text vacio, revisar xml, ignorando" );
-						continue;
-					}
-
-					$this->log_sql( $i, $sql_text, true );
 
 					/* Ejecuta el SQL */
-
-					$this->main_sql();
 
 					if ( $pr ) {
 
@@ -1547,8 +1576,12 @@ class DataObject extends Base {
 						$this->recordset = $this->db->Execute( $sql_text );
 					}
 
+					$this->log_sql( $i, $sql_text, true );
+
 					$rows = $this->recordset->fetchAll();
 					$this->recordset->closeCursor();
+					$this->search_keys = [];
+					$this->a_sql = [];
 				}
 
 			} catch ( \PDOException $e ) {
@@ -1598,7 +1631,6 @@ class DataObject extends Base {
 			$this->last_page = (bool) ( $this->total_records < ( $pr * $cp) );
 
 			// M()->debug( "last_page: ". ( $this->last_page ? 'true': 'false' ) );
-
 			// M()->mem_stats( 'salgo de page' );
 			return $this->load_array_recordset( $rows );
 		}
