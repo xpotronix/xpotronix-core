@@ -720,7 +720,10 @@ class DataObject extends Base {
 
 	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
 
-		// M()->debug( "key: ". json_encode( $key ).", where: ". json_encode( $where ). ", order: ". json_encode( $order ). ", page: $page" );
+		/* M()->debug( "key: ". json_encode( $key ).", 
+		where: ". json_encode( $where ). ", 
+		order: ". json_encode( $order ). ", 
+		page: $page" ); */
 
 		/* dbi */
 
@@ -741,14 +744,7 @@ class DataObject extends Base {
 			$this->sql->addWhere( $where );
 		}
 
-		// $this->set_const( $this->set_foreign_key() );
-		// $this->set_const( $this->set_user_key() );
-
 		$this->set_order( $order );
-
-		/* $this->main_sql(); */
-
-		// echo "<pre>"; print( $this->sql->prepare() ); exit; 
 
 		/* page */
 		$recs = $this->page( $page );
@@ -796,7 +792,7 @@ class DataObject extends Base {
 
 			} else {
 
-				$search = array();
+				$search = [];
 
 				M()->debug( "la clave es un escalar $key" );
 
@@ -807,11 +803,8 @@ class DataObject extends Base {
 				$search[key( $this->primary_key )] = $key;
 			} 
 
-
 			$this->search_keys[] = $this->search->process( $search, null, $this->as_variables() );
-
-
-		} // else !$key
+		}
 
 	}/*}}}*/
 
@@ -823,7 +816,7 @@ class DataObject extends Base {
 				return null;
 			}
 
-			$objs = array();
+			$objs = [];
 			$objs_count = 0;
 
 			// M()->mem_stats( 'entro a load_array_recordset' );
@@ -1038,7 +1031,7 @@ class DataObject extends Base {
 
 		/* if ( $this->class_name == 'cliente' ) { $this->debug_object(); exit; } */
 
-		$protect_list_attr = array();
+		$protect_list_attr = [];
 
 		/* joins de queries asociadas */
 
@@ -1222,7 +1215,7 @@ class DataObject extends Base {
 
 	function quote_order( $order ) {/*{{{*/
 
-		$res = array();
+		$res = [];
 
 		$order = preg_replace('/[\r\n\s]+/xms', ' ', trim($order));
 		$order = preg_replace('/\s*,\s*/s', ',', trim($order));
@@ -1251,7 +1244,6 @@ class DataObject extends Base {
 		global $xpdoc;
 
 		is_array( $order ) or @$order = $xpdoc->order[$this->class_name]; 
-
 
 		if ( is_array( $order ) ) 
 
@@ -1313,11 +1305,9 @@ class DataObject extends Base {
 
 		M()->debug( 'constraints: '. json_encode( $search ) );
 
-		if ( @$this->xsql->sql['set'] == 'variables' ) {
+		if ( $this->as_variables() ) {
 
-			// print 'hola'; exit;
-
-			$set = array();
+			$set = [];
 
 			foreach( $search as $key => $vars )
 
@@ -1399,7 +1389,7 @@ class DataObject extends Base {
 
 		/* a) configura el rango de la paginacion */
 
-		is_array( $this->pager ) or $this->pager = array( 'pr' => 0, 'cp' => 1 );
+		is_array( $this->pager ) or $this->pager = [ 'pr' => 0, 'cp' => 1 ];
 
 		$pr =& $this->pager['pr'];
 		$cp =& $this->pager['cp'];
@@ -1442,13 +1432,13 @@ class DataObject extends Base {
 
 		list( $cp, $pr ) = $this->set_page( $page, $page_rows );
 
-		$c = count( $this->xsql->sql ); 
-		M()->debug( "cuenta $c" );
+		$xsql_frags = count( $this->xsql->sql ); 
+		M()->debug( "cuenta $xsql_frags" );
 
-		if ( $this->sql and $c == 0 )
-			$this->a_sql = array( $this->sql );
-		else
-			$this->a_sql = array();
+		$this->a_sql = [];
+
+		if ( $this->sql and $xsql_frags == 0 )
+			$this->a_sql[] = $this->sql;
 
 		/* c) por cada fragmento, lo ejecuta */
 
@@ -1456,14 +1446,7 @@ class DataObject extends Base {
 
 		foreach( $this->xsql->sql as $xsql ) {
 
-			// M()->debug( "en loop #$i con ". $xsql->asXML() );
-
-			// echo "<pre>"; print_r( $xsql->asXML() );
-
-			// $sql = (string) $sql_p;
-
-
-			if ( $i < $c ) {
+			if ( $i < $xsql_frags ) {
 
 				$sql = new DBQuery( $this->db() );
 				$this->set_dbquery( $sql, $xsql, false );
@@ -1487,20 +1470,6 @@ class DataObject extends Base {
 
 		M()->debug( "# fragmentos SQL: ". count( $this->a_sql ) );
 		M()->debug( "no_where_check: {$this->feat->no_where_check}" );
-
-		/*
-
-		if ( count( $this->a_sql ) > 1 ) {
-
-		// echo "<pre>"; print $xsql->asXML(); exit;
-
-		// echo "<pre>"; print_r( $this->xsql ); exit;
-			// echo "<pre>"; print_r( $this->a_sql ); exit;
-		}
-
-		// echo "<pre>"; print_r( $this->a_sql ); exit;
-
-		*/
 
 		$i = 1;
 		$rows = null;
@@ -1542,7 +1511,7 @@ class DataObject extends Base {
 
 				if ( $pr ) {
 
-					if ( $i < $c ) {
+					if ( $i < $xsql_frags ) {
 
 						/* primeros: sin paginar */
 
@@ -1629,7 +1598,7 @@ class DataObject extends Base {
 
 		} else {
 
-			$this->last_page = (bool) ( $this->total_records < ($pr*$cp) );
+			$this->last_page = (bool) ( $this->total_records < ( $pr * $cp) );
 
 			// M()->debug( "last_page: ". ( $this->last_page ? 'true': 'false' ) );
 
@@ -1676,7 +1645,7 @@ class DataObject extends Base {
 		    rowNo
 		*/
 
-		$offset = $pr * ($cp-1);
+		$offset = $pr * ( $cp - 1 );
 
 		M()->info( "offset: $offset, page_rows: $pr" );
 
