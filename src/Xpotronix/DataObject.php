@@ -1314,6 +1314,8 @@ class DataObject extends Base {
 	
 		if ( $this->as_variables() ) {
 
+			/* por ahora solo mysql */
+
 			$set = [];
 
 			foreach( $search as $key => $vars )
@@ -1325,16 +1327,12 @@ class DataObject extends Base {
 			M()->debug( "$sql" );
 
 			try {
-
 				$this->db->Execute( $sql );
 
 			} catch ( \PDOException $e ) {
 
-				M()->db_error( $this->db, 'set_variables', $sql );
-				// M()->user( print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ) );
-				exit;
+				M()->db_error( $this->db, 'set_variables', "Error al asignar variables: [$sql]" );
 			}
-
 		}
 	
 	}/*}}}*/
@@ -1430,7 +1428,7 @@ class DataObject extends Base {
 		return [ $cp, $pr ];
 	}/*}}}*/
 
-	function log_sql( $i, $sql_text, $truncate = true ) {/*{{{*/
+	function log_sql( $i, $sql_text, $truncate = false ) {/*{{{*/
 
 		$msg = "SQL[$i]: ";
 
@@ -1494,7 +1492,7 @@ class DataObject extends Base {
 		$this->a_sql = [];
 
 		$this->load_xsql_frags() or 
-			$this->a_sql[] = $this->sql;
+			$this->a_sql = [ $this->sql ];
 
 		$sql_frags = count( $this->a_sql );
 
@@ -1521,10 +1519,10 @@ class DataObject extends Base {
 
 					/* primeros: sin paginar */
 					$sql_text = ( $this->db_type() == 'dblib' ) ?
-						$sql->prepare():
+						$sql->prepare( false ):
 						$sql->prepare( false, $this->feat->count_rows );
 		
-					$this->log_sql( $i, $sql_text, true );
+					$this->log_sql( $i, $sql_text );
 
 					$this->recordset = $this->db->Execute( $sql_text );
 					$i++;
@@ -1568,7 +1566,7 @@ class DataObject extends Base {
 					if ( $pr ) {
 
 						/* override main_sql del objeto */
-						$this->paged_query( $sql_text, $pr, $cp );
+						$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
 
 					} else  {
 
@@ -1576,9 +1574,10 @@ class DataObject extends Base {
 						$this->recordset = $this->db->Execute( $sql_text );
 					}
 
-					$this->log_sql( $i, $sql_text, true );
+					$this->log_sql( $i, $sql_text );
 
 					$rows = $this->recordset->fetchAll();
+					$row_count = count( $rows );
 					$this->recordset->closeCursor();
 					$this->search_keys = [];
 					$this->a_sql = [];
@@ -1602,7 +1601,6 @@ class DataObject extends Base {
 
 		if ( $this->feat->count_rows ) {
 
-			// $this->total_records = $this->recordset->rowCount();
 			if ( $this->db_type() == 'dblib' ) {
 				// $r = $this->recordset->fetch( \PDO::FETCH_ASSOC );
 				@$r = $rows[0];
@@ -1611,7 +1609,8 @@ class DataObject extends Base {
 				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( \PDO::FETCH_ASSOC );
 			}
 
-			$this->total_records = $r['__TotalRows'];
+			$this->total_records = $r['__TotalRows'] or 
+			$this->total_records = $row_count;
 		} 
 
 		M()->debug('total_records: '. $this->total_records );
@@ -1640,23 +1639,34 @@ class DataObject extends Base {
 	}/*}}}*/
 
 	function paged_query( $sql, $pr, $cp ) {/*{{{*/
+
+		$ret = null;
 	
 		if ( $this->db_type() == 'dblib' ) {
 
 			M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
-			$this->recordset = $this->paged_query_dblib( $sql, $pr, $cp );
+			$ret = $this->paged_query_dblib( $sql, $pr, $cp );
 
 		} else {
 
 			M()->debug( "PageExecute con pr: $pr y cp: $cp" );
-			$this->recordset = $this->db->PageExecute( $sql, $pr, $cp );
+			$ret = $this->db->PageExecute( $sql, $pr, $cp );
 
-			/* if ( $this->class_name == 'v_compensatoria' ) 
-			{ echo "<pre>"; print_r( $this->recordset->fetchAll() ); exit; } */
 		}
+
+		if ( false and $this->class_name == 'rliquid_sumariza_aporte' ) 
+		{ echo "<pre>"; print_r( $ret->fetchAll() ); exit; }
+
+		return $ret;
+
 	}/*}}}*/
 
 	function paged_query_dblib( $sql, $pr, $cp ) {/*{{{*/
+
+		if ( $sql ) {
+
+			return $this->db->Execute( $sql );
+		}
 
 		$sql = $this->sql;
 
