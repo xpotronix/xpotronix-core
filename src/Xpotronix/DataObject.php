@@ -1299,12 +1299,8 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-	function set_const( $search = null ) {/*{{{*/
-
-		if ( ! count( $search ) ) return;
-
-		M()->debug( 'constraints: '. json_encode( $search ) );
-
+	function set_variables( $search = null ) {/*{{{*/
+	
 		if ( $this->as_variables() ) {
 
 			$set = [];
@@ -1328,7 +1324,17 @@ class DataObject extends Base {
 				exit;
 			}
 
-		} else { 
+		}
+	
+	}/*}}}*/
+
+	function set_const( $search = null ) {/*{{{*/
+
+		if ( ! count( $search ) ) return;
+
+		M()->debug( 'constraints: '. json_encode( $search ) );
+
+		if ( ! $this->as_variables() ) {
 
 			/* carga los OR en la consulta sql */
 
@@ -1383,7 +1389,7 @@ class DataObject extends Base {
 
 		$page && M()->debug( "class_name: $this->class_name, page: $page" );
 
-		$cn =  $this->class_name;
+		$cn = $this->class_name;
 
 		// $cn == '_licencia' and xdebug_start_trace('/tmp/xpotronix-trace.xt');
 
@@ -1437,10 +1443,7 @@ class DataObject extends Base {
 
 		$this->a_sql = [];
 
-		if ( $this->sql and $xsql_frags == 0 )
-			$this->a_sql[] = $this->sql;
-
-		/* c) por cada fragmento, lo ejecuta */
+		$this->sql and $xsql_frags == 0 and $this->a_sql[] = $this->sql;
 
 		$i = 1;
 
@@ -1460,7 +1463,6 @@ class DataObject extends Base {
 
 				$sql = $this->sql;
 				$this->set_dbquery( $sql, $xsql );
-
 			}
 
 			$this->a_sql[] = $sql;
@@ -1477,80 +1479,77 @@ class DataObject extends Base {
 		foreach( $this->a_sql as $sql ) {
 
 			$this->sql = $sql;
- 
+
 			foreach ( $this->search_keys as $search ) {
-			
-				$this->set_const( $search );
-				M()->info( 'clave a buscar: '. json_encode( $search ) ); 
+				$this->set_variables( $search );
 			}
-
-			$sql_text = ( $this->db_type() == 'dblib' ) ?
-					$sql->prepare():
-					$sql->prepare( false, $this->feat->count_rows );
-
-			if ( ( $this->sql->where === null and $this->sql->having === null ) 
-				and $this->feat->no_where_check ) {
-
-				M()->user( "tabla sin condicion de WHERE o HAVING, no se puede procesar" );
-				$this->total_records = -3;
-				return;
-			}
-
-			if ( ! $sql_text ) {
-			
-				M()->error( "sql_text vacio, no se puede continuar" );
-				continue;
-			}
-
-
-			$this->log_sql( $i, $sql_text, true );
-
-			/* Ejecuta el SQL */
 
 			try {
 
-				if ( $pr ) {
+				if ( $i < $xsql_frags ) {
 
-					if ( $i < $xsql_frags ) {
+					/* primeros: sin paginar */
+					$sql_text = ( $this->db_type() == 'dblib' ) ?
+						$sql->prepare():
+						$sql->prepare( false, $this->feat->count_rows );
 
-						/* primeros: sin paginar */
+		
+					M()->debug( "Execute (sin paginar)" );
+					$this->log_sql( $i, $sql_text, true );
+
+					$this->recordset = $this->db->Execute( $sql_text );
+					$i++;
+
+					continue; /* DEBUG: si no corta el loop */
+
+				} else {
+
+					/* ultimo fragmento */
+
+					foreach ( $this->search_keys as $search ) {
+					
+						$this->set_const( $search );
+						M()->info( 'clave a buscar: '. json_encode( $search ) ); 
+					}
+
+					$sql_text = ( $this->db_type() == 'dblib' ) ?
+						$sql->prepare():
+						$sql->prepare( false, $this->feat->count_rows );
+
+					if ( ( $this->sql->where === null and $this->sql->having === null ) 
+						and $this->feat->no_where_check ) {
+
+						M()->user( "tabla sin condicion de WHERE o HAVING, no se puede procesar" );
+						$this->total_records = -3;
+						return;
+					}
+
+					if ( ! $sql_text ) {
+					
+						M()->error( "sql_text vacio, revisar xml, ignorando" );
+						continue;
+					}
+
+					$this->log_sql( $i, $sql_text, true );
+
+					/* Ejecuta el SQL */
+
+					$this->main_sql();
+
+					if ( $pr ) {
+
+						/* override main_sql del objeto */
+						$this->paged_query( $sql_text, $pr, $cp );
+
+					} else  {
 
 						M()->debug( "Execute (sin paginar)" );
 						$this->recordset = $this->db->Execute( $sql_text );
-						$i++;
-
-						continue; /* DEBUG: si no corta el loop */
-
-					} else {
-
-						/* ultimo fragmento */
-
-						/* override main_sql del objeto */
-						$this->main_sql();
-
-						if ( $this->db_type() == 'dblib' ) {
-
-							M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
-							$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
-
-						} else {
-
-							M()->debug( "PageExecute con pr: $pr y cp: $cp" );
-							$this->recordset = $this->db->PageExecute( $sql_text, $pr, $cp );
-
-							/* if ( $this->class_name == 'v_compensatoria' ) { echo "<pre>"; print_r( $this->recordset->fetchAll() ); exit; } */
-
-						}
 					}
 
-				} else  {
-
-					M()->debug( "Execute (sin paginar)" );
-					$this->recordset = $this->db->Execute( $sql_text );
+					$rows = $this->recordset->fetchAll();
+					$this->recordset->closeCursor();
 				}
-
-				$rows = $this->recordset->fetchAll();
-				$this->recordset->closeCursor();
 
 			} catch ( \PDOException $e ) {
 
@@ -1562,8 +1561,6 @@ class DataObject extends Base {
 				return null;
 			}
 		}
-
-
 
 		/* d) calcula el record count */
 
@@ -1611,8 +1608,23 @@ class DataObject extends Base {
 	}/*}}}*/
 
 	function paged_query( $sql, $pr, $cp ) {/*{{{*/
+	
+		if ( $this->db_type() == 'dblib' ) {
 
-		// esto tiene que ir en DBQuery
+			M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
+			$this->recordset = $this->paged_query_dblib( $sql, $pr, $cp );
+
+		} else {
+
+			M()->debug( "PageExecute con pr: $pr y cp: $cp" );
+			$this->recordset = $this->db->PageExecute( $sql, $pr, $cp );
+
+			/* if ( $this->class_name == 'v_compensatoria' ) 
+			{ echo "<pre>"; print_r( $this->recordset->fetchAll() ); exit; } */
+		}
+	}/*}}}*/
+
+	function paged_query_dblib( $sql, $pr, $cp ) {/*{{{*/
 
 		$sql = $this->sql;
 
