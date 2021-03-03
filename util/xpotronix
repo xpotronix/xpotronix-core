@@ -13,9 +13,14 @@
 
 //ini_set( 'include_path', ini_get( 'include_path' ). ':/usr/share/php/adodb' );
 
+use \samejack\PHP\ArgvParser;
+
 require __DIR__. '/../vendor/autoload.php';
 
-$params = parseParameters();
+global $argv;
+
+$argvParser = new ArgvParser();
+$params = $argvParser->parseConfigs($argv);
 
 isset( $params['path'] ) or $params['path'] = '.';
 
