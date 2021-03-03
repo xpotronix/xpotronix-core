@@ -515,11 +515,10 @@ class DBQuery {
 
 	/* prepare */
 
-	function prepareCount() {
+	function prepareCount() {/*{{{*/
 
 		return $this->prepare( false, true );
-	}
-
+	}/*}}}*/
 
 	function prepare( $clear = false, $count = false ) {/*{{{*/
 
