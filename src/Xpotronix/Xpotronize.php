@@ -12,8 +12,11 @@
 
 namespace Xpotronix;
 
+use \samejack\PHP\ArgvParser;
+
 class Xpotronize extends Base {
 
+	var $command;
 	var $argv;
 	var $opts;
 	var $ini;
@@ -30,30 +33,26 @@ class Xpotronize extends Base {
 
 		parent::__construct();
 
-		$this->opts = parseParameters( ['f', 'a', 'd', 't', 'm', 'h'] );
+		$argvParser = new ArgvParser();
+
+		$this->opts = $argvParser->parseConfigs($argv);
+
+		M()->info( 'opts: '. json_encode( $this->opts ) );
 
 		if ( isset( $this->opts['h'] ) ) {
 
-			print "xpotronize [project <project_path>] [config_file <config_file>] [feat_file <feat_file>][-fadtmh]\n";
-			print "project: path del proyecto\n";
-			print "m: <module> solo este modulo 'm'\n";
-			print "d: (dry) mostrar que va a hacer\n";
-			print "h: help\n";
+			print "xpotronize [--project <project_path>] [--config_file <config_file>] [--feat_file <feat_file>] [-fatdmh]\n";
+			print "-m: <module> solo este modulo 'm'\n";
+			print "-d: (dry) mostrar que va a hacer\n";
+			print "-h: help\n";
 			exit;
 		}
-
-		foreach( $this->opts as $key => $value )
-			if ( is_numeric( $key ) ) 
-				$this->argv[] = $value;
-
-		M()->info( "opts: " . serialize( $this->opts ) );
 
 		$this->load_ini();
 
 	}/*}}}*/
 
 	function get_absolute_path( $file_name ) {/*{{{*/
-
 
 		$path_info = pathinfo( $file_name );
 
@@ -73,19 +72,19 @@ class Xpotronize extends Base {
 		
 		M()->info( "projects_dir: ". $projects_dir = $this->ini['paths']['projects'] );
 
-		if ( count( $this->argv ) > 1 ) {
-
-			if ( $tmp = realpath( $this->argv[1] ) )
+		if ( isset( $this->opts['project'] ) and $project = $this->opts['project'] ) {
+		
+			if ( $tmp = realpath( $project ) )
 				$project_path = $tmp;
-			else if (( $tmp = realpath( implode( self::DS, [ $projects_dir, $this->argv[1] ] ) ) ) )
+			else if (( $tmp = realpath( implode( self::DS, [ $projects_dir, $project ] ) ) ) )
 				$project_path = $tmp;
 			else 
-				M()->fatal( "la ruta de origen de la aplicacion {$this->argv[1]} es invalida" );
+				M()->fatal( "la ruta de origen de la aplicacion $project es invalida" );
 
 		} else if (( $tmp = getcwd() ))
 			$project_path = $tmp;
 		else
-			M()->fatal( "la ruta de origen de la aplicacion {$this->argv[1]} es invalida" );
+			M()->fatal( "la ruta de origen de la aplicacion $project es invalida" );
 
 		M()->info( "project_path: ". $this->transform['params']['project_path'] = $project_path );
 
@@ -136,9 +135,12 @@ class Xpotronize extends Base {
 
 		// uso:
 		// xputil [project_path] [xsl_file]
+		//
+		//
+		print_r( $this->opts ); exit;
 
 
-		if ( count ( $this->argv ) < 2 ) 
+		if ( count ( $this->opts ) < 2 ) 
 			M()->fatal( 'uso: xputil {command|xsl_file} [xml_file]' );
 
 		$project_path = getcwd();
@@ -146,20 +148,20 @@ class Xpotronize extends Base {
 
 		$this->transform['params']['project_path'] = $project_path;
 
-		$command_path = implode( self::DS, [ $this->ini['paths']['lib'], 'util', $this->argv[1] ] );
+		$command_path = implode( self::DS, [ $this->ini['paths']['lib'], 'util', $this->opts[1] ] );
 
-		if ( file_exists( $tmp = $this->argv[1] ) )
+		if ( file_exists( $tmp = $this->opts[1] ) )
 			$xsl_file = $tmp;
 		else if ( file_exists( $tmp = $command_path. '.xsl' ) )
 			$xsl_file = $tmp;
 		else if ( file_exists( $tmp = $command_path. '.xslt' ) )
 			$xsl_file = $tmp;
-		else	M()->fatal( "no es un archivo ni un comando valido ". $this->argv[1] );
+		else	M()->fatal( "no es un archivo ni un comando valido ". $this->opts[1] );
 
 		$this->transform['xsl'] = $xsl_file;
 
-		$xml_file = ( count( $this->argv ) > 2 ) ? 
-			$this->argv[2] : 
+		$xml_file = ( count( $this->opts ) > 2 ) ? 
+			$this->opts[2] : 
 			'tables.xml';
 
 		$this->transform['xml'] = implode( self::DS, [ $project_path, $xml_file ] );
