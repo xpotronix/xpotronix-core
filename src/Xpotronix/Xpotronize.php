@@ -136,9 +136,6 @@ class Xpotronize extends Base {
 		// uso:
 		// xputil [project_path] [xsl_file]
 		//
-		//
-		print_r( $this->opts ); exit;
-
 
 		if ( count ( $this->opts ) < 2 ) 
 			M()->fatal( 'uso: xputil {command|xsl_file} [xml_file]' );
@@ -148,20 +145,23 @@ class Xpotronize extends Base {
 
 		$this->transform['params']['project_path'] = $project_path;
 
-		$command_path = implode( self::DS, [ $this->ini['paths']['lib'], 'util', $this->opts[1] ] );
+		/* el comando y los argumentos simples son los keys del array */
+		$opts = array_keys( $this->opts );
 
-		if ( file_exists( $tmp = $this->opts[1] ) )
+		$command_path = implode( self::DS, [ $this->ini['paths']['lib'], 'util', $opts[1] ] );
+
+		if ( file_exists( $tmp = $opts[1] ) )
 			$xsl_file = $tmp;
 		else if ( file_exists( $tmp = $command_path. '.xsl' ) )
 			$xsl_file = $tmp;
 		else if ( file_exists( $tmp = $command_path. '.xslt' ) )
 			$xsl_file = $tmp;
-		else	M()->fatal( "no es un archivo ni un comando valido ". $this->opts[1] );
+		else	M()->fatal( "no es un archivo ni un comando valido ". $opts[1] );
 
 		$this->transform['xsl'] = $xsl_file;
 
-		$xml_file = ( count( $this->opts ) > 2 ) ? 
-			$this->opts[2] : 
+		$xml_file = ( count( $opts ) > 2 ) ? 
+			$opts[2] : 
 			'tables.xml';
 
 		$this->transform['xml'] = implode( self::DS, [ $project_path, $xml_file ] );
