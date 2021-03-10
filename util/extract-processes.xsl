@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
+
+<!--
+extract-process: extrae los elemnetos del UI del archivo process.xml
+usage: xputil extract-process model.xml > templates/ext/process.xml
+-->
+
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<!--Identity template, 
-		provides default behavior that copies all content into the output -->
 
 	<xsl:output method="xml" cdata-section-elements="script dialog" indent="no"/>
 

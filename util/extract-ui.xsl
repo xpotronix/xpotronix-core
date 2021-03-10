@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+
+<!--
+extract-ui: extrae los elemnetos del UI del archivo model.xml
+usage: xputil extract-ui model.xml > templates/ext/ui.xml
+-->
+
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 	<xsl:output method="xml" cdata-section-elements="config event renderer" indent="no"/>
