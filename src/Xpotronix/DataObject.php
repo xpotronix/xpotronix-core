@@ -1609,7 +1609,7 @@ class DataObject extends Base {
 				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( \PDO::FETCH_ASSOC );
 			}
 
-			$this->total_records = $r['__TotalRows'] or 
+			@$this->total_records = $r['__TotalRows'] or 
 			$this->total_records = $row_count;
 		} 
 
