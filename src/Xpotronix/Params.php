@@ -79,8 +79,10 @@ class Params {
 
 					if ( is_array( $value ) ) {
 
-						foreach( $value as $val )
-							$xpdoc->order[$obj_name][$val->property] = $val->direction;
+						foreach( $value as $val ) {
+							if ( isset( $val->property ) )	
+								$xpdoc->order[$obj_name][$val->property] = $val->direction;
+						}
 					}
 
 					break;
