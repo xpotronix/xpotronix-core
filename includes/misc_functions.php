@@ -3,6 +3,18 @@
 use Xpotronix\Messages;
 use Xpotronix\Constants;
 
+function rsearch($folder, $pattern) {
+
+    $dir = new RecursiveDirectoryIterator($folder);
+    $ite = new RecursiveIteratorIterator($dir);
+    $files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH, RecursiveIteratorIterator::CATCH_GET_CHILD);
+    $fileList = array();
+    foreach($files as $file) {
+        $fileList = array_merge($fileList, $file);
+    }
+    return $fileList;
+}
+
 function M() {/*{{{*/
 
 	static $mess;

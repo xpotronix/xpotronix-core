@@ -847,9 +847,13 @@ class Doc extends Base {
 			$instance = new $class_name( $model );
 			return $instance;
 		
-		} catch ( \Exception $e ) {
-		
-			M()->error( "No pude crear la clase $class_name" );
+		} catch ( \Throwable $e ) {
+
+			$mess = $e->getMessage();
+			$line = $e->getLine();
+			$file = $e->getFile();
+
+			M()->error( "No pude crear la clase $class_name, motivo: $mess, archivo: $file, linea: $line" );
 			return null;
 		}
 
