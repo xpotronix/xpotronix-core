@@ -1491,12 +1491,16 @@ class DataObject extends Base {
 
 		$this->a_sql = [];
 
-		$this->load_xsql_frags() or 
+		/* # fragmentos definidos en database.xml */
+
+		( $xsl_frags = $this->load_xsql_frags() ) or 
 			$this->a_sql = [ $this->sql ];
+
+		/* # fragmentos a ejecutar */
 
 		$sql_frags = count( $this->a_sql );
 
-		M()->debug( "sql_frags: $sql_frags" );
+		M()->debug( "sql_frags: $sql_frags, xsql_frags: $xsql_frags" );
 		M()->debug( "no_where_check: {$this->feat->no_where_check}" );
 
 		$i = 1;
@@ -1542,15 +1546,22 @@ class DataObject extends Base {
 					M()->debug( "ejecutando main_sql()" );
 					$this->main_sql();
 
-					$sql_text = ( $this->db_type() == 'dblib' ) ?
-						$sql->prepare():
-						$sql->prepare( false, $this->feat->count_rows );
-
+					if ( $this->db_type() == 'dblib' ) {
+					
+						$sql_text =  $this->prepare_dblib( $pr, $cp );
+					
+					} else {
+					
+						$sql_text = $sql->prepare( false, $this->feat->count_rows );
+					
+					}
+ 
 					if ( ! $sql_text ) {
 					
 						M()->error( "sql_text vacio, revisar database.xml, ignorando" );
 						continue;
 					}
+
 
 					if ( ( $this->sql->where === null and $this->sql->having === null ) 
 						and $this->feat->no_where_check ) {
@@ -1566,6 +1577,7 @@ class DataObject extends Base {
 					if ( $pr ) {
 
 						/* override main_sql del objeto */
+						M()->debug( "paged_query (paginado)" );
 						$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
 
 					} else  {
@@ -1588,6 +1600,7 @@ class DataObject extends Base {
 				$this->total_records = -1;
 				$this->last_page = null;
 				$this->loaded( false );
+				$this->search_keys = [];
 
 				M()->db_error( $this->db, 'SELECT', $sql_text );
 				return null;
@@ -1641,11 +1654,13 @@ class DataObject extends Base {
 	function paged_query( $sql, $pr, $cp ) {/*{{{*/
 
 		$ret = null;
+
+
 	
 		if ( $this->db_type() == 'dblib' ) {
 
 			M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
-			$ret = $this->paged_query_dblib( $sql, $pr, $cp );
+			$ret = $this->db->Execute( $sql );
 
 		} else {
 
@@ -1661,12 +1676,91 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
+	function prepare_dblib( $pr, $cp ) {/*{{{*/
+
+		/*
+		
+		tomado de http://blog.pengoworks.com/index.cfm/2008/6/10/Pagination-your-data-in-MSSQL-2005
+		
+		-- create the Common Table Expression, which is a table called "pagination"
+		with pagination as
+		(
+		    -- your normal query goes here, but you put your ORDER BY clause in the rowNo declaration
+		    select
+		        row_number() over (order by department, employee) as rowNo,
+		        -- a list of the column you want to retrieve
+		        employeeId, employee, department 
+		    from 
+		        Employee
+		    where 
+		        disabled = 0
+		)
+		-- we now query the CTE table
+		select 
+		    -- add an additional column which contains the total number of records in the query
+		    *, (select count(*) from pagination) as totalResults
+		from
+		    pagination
+		where 
+		    RowNo between 11 and 20     
+		order by
+		    rowNo
+		 */
+
+		$sql = $this->sql;
+
+		$offset = $pr * ( $cp - 1 );
+
+		M()->info( "offset: $offset, page_rows: $pr" );
+
+		$q = array();
+
+		$q[] = "WITH PAGINATION AS (";
+
+			$q[] = "SELECT ROW_NUMBER() ";
+			$q[] = " OVER (";
+
+			if ( $sql->make_order_clause() )
+				$q[] = $sql->make_order_clause();
+			else
+				$q[] = $sql->make_order_clause( $this->get_primary_key_array( true ) );
+
+			$q[] = ") AS __RowNumber,";
+
+			$q[] = $sql->prepareSelectFields();
+			$q[] = "FROM [". $this->get_table_name()."]";
+
+			$q[] = $sql->make_join();
+			$q[] = $sql->make_where_clause();
+			$q[] = $sql->make_group_clause();
+			$q[] = $sql->make_having_clause();
+
+		$q[] = ")";
+
+		$q[] = "SELECT *, (SELECT COUNT(*) FROM PAGINATION) as __TotalRows FROM PAGINATION WHERE __RowNumber BETWEEN $offset AND ". (string) ($offset + $pr). "  ORDER BY __RowNumber";
+
+		$query = implode( ' ', $q );
+
+		// print $query; exit;
+
+		M()->info( $query );
+
+		return $query;
+
+	}/*}}}*/
+
+
 	function paged_query_dblib( $sql, $pr, $cp ) {/*{{{*/
 
 		if ( $sql ) {
 
+			M()->debug( "ejecutando parrafo SQL textual" );
+
+			if ( $this->class_name == 'TBINTER' ) { print 'hola'. $sql; exit; }
+
 			return $this->db->Execute( $sql );
 		}
+
 
 		$sql = $this->sql;
 
