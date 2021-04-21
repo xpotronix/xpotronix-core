@@ -1553,7 +1553,9 @@ class DataObject extends Base {
 
 					if ( $this->db_type() == 'dblib' ) {
 					
-						$sql_text =  $this->prepare_dblib( $pr, $cp );
+						$sql_text =  ( $xsql_frags ) ? 
+							$sql->prepare() : 
+							$this->prepare_dblib( $pr, $cp );
 
 						/* if ( $this->class_name == 'tta_resumen' ) { echo '<pre>'; print_r( $sql_text ); exit; } */
 					
