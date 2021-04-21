@@ -1493,7 +1493,7 @@ class DataObject extends Base {
 
 		/* # fragmentos definidos en database.xml */
 
-		( $xsl_frags = $this->load_xsql_frags() ) or 
+		( $xsql_frags = $this->load_xsql_frags() ) or 
 			$this->a_sql = [ $this->sql ];
 
 		/* # fragmentos a ejecutar */
@@ -1519,6 +1519,9 @@ class DataObject extends Base {
 
 				if ( $i < $sql_frags ) {
 
+
+					/* todos los fragmentos menos el ultimo */
+
 					M()->debug( "fragmento #$i/$sql_frags (sin paginar)" );
 
 					/* primeros: sin paginar */
@@ -1535,6 +1538,8 @@ class DataObject extends Base {
 
 				} else {
 
+					/* ultimo fragmento */
+
 					M()->debug( "ultimo fragmento #$i/$sql_frags" );
 
 					foreach ( $this->search_keys as $search ) {
@@ -1549,11 +1554,12 @@ class DataObject extends Base {
 					if ( $this->db_type() == 'dblib' ) {
 					
 						$sql_text =  $this->prepare_dblib( $pr, $cp );
+
+						/* if ( $this->class_name == 'tta_resumen' ) { echo '<pre>'; print_r( $sql_text ); exit; } */
 					
 					} else {
 					
 						$sql_text = $sql->prepare( false, $this->feat->count_rows );
-					
 					}
  
 					if ( ! $sql_text ) {
@@ -1683,17 +1689,18 @@ class DataObject extends Base {
 		tomado de http://blog.pengoworks.com/index.cfm/2008/6/10/Pagination-your-data-in-MSSQL-2005
 		
 		-- create the Common Table Expression, which is a table called "pagination"
-		with pagination as
+
+		WITH PAGINATION AS
 		(
-		    -- your normal query goes here, but you put your ORDER BY clause in the rowNo declaration
-		    select
-		        row_number() over (order by department, employee) as rowNo,
-		        -- a list of the column you want to retrieve
-		        employeeId, employee, department 
-		    from 
-		        Employee
-		    where 
-		        disabled = 0
+			SELECT
+
+			ROW_NUMBER() ORDER ( ORDER BY field1, ... ) AS __RowNumber,
+
+				field1, field2, ..., fieldN 
+			FROM
+				Employee
+			WHERE
+			        disabled = 0
 		)
 		-- we now query the CTE table
 		select 
@@ -1707,13 +1714,21 @@ class DataObject extends Base {
 		    rowNo
 		 */
 
+
+		$sql_text = null;
+
 		$sql = $this->sql;
+
+		if ( isset( $sql->sql[0] ) ) {
+
+			$sql_text = array_shift( $sql->sql );
+		}
 
 		$offset = $pr * ( $cp - 1 );
 
 		M()->info( "offset: $offset, page_rows: $pr" );
 
-		$q = array();
+		$q = [];
 
 		$q[] = "WITH PAGINATION AS (";
 
@@ -1727,6 +1742,7 @@ class DataObject extends Base {
 
 			$q[] = ") AS __RowNumber,";
 
+
 			$q[] = $sql->prepareSelectFields();
 			$q[] = "FROM [". $this->get_table_name()."]";
 
@@ -1734,6 +1750,7 @@ class DataObject extends Base {
 			$q[] = $sql->make_where_clause();
 			$q[] = $sql->make_group_clause();
 			$q[] = $sql->make_having_clause();
+
 
 		$q[] = ")";
 
@@ -1746,90 +1763,6 @@ class DataObject extends Base {
 		M()->info( $query );
 
 		return $query;
-
-	}/*}}}*/
-
-
-	function paged_query_dblib( $sql, $pr, $cp ) {/*{{{*/
-
-		if ( $sql ) {
-
-			M()->debug( "ejecutando parrafo SQL textual" );
-
-			if ( $this->class_name == 'TBINTER' ) { print 'hola'. $sql; exit; }
-
-			return $this->db->Execute( $sql );
-		}
-
-
-		$sql = $this->sql;
-
-		/*
-		
-		tomado de http://blog.pengoworks.com/index.cfm/2008/6/10/Pagination-your-data-in-MSSQL-2005
-		
-		-- create the Common Table Expression, which is a table called "pagination"
-		with pagination as
-		(
-		    -- your normal query goes here, but you put your ORDER BY clause in the rowNo declaration
-		    select
-		        row_number() over (order by department, employee) as rowNo,
-		        -- a list of the column you want to retrieve
-		        employeeId, employee, department 
-		    from 
-		        Employee
-		    where 
-		        disabled = 0
-		)
-		-- we now query the CTE table
-		select 
-		    -- add an additional column which contains the total number of records in the query
-		    *, (select count(*) from pagination) as totalResults
-		from
-		    pagination
-		where 
-		    RowNo between 11 and 20     
-		order by
-		    rowNo
-		*/
-
-		$offset = $pr * ( $cp - 1 );
-
-		M()->info( "offset: $offset, page_rows: $pr" );
-
-		$q = array();
-
-		$q[] = "WITH PAGINATION AS (";
-
-			$q[] = "SELECT ROW_NUMBER() ";
-			$q[] = " OVER (";
-
-			if ( $sql->make_order_clause() )
-				$q[] = $sql->make_order_clause();
-			else
-				$q[] = $sql->make_order_clause( $this->get_primary_key_array( true ) );
-
-			$q[] = ") AS __RowNumber,";
-
-			$q[] = $sql->prepareSelectFields();
-			$q[] = "FROM [". $this->get_table_name()."]";
-
-			$q[] = $sql->make_join();
-			$q[] = $sql->make_where_clause();
-			$q[] = $sql->make_group_clause();
-			$q[] = $sql->make_having_clause();
-
-		$q[] = ")";
-
-		$q[] = "SELECT *, (SELECT COUNT(*) FROM PAGINATION) as __TotalRows FROM PAGINATION WHERE __RowNumber BETWEEN $offset AND ". (string) ($offset + $pr). "  ORDER BY __RowNumber";
-
-		$query = implode( ' ', $q );
-
-		// print $query; exit;
-
-		M()->info( $query );
-
-		return $this->db->Execute( $query );
 
 	}/*}}}*/
 
