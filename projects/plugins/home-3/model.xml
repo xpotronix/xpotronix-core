@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 
 	<table name="home" translate="Principal" layout="ext/treemenu">
 		<panel type="xpGrid"/>
@@ -42,4 +42,4 @@
 		<panel type="xpForm" display="inspect"/>
 	</table>
 
-</database>
+</model>

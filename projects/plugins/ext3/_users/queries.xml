@@ -10,13 +10,11 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
-   <queries>
-      <query name="user_id">
-         <id>users.user_id</id>
-         <label>users.user_username</label>
-         <from>users</from>
-	 <order>users.user_username</order>
-      </query>
-   </queries>
-</database>
+<queries>
+  <query name="user_id">
+	 <id>users.user_id</id>
+	 <label>users.user_username</label>
+	 <from>users</from>
+ <order>users.user_username</order>
+  </query>
+</queries>

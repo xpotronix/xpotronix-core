@@ -22,20 +22,9 @@
 	<xsl:param name="module"/>
 	<xsl:param name="debug" select="false()"/>
 
-	<!-- archivos de configuracion de xpotronix de la aplicacion -->
 
-	<xsl:variable name="tables_file" 	select="string(concat($project_path,'/tables.xml'))"/>
-	<xsl:variable name="database_file" 	select="string(concat($project_path,'/database.xml'))"/>
-	<xsl:variable name="queries_file" 	select="string(concat($project_path,'/queries.xml'))"/>
 
-	<xsl:variable name="model_file"		select="string(concat($project_path,'/model.xml'))"/>
-	<xsl:variable name="code_file" 		select="string(concat($project_path,'/code.xml'))"/>
-
-	<xsl:variable name="processes_file" 	select="string(concat($project_path,'/processes.xml'))"/>
-	<xsl:variable name="menu_file" 		select="string(concat($project_path,'/menu.xml'))"/>
-	<xsl:variable name="views_file" 	select="string(concat($project_path,'/views.xml'))"/>
-
-	<xsl:variable name="license_file" 	select="string(concat($project_path,'/license.xml'))"/>
+	
 
 	<!-- -->
 	<!-- includes -->
@@ -50,21 +39,43 @@
 	<!-- globals -->
 	<!-- -->
 
+
+	<!-- all files -->
+
+	<xsl:variable name="includes" select="document(concat($project_path,'/model.xml'))/model/include"/>
+
+	<xsl:variable name="all_documents">
+		<xsl:sequence select="collection(concat($project_path,'?select=*.xml'))"/>
+		<xsl:for-each select="$includes">
+
+			<xsl:choose>
+				<xsl:when test="unparsed-text-available(concat($project_path,'/',@path))">
+					<xsl:sequence select="collection(concat($project_path,'/',@path,'?select=*.xml'))"/>
+				</xsl:when>
+				<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',@path))">
+					<xsl:sequence select="collection(concat($xpotronix_path,'/',@path,'?select=*.xml'))"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:message>No encuentro la coleccion <xsl:value-of select="@path"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
+				</xsl:otherwise>
+			</xsl:choose>
+
+		</xsl:for-each>
+	</xsl:variable>
+
+	<!-- all files -->
+
 	<xsl:variable name="datatypes" select="document('datatypes.xml')"/>
 
 	<!-- includes list -->
 
-	<xsl:variable name="includes" select="document($model_file)//include"/>
 
 	<!-- collections -->
 
 	<xsl:variable name="table_collection"><!--{{{-->
 
 		<xsl:variable name="tmp">
-			<xsl:sequence select="document($tables_file)/database/table"/>
-			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'tables.xml')/database/table"/>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/tables/table"/>
 		</xsl:variable>
 
 		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
@@ -74,10 +85,7 @@
 	<xsl:variable name="model_collection"><!--{{{-->
 
 		<xsl:variable name="tmp">
-			<xsl:sequence select="document($model_file)/database/table"/>
-			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'model.xml')/database/table"/>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/model/table"/>
 		</xsl:variable>
 
 		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
@@ -87,14 +95,11 @@
 	<xsl:variable name="code_collection"><!--{{{-->
 
 		<!-- merge de los metodos del objeto entre la configuracion y los common/code -->
-		<xsl:for-each select="$model_collection/table">
+		<xsl:for-each select="$all_documents/model/table">
 			<xsl:variable name="name" select="@name"/>
 			<xsl:copy>
 				<xsl:sequence select="@name"/>
-				<xsl:sequence select="document($code_file)/database/table[@name=$name]/code"/>
-				<xsl:for-each select="$includes">
-					<xsl:sequence select="xp:get_document(@path,'/code.xml')/database/table[@name=$name]/code"/>
-				</xsl:for-each>
+				<xsl:sequence select="$all_documents/code/table[@name=$name]/code"/>
 			</xsl:copy>
 		</xsl:for-each>
 	</xsl:variable><!--}}}-->
@@ -102,23 +107,16 @@
 	<xsl:variable name="file_collection"><!--{{{-->
 
 		<xsl:variable name="tmp">
-			<xsl:sequence select="document($code_file)//file"/>
-			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'code.xml')//file"/>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents//file[not(@name=preceding-sibling::file/@name)]"/>
 		</xsl:variable>
 
-		<xsl:sequence select="$tmp/file[not(@name=preceding-sibling::file/@name)]"/>
 
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="database_collection"><!--{{{-->
 
 		<xsl:variable name="tmp">
-			<xsl:sequence select="document($database_file)/database/table"/>
-			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'database.xml')/database/table"/>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/database/table"/>
 		</xsl:variable>
 
 		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
@@ -128,10 +126,7 @@
 	<xsl:variable name="queries_collection"><!--{{{-->
 
 		<xsl:variable name="tmp">
-			<xsl:sequence select="document($queries_file)//query"/>
-			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'queries.xml')//query"/>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/queries/query"/>
 		</xsl:variable>
 
 		<queries>
@@ -143,10 +138,7 @@
 	<xsl:variable name="processes_collection"><!--{{{-->
 
 		<xsl:variable name="tmp">
-			<xsl:sequence select="document($processes_file)/database/table"/>
-			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'processes.xml')/database/table"/>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/processes/table"/>
 		</xsl:variable>
 
 		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
@@ -156,76 +148,29 @@
 	<xsl:variable name="menu_collection"><!--{{{-->
 
 		<xsl:element name="menu">
-			<xsl:sequence select="document($menu_file)/menu/@*"/>
-			<xsl:sequence select="document($menu_file)/menu/*"/>
-			<xsl:for-each select="$includes">
-				<xsl:sequence select="xp:get_document(@path,'menu.xml')/menu/*"/>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/menu/@*"/>
+			<xsl:sequence select="$all_documents/menu/*"/>
 		</xsl:element>
 
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="views_collection"><!--{{{-->
 
-		<xsl:sequence select="document($views_file)//table"/>
-		<xsl:for-each select="$includes">
-			<xsl:sequence select="xp:get_document(@path,'views.xml')/database/table"/>
-		</xsl:for-each>
+		<xsl:sequence select="$all_documents/views/table"/>
 
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="feat_collection"><!--{{{-->
 		<xsl:element name="feat">
-			<xsl:sequence select="document($feat_file)/feat/*"/>
-			<xsl:for-each select="$includes">
-				<xsl:for-each select="xp:get_document(@path,'feat.xml')/feat/*">
-					<xsl:variable name="node_name" select="name()"/>
-					<xsl:if test="count(document($feat_file)/feat/*[name()=$node_name])=0">
-						<xsl:sequence select="."/>
-					</xsl:if>
-				</xsl:for-each>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/feat/*"/>
 		</xsl:element>
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="config_collection"><!--{{{-->
 		<xsl:element name="config">
-			<xsl:sequence select="document($config_file)/config/*"/>
-			<xsl:for-each select="$includes">
-				<xsl:for-each select="xp:get_document(@path,'config.xml')/config/*">
-					<xsl:variable name="node_name" select="name()"/>
-					<xsl:variable name="name" select="@name"/>
-					<xsl:choose>
-						<xsl:when test="not(@name) and count(document($config_file)/config/*[name()=$node_name])=0">
-							<xsl:sequence select="."/>
-						</xsl:when>
-						<xsl:when test="@name and count(document($config_file)/config/*[name()=$node_name and @name=$name])=0">
-							<xsl:sequence select="."/>
-						</xsl:when>
-					</xsl:choose>
-				</xsl:for-each>
-			</xsl:for-each>
+			<xsl:sequence select="$all_documents/config/*"/>
 		</xsl:element>
 	</xsl:variable><!--}}}-->
-
-	<xsl:function name="xp:get_document"><!--{{{-->
-
-		<xsl:param name="path"/>
-		<xsl:param name="file"/>
-
-		<xsl:choose>
-			<xsl:when test="unparsed-text-available(concat($project_path,'/',$path,'/',$file))">
-				<xsl:sequence select="document(concat($project_path,'/',$path,'/',$file))"/>
-			</xsl:when>
-			<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',$path,'/',$file))">
-				<xsl:sequence select="document(concat($xpotronix_path,'/',$path,'/',$file))"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:message>No encuentro al archivo <xsl:value-of select="concat($path,'/',$file)"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
-			</xsl:otherwise>
-		</xsl:choose>
-
-        </xsl:function><!--}}}-->
 
 	<!-- -->
 	<!-- Plantilla Principal -->
@@ -308,6 +253,10 @@
 
 		<xsl:message></xsl:message>
 
+		<xsl:message>documentos xml leidos: <xsl:value-of select="count($all_documents)"/></xsl:message>
+
+		<xsl:message></xsl:message>
+
 		<xsl:if test="$config_path=''">
 			<xsl:message>Necesita especificar el parametro 'config_path' en la transformacion.</xsl:message>
 		</xsl:if>
@@ -346,6 +295,7 @@
 				<xsl:apply-templates select="$model_collection/table" mode="views"/>
 				<xsl:apply-templates select="$code_collection/table" mode="js_code"/>
 			</xsl:when>
+
 			<xsl:otherwise>
 				<xsl:message>transformando solo el modulo <xsl:value-of select="$module"/></xsl:message>
 				<xsl:apply-templates select="$model_collection/table[@name=$module]" mode="class_main"/>
@@ -451,7 +401,9 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="config" mode="config"><!--{{{-->
-		<xsl:variable name="application_name" select="$feat_collection//application"/>
+		<xsl:variable name="application_name" select="$feat_collection//application[1]"/>
+
+			<!-- <xsl:message terminate="yes"><xsl:value-of select="concat($config_path,'/conf/',$application_name,'/config.xml')"/></xsl:message> -->
 		<xsl:variable name="output_file" select="concat($config_path,'/conf/',$application_name,'/config.xml')"/>
 		<xsl:message>generando archivo de configuracion en <xsl:value-of select="$output_file"/></xsl:message>
 		<xsl:result-document method="xml" encoding="UTF-8" indent="yes" href="{$output_file}">

@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<processes>
 	<table name="file">
                <process name="download" translate="Descargar Archivo">
                         <acl action="permit" role="admin"/>
@@ -41,4 +41,4 @@
 
 
 
-</database>
+</processes>

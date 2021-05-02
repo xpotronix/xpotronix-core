@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<tables>
    <table name="users">
       <auto name="user_id"/>
       <primary name="user_id"/>
@@ -41,4 +41,4 @@
       <index name="name">var_name</index>
    </table>
 
-</database>
+</tables>

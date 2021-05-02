@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 
 	<!-- Usuarios del Sistema -->
 
@@ -192,4 +192,4 @@
 	<field name="RepiteClave" display="password"/>
 </table><!--}}}-->
 
-</database>
+</model>

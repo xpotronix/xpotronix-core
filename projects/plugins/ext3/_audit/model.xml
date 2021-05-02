@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 
 	<table name="audit" translate="Auditoría de Accesos"><!--{{{-->
 
@@ -33,4 +33,4 @@
 		<field name="transac_data" translate="Datos de la Transacción"/>
 	</table><!--}}}-->
 
-</database>
+</model>

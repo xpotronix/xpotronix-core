@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<code>
    <table name="users">
 
 	<code type="php" mode="var_def">
@@ -936,4 +936,4 @@ M()->stats( 'END' );
 
 
 
-</database>
+</code>

@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<tables>
    <table name="sessions">
       <primary name="session_id"/>
       <index name="session_created"/>
@@ -25,4 +25,4 @@
              extra=""/>
      <field name="user_id" type="char(32)" null="NO" key="MUL" default="" extra=""/>
    </table>
-</database>
+</tables>

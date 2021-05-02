@@ -10,10 +10,10 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 	<table name="sessions"><!--{{{-->
 		<panel type="xpGrid"/>
 		<panel type="xpForm"/>
 		<field name="user_id" translate="Usuario" eh="user_id"/>
 	</table><!--}}}-->
-</database>
+</model>

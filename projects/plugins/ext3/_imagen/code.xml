@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<code>
 
    <table name="imagen">
 
@@ -184,7 +184,7 @@
    </table>
 
 
-</database>
+</code>
 <!-- vim600: fdm=marker sw=3 ts=8 ai: 
 -->
 

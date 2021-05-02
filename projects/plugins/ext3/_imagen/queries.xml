@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<queries>
 
 		<query name="foto_ID">
 			<id>foto.ID</id>
@@ -19,4 +19,4 @@
 			<order_by>foto.fecha,foto.fotografo_alias,foto.foto</order_by>
 		</query>
 
-</database>
+</queries>

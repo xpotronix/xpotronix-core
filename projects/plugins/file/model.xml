@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 
 	<table name="file_utils"/>
 	<table name="file">
@@ -28,4 +28,4 @@
 			<renderer><![CDATA['<a href="'+record.data.content+'" target="_blank">Descargar</a>']]></renderer>
 		</field>
 	</table>
-</database>
+</model>

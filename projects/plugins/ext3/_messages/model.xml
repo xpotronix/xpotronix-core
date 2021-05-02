@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 	<table name="mailer"/>
 	<table name="sms"/>
-</database>
+</model>

@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<code>
 
    <table name="audit">
 	<code type="php" mode="class_functions">
@@ -226,5 +226,5 @@
 	</code>
    </table>
 
-</database>
+</code>
 

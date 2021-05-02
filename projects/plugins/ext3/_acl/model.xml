@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 
 	<table name="gacl_axo_groups" translate="Grupos de Módulos del Sistema"><!--{{{-->
 
@@ -282,4 +282,4 @@
 		<field name="axo_id" translate="axo_id" validate="empty" eh="axo_id"/>
 	</table><!--}}}-->
 
-</database>
+</model>

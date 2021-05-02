@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<tables>
    <table name="gacl_acl">
       <primary name="id"/>
       <index name="updated_date"/>
@@ -171,4 +171,4 @@
       <field name="axo_id" type="int(11)" null="NO" key="PRI" default="0" extra=""/>
    </table>
 
-</database>
+</tables>

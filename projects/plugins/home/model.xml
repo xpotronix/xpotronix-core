@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<model>
 
 	<!-- con @layout se puede seleccionar el template de salida de la transformacion directamente desde aca, deberia llamarse view que responde al set_view() del controlador, esta es otra forma mas, por ahi cambiarle el nombre o poner los feat como atributos del objeto 
 
@@ -74,4 +74,4 @@
 		<panel type="xpForm" display="inspect"/>
 	</table>
 
-</database>
+</model>

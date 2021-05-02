@@ -32,7 +32,7 @@
 		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
-		<xsl:variable name="license" select="document($license_file)/license"/>
+		<xsl:variable name="license" select="$all_documents/license"/>
 
 		<!--<xsl:message terminate="yes"><xsl:value-of select="$class_file_name"/></xsl:message> -->
 		<xsl:result-document method="text" encoding="UTF-8" href="{$class_file_name}"><![CDATA[<?php

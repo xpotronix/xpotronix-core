@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<code>
 
 <table name="tip"><!--{{{-->
 	<code mode="events" type="js"><![CDATA[
@@ -132,4 +132,4 @@ Ext.onReady(function() {
 	]]></code>
 	</table><!--}}}-->
 
-</database>
+</code>

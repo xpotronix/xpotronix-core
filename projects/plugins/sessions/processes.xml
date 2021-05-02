@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<processes>
 
         <table name="sessions">
                <process name="cleanup" translate="Session Cleanup">
@@ -19,4 +19,4 @@
                 </process>
         </table>
 
-</database>
+</processes>

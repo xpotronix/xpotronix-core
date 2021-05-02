@@ -279,8 +279,8 @@
 					<xsl:sequence select="$database_collection//table[@name=$table_name]/primary"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:if test="document($tables_file)/database/table[@name=$table_name]">
-	                        		<xsl:message>La tabla <xsl:value-of select="$table_name"/> no tiene clave primaria definida</xsl:message>
+					<xsl:if test="$all_documents/tables/table[@name=$table_name]">
+                      		<xsl:message>La tabla <xsl:value-of select="$table_name"/> no tiene clave primaria definida</xsl:message>
 					</xsl:if>
 				</xsl:otherwise>
 			</xsl:choose>
