@@ -178,54 +178,10 @@
 
 	<xsl:template match="/"><!--{{{-->
 
-		<!-- debug collections -->
-
 		<xsl:if test="$debug">
 
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="table_collection.xml">
-				<xsl:sequence select="$table_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="database_collection.xml">
-				<xsl:sequence select="$database_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="model_collection.xml">
-				<xsl:sequence select="$model_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="code_collection.xml">
-				<xsl:sequence select="$code_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="file_collection.xml">
-				<xsl:sequence select="$file_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="queries_collection.xml">
-				<xsl:sequence select="$queries_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="processes_collection.xml">
-				<xsl:sequence select="$processes_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="menu_collection.xml">
-				<xsl:sequence select="$menu_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="views_collection.xml">
-				<xsl:sequence select="$views_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="feat_collection.xml">
-				<xsl:sequence select="$feat_collection"/>
-			</xsl:result-document>
-
-			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="config_collection.xml">
-				<xsl:sequence select="$config_collection"/>
-			</xsl:result-document>
-
+			<xsl:include href="debug.xslt"/>
+			<xsl:apply-templates select="." mode="debug"/>
 
 		</xsl:if>
 
@@ -429,6 +385,31 @@
 			</feat>
 		</xsl:result-document>
 	</xsl:template><!--}}}-->
+
+	<!-- utilitarios -->
+
+	<!-- toma la refrencia a archivos en dos directorios distintos -->
+
+	<xsl:function name="xp:get_document"><!--{{{-->
+
+		<xsl:param name="path"/>
+		<xsl:param name="file"/>
+
+		<xsl:choose>
+			<xsl:when test="unparsed-text-available(concat($project_path,'/',$path,'/',$file))">
+				<xsl:sequence select="document(concat($project_path,'/',$path,'/',$file))"/>
+			</xsl:when>
+			<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',$path,'/',$file))">
+				<xsl:sequence select="document(concat($xpotronix_path,'/',$path,'/',$file))"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:message>No encuentro al archivo <xsl:value-of select="concat($path,'/',$file)"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
+			</xsl:otherwise>
+		</xsl:choose>
+
+	</xsl:function><!--}}}-->
+
+
 
 </xsl:stylesheet>
 <!-- vim600: fdm=marker sw=3 ts=8 ai: 
