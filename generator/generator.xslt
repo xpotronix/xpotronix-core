@@ -22,10 +22,6 @@
 	<xsl:param name="module"/>
 	<xsl:param name="debug" select="false()"/>
 
-
-
-	
-
 	<!-- -->
 	<!-- includes -->
 	<!-- -->
@@ -34,18 +30,21 @@
 	<xsl:include href="xslt/class.xslt"/>
 	<xsl:include href="xslt/field.xslt"/>
 	<xsl:include href="xslt/model.xslt"/>
+	<xsl:include href="debug.xslt"/>
 
 	<!-- -->
 	<!-- globals -->
 	<!-- -->
 
-
 	<!-- all files -->
 
 	<xsl:variable name="includes" select="document(concat($project_path,'/model.xml'))/model/include"/>
 
-	<xsl:variable name="all_documents">
+	<xsl:variable name="all_documents"><!--{{{-->
+
 		<xsl:sequence select="collection(concat($project_path,'?select=*.xml'))"/>
+		<xsl:sequence select="collection(concat($project_path,'?select=templates/ui/xml*.xml'))"/>
+
 		<xsl:for-each select="$includes">
 
 			<xsl:choose>
@@ -61,14 +60,66 @@
 			</xsl:choose>
 
 		</xsl:for-each>
-	</xsl:variable>
+
+	</xsl:variable><!--}}}-->
+
+	<xsl:variable name="all_documents_path"><!--{{{-->
+
+		<xp:application>
+
+			<xsl:for-each select="collection(concat($project_path,'?select=*.xml'))">
+
+				<section name="{*/name()}" uri="{document-uri(.)}">
+						<!-- <xsl:copy-of select="."/> -->
+				</section>
+
+			</xsl:for-each>
+
+			<xsl:for-each select="$includes">
+
+				<xsl:choose>
+
+					<xsl:when test="unparsed-text-available(concat($project_path,'/',@path))">
+
+						<xsl:for-each select="collection(concat($project_path,'/',@path,'?select=*.xml'))">
+
+							<section name="{*/name()}" uri="{document-uri(.)}">
+									<!-- <xsl:copy-of select="."/> -->
+							</section>
+
+						</xsl:for-each>
+
+					</xsl:when>
+
+					<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',@path))">
+
+						<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'?select=*.xml'))">
+
+							<section name="{*/name()}" uri="{document-uri(.)}">
+									<!-- <xsl:copy-of select="."/> -->
+							</section>
+
+						</xsl:for-each>
+
+					</xsl:when>
+
+					<xsl:otherwise>
+
+						<xsl:message>No encuentro la coleccion <xsl:value-of select="@path"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
+
+					</xsl:otherwise>
+
+				</xsl:choose>
+
+			</xsl:for-each>
+
+		</xp:application>
+
+	</xsl:variable><!--}}}-->
 
 	<!-- all files -->
 
 	<xsl:variable name="datatypes" select="document('datatypes.xml')"/>
-
-	<!-- includes list -->
-
 
 	<!-- collections -->
 
@@ -84,32 +135,29 @@
 
 	<xsl:variable name="model_collection"><!--{{{-->
 
-		<xsl:variable name="tmp">
-			<xsl:sequence select="$all_documents/model/table"/>
-		</xsl:variable>
-
-		<xsl:sequence select="$tmp/table[not(@name=preceding-sibling::table/@name)]"/>
+		<xsl:for-each-group select="$all_documents/model/table" group-by="@name">
+			<xsl:copy>
+				<xsl:sequence select="@name"/>
+				<xsl:sequence select="*"/>
+			</xsl:copy>
+		</xsl:for-each-group>
 
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="code_collection"><!--{{{-->
 
 		<!-- merge de los metodos del objeto entre la configuracion y los common/code -->
-		<xsl:for-each select="$all_documents/model/table">
-			<xsl:variable name="name" select="@name"/>
+		<xsl:for-each-group select="$all_documents/model/table" group-by="@name">
 			<xsl:copy>
 				<xsl:sequence select="@name"/>
-				<xsl:sequence select="$all_documents/code/table[@name=$name]/code"/>
+				<xsl:sequence select="$all_documents/code/table[@name=current-grouping-key()]/code"/>
 			</xsl:copy>
-		</xsl:for-each>
+		</xsl:for-each-group>
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="file_collection"><!--{{{-->
 
-		<xsl:variable name="tmp">
-			<xsl:sequence select="$all_documents//file[not(@name=preceding-sibling::file/@name)]"/>
-		</xsl:variable>
-
+		<xsl:sequence select="$all_documents//file[not(@name=preceding-sibling::file/@name)]"/>
 
 	</xsl:variable><!--}}}-->
 
@@ -161,15 +209,44 @@
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="feat_collection"><!--{{{-->
-		<xsl:element name="feat">
-			<xsl:sequence select="$all_documents/feat/*"/>
-		</xsl:element>
+
+		<feat>
+			<xsl:sequence select="$all_documents/feat[1]/*"/>
+
+			<xsl:for-each select="$all_documents/feat[position()>1]/*">
+				<xsl:choose>
+					<xsl:when test="not(@name) and not($all_documents/feat[1]/*[name()=current()/name()])">
+						<xsl:sequence select="."/>
+					</xsl:when>
+					<xsl:when test="@name and not($all_documents/feat/*[name()=current()/name() and @name=current()/@name])">
+						<xsl:sequence select="."/>
+					</xsl:when>
+				</xsl:choose>
+			</xsl:for-each>
+
+		</feat>
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="config_collection"><!--{{{-->
-		<xsl:element name="config">
-			<xsl:sequence select="$all_documents/config/*"/>
-		</xsl:element>
+
+		<config>
+
+			<xsl:sequence select="$all_documents/config[1]/*"/>
+
+			<xsl:for-each select="$all_documents/config[position()>1]/*">
+				<xsl:choose>
+					<xsl:when test="not(@name) and not($all_documents/config[1]/*[name()=current()/name()])">
+						<xsl:sequence select="."/>
+					</xsl:when>
+					<xsl:when test="@name and not($all_documents/config/*[name()=current()/name() and @name=current()/@name])">
+						<xsl:sequence select="."/>
+					</xsl:when>
+				</xsl:choose>
+			</xsl:for-each>
+
+		</config>
+
 	</xsl:variable><!--}}}-->
 
 	<!-- -->
@@ -180,7 +257,6 @@
 
 		<xsl:if test="$debug">
 
-			<xsl:include href="debug.xslt"/>
 			<xsl:apply-templates select="." mode="debug"/>
 
 		</xsl:if>
@@ -199,17 +275,25 @@
 		<xsl:message></xsl:message>
 		<xsl:message>Parametros de la Transformacion:</xsl:message>
 
-		<xsl:message>xpotronix_path: &#x9;<xsl:value-of select="$xpotronix_path"/></xsl:message>
-		<xsl:message>project_path: &#x9;&#x9;<xsl:value-of select="$project_path"/></xsl:message>
-		<xsl:message>config_path: &#x9;&#x9;<xsl:value-of select="$config_path"/></xsl:message>
-		<xsl:message>application_path: &#x9;<xsl:value-of select="$application_path"/></xsl:message>
-		<xsl:message>config_file: &#x9;&#x9;<xsl:value-of select="$config_file"/></xsl:message>
-		<xsl:message>feat_file: &#x9;&#x9;<xsl:value-of select="$feat_file"/></xsl:message>
-		<xsl:message>module: &#x9;&#x9;<xsl:value-of select="$module"/></xsl:message>
+		<xsl:message>xpotronix_path: <xsl:value-of select="$xpotronix_path"/></xsl:message>
+		<xsl:message>project_path: <xsl:value-of select="$project_path"/></xsl:message>
+		<xsl:message>config_path: <xsl:value-of select="$config_path"/></xsl:message>
+		<xsl:message>application_path: <xsl:value-of select="$application_path"/></xsl:message>
+		<xsl:message>config_file: <xsl:value-of select="$config_file"/></xsl:message>
+		<xsl:message>feat_file: <xsl:value-of select="$feat_file"/></xsl:message>
+		<xsl:message>module: <xsl:value-of select="$module"/></xsl:message>
 
 		<xsl:message></xsl:message>
 
-		<xsl:message>documentos xml leidos: <xsl:value-of select="count($all_documents)"/></xsl:message>
+		<xsl:message>documentos xml leidos: <xsl:value-of select="count($all_documents/*)"/></xsl:message>
+
+		<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/all_documents.xml')}">
+			<xsl:copy-of select="$all_documents"/>
+		</xsl:result-document>
+
+		<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/all_documents_path.xml')}">
+			<xsl:copy-of select="$all_documents_path"/>
+		</xsl:result-document>
 
 		<xsl:message></xsl:message>
 
@@ -293,17 +377,21 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="table" mode="js_code"><!--{{{-->
+
 		<xsl:variable name="table_name" select="@name"/>
-			<xsl:variable name="modes">
-				<xsl:for-each-group select="$code_collection//table[@name=$table_name]/code[@type='js']" group-by="@mode">
-					<xsl:element name="file">
-						<xsl:attribute name="name" select="concat('modules/',$table_name,'/',@mode,'.js')"/>
-						<xsl:attribute name="type" select="'js'"/>
-						<xsl:attribute name="mode" select="current-grouping-key()"/>
-					</xsl:element>
-				</xsl:for-each-group>
-			</xsl:variable>
-	
+
+		<xsl:variable name="modes">
+			<xsl:for-each-group select="$code_collection//table[@name=current()/@name]/code[@type='js']" group-by="@mode">
+				<xsl:element name="file">
+					<xsl:attribute name="name" select="concat('modules/',$table_name,'/',@mode,'.js')"/>
+					<xsl:attribute name="type" select="'js'"/>
+					<xsl:attribute name="mode" select="current-grouping-key()"/>
+				</xsl:element>
+			</xsl:for-each-group>
+		</xsl:variable>
+
+			<!-- <xsl:message terminate="yes">MODES:<xsl:copy-of select="count($modes)"/></xsl:message> -->
+
 		<xsl:for-each select="$modes/file">
 			<xsl:variable name="mode" select="@mode"/>
 
@@ -315,12 +403,16 @@
 
 		</xsl:for-each>
 
-		<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/modules/',$table_name, '/js.xml' )}">
+		<!-- 
+		<xsl:variable name="file_name_xml" select="concat($application_path,'/modules/',$table_name, '/js.xml' )"/>
+		<xsl:message>Creando archivo <xsl:value-of select="$file_name_xml"/></xsl:message>
+		<xsl:result-document method="xml" encoding="UTF-8" href="{$file_name_xml}">
 			<xsl:element name="obj">
 				<xsl:attribute name="name" select="$table_name"/>
 				<xsl:sequence select="$modes"/>
 			</xsl:element>
 		</xsl:result-document>
+		-->
 
 	</xsl:template><!--}}}-->
 
@@ -408,8 +500,6 @@
 		</xsl:choose>
 
 	</xsl:function><!--}}}-->
-
-
 
 </xsl:stylesheet>
 <!-- vim600: fdm=marker sw=3 ts=8 ai: 

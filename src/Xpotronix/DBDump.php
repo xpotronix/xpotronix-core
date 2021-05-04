@@ -47,7 +47,7 @@ class DBDump extends Base {
 
 		M()->debug( "codificacion de la base de datos: $encoding" );
 
-		$this->xml = new \SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"$encoding\"?><database/>" );
+		$this->xml = new \SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"$encoding\"?><tables/>" );
 
 		M()->info( "iniciando dbdump para la base de datos {$this->db_name} con implementacion {$this->implementation}" );
 
