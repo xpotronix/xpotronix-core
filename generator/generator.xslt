@@ -239,7 +239,7 @@
 					<xsl:when test="not(@name) and not($all_documents/config[1]/*[name()=current()/name()])">
 						<xsl:sequence select="."/>
 					</xsl:when>
-					<xsl:when test="@name and not($all_documents/config/*[name()=current()/name() and @name=current()/@name])">
+					<xsl:when test="@name and not($all_documents/config[1]/*[name()=current()/name() and @name=current()/@name])">
 						<xsl:sequence select="."/>
 					</xsl:when>
 				</xsl:choose>
