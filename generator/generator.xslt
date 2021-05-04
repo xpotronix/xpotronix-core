@@ -284,17 +284,7 @@
 		<xsl:message>module: <xsl:value-of select="$module"/></xsl:message>
 
 		<xsl:message></xsl:message>
-
 		<xsl:message>documentos xml leidos: <xsl:value-of select="count($all_documents/*)"/></xsl:message>
-
-		<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/all_documents.xml')}">
-			<xsl:copy-of select="$all_documents"/>
-		</xsl:result-document>
-
-		<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/all_documents_path.xml')}">
-			<xsl:copy-of select="$all_documents_path"/>
-		</xsl:result-document>
-
 		<xsl:message></xsl:message>
 
 		<xsl:if test="$config_path=''">
@@ -311,6 +301,18 @@
 
 		<xsl:if test="$config_path='' or $project_path='' or $application_path=''">
 			<xsl:message terminate="yes">Transformacion interrumpida: faltan parametros</xsl:message>
+		</xsl:if>
+
+		<xsl:if test="$debug">
+
+			<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/all_documents.xml')}">
+				<xsl:copy-of select="$all_documents"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/all_documents_path.xml')}">
+				<xsl:copy-of select="$all_documents_path"/>
+			</xsl:result-document>
+
 		</xsl:if>
 
 		<!-- -->
