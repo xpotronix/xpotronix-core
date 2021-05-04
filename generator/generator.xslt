@@ -137,7 +137,7 @@
 
 		<xsl:for-each-group select="$all_documents/model/table" group-by="@name">
 			<xsl:copy>
-				<xsl:sequence select="@name"/>
+				<xsl:sequence select="@*"/>
 				<xsl:sequence select="*"/>
 			</xsl:copy>
 		</xsl:for-each-group>
