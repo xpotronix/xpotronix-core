@@ -41,4 +41,9 @@
 
 	</code>
 </table>
+
+<file name="index.php"><![CDATA[<?php 
+require __DIR__ . '/vendor/autoload.php';
+@include 'main.php'; ?>]]></file>
+
 </code>

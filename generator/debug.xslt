@@ -7,9 +7,17 @@
 
 <xsl:template match="/" mode="debug">
 
-		<!-- debug collections -->
+	<!-- debug collections -->
 
-	<xsl:if test="$debug">
+		<xsl:if test="$debug">
+
+			<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/all_documents.xml')}">
+				<xsl:copy-of select="$all_documents"/>
+			</xsl:result-document>
+
+			<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/documents_collection.xml')}">
+				<xsl:copy-of select="$documents_collection"/>
+			</xsl:result-document>
 
 			<xsl:result-document method="xml" version="1.0" encoding="UTF-8" href="{concat($application_path,'/debug/table_collection.xml')}">
 				<xsl:sequence select="$table_collection"/>
