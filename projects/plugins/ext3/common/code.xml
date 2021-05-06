@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<code>
+<table name="contador">
+	<code type="php" mode="class_functions">
+
+                function incrementa( $nombre ) {/*{{{*/
+
+                        if (!$nombre) {
+
+                                M()->error( 'debe especificar el nombre del contador' );
+                                return NULL;
+
+                        }
+
+                        if ( !$this->load( array( 'nombre' => $nombre ) ) ) {
+
+				$this->fill_primary_key();
+                                $this->nombre = $nombre;
+                                $this->numero = 1;
+                                $this->insert();
+
+                        } else {
+
+                                $this->numero ++;
+                                $this->update();
+                        }
+
+                        return $this->numero;
+                }/*}}}*/
+
+	</code>
+</table>
+</code>

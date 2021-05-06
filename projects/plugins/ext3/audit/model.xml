@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<model>
+
+	<table name="audit" translate="Auditoría de Accesos"><!--{{{-->
+
+		<feat><no_where_check>1</no_where_check></feat>
+
+		<panel type="xpGrid"/>
+		<panel type="xpForm"/>
+		<panel type="xpPanel" display="inspect"/>
+		<field name="ID"/>
+		<field name="user_id" eh="user_id" translate="Usuario"/>
+		<field name="session_id" translate="Sessión"/>
+		<field name="when" translate="Cuando"/>
+		<field name="source_ip" translate="IP Origen"/>
+		<field name="xpid" translate="ID Proceso"/>
+		<field name="URL" translate="URL"/>
+		<field name="type" translate="Tipo"/>
+		<field name="module" translate="Módulo"/>
+		<field name="action" translate="Acción"/>
+		<field name="proc_required" translate="Proceso Req."/>
+		<field name="transac_data" translate="Datos de la Transacción"/>
+	</table><!--}}}-->
+
+</model>

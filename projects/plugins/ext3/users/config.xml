@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<config>
+
+        <db_instance name="default-acl"/>
+
+	<!-- metodo de autentificacion -->
+	<auth_method>sql</auth_method>
+	<anonymous_user_id>2</anonymous_user_id>
+	<!--
+	<localhost_user_id>2</localhost_user_id>
+	-->
+
+	<!-- clases por default -->
+	<class_user>users</class_user>
+	<login_fn>_login</login_fn>
+	<!-- <login_fn>_login_ldap</login_fn> -->
+
+	<!-- configuracion LDAP  -->
+	<!-- <ldap_allow_login type="bool">true</ldap_allow_login>
+	<ldap_host>LDAP://WEBLDAP.YOURDOMAIN.GOV.AR</ldap_host>
+	<ldap_port>389</ldap_port>
+	<ldap_version>3</ldap_version>
+	<ldap_base_dn>OU=PEOPLE,DC=YOURDOMAIN,DC=GOV,DC=AR</ldap_base_dn>
+	<ldap_search_user/>
+	<ldap_search_pass/>
+	<ldap_user_filter>(UID=%USERNAME%)</ldap_user_filter>-->
+
+	<!-- apg -->
+	<apg_cmd>/usr/bin/apg -q -a 0 -M ln -n 1 -m 8 -x 8</apg_cmd>
+
+</config>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<code>
+
+<table name="gacl_axo">
+	<code type="php" mode="class_functions">
+
+                function defaults() {/*{{{*/
+
+                }/*}}}*/
+
+	function scan_modules() {/*{{{*/
+
+		global $xpdoc;
+
+
+		$f = $xpdoc->instance('file_utils');
+
+		$mod_dirs = $f->list_dirs('modules');
+
+		$found = count( $mod_dirs );
+		$added = 0;
+
+		foreach( $mod_dirs as $mod_dir ) 
+			if ( ! $this->load( array( 'value' => $mod_dir ) ) ) 
+				if ( $xpdoc->perms->addModule( $mod_dir, $mod_dir ) )
+					$added ++;
+
+		M()->user( "Fin del proceso scan_modules. Encontrados: $found, agregados: $added." );
+
+	}/*}}}*/
+
+	</code>
+</table>
+
+<table name="gacl_aro_groups">
+
+	<code type="php" mode="class_functions">
+
+		function rebuild_tree() {/*{{{*/
+
+			global $xpdoc;
+
+			$xpdoc->perms->rebuild_tree('ARO'); // actualiza valores lft y rgt
+
+		}/*}}}*/
+
+		function post_check() {/*{{{*/
+
+			global $xpdoc;
+
+			$this->rebuild_tree(); // actualiza valores lft y rgt
+
+                	if ($xpdoc->perms->_caching == TRUE AND $xpdoc->perms->_force_cache_expire == TRUE) {
+                        	$xpdoc->perms->clean_cache();
+               		}
+
+		}/*}}}*/
+
+		function post_delete() {/*{{{*/
+
+			global $xpdoc;
+                       	$xpdoc->perms->clean_cache();
+		}/*}}}*/
+
+	</code>
+</table>
+
+<table name="gacl_axo_groups">
+
+	<code type="js" mode="events">
+
+	var filter_axo = function(){
+
+		var s = App.store.item('gacl_axo');
+		s.clearFilter( true );
+
+		var cs = App.store.item('gacl_groups_axo_map');
+
+		s.filterBy( function( r ) {
+
+			return ( cs.find( 'axo_id', r.get( 'id' ) ) == -1 ); 
+
+		}, this );
+	};
+
+	App.store.item('gacl_axo').on('load', filter_axo );
+
+	App.store.item('gacl_groups_axo_map').on('load', filter_axo );
+
+	</code>
+
+	<code type="php" mode="class_functions">
+
+		function rebuild_tree() {/*{{{*/
+
+			global $xpdoc;
+
+			$xpdoc->perms->rebuild_tree('AXO'); // actualiza valores lft y rgt
+
+		}/*}}}*/
+
+		function post_check() {/*{{{*/
+
+			global $xpdoc;
+
+			$this->rebuild_tree(); // actualiza valores lft y rgt
+
+                	if ($xpdoc->perms->_caching == TRUE AND $xpdoc->perms->_force_cache_expire == TRUE) {
+                        	$xpdoc->perms->clean_cache();
+                	}
+
+		}/*}}}*/
+
+		function post_delete() {/*{{{*/
+
+			global $xpdoc;
+                       	$xpdoc->perms->clean_cache();
+		}/*}}}*/
+
+	</code>
+</table>
+
+<table name="gacl_groups_aro_map">
+	<code type="php" mode="class_functions">
+
+		function post_check() {/*{{{*/
+
+			global $xpdoc;
+
+                	if ($xpdoc->perms->_caching == TRUE AND $xpdoc->perms->_force_cache_expire == TRUE) {
+                        	$xpdoc->perms->clean_cache();
+                	}
+		}/*}}}*/
+
+		function post_delete() {/*{{{*/
+
+			global $xpdoc;
+                       	$xpdoc->perms->clean_cache();
+		}/*}}}*/
+
+	</code>
+</table>
+
+
+<table name="gacl_groups_axo_map">
+	<code type="php" mode="class_functions">
+
+		function post_check() {/*{{{*/
+
+			global $xpdoc;
+
+                	if ($xpdoc->perms->_caching == TRUE AND $xpdoc->perms->_force_cache_expire == TRUE) {
+                        	$xpdoc->perms->clean_cache();
+                	}
+		}/*}}}*/
+
+		function post_delete() {/*{{{*/
+
+			global $xpdoc;
+                       	$xpdoc->perms->clean_cache();
+		}/*}}}*/
+
+	</code>
+</table>
+
+</code>
+<!-- vim600: fdm=marker sw=3 ts=8 ai: 
+-->
+
