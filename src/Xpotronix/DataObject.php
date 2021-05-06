@@ -2823,29 +2823,23 @@ class DataObject extends Base {
 			foreach( $this->metadata->index as $index ) 
 				simplexml_append( $xom, $index );
 
-		if ( count( $this->metadata->xpath("button") ) )
-			foreach( $this->metadata->xpath("button") as $button ) 
-			   simplexml_append( $xom, $button );
+		/* DEBUG: aca meto tags de todo tipo de templates */
 
-		if ( count( $this->metadata->xpath("storeCbk") ) )
-			foreach( $this->metadata->xpath("storeCbk") as $storeCbk ) 
-			   simplexml_append( $xom, $storeCbk );
+		if ( count( $t = $this->metadata->xpath("button") ) )
+			foreach( $t as $item ) 
+			   simplexml_append( $xom, $item );
+
+		if ( count( $t = $this->metadata->xpath("storeCbk") ) )
+			foreach( $t as $item ) 
+			   simplexml_append( $xom, $item );
+
+		if ( count( $t = $this->metadata->xpath("files") ) )
+			foreach( $t as $item ) 
+			   simplexml_append( $xom, $item );
 
 		simplexml_append( $xom, array2xml( 'acl', $this->acl ) );
 
 		simplexml_append( $xom, $this->processes );
-
-		if ( file_exists( ( $extra_js_files = $this->get_module_path(). '/js.xml' ) ) ) {
-
-			$files = $xom->addChild('files');
-			$files['type'] = 'js';
-
-			$js_files = simplexml_load_file( $extra_js_files );
-			foreach( $js_files->xpath( "//file" ) as $js_xml_file ) 
-				simplexml_append( $files, $js_xml_file );
-
-			simplexml_append( $xom, $files );
-		}
 
 		/* var_dump( $this->metadata->attributes() ); */
 

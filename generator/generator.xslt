@@ -30,14 +30,8 @@
 	<xsl:template match="/"><!--{{{-->
 
 		<xsl:if test="$debug">
-
 			<xsl:apply-templates select="." mode="debug"/>
-
 		</xsl:if>
-
-		<!-- <xsl:message terminate="yes"><xsl:sequence select="$database_collection"/></xsl:message> -->
-		<!-- <xsl:message terminate="yes">code: <xsl:value-of select="count($code_collection//code)"/></xsl:message> -->
-		<!-- <xsl:message terminate="yes"><xsl:sequence select="$queries_collection"/></xsl:message> -->
 
 		<!-- -->
 		<!-- Info del Sistema -->
@@ -82,8 +76,12 @@
 		<!-- Transformacion Principal -->
 		<!-- -->
 
+		<!-- archivos que quedan dentro del DocumentRoot de la aplicacion -->
+
 		<xsl:call-template name="datatypes"/>
 		<xsl:call-template name="ui_file"/>
+
+		<!-- configs, feat y menu -->
 
 		<xsl:apply-templates select="$feat_collection/feat" mode="feat"/>
 		<xsl:apply-templates select="$config_collection/config" mode="config"/>
@@ -158,6 +156,8 @@
 
 		<xsl:variable name="table_name" select="@name"/>
 
+			<!-- DEBUG: modes es confuso, son las secciones del codigo para agrupar -->
+
 		<xsl:variable name="modes">
 			<xsl:for-each-group select="$code_collection//table[@name=current()/@name]/code[@type='js']" group-by="@mode">
 				<xsl:element name="file">
@@ -168,7 +168,7 @@
 			</xsl:for-each-group>
 		</xsl:variable>
 
-			<!-- <xsl:message terminate="yes">MODES:<xsl:copy-of select="count($modes)"/></xsl:message> -->
+			<!-- <xsl:message terminate="yes">MODES:<xsl:copy-of select="$modes"/></xsl:message> -->
 
 		<xsl:for-each select="$modes/file">
 			<xsl:variable name="mode" select="@mode"/>

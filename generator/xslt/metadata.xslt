@@ -34,6 +34,7 @@
 		<xsl:variable name="ui_table" select="$model_collection/table[@name=$table_name]"/>
 		<xsl:variable name="tb_table" select="$table_collection/table[@name=$table_name]"/>
 		<xsl:variable name="db_table" select="$database_collection/table[@name=$table_name]"/>
+		<xsl:variable name="cd_table" select="$code_collection/table[@name=$table_name]"/>
 
 
 		<xsl:element name="obj">
@@ -87,6 +88,18 @@
 			<!-- aca se copian los elementos para la transformacion -->
 			<xsl:sequence select="$ui_table/button"/>
 			<xsl:sequence select="$ui_table/storeCbk"/>
+
+
+			<!-- js-files -->
+			<xsl:if test="$cd_table">
+				<files>
+					<xsl:for-each select="$cd_table/code">
+						<file name="{concat('modules/',$table_name,'/',@mode,'.js')}" type="{@type}" mode="{@mode}"/>
+					</xsl:for-each>
+				</files>
+
+
+			</xsl:if>
 
 		</xsl:element>
 

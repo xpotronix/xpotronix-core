@@ -134,11 +134,11 @@
 	<xsl:variable name="code_collection"><!--{{{-->
 
 		<!-- merge de los metodos del objeto entre la configuracion y los common/code -->
-		<xsl:for-each-group select="$all_documents/model/table" group-by="@name">
-			<xsl:copy>
-				<xsl:sequence select="@name"/>
-				<xsl:sequence select="$all_documents/code/table[@name=current-grouping-key()]/code"/>
-			</xsl:copy>
+		<xsl:for-each-group select="$all_documents/code/table[code]" group-by="@name">
+				<xsl:copy>
+					<xsl:sequence select="@name"/>
+					<xsl:sequence select="*"/>
+				</xsl:copy>
 		</xsl:for-each-group>
 	</xsl:variable><!--}}}-->
 
