@@ -55,6 +55,7 @@
 		<xsl:message>application_path: <xsl:value-of select="$application_path"/></xsl:message>
 		<xsl:message>config_file: <xsl:value-of select="$config_file"/></xsl:message>
 		<xsl:message>feat_file: <xsl:value-of select="$feat_file"/></xsl:message>
+		<xsl:message>default_template: <xsl:value-of select="$default_template"/></xsl:message>
 		<xsl:message>module: <xsl:value-of select="$module"/></xsl:message>
 
 		<xsl:message></xsl:message>
@@ -82,6 +83,7 @@
 		<!-- -->
 
 		<xsl:call-template name="datatypes"/>
+		<xsl:call-template name="ui_file"/>
 
 		<xsl:apply-templates select="$feat_collection/feat" mode="feat"/>
 		<xsl:apply-templates select="$config_collection/config" mode="config"/>
@@ -131,6 +133,15 @@
 					</xsl:result-document>
 				</xsl:otherwise>
 			</xsl:choose>
+
+	</xsl:template><!--}}}-->
+
+	<xsl:template name="ui_file"><!--{{{-->
+
+		<xsl:variable name="href" select="concat($application_path,'/conf/',$default_template,'-ui.xml')"/>
+		<xsl:result-document method="xml" encoding="UTF-8" href="{$href}">
+			<xsl:sequence select="$all_documents/*:ui" />
+		</xsl:result-document>
 
 	</xsl:template><!--}}}-->
 

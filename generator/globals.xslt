@@ -3,6 +3,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:saxon="http://saxon.sf.net/" 
 	xmlns:xp="http://xpotronix.com/namespace/xpotronix/functions/"
+	xmlns:ext4="http://xpotronix.com/templates/ext4/"
 	extension-element-prefixes="saxon">
 
 	<!-- -->
@@ -23,16 +24,22 @@
 	<!-- globals -->
 	<!-- -->
 
-	<!-- all files -->
+	<!-- includes en xml aparte -->
 
 	<xsl:variable name="includes" select="document(concat($project_path,'/includes.xml'))/includes/include"/>
+
+	<xsl:variable name="default_template" select="document(concat($project_path,'/includes.xml'))/includes/@default-template"/>
 
 	<xsl:variable name="documents_collection"><!--{{{-->
 
 		<collection>
 
 			<xsl:for-each select="collection(concat($project_path,'?select=*.xml'))">
-				<doc name="{*/name()}" href="{document-uri(.)}"/>
+				<doc type="{*/name()}" href="{document-uri(.)}"/>
+			</xsl:for-each>
+
+			<xsl:for-each select="collection(concat($project_path,'/templates/',$default_template,'/?select=*.xml'))">
+				<doc type="{*/name()}" href="{document-uri(.)}"/>
 			</xsl:for-each>
 
 			<xsl:for-each select="$includes">
@@ -40,15 +47,35 @@
 				<xsl:choose>
 
 					<xsl:when test="unparsed-text-available(concat($project_path,'/',@path))">
+
 						<xsl:for-each select="collection(concat($project_path,'/',@path,'?select=*.xml'))">
-							<doc name="{*/name()}" href="{document-uri(.)}"/>
+							<doc type="{*/name()}" href="{document-uri(.)}"/>
 						</xsl:for-each>
+
+						<xsl:if test="unparsed-text-available(concat($project_path,'/',@path,'/templates/',$default_template,'/'))">
+
+							<xsl:for-each select="collection(concat($project_path,'/',@path,'/templates/',$default_template,'/?select=*.xml'))">
+								<doc type="{*/name()}" href="{document-uri(.)}"/>
+							</xsl:for-each>
+
+						</xsl:if>
+
 					</xsl:when>
 
 					<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',@path))">
+
 						<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'?select=*.xml'))">
-							<doc name="{*/name()}" uri="{document-uri(.)}"/>
+							<doc type="{*/name()}" href="{document-uri(.)}"/>
 						</xsl:for-each>
+
+						<xsl:if test="unparsed-text-available(concat($xpotronix_path,'/',@path,'/templates/',$default_template,'/'))">
+
+							<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'/templates/',$default_template,'/?select=*.xml'))">
+								<doc type="{*/name()}" href="{document-uri(.)}"/>
+							</xsl:for-each>
+
+						</xsl:if>
+
 					</xsl:when>
 
 					<xsl:otherwise>
@@ -65,85 +92,15 @@
 
 	<xsl:variable name="all_documents"><!--{{{-->
 
-		<xsl:sequence select="collection(concat($project_path,'?select=*.xml'))"/>
-		<xsl:sequence select="collection(concat($project_path,'?select=templates/ext4/*.xml'))"/>
+		<xsl:for-each select="$documents_collection//doc">
 
-		<xsl:for-each select="$includes">
+			<xsl:element name="{@type}">
+				<xsl:attribute name="href" select="@href"/>
+				<xsl:sequence select="document(@href)/*/*"/>
+			</xsl:element>
 
-			<xsl:variable name="basepath">
-				<xsl:choose>
-					<xsl:when test="unparsed-text-available(concat($project_path,'/',@path))">
-						<xsl:value-of select="concat($project_path,'/',@path)"/>
-					</xsl:when>
-					<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',@path))">
-						<xsl:value-of select="concat($xpotronix_path,'/',@path)"/>
-					</xsl:when>
-
-					<xsl:otherwise>
-						<xsl:message>No encuentro la coleccion <xsl:value-of select="@path"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
-					</xsl:otherwise>
-
-				</xsl:choose>
-			</xsl:variable>
-
-			<xsl:sequence select="collection(concat($basepath,'?select=*.xml'))"/>
-			<xsl:sequence select="collection(concat($basepath,'?select=templates/ext4/*.xml'))"/>
 
 		</xsl:for-each>
-
-	</xsl:variable><!--}}}-->
-
-	<xsl:variable name="all_documents_path"><!--{{{-->
-
-		<xp:application>
-
-			<xsl:for-each select="collection(concat($project_path,'?select=*.xml'))">
-
-				<section name="{*/name()}" uri="{document-uri(.)}">
-						<!-- <xsl:copy-of select="."/> -->
-				</section>
-
-			</xsl:for-each>
-
-			<xsl:for-each select="$includes">
-
-				<xsl:choose>
-
-					<xsl:when test="unparsed-text-available(concat($project_path,'/',@path))">
-
-						<xsl:for-each select="collection(concat($project_path,'/',@path,'?select=*.xml'))">
-
-							<section name="{*/name()}" uri="{document-uri(.)}">
-									<!-- <xsl:copy-of select="."/> -->
-							</section>
-
-						</xsl:for-each>
-
-					</xsl:when>
-
-					<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',@path))">
-
-						<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'?select=*.xml'))">
-
-							<section name="{*/name()}" uri="{document-uri(.)}">
-									<!-- <xsl:copy-of select="."/> -->
-							</section>
-
-						</xsl:for-each>
-
-					</xsl:when>
-
-					<xsl:otherwise>
-
-						<xsl:message>No encuentro la coleccion <xsl:value-of select="@path"/> ni en <xsl:value-of select="$project_path"/> ni en <xsl:value-of select="$xpotronix_path"/></xsl:message>
-
-					</xsl:otherwise>
-
-				</xsl:choose>
-
-			</xsl:for-each>
-
-		</xp:application>
 
 	</xsl:variable><!--}}}-->
 
