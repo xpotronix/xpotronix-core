@@ -137,8 +137,15 @@
 	<xsl:template name="ui_file"><!--{{{-->
 
 		<xsl:variable name="href" select="concat($application_path,'/conf/',$default_template,'-ui.xml')"/>
+
+		<!-- <xsl:message terminate="yes"><xsl:copy-of select="$href"/></xsl:message>
+		<xsl:message terminate="yes"><xsl:copy-of select="$all_documents/*:ui|$all_documents/*:processes"/></xsl:message> -->
+
 		<xsl:result-document method="xml" encoding="UTF-8" href="{$href}">
-			<xsl:sequence select="$all_documents/*:ui" />
+			<xsl:element name="{$default_template}:application" namespace="{concat('http://xpotronix.com/templates/',$default_template,'/')}">
+			<xsl:sequence select="$all_documents/*:ui"/>
+			<xsl:sequence select="$all_documents/*:processes"/>
+			</xsl:element>
 		</xsl:result-document>
 
 	</xsl:template><!--}}}-->

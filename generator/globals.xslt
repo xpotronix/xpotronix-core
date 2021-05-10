@@ -4,6 +4,7 @@
 	xmlns:saxon="http://saxon.sf.net/" 
 	xmlns:xp="http://xpotronix.com/namespace/xpotronix/functions/"
 	xmlns:ext4="http://xpotronix.com/templates/ext4/"
+	xmlns:ext="http://xpotronix.com/templates/ext/"
 	extension-element-prefixes="saxon">
 
 	<!-- -->

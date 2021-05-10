@@ -76,12 +76,12 @@
 		layout:'fit',
         	width:500,
         	height:300,
-		constrain: true,
+			constrain: true,
         	closable: false,
         	resizable: true,
-		maximizable: true,
+			maximizable: true,
         	border: false,
-		defaultButton: 'login_loginUsername'
+			defaultButton: 'login_loginUsername'
 		</config>
 		<items>
 			<cmp type="TabPanel"><config>

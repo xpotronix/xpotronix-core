@@ -11,7 +11,7 @@
 
 		<xsl:if test="$debug">
 
-			<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/documents_collection.xml')}">
+			<xsl:result-document method="xml" encoding="UTF-8" href="{concat($application_path,'/debug/documents_collection.xml')}" saxon:line-length="2000">
 				<xsl:copy-of select="$documents_collection"/>
 			</xsl:result-document>
 
