@@ -67,7 +67,7 @@ class Iterator implements \Iterator {
 
 	function rewind(){ /*{{{*/
 
-		@M()->debug( "count data: ". count( $this->data ) );
+		is_array( $this->data ) and M()->debug( "count data: ". count( $this->data ) );
 
 		if ( ( is_array( $this->data ) ) and ( $new_key = reset( $this->data ) ) ) {
 
