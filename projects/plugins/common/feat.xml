@@ -30,6 +30,10 @@
 	<menu_bar type="bool">true</menu_bar>
 	<paging_toolbar type="bool">true</paging_toolbar>
 
+	<!-- default template -->
+	<theme>/ext4/resources/ext-theme-neptune/ext-theme-neptune-all.css</theme>
+	<theme>/ext4/resources/ext-theme-gray/ext-theme-gray-all.css</theme>
+
 	<!-- codificacion base de datos -->
 
 	<force_utf8 type="bool">false</force_utf8>
@@ -88,7 +92,7 @@
 	<!-- transformacion de la aplicacion -->
 
 	<transform>bridge</transform>
-	<default_view>ext/viewport</default_view>
+	<default_view>ext4new/viewport</default_view>
 
 	<!-- serializacion -->
 	<envelope_tag type="bool">true</envelope_tag>

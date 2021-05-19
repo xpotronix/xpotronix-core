@@ -13,10 +13,10 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="xml" version="1.0" encoding="utf-8" indent="yes"/>
 	<xsl:template match="/">
-		<xsl:apply-templates select="database"/>
+		<xsl:apply-templates select="tables"/>
 	</xsl:template>
-	<xsl:template match="database">
-		<xsl:element name="database">
+	<xsl:template match="tables">
+		<xsl:element name="model">
 			<xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
 			<xsl:apply-templates select="table"/>
 			<xsl:call-template name="default-includes"/>
