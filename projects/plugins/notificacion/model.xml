@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+	@version 2.0 - Areco 
+	@copyright Copyright &copy; 2003-2011, Eduardo Spotorno
+	@author Eduardo Spotorno
+ 
+	Licensed under GPL v3
+	@license http://www.gnu.org/licenses/gpl-3.0.txt
+-->
+
+<model>
+
+
+	<table name="notificacion" translate="Notificaciones"><!--{{{-->
+
+		<feat><no_where_check>1</no_where_check></feat>
+
+		<panel type="xpGrid"/>
+		<panel type="xpForm" display="inspect"/>
+
+		<field name="ID" translate="ID" validate="" display=""/>
+		<field name="flow_ID" translate="ID de Flujo" validate="empty" match_type="exact"/>
+		<field name="legajo" translate="Legajo" validate="" display="" match_type="exact"/>
+
+		<field name="fecha_hora" translate="Fecha y Hora" validate="" display=""/>
+		<field name="titulo" translate="Título" validate="" display=""/>
+		<field name="contenido" translate="Contenido" validate="" display=""/>
+
+		<field name="enviar_email" translate="Via Email?" validate="" display=""/>
+
+		<field name="enviada" translate="Enviada" validate="" display=""/>
+		<field name="vista" translate="Vista" validate="" display=""/>
+		<field name="estatus" translate="Estatus" validate="" display=""/>
+		<field name="reintento" translate="Reintento(s)" validate="" display=""/>
+	
+		<field name="module" translate="Módulo" validate="" display=""/>
+		<field name="key" translate="Clave" validate="" display=""/>
+		<field name="seccion" translate="Sección" validate="" display=""/>
+		<field name="email" translate="Email" validate="" display=""/>
+		<field name="xml_data" translate="Datos XML" validate="" display=""/>
+
+		<field name="datadiv" display="hide"/>
+	</table><!--}}}-->
+
+</model>
