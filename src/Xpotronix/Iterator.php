@@ -28,7 +28,7 @@ class Iterator implements \Iterator {
 
 	private $valid = false; 
 
-	function __construct( DataObject $obj, array $key = null, array $where = null, array $order = null, $can_jump = false ) {/*{{{*/
+	function __construct( DataObject $obj, array $key = null, $where = null, array $order = null, $can_jump = false ) {/*{{{*/
 
 		/* DEBUG: 
 		 * si da error es porque estoy enviando una variable en forma
