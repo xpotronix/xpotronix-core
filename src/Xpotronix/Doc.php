@@ -1848,7 +1848,7 @@ class Doc extends Base {
 					$xsl->substituteEntities = true;
 					if ( ! $xsl->load( $view_file ) ) {
 
-						M()->error( "Template de transformación no válido en transform/PHP" );
+						M()->error( "Template de transformación [$view_file] no válido en transform/PHP" );
 						break;
 
 					}

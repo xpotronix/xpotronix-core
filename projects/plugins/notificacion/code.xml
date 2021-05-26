@@ -69,25 +69,6 @@
 
  	}	/*}}}*/
 
-	function prepare_data() {/*{{{*/
-
-		global $xpdoc;
-
-		$view = $xpdoc->view;
-                $prev = $xpdoc->param_schema;
-                $xpdoc->param_schema = null;
-
-		$xdoc = $this->serialize_row( \Xpotronix\Serialize::DS_NORMALIZED, [ 'prepare_data' => false ] );
-		$xml = $xpdoc->transform( 'miportal/notificacion/data-div', $xdoc, [], 'php', false );
-		$this->datadiv = $this->remove_xml_decl( $xml );
-
-                $xpdoc->param_schema = $prev;
-		$xpdoc->view = $view;
-
-		return $this;
-
-	}/*}}}*/
-
 	function enviar_notificaciones() {/*{{{*/
 
 		set_time_limit( 0 );
