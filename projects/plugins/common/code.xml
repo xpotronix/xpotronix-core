@@ -10,35 +10,59 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<code>
 <table name="contador">
 	<code type="php" mode="class_functions">
 
-                function incrementa( $nombre ) {/*{{{*/
+	function incrementa( $nombre ) {/*{{{*/
 
-                        if (!$nombre) {
+			if (!$nombre) {
 
-                                M()->error( 'debe especificar el nombre del contador' );
-                                return NULL;
+					M()->error( 'debe especificar el nombre del contador' );
+					return NULL;
 
-                        }
+			}
 
-                        if ( !$this->load( array( 'nombre' => $nombre ) ) ) {
+			if ( !$this->load( array( 'nombre' => $nombre ) ) ) {
 
-				$this->fill_primary_key();
-                                $this->nombre = $nombre;
-                                $this->numero = 1;
-                                $this->insert();
+	$this->fill_primary_key();
+					$this->nombre = $nombre;
+					$this->numero = 1;
+					$this->insert();
 
-                        } else {
+			} else {
 
-                                $this->numero ++;
-                                $this->update();
-                        }
+					$this->numero ++;
+					$this->update();
+			}
 
-                        return $this->numero;
-                }/*}}}*/
+			return $this->numero;
+	}/*}}}*/
 
 	</code>
 </table>
-</database>
+
+<file name="index.php"><![CDATA[<?php 
+
+$autoload_file = __DIR__ . '/vendor/autoload.php';
+
+if ( file_exists( $autoload_file )) {
+
+    require( $autoload_file ) ;
+}
+	else {
+
+	echo( "No encuentro el archivo $autoload_file, no se puede iniciar la aplicacion. Para ello ejecute 'composer dump' en la raiz de ". __DIR__ );
+	exit(1);
+}
+
+?>]]></file>
+
+<file name=".htaccess">
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?path=$1 [NC,L,QSA]
+</file>
+
+</code>

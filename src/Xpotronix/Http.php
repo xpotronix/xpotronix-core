@@ -21,9 +21,11 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
+use \samejack\PHP\ArgvParser;
+
 class Http extends RequestContext {
 	
-	var $var = array();
+	var $var = [];
 	var $server_var;
 	var $http_host;
 	var $request_scheme;
@@ -44,21 +46,23 @@ class Http extends RequestContext {
 		global $xpdoc;
 
 		if ( self::CLI ) {
+
+			global $argv;
 			
 			M()->info("ejecucion via shell de comandos");
 
-			
-			$params = parseParameters();
+			$argvParser = new ArgvParser();
+			$params = $argvParser->parseConfigs($argv);
 
 			array_shift( $params );
-
+	
 			if ( isset( $params['path'] ) ) {
 
 				@$xpdoc->config->base_path = $params['path'];
 				unset( $params['path'] );
 			}
 
-			$arr_params = array();
+			$arr_params = [];
 
 			foreach( $params as $key => $value )
 
@@ -66,8 +70,7 @@ class Http extends RequestContext {
 
 			parse_str( implode( "&", $arr_params ), $this->var );
 
-
-		} else if ( $params ) {
+		} else if ( is_array( $params ) ) {
 
 			M()->info("Recibidos los parametros en la creacion de la clase");
 			$this->var = $params;

@@ -71,6 +71,7 @@ class DataObject extends Base {
 	// consulta del objeto;
 	var $sql;
 	var $xsql;
+	var $a_sql;
 	var $affected_records;
 
 	// recordset de la ultima consulta
@@ -88,6 +89,7 @@ class DataObject extends Base {
 	// search obj
 
 	var $search;
+	var $search_keys = [];
 
 	// control consulta
 	var $order_array;
@@ -718,30 +720,56 @@ class DataObject extends Base {
 
 	function loadc( $key = null, $where = null, $order = null, $page = null ) {/*{{{*/
 
-		// M()->debug( "key: ". json_encode( $key ).", where: ". json_encode( $where ). ", order: ". json_encode( $order ). ", page: $page" );
+		/* M()->debug( "key: ". json_encode( $key ).", 
+		where: ". json_encode( $where ). ", 
+		order: ". json_encode( $order ). ", 
+		page: $page" ); */
+
+		/* dbi */
 
 		if ( !$this->db() ) {
 
 			M()->error( "No hay manejador de base de datos, cancelando loadc" );
-
 			$this->total_records = -2;
 			return;
 		}
 
-		if ( !$this->acl ) 
-			$this->set_acl();
+		$this->sql = $this->sql_generate();
 
-		$this->sql = $this->sql_prepare();
+		$this->set_keys( $key );
 
+		if ( is_string( $where ) ) {
+
+			M()->debug( "recibiendo una directiva para WHERE: $where" );
+			$this->sql->addWhere( $where );
+		}
+
+		$this->set_order( $order );
+
+		/* page */
+		$recs = $this->page( $page );
+
+		is_array( $recs ) and M()->debug( "devolviendo ". count( $recs ). " registros" );
+
+		return $recs;
+
+	}/*}}}*/
+
+	function set_keys( $key ) {/*{{{*/
+	
 		/* global search aplicado a la consulta actual */
 
 		if ( $this->get_flag('set_global_search') ) {
 
 			M()->info( "{$this->class_name} aplicando busqueda global" );
-			 $this->set_global_search();
+			$this->set_global_search();
+
 		} else {
+
 			M()->info( "{$this->class_name} NO aplicando busqueda global" );
 		}
+
+		/* resuelve la clave de busqueda */
 
 		if ( $key === null ) {
 
@@ -764,7 +792,7 @@ class DataObject extends Base {
 
 			} else {
 
-				$search = array();
+				$search = [];
 
 				M()->debug( "la clave es un escalar $key" );
 
@@ -775,36 +803,20 @@ class DataObject extends Base {
 				$search[key( $this->primary_key )] = $key;
 			} 
 
-			$this->set_const( $const = $this->search->process( $search, null, $this->as_variables() ) );
-
-			/*
-			M()->debug( 'clave a buscar: '. json_encode( $search ) );
-			M()->debug( 'const: '. json_encode( $const ) );
-			*/
-
-		} // else !$key
-
-		if ( is_string( $where ) ) {
-
-			M()->debug( "recibiendo una directiva para WHERE: $where" );
-			$this->sql->addWhere( $where );
+			$this->add_search_key( $this->search->process( $search, null, $this->as_variables() ) );
 		}
 
-		// $this->set_const( $this->set_foreign_key() );
-		// $this->set_const( $this->set_user_key() );
+	}/*}}}*/
 
+	function add_search_key( $key ) {/*{{{*/
 
-		$this->set_order( $order );
-		$this->main_sql();
+		M()->debug( "add_search_key: ". json_encode( $key ) );
 
-		// echo "<pre>"; print( $this->sql->prepare() ); exit; 
-
-		$recs = $this->page( $page );
-
-		is_array( $recs ) and M()->debug( "devolviendo ". count( $recs ). " registros" );
-
-		return $recs;
-
+		if ( !empty( $key ) ) {
+		
+			return array_push( $this->search_keys, $key );
+		
+		}
 	}/*}}}*/
 
 	function load_array_recordset( $rows ) {/*{{{*/
@@ -815,7 +827,7 @@ class DataObject extends Base {
 				return null;
 			}
 
-			$objs = array();
+			$objs = [];
 			$objs_count = 0;
 
 			// M()->mem_stats( 'entro a load_array_recordset' );
@@ -929,7 +941,7 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-	function sql_prepare ( $sql = null ) {/*{{{*/
+	function sql_generate () {/*{{{*/
 
 		// is_object( $sql ) or 
 		$sql = new DBQuery( $this->db );
@@ -1030,7 +1042,7 @@ class DataObject extends Base {
 
 		/* if ( $this->class_name == 'cliente' ) { $this->debug_object(); exit; } */
 
-		$protect_list_attr = array();
+		$protect_list_attr = [];
 
 		/* joins de queries asociadas */
 
@@ -1182,7 +1194,6 @@ class DataObject extends Base {
 		M()->debug( "xpdoc->search: ". json_encode( $xpdoc->search ) );
 
 		if ( ( $xpdoc->search )
-
 			and array_key_exists($this->class_name, $xpdoc->search)
 			and is_array( $xpdoc->search[$this->class_name] ) ) {
 
@@ -1192,7 +1203,7 @@ class DataObject extends Base {
 			$search = new Search( $this );
 			$search->match_type = $xpdoc->feat->match_type ? $xpdoc->feat->match_type : 'anywhere';
 
-			$this->set_const( $search->process( $xpdoc->search[$this->class_name] ), null, $this->as_variables() );
+			$this->add_search_key( $search->process( $xpdoc->search[$this->class_name], null, $this->as_variables() ) );
 		}
 
 		/*		
@@ -1215,7 +1226,7 @@ class DataObject extends Base {
 
 	function quote_order( $order ) {/*{{{*/
 
-		$res = array();
+		$res = [];
 
 		$order = preg_replace('/[\r\n\s]+/xms', ' ', trim($order));
 		$order = preg_replace('/\s*,\s*/s', ',', trim($order));
@@ -1244,7 +1255,6 @@ class DataObject extends Base {
 		global $xpdoc;
 
 		is_array( $order ) or @$order = $xpdoc->order[$this->class_name]; 
-
 
 		if ( is_array( $order ) ) 
 
@@ -1300,19 +1310,15 @@ class DataObject extends Base {
 
 	}/*}}}*/
 
-	function set_const( $const = null ) {/*{{{*/
+	function set_variables( $search = null ) {/*{{{*/
+	
+		if ( $this->as_variables() ) {
 
-		if ( ! count( $const ) ) return;
+			/* por ahora solo mysql */
 
-		M()->debug( 'constraints: '. json_encode( $const ) );
+			$set = [];
 
-		if ( @$this->xsql->sql['set'] == 'variables' ) {
-
-			// print 'hola'; exit;
-
-			$set = array();
-
-			foreach( $const as $key => $vars )
+			foreach( $search as $key => $vars )
 
 				$set = array_merge( $set, $vars );
 
@@ -1321,21 +1327,27 @@ class DataObject extends Base {
 			M()->debug( "$sql" );
 
 			try {
-
 				$this->db->Execute( $sql );
 
 			} catch ( \PDOException $e ) {
 
-				M()->db_error( $this->db, 'set_variables', $sql );
-				// M()->user( print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ) );
-				exit;
+				M()->db_error( $this->db, 'set_variables', "Error al asignar variables: [$sql]" );
 			}
+		}
+	
+	}/*}}}*/
 
-		} else { 
+	function set_const( $search = null ) {/*{{{*/
+
+		if ( ! count( $search ) ) return;
+
+		M()->debug( 'constraints: '. json_encode( $search ) );
+
+		if ( ! $this->as_variables() ) {
 
 			/* carga los OR en la consulta sql */
 
-			if ( is_array ( @$const['OR'] ) and count( $or_array = $const['OR'] ) ) {
+			if ( is_array ( @$search['OR'] ) and count( $or_array = $search['OR'] ) ) {
 
 				$constraint_fn = ( $this->db_type() == 'dblib' ) ? 'addWhere' : 'addHaving' ;
 
@@ -1345,17 +1357,17 @@ class DataObject extends Base {
 
 			/* carga los where en la consulta sql */
 
-			if ( is_array ( @$const['where'] ) ) 
+			if ( is_array ( @$search['where'] ) ) 
 
-				foreach ( $const['where'] as $where ) 
+				foreach ( $search['where'] as $where ) 
 
 					$this->sql->addWhere( $where );
 
 			/* carga los having en la consulta sql */
 
-			if ( is_array( @$const['having'] ) )
+			if ( is_array( @$search['having'] ) )
 
-				foreach ( $const['having'] as $having ) 
+				foreach ( $search['having'] as $having ) 
 
 					$this->sql->addHaving( $having );
 		}
@@ -1380,19 +1392,19 @@ class DataObject extends Base {
 	
 	}/*}}}*/
 
-	function page ( $page = null, $page_rows = null ) {/*{{{*/
-
+	function set_page ( $page = null, $page_rows = null ) {/*{{{*/
+	
 		global $xpdoc;
 
 		$page && M()->debug( "class_name: $this->class_name, page: $page" );
 
-		$cn =  $this->class_name;
+		$cn = $this->class_name;
 
 		// $cn == '_licencia' and xdebug_start_trace('/tmp/xpotronix-trace.xt');
 
 		/* a) configura el rango de la paginacion */
 
-		is_array( $this->pager ) or $this->pager = array( 'pr' => 0, 'cp' => 1 );
+		is_array( $this->pager ) or $this->pager = [ 'pr' => 0, 'cp' => 1 ];
 
 		$pr =& $this->pager['pr'];
 		$cp =& $this->pager['cp'];
@@ -1413,28 +1425,38 @@ class DataObject extends Base {
 
 		M()->info( "object: {$cn}, page_rows: $pr, current_page: $cp" );
 
-		$c = count( $this->xsql->sql ); 
-		M()->debug( "cuenta $c" );
+		return [ $cp, $pr ];
+	}/*}}}*/
 
-		if ( $this->sql and $c == 0 )
-			$a_sql = array( $this->sql );
+	function log_sql( $i, $sql_text, $truncate = false ) {/*{{{*/
+
+		$msg = "SQL[$i]: ";
+
+		if ( $truncate ) 
+
+			$msg .= "SELECT ... ". substr( $sql_text, strpos( $sql_text, 'FROM ' ) );
+
 		else
-			$a_sql = array();
+			$msg .= $sql_text;
 
-		/* c) por cada fragmento, lo ejecuta */
+		M()->debug( $msg );
+
+	}/*}}}*/
+
+	function load_xsql_frags() {/*{{{*/
+	
+		$xsql_frags = count( $this->xsql->sql ); 
+		M()->debug( "# fragmentos xsql: $xsql_frags" );
 
 		$i = 1;
-
 		foreach( $this->xsql->sql as $xsql ) {
 
-			// M()->debug( "en loop #$i con ". $xsql->asXML() );
+			if ( ! trim( $xsql."" ) ) {
+				$i++;
+				continue;
+			}
 
-			// echo "<pre>"; print_r( $xsql->asXML() );
-
-			// $sql = (string) $sql_p;
-
-
-			if ( $i < $c ) {
+			if ( $i < $xsql_frags ) {
 
 				$sql = new DBQuery( $this->db() );
 				$this->set_dbquery( $sql, $xsql, false );
@@ -1448,122 +1470,150 @@ class DataObject extends Base {
 
 				$sql = $this->sql;
 				$this->set_dbquery( $sql, $xsql );
-
 			}
 
-			$a_sql[] = $sql;
-
+			$this->a_sql[] = $sql;
 			$i++;
+
 		}
 
-		M()->debug( "count(a_sql): ". count( $a_sql ) );
+		$sql_frags = count( $this->a_sql );
+
+		M()->debug( "# fragmentos SQL: $sql_frags"  );
+
+		return $sql_frags;
+	
+	}/*}}}*/
+
+	function page ( $page = null, $page_rows = null ) {/*{{{*/
+
+		list( $cp, $pr ) = $this->set_page( $page, $page_rows );
+
+		$this->a_sql = [];
+
+		/* # fragmentos definidos en database.xml */
+
+		( $xsql_frags = $this->load_xsql_frags() ) or 
+			$this->a_sql = [ $this->sql ];
+
+		/* # fragmentos a ejecutar */
+
+		$sql_frags = count( $this->a_sql );
+
+		M()->debug( "sql_frags: $sql_frags, xsql_frags: $xsql_frags" );
 		M()->debug( "no_where_check: {$this->feat->no_where_check}" );
 
-
-		/*
-
-		if ( count( $a_sql ) > 1 ) {
-
-		// echo "<pre>"; print $xsql->asXML(); exit;
-
-		// echo "<pre>"; print_r( $this->xsql ); exit;
-			// echo "<pre>"; print_r( $a_sql ); exit;
-		}
-
-		// echo "<pre>"; print_r( $a_sql ); exit;
-
-		*/
-
 		$i = 1;
-		$truncate = true;
 		$rows = null;
 
-		foreach( $a_sql as $sql ) {
+		foreach( $this->a_sql as $sql ) {
 
-			$sql_text = ( $this->db_type() == 'dblib' ) ?
-					$sql->prepare():
-					$sql->prepare( false, $this->feat->count_rows );
+			$this->sql = $sql;
 
+			foreach ( $this->search_keys as $search ) {
 
-			if ( ( $this->sql->where === null and $this->sql->having === null ) 
-				and $this->feat->no_where_check ) {
-
-				M()->user( "tabla sin condicion de WHERE o HAVING, no se puede procesar" );
-				$this->total_records = -3;
-				return;
+				$this->set_variables( $search );
 			}
-
-			if ( ! $sql_text ) {
-			
-				M()->error( "sql_text vacio, no se puede continuar" );
-				continue;
-			}
-
-			$msg = "SQL[$i]: ";
-
-			if ( $truncate ) 
-
-				$msg .= "SELECT ... ". substr( $sql_text, strpos( $sql_text, 'FROM ' ) );
-
-			else
-				$msg .= $sql_text;
-
-			M()->debug( $msg );
 
 			try {
 
-				if ( $pr ) {
+				if ( $i < $sql_frags ) {
 
-					if ( $i < $c ) {
 
-						/* primeros: sin paginar */
+					/* todos los fragmentos menos el ultimo */
+
+					M()->debug( "fragmento #$i/$sql_frags (sin paginar)" );
+
+					/* primeros: sin paginar */
+					$sql_text = ( $this->db_type() == 'dblib' ) ?
+						$sql->prepare( false ):
+						$sql->prepare( false, $this->feat->count_rows );
+		
+					$this->log_sql( $i, $sql_text );
+
+					$this->recordset = $this->db->Execute( $sql_text );
+					$i++;
+
+					continue; /* DEBUG: si no corta el loop */
+
+				} else {
+
+					/* ultimo fragmento */
+
+					M()->debug( "ultimo fragmento #$i/$sql_frags" );
+
+					foreach ( $this->search_keys as $search ) {
+					
+						$this->set_const( $search );
+						M()->info( 'clave a buscar: '. json_encode( $search ) ); 
+					}
+
+					M()->debug( "ejecutando main_sql()" );
+					$this->main_sql();
+
+					if ( $this->db_type() == 'dblib' ) {
+					
+						$sql_text =  ( $xsql_frags ) ? 
+							$sql->prepare() : 
+							$this->prepare_dblib( $pr, $cp );
+
+						/* if ( $this->class_name == 'tta_resumen' ) { echo '<pre>'; print_r( $sql_text ); exit; } */
+					
+					} else {
+					
+						$sql_text = $sql->prepare( false, $this->feat->count_rows );
+					}
+ 
+					if ( ! $sql_text ) {
+					
+						M()->error( "sql_text vacio, revisar database.xml, ignorando" );
+						continue;
+					}
+
+
+					if ( ( $this->sql->where === null and $this->sql->having === null ) 
+						and $this->feat->no_where_check ) {
+
+						M()->user( "tabla sin condicion de WHERE o HAVING, no se puede procesar" );
+						$this->total_records = -3;
+						return;
+					}
+
+
+					/* Ejecuta el SQL */
+
+					if ( $pr ) {
+
+						/* override main_sql del objeto */
+						M()->debug( "paged_query (paginado)" );
+						$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
+
+					} else  {
 
 						M()->debug( "Execute (sin paginar)" );
 						$this->recordset = $this->db->Execute( $sql_text );
-						$i++;
-
-						continue; /* DEBUG: si no corta el loop */
-
-					} else {
-
-						/* ultimo fragmento */
-
-						if ( $this->db_type() == 'dblib' ) {
-
-							M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
-							$this->recordset = $this->paged_query( $sql_text, $pr, $cp );
-
-						} else {
-
-							M()->debug( "PageExecute con pr: $pr y cp: $cp" );
-							$this->recordset = $this->db->PageExecute( $sql_text, $pr, $cp );
-
-							/* if ( $this->class_name == 'v_compensatoria' ) { echo "<pre>"; print_r( $this->recordset->fetchAll() ); exit; } */
-
-						}
 					}
 
-				} else  {
+					$this->log_sql( $i, $sql_text );
 
-					M()->debug( "Execute (sin paginar)" );
-					$this->recordset = $this->db->Execute( $sql_text );
+					$rows = $this->recordset->fetchAll();
+					$row_count = count( $rows );
+					$this->recordset->closeCursor();
+					$this->search_keys = [];
+					$this->a_sql = [];
 				}
-
-				$rows = $this->recordset->fetchAll();
-				$this->recordset->closeCursor();
 
 			} catch ( \PDOException $e ) {
 
 				$this->total_records = -1;
 				$this->last_page = null;
 				$this->loaded( false );
+				$this->search_keys = [];
 
 				M()->db_error( $this->db, 'SELECT', $sql_text );
 				return null;
 			}
 		}
-
-
 
 		/* d) calcula el record count */
 
@@ -1572,7 +1622,6 @@ class DataObject extends Base {
 
 		if ( $this->feat->count_rows ) {
 
-			// $this->total_records = $this->recordset->rowCount();
 			if ( $this->db_type() == 'dblib' ) {
 				// $r = $this->recordset->fetch( \PDO::FETCH_ASSOC );
 				@$r = $rows[0];
@@ -1581,7 +1630,8 @@ class DataObject extends Base {
 				$r = $this->db->Execute( 'SELECT FOUND_ROWS() as __TotalRows' )->fetch( \PDO::FETCH_ASSOC );
 			}
 
-			$this->total_records = $r['__TotalRows'];
+			@$this->total_records = $r['__TotalRows'] or 
+			$this->total_records = $row_count;
 		} 
 
 		M()->debug('total_records: '. $this->total_records );
@@ -1598,10 +1648,9 @@ class DataObject extends Base {
 
 		} else {
 
-			$this->last_page = (bool) ( $this->total_records < ($pr*$cp) );
+			$this->last_page = (bool) ( $this->total_records < ( $pr * $cp) );
 
 			// M()->debug( "last_page: ". ( $this->last_page ? 'true': 'false' ) );
-
 			// M()->mem_stats( 'salgo de page' );
 			return $this->load_array_recordset( $rows );
 		}
@@ -1612,26 +1661,48 @@ class DataObject extends Base {
 
 	function paged_query( $sql, $pr, $cp ) {/*{{{*/
 
-		// esto tiene que ir en DBQuery
+		$ret = null;
 
-		$sql = $this->sql;
+
+	
+		if ( $this->db_type() == 'dblib' ) {
+
+			M()->debug( "paged_query (dblib) con pr: $pr y cp: $cp" );
+			$ret = $this->db->Execute( $sql );
+
+		} else {
+
+			M()->debug( "PageExecute con pr: $pr y cp: $cp" );
+			$ret = $this->db->PageExecute( $sql, $pr, $cp );
+
+		}
+
+		if ( false and $this->class_name == 'rliquid_sumariza_aporte' ) 
+		{ echo "<pre>"; print_r( $ret->fetchAll() ); exit; }
+
+		return $ret;
+
+	}/*}}}*/
+
+	function prepare_dblib( $pr, $cp ) {/*{{{*/
 
 		/*
 		
 		tomado de http://blog.pengoworks.com/index.cfm/2008/6/10/Pagination-your-data-in-MSSQL-2005
 		
 		-- create the Common Table Expression, which is a table called "pagination"
-		with pagination as
+
+		WITH PAGINATION AS
 		(
-		    -- your normal query goes here, but you put your ORDER BY clause in the rowNo declaration
-		    select
-		        row_number() over (order by department, employee) as rowNo,
-		        -- a list of the column you want to retrieve
-		        employeeId, employee, department 
-		    from 
-		        Employee
-		    where 
-		        disabled = 0
+			SELECT
+
+			ROW_NUMBER() ORDER ( ORDER BY field1, ... ) AS __RowNumber,
+
+				field1, field2, ..., fieldN 
+			FROM
+				Employee
+			WHERE
+			        disabled = 0
 		)
 		-- we now query the CTE table
 		select 
@@ -1643,13 +1714,23 @@ class DataObject extends Base {
 		    RowNo between 11 and 20     
 		order by
 		    rowNo
-		*/
+		 */
 
-		$offset = $pr * ($cp-1);
+
+		$sql_text = null;
+
+		$sql = $this->sql;
+
+		if ( isset( $sql->sql[0] ) ) {
+
+			$sql_text = array_shift( $sql->sql );
+		}
+
+		$offset = $pr * ( $cp - 1 );
 
 		M()->info( "offset: $offset, page_rows: $pr" );
 
-		$q = array();
+		$q = [];
 
 		$q[] = "WITH PAGINATION AS (";
 
@@ -1663,6 +1744,7 @@ class DataObject extends Base {
 
 			$q[] = ") AS __RowNumber,";
 
+
 			$q[] = $sql->prepareSelectFields();
 			$q[] = "FROM [". $this->get_table_name()."]";
 
@@ -1670,6 +1752,7 @@ class DataObject extends Base {
 			$q[] = $sql->make_where_clause();
 			$q[] = $sql->make_group_clause();
 			$q[] = $sql->make_having_clause();
+
 
 		$q[] = ")";
 
@@ -1681,7 +1764,7 @@ class DataObject extends Base {
 
 		M()->info( $query );
 
-		return $this->db->Execute( $query );
+		return $query;
 
 	}/*}}}*/
 
@@ -2740,29 +2823,23 @@ class DataObject extends Base {
 			foreach( $this->metadata->index as $index ) 
 				simplexml_append( $xom, $index );
 
-		if ( count( $this->metadata->xpath("button") ) )
-			foreach( $this->metadata->xpath("button") as $button ) 
-			   simplexml_append( $xom, $button );
+		/* DEBUG: aca meto tags de todo tipo de templates */
 
-		if ( count( $this->metadata->xpath("storeCbk") ) )
-			foreach( $this->metadata->xpath("storeCbk") as $storeCbk ) 
-			   simplexml_append( $xom, $storeCbk );
+		if ( count( $t = $this->metadata->xpath("button") ) )
+			foreach( $t as $item ) 
+			   simplexml_append( $xom, $item );
+
+		if ( count( $t = $this->metadata->xpath("storeCbk") ) )
+			foreach( $t as $item ) 
+			   simplexml_append( $xom, $item );
+
+		if ( count( $t = $this->metadata->xpath("files") ) )
+			foreach( $t as $item ) 
+			   simplexml_append( $xom, $item );
 
 		simplexml_append( $xom, array2xml( 'acl', $this->acl ) );
 
 		simplexml_append( $xom, $this->processes );
-
-		if ( file_exists( ( $extra_js_files = $this->get_module_path(). '/js.xml' ) ) ) {
-
-			$files = $xom->addChild('files');
-			$files['type'] = 'js';
-
-			$js_files = simplexml_load_file( $extra_js_files );
-			foreach( $js_files->xpath( "//file" ) as $js_xml_file ) 
-				simplexml_append( $files, $js_xml_file );
-
-			simplexml_append( $xom, $files );
-		}
 
 		/* var_dump( $this->metadata->attributes() ); */
 

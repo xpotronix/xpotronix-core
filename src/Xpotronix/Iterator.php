@@ -28,7 +28,12 @@ class Iterator implements \Iterator {
 
 	private $valid = false; 
 
-	function __construct( $obj, $key, $where, $order, $can_jump = false ) {/*{{{*/
+	function __construct( DataObject $obj, array $key = null, $where = null, array $order = null, $can_jump = false ) {/*{{{*/
+
+		/* DEBUG: 
+		 * si da error es porque estoy enviando una variable en forma
+		 * Fatal error:  Uncaught Exception: Serialization of 'SimpleXMLElement' is not allowed
+		 * para arreglar */
 
 		M()->debug( "obj: {$obj->class_name}, key: ". serialize( $key ). ", where: ". serialize( $where ). ", order: ". serialize( $order ). ", can_jump: " . ( $can_jump ? 'true' : 'false' ) );
 
@@ -67,7 +72,7 @@ class Iterator implements \Iterator {
 
 	function rewind(){ /*{{{*/
 
-		M()->debug( "count data: ". count( $this->data ) );
+		is_array( $this->data ) and M()->debug( "count data: ". count( $this->data ) );
 
 		if ( ( is_array( $this->data ) ) and ( $new_key = reset( $this->data ) ) ) {
 

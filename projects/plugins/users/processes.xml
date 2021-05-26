@@ -10,7 +10,7 @@
 	@license http://www.gnu.org/licenses/gpl-3.0.txt
 -->
 
-<database>
+<processes>
         <table name="user_preferences">
                <process name="readState" translate="readState" view="json">
                         <acl action="permit" role="*"/>
@@ -23,4 +23,4 @@
                         <command name="saveState" for="process_start"/>
                 </process>
         </table>
-</database>
+</processes>

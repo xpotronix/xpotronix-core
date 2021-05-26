@@ -36,17 +36,15 @@ if ( @$x->opts['f'] ) {
 	if ( !$db->get_database_info() ) exit(1);
 
 	$project_path = $x->transform['params']['project_path'];
-	$db->output( implode( '/', [ $project_path, 't.xml' ] ) );
+
+	$db->output( implode( Xpotronize::DS, [ $project_path, 't.xml' ] ) );
 
 	$y = clone $x;
 
-	$y->argv[1] = 'beautify';
+	$y->transform['xml'] = implode( Xpotronize::DS, [ $project_path, 't.xml' ] );
+	$y->transform['xsl'] = implode( Xpotronize::DS, [ $y->ini['paths']['lib'], 'util/beautify.xsl' ] );
 
-	$y->check_params_xputil();
-
-	$y->transform['xml'] = implode( '/', [ $project_path, 't.xml' ] );
-
-	$y->transform( implode( '/', [ $project_path, 'tables.xml' ] ) );
+	$y->transform( implode( Xpotronize::DS, [ $project_path, 'tables.xml' ] ) );
 
 	unlink( $y->transform['xml'] );
 }
