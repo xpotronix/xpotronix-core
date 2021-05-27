@@ -114,7 +114,7 @@
 			->html( $this->contenido );
 
 			/* DEGUB: falta agregar imagenes inline */
-			/* ->img_inline( 'images/header-email.png', 'header-email' ); *
+			/* ->img_inline( 'images/header-email.png', 'header-email' ); */
 
 		if ( $mailer->send()->ErrorInfo ) {
 
