@@ -108,13 +108,15 @@
 
 		M()->user( "remitente: $this->remitente, destino: $this->email, from: $from, to: $to" );
 
-		$mailer->from( $from , 'miPortal::CMCABA' )
+		$from_name = ( $t = $xpdoc->feat->mailer_from_name ) ? $t: $from;
+
+		$mailer->from( $from , $from_name )
 			->to( $to )
 			->subject( $this->titulo )
 			->html( $this->contenido );
 
 			/* DEGUB: falta agregar imagenes inline */
-			/* ->img_inline( 'images/header-email.png', 'header-email' ); *
+			/* ->img_inline( 'images/header-email.png', 'header-email' ); */
 
 		if ( $mailer->send()->ErrorInfo ) {
 

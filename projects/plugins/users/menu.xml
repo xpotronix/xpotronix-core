@@ -18,10 +18,10 @@
 	-->
 
 	<fill/>
-        <menu n="Usuario" id="user">
-                <item n="Ingresar" h="javascript:App.login();"/>
-                <item n="Cambiar Contraseña" h="javascript:App.change_password();" acl="access:users"/>
-                <item n="Salir" h="javascript:App.logout();" acl="access:users"/>
+        <menu n="Usuario" itemId="current_user">
+                <item n="Ingresar" h="javascript:App.login();" itemId="user_login"/>
+                <item n="Cambiar Contraseña" h="javascript:App.change_password();" acl="access:users" itemId="user_change_pasword"/>
+                <item n="Salir" h="javascript:App.logout();" acl="access:users" itemId="user_logout"/>
 
         </menu>
 </menu>
