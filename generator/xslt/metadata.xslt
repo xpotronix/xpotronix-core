@@ -45,6 +45,7 @@
 			<xsl:sequence select="@*"/>
 			<xsl:sequence select="$tb_table/@*"/>
 			<xsl:sequence select="$db_table/@*"/>
+			<xsl:sequence select="$model_collection/table[@name=$table_name]/@*"/>
 
 			<xsl:choose>
 				<xsl:when test="not($tb_table)">
