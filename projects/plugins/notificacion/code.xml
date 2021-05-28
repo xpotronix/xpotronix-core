@@ -108,7 +108,9 @@
 
 		M()->user( "remitente: $this->remitente, destino: $this->email, from: $from, to: $to" );
 
-		$mailer->from( $from , 'miPortal::CMCABA' )
+		$from_name = ( $t = $xpdoc->feat->mailer_from_name ) ? $t: $from;
+
+		$mailer->from( $from , $from_name )
 			->to( $to )
 			->subject( $this->titulo )
 			->html( $this->contenido );
