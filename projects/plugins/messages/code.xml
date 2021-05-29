@@ -132,6 +132,18 @@
 		$this->mail->Host       = $xpdoc->config->mailer_host or M()->error( 'host no definido');
 		$this->mail->Port       = $xpdoc->config->mailer_smtp_port or M()->error( 'port no definido');
 
+
+		/* DEBUG: estas opciones
+
+		$this->mail->SMTPAutoTLS = false;
+		$this->mail->SMTPSecure = false;
+		$this->mail->SMTPOptions = [
+		       'ssl' => [
+		       'verify_peer' => false,
+		       'verify_peer_name' => false,
+		       'allow_self_signed' => true ]];
+		*/
+
 		if ( $xpdoc->config->mailer_smtp_auth ) {
 			$this->mail->Username   = $xpdoc->config->mailer_username or M()->warn( 'usuario SMTP no definido');
 			$this->mail->Password   = $xpdoc->config->mailer_password or M()->warn( 'clave de usuario SMTP no definida');
