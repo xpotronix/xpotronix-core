@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	@package xpotronix
+-->
+
+<processes>
+
+	<table name="mailer"><!--{{{-->
+
+		<process name="test" translate="Test Email">
+			<acl action="permit" role="admin"/>
+			<command name="test" for="process_start"/>
+		</process>
+
+	</table><!--}}}-->
+
+</processes>

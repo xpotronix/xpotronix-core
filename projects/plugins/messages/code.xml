@@ -236,7 +236,84 @@
 
 		return $this;
 
-	}/*}}}*/
+		}/*}}}*/
+
+	function test() {
+
+		global $xpdoc;
+
+
+		$from = $xpdoc->http->from;
+		$to = $xpdoc->http->to;
+		$message = $xpdoc->http->message or $message = "Mensaje de prueba";
+
+			$params = [ 'mailer_host',
+				'mailer_smtp_port',
+				'mailer_smtp_secure',
+				'mailer_smtp_auth',
+				'mailer_username',
+				'mailer_password',
+				'mailer_charset',
+				'mailer_smtp_debug',
+		'default_domain',
+		'test_email',
+		'email_bcc' 
+		];
+
+
+		if ( ! $from ) { 
+			M()->error( "debe definir --from como remitente"); 
+			exit; 
+		}
+
+		if ( ! $to ) { 
+			M()->error( "debe definir --to como destinatario"); 
+			exit; 
+		}
+
+		M()->user( "configuracion en config.xml:" );
+
+		foreach( $params as $param ) {
+
+			$mess = "$param: {$xpdoc->config->$param}";
+
+			//M()->user( $mess );
+
+			print "$mess\n";
+
+
+		}
+
+		strstr( $from, '@' ) or
+			$from .= "@{$xpdoc->feat->default_domain}";
+
+		$to = ( $t = $xpdoc->config->test_email ) ? $t : $to;
+
+		strstr( $to, '@' ) or
+			$to .= "@{$xpdoc->feat->default_domain}";
+
+		$from_name = ( $t = $xpdoc->feat->mailer_from_name ) ? $t: $from;
+
+		M()->user( "remitente: $from, destino: $to, de quien: $from_name" );
+
+
+		$this->from( $from , $from_name )
+			->to( $to )
+			->subject( "prueba de email" )
+			->html( $message );
+
+		if ( $this->send()->ErrorInfo ) {
+
+			M()->user( "No se pudo enviar: {$this->ErrorInfo}" );
+			$this->estatus = $this->ErrorInfo;
+			$this->reintento++;
+
+		} else {
+
+			$this->get_attr('enviada')->now(); // Citacion con Exito
+		}
+
+	}
 
 	function send() {/*{{{*/
 
