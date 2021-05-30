@@ -778,7 +778,7 @@ class Doc extends Base {
 	function header( $directive, $replace = true ) {/*{{{*/
 
 		M()->debug( $directive );
-		header( $directive, $replace );
+		headers_sent() or header( $directive, $replace );
 
 	}/*}}}*/
 

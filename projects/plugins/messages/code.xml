@@ -95,9 +95,9 @@
    <table name="mailer">
 
       <code mode="use_decl" type="php">
-	 use PHPMailer\PHPMailer\PHPMailer;
-	 use PHPMailer\PHPMailer\SMTP;
-	 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
       </code>
 
 
@@ -259,41 +259,30 @@
 		$to = $xpdoc->http->to;
 		$message = $xpdoc->http->message or $message = "Mensaje de prueba";
 
-			$params = [ 'mailer_host',
-				'mailer_smtp_port',
-				'mailer_smtp_secure',
-				'mailer_smtp_auth',
-				'mailer_username',
-				'mailer_password',
-				'mailer_charset',
-				'mailer_smtp_debug',
-		'default_domain',
-		'test_email',
-		'email_bcc' 
+		$params = [ 'mailer_host',
+			'mailer_smtp_port',
+			'mailer_smtp_secure',
+			'mailer_smtp_auth',
+			'mailer_username',
+			'mailer_password',
+			'mailer_charset',
+			'mailer_smtp_debug',
+			'default_domain',
+			'test_email',
+			'email_bcc' 
 		];
 
+		$m = []; $w = []; $e = [];
 
-		if ( ! $from ) { 
-			M()->error( "debe definir --from como remitente"); 
-			exit; 
-		}
+			$from or $e[] = "Defe definir --from=&lt;remitente&gt;";
+			$to or $e[] = "Defe definir --from=&lt;destinatario&gt;";
 
-		if ( ! $to ) { 
-			M()->error( "debe definir --to como destinatario"); 
-			exit; 
-		}
 
-		M()->user( "configuracion en config.xml:" );
+		$m[] = "configuracion en config.xml:";
 
 		foreach( $params as $param ) {
 
-			$mess = "$param: {$xpdoc->config->$param}";
-
-			//M()->user( $mess );
-
-			print "$mess\n";
-
-
+			$m[] = "$param: {$xpdoc->config->$param}";
 		}
 
 		strstr( $from, '@' ) or
@@ -306,7 +295,24 @@
 
 		$from_name = ( $t = $xpdoc->feat->mailer_from_name ) ? $t: $from;
 
-		M()->user( "remitente: $from, destino: $to, de quien: $from_name" );
+		$m[] = "remitente: $from, nombre: $from_name, destino: $to, de quien: $from_name";
+
+		foreach( $m as $mm ) 
+			print $mm ."\n";
+
+		foreach( $w as $mm ) 
+		print $mm ."\n";
+
+		foreach( $e as $mm ) 
+			print $mm ."\n";
+
+
+		if ( count( $e ) ) {
+
+		print( "*** hubo errores no se puede realizar la prueba ***\n" );
+		exit(1);
+
+		}
 
 
 		$this->from( $from , $from_name )
@@ -316,13 +322,23 @@
 
 		if ( $this->send()->ErrorInfo ) {
 
-			M()->user( "No se pudo enviar: {$this->ErrorInfo}" );
+			print( "No se pudo enviar: {$this->ErrorInfo}" );
 			$this->estatus = $this->ErrorInfo;
 			$this->reintento++;
 
 		} else {
 
-			$this->get_attr('enviada')->now(); // Citacion con Exito
+			if ( ! $this->is_virtual() ) {
+
+				$this->fill_primary_key();
+				$this->from = $from;
+				$this->to = $to;
+				$this->get_attr('enviada')->now();
+				$this->store();
+
+			}
+
+
 		}
 
 	}
