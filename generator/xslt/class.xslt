@@ -32,10 +32,35 @@
 		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
-		<xsl:variable name="license" select="$all_documents/license"/>
 
-		<!--<xsl:message terminate="yes"><xsl:value-of select="$class_file_name"/></xsl:message> -->
-		<xsl:result-document method="text" encoding="UTF-8" href="{$class_file_name}"><![CDATA[<?php
+		<xsl:variable name="source">
+			<xsl:choose>
+				<xsl:when test="@source!=''"><xsl:value-of select="unparsed-text(concat($project_path,'/',@source))"/></xsl:when>
+				<xsl:otherwise>
+					<xsl:apply-templates select="." mode="generate_source">
+						<xsl:with-param name="class_name" select="$class_name"/>
+						<xsl:with-param name="table_name" select="$table_name"/>
+						<xsl:with-param name="class_file_name" select="$class_file_name"/>
+					</xsl:apply-templates>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
+			<!--<xsl:message terminate="yes"><xsl:value-of select="$class_file_name"/></xsl:message> -->
+
+		<xsl:if test="not(@source) or @source!=''">
+			<xsl:result-document method="text" encoding="UTF-8" href="{$class_file_name}">
+				<xsl:value-of select="$source"/>
+			</xsl:result-document>
+		</xsl:if>
+
+	</xsl:template>
+
+	<xsl:template match="table" mode="generate_source">
+		<xsl:param name="class_name"/>
+		<xsl:param name="table_name"/>
+		<xsl:param name="class_file_name"/>
+		<xsl:variable name="license" select="$all_documents/license"/><![CDATA[<?php
 /*
 	Archivo: ]]><xsl:value-of select="$class_file_name"/><![CDATA[
 
@@ -75,11 +100,7 @@ class ]]><xsl:value-of select="$class_name"/><![CDATA[ extends ]]><xsl:choose>
 <![CDATA[
 }
 
-// vim600: fdm=marker sw=3 ts=8 ai:
-
-?>]]></xsl:result-document>
-
-</xsl:template>
+?>]]></xsl:template>
 </xsl:stylesheet>
 <!--  vim600: fdm=marker sw=3 ts=8 ai:
 -->
