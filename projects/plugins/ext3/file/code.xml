@@ -387,7 +387,9 @@
 						} 
 					} 
 				} 
-			} else { M()->user( "no puedo abrir el directorio $current_dir" ); }
+		} else { M()->user( "No puedo abrir el directorio $current_dir" ); 
+			return null;
+		}
 		} 
 		return $file_list; 
 
