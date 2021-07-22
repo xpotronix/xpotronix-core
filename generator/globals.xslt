@@ -135,12 +135,18 @@
 	<xsl:variable name="code_collection"><!--{{{-->
 
 		<!-- merge de los metodos del objeto entre la configuracion y los common/code -->
-		<xsl:for-each-group select="$all_documents/code/table[code]" group-by="@name">
+		<!-- <xsl:for-each-group select="$all_documents/code/table[code]" group-by="@name"> -->
+		<!-- asi los copia y los repite, al armar la clase se hace el merge de los metodos -->
+
+		<xsl:for-each select="$all_documents/code/table[code]">
 				<xsl:copy>
 					<xsl:sequence select="@name"/>
 					<xsl:sequence select="*"/>
 				</xsl:copy>
-		</xsl:for-each-group>
+		</xsl:for-each>
+
+		<!-- </xsl:for-each-group> -->
+
 	</xsl:variable><!--}}}-->
 
 	<xsl:variable name="file_collection"><!--{{{-->
