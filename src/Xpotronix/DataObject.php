@@ -1908,6 +1908,12 @@ class DataObject extends Base {
 
 	function insert () {/*{{{*/
 
+		if ( $this->is_virtual() ) {
+
+			M()->error( "Haciendo INSERT sobre un objeto virtual $this->class_name, revise tables.xml" );
+			return $this->transac_status = NO_OP;
+		}
+
 		if ( ! $this->db() ) {
 			$this->total_records = -2;
 			return null;
@@ -1996,6 +2002,12 @@ class DataObject extends Base {
 
 	function replace( $modifiers = null ) {/*{{{*/
 
+		if ( $this->is_virtual() ) {
+
+			M()->error( "Haciendo REPLACE sobre un objeto virtual $this->class_name, revise tables.xml" );
+			return $this->transac_status = NO_OP;
+		}
+
 		if ( ! $this->db() ) {
 			$this->total_records = -2;
 			return $this->transact_status = DB_ERROR;
@@ -2074,6 +2086,12 @@ class DataObject extends Base {
 
 	function update () {/*{{{*/
 
+		if ( $this->is_virtual() ) {
+
+			M()->error( "Haciendo UPDATE sobre un objeto virtual $this->class_name, revise tables.xml" );
+			return $this->transac_status = NO_OP;
+		}
+
 		if ( ! $this->db() ) {
 			$this->total_records = -2;
 			return $this->transact_status = DB_ERROR;
@@ -2145,6 +2163,12 @@ class DataObject extends Base {
 	}/*}}}*/
 
 	function delete() {/*{{{*/
+
+		if ( $this->is_virtual() ) {
+
+			M()->error( "Haciendo DELETE sobre un objeto virtual $this->class_name, revise tables.xml" );
+			return $this->transac_status = NO_OP;
+		}
 
 		if ( ! $this->db() ) {
 			$this->total_records = -2;
@@ -2579,8 +2603,7 @@ class DataObject extends Base {
 		if ( !count( $this->primary_key ) ){
 
 			/* print( $this->model->asXML() ); */
-			M()->warn( "el objeto {$this->name} no tiene clave primaria definida" );
-		
+			$this->is_virtual() or M()->info( "el objeto {$this->name} no tiene clave primaria definida" );
 		}
 
 		return $this;
