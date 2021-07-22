@@ -1,7 +1,6 @@
 <?php
 
 use Xpotronix\Messages;
-use Xpotronix\Constants;
 
 function rsearch($folder, $pattern) {
 

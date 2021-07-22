@@ -272,8 +272,12 @@ class Doc extends Base {
 
 		if ( $gacl_class = $this->config->gacl_class ) {
 
-			if ( ! $acl_db = $this->dbm->instance( 'default-acl' ) )
-				$acl_db = $this->dbm->instance(); // default 
+			if ( ! $acl_db = $this->dbm->instance( 'default-acl' ) ) {
+
+				M()->info( "no hay definido un default-acl, selecciono el default de la aplicacion" );
+				$acl_db = $this->dbm->instance(); /* usa el default */
+			
+			}
 
 			$params = [];
 

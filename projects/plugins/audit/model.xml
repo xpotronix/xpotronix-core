@@ -11,7 +11,9 @@
 -->
 
 <model>
-	<table name="audit" translate="Auditoría de Accesos"><!--{{{-->
+
+	<table name="audit" translate="Auditoría de Accesos" dbi="default-acl"><!--{{{-->
+
 		<panel type="xpGrid"/>
 		<panel type="xpForm"/>
 		<panel type="xpPanel" display="inspect"/>
@@ -24,8 +26,11 @@
 		<field name="URL" translate="URL"/>
 		<field name="type" translate="Tipo"/>
 		<field name="module" translate="Módulo"/>
+		<field name="messages" translate="Mensajes"/>
 		<field name="action" translate="Acción"/>
 		<field name="proc_required" translate="Proceso Req."/>
 		<field name="transac_data" translate="Datos de la Transacción"/>
+
 	</table><!--}}}-->
+
 </model>

@@ -2576,8 +2576,12 @@ class DataObject extends Base {
 				$attr->primary = true;
 		}
 
-		if ( !count( $this->primary_key ) )  
-			M()->info( "el objeto {$this->name} no tiene clave primaria definida" );
+		if ( !count( $this->primary_key ) ){
+
+			/* print( $this->model->asXML() ); */
+			M()->warn( "el objeto {$this->name} no tiene clave primaria definida" );
+		
+		}
 
 		return $this;
 

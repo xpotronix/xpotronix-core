@@ -14,7 +14,7 @@
 
 	<!-- Usuarios del Sistema -->
 
-	<table name="users" translate="Usuarios del Sistema"><!--{{{-->
+	<table name="users" translate="Usuarios del Sistema" dbi="default-acl"><!--{{{-->
 		<panel type="xpGrid"/>
 		<panel type="xpForm" display="hide"/>
 
@@ -59,7 +59,7 @@
 
  	</table><!--}}}-->
 
-	<table name="user_preferences"><!--{{{-->
+	<table name="user_preferences" dbi="default-acl"><!--{{{-->
 		<panel type="xpGrid"/>
 
 		<field name="id"/>

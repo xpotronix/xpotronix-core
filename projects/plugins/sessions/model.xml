@@ -11,7 +11,7 @@
 -->
 
 <model>
-	<table name="sessions"><!--{{{-->
+	<table name="sessions" dbi="default-acl"><!--{{{-->
 		<panel type="xpGrid"/>
 		<panel type="xpForm"/>
 		<field name="user_id" translate="Usuario" eh="user_id"/>
