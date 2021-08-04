@@ -176,11 +176,15 @@ class ADOdb extends \PDO {
 
 /* aliases */
 
-	function BeginTrans() { return $this->beginTransaction(); }
-	function StartTrans() { return $this->beginTransaction(); }
-	function CommitTrans() { return $this->commit(); }
-	function CompleteTrans() { return $this->commit(); }
-	function RollbackTrans() { return $this->rollBack(); }
+	/* las transacciones las maneja xpotronix */
+
+	function BeginTrans() { return true; /* return $this->beginTransaction(); */ }
+	function StartTrans() { return true; /* return $this->beginTransaction(); */}
+	function CommitTrans() { return true; /* return $this->commit(); */}
+	function CompleteTrans() { return true; /* return $this->commit(); */ }
+	function RollbackTrans() { return true; /* return $this->rollBack(); */ }
+
+
 	function Insert_ID() { return $this->lastInsertId(); }
 
 	function GetCol( $query = null ) {

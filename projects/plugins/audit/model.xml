@@ -17,6 +17,7 @@
 		<panel type="xpGrid"/>
 		<panel type="xpForm"/>
 		<panel type="xpPanel" display="inspect"/>
+
 		<field name="ID"/>
 		<field name="user_id" eh="user_id" translate="Usuario"/>
 		<field name="session_id" translate="Sessión"/>
