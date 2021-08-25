@@ -1,0 +1,16 @@
+[Unit]
+Description=Motor de Templates Java
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+User=root
+Group=root
+
+Type=simple
+
+ExecStart=/usr/share/xpotronix/lib/java-wrapper.sh
+ExecStop=/bin/kill -15 $MAINPID
+
+[Install]
+WantedBy=multi-user.target
