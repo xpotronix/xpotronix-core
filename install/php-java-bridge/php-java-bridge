@@ -10,13 +10,21 @@
 # Description:		Provides java brigde to php scripts
 ### END INIT INFO
 
-XPOTRONIX_LIB=/usr/share/xpotronix/lib
+XPOTRONIX_JAR_PATH=/usr/share/xpotronix/lib
+
+# java -XshowSettings:properties -version 2>&1 > /dev/null | grep 'java.home'
+
+JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+WORKDIR=/var/www/sites/
+
+JAVA_OPTIONS=" -Xms256m -Xmx512m -server "
+APP_OPTIONS=" -c /path/to/app.config -d /path/to/datadir "
 
 case "$1" in
   start)
     echo "Starting JavaBridge ..."
-    cd /var/www/sites/
-    sudo -u www-data java -Xms32m -Xmx64m -jar $XPOTRONIX_LIB/webapp-runner.jar --access-log  $XPOTRONIX_LIB/JavaBridgeTemplate.war&
+    cd $WORKDIR
+    sudo -u www-data "${JAVA_HOME}/bin/java" $JAVA_OPTIONS -jar $XPOTRONIX_JAR_PATH/webapp-runner.jar --access-log  $XPOTRONIX_JAR_PATH/JavaBridgeTemplate.war
     echo $! > /var/run/JavaBridge.pid
     ;;
   stop)
