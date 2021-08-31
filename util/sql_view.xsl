@@ -18,8 +18,8 @@
 		<xsl:apply-templates select="//sql_view"/>
 	</xsl:template>
 
-	<xsl:template match="sql_view">
-		<xsl:value-of select="."/>;<xsl:text>
+	<xsl:template match="sql_view">DROP VIEW IF EXISTS `<xsl:value-of select="../@name"/>`;
+<xsl:value-of select="."/>;<xsl:text>
 
 </xsl:text>
 	</xsl:template>
