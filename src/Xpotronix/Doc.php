@@ -24,6 +24,8 @@ use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 
+use Kanel\Enuma\Php\PhpClass;
+
 
 class Doc extends Base {
 
@@ -845,21 +847,29 @@ class Doc extends Base {
 
 	function instance( $class_name, $model = null ) {/*{{{*/
 
-		$class_name = "\\App\\$class_name";
+		$full_class_name = "\\App\\$class_name";
+		$class_file = "modules/$class_name.php";
 
 		try {
 
-			if ( file_exists( "modules/$class_name.php" ) ) {
+			if ( file_exists( $class_file ) ) {
 			
-				$instance = new $class_name( $model );
+				$instance = new $full_class_name( $model );
 				return $instance;
 
 			} else {
 
+				M()->user("no existe el archivo $class_file" );
 
-			
+				/* hack para cerar clases on-the-fly */
+
+				eval("namespace App; class $class_name extends \Xpotronix\DataObject{}; \$instance = new $class_name( $model );");
+
+				return $instance;
 			
 			}
+
+			M()->user( "creando la clase $full_class_name" );
 		
 		} catch ( \Throwable $e ) {
 
