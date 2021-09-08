@@ -86,15 +86,12 @@ class ]]><xsl:value-of select="$class_name"/><![CDATA[ extends ]]><xsl:choose>
 	</xsl:otherwise>
 	</xsl:choose><![CDATA[ {
 
-	var $class_name		= "]]><xsl:value-of select="$class_name"/><![CDATA[";
-	var $table_name 	= "]]><xsl:value-of select="$table_name"/><![CDATA[";
-
-	]]><xsl:text>// var def
+	]]><xsl:text>/* var def */
 </xsl:text>
 		<xsl:for-each select="$code_collection//table[@name=$table_name]/code[@mode='var_def' and @type='php']">
 			<xsl:value-of select="."/>
 		</xsl:for-each><xsl:text>
-	// class functions
+	/* class functions */
 </xsl:text>
 <xsl:for-each select="$code_collection//table[@name=$table_name]/code[@mode='class_functions' and @type='php']"><xsl:value-of select="."/></xsl:for-each>
 <![CDATA[

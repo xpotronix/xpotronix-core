@@ -91,7 +91,8 @@
 		<xsl:choose>
 			<xsl:when test="$module=''">
 				<xsl:message>transformando todos los modulos</xsl:message>
-				<xsl:apply-templates select="$model_collection/table" mode="class_main"/>
+				<xsl:apply-templates select="$model_collection/table[@source!='']" mode="class_main"/>
+				<xsl:apply-templates select="$code_collection/table[code[@type='php'] and not(@source)]" mode="class_main"/>
 				<xsl:apply-templates select="$model_collection/table" mode="metadata"/>
 				<xsl:apply-templates select="$model_collection/table" mode="model"/>
 				<xsl:apply-templates select="$model_collection/table" mode="processes"/>

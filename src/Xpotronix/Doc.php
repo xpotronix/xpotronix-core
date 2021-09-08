@@ -848,8 +848,18 @@ class Doc extends Base {
 		$class_name = "\\App\\$class_name";
 
 		try {
-			$instance = new $class_name( $model );
-			return $instance;
+
+			if ( file_exists( "modules/$class_name.php" ) ) {
+			
+				$instance = new $class_name( $model );
+				return $instance;
+
+			} else {
+
+
+			
+			
+			}
 		
 		} catch ( \Throwable $e ) {
 

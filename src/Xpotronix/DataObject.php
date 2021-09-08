@@ -32,6 +32,7 @@ class DataObject extends Base {
 
 	// nombre de la clase 
 
+	var $namespace;
 	var $class_name;
 	var $id_hash;
 
@@ -39,7 +40,7 @@ class DataObject extends Base {
 	var $attr;
 	var $metadata;
 	var $data;
-	protected $aliases = array();
+	protected $aliases = [];
 	var $track_modified = true;
 	var $invalid_attrs;
 	var $constructed;
@@ -142,6 +143,12 @@ class DataObject extends Base {
 
 		global $xpdoc; 
 
+		list( $this->namespace, $this->class_name ) = explode( '\\', get_class( $this ) );
+
+		M()->info( "namespace\class_name: {$this->namespace}\\{$this->class_name}" );
+
+		$this->table_name = $this->class_name;
+		
 		if ( ! $this->set_model( $model ) ) 
 			return null;
 
@@ -171,7 +178,7 @@ class DataObject extends Base {
 		
 		// control consulta
 
-		$this->order_array = array();
+		$this->order_array = [];
 
 		$this->search = new Search( $this );
 
@@ -1800,7 +1807,7 @@ class DataObject extends Base {
 	function uniq_tables( $table = null, $alias = null ) {/*{{{*/
 
 		if ( !$table ) {
-			$this->uniq_tables_array = array();
+			$this->uniq_tables_array = [];
 			return;
 		}
 
@@ -2195,7 +2202,7 @@ class DataObject extends Base {
 
 			$child_name = (string) $obj['name'];
 
-			$cond = array();
+			$cond = [];
 
 			foreach ( $obj->xpath( "foreign_key/ref" ) as $ref ) {
 
@@ -2266,7 +2273,7 @@ class DataObject extends Base {
 		}
 
 		unset( $this->data );
-		$this->data = array();
+		$this->data = [];
 
 		foreach( $this->attr as $attr ) 
 			$this->data[$attr->name] = null;
@@ -2289,7 +2296,7 @@ class DataObject extends Base {
 
 	function set_data( $data ) {/*{{{*/
 
-		// DEBUG: funcion interna, ojo que no valida si es array();
+		// DEBUG: funcion interna, ojo que no valida si es [];
 
 		return $this->data = $data;
 
@@ -2323,7 +2330,7 @@ class DataObject extends Base {
 
 	function get_modified_attrs() {/*{{{*/
 
-		$ret = array();
+		$ret = [];
 
 		foreach( $this->attr as $attr ) 
 
@@ -2583,7 +2590,7 @@ class DataObject extends Base {
 
 		$refs = $this->model->xpath( "primary_key/primary" );
 	
-		is_array( $this->primary_key ) or $this->primary_key = array();
+		is_array( $this->primary_key ) or $this->primary_key = [];
 
 		foreach( $refs as $ref ) {
 
@@ -2629,7 +2636,7 @@ class DataObject extends Base {
 
 	function get_primary_key_node( $node ) {/*{{{*/
 
-		$ret = array();
+		$ret = [];
 
 		if ( count( $this->primary_key ) )  
 			foreach( $this->primary_key as $name => $pk ) 
@@ -2640,7 +2647,7 @@ class DataObject extends Base {
 
 	function get_primary_key() {/*{{{*/
 
-		$ret = array();
+		$ret = [];
 
 		if ( count( $this->primary_key ) )  
 			foreach( $this->primary_key as $name => $pk ) 
@@ -2651,7 +2658,7 @@ class DataObject extends Base {
 
 	function get_primary_key_array( $full = false ) {/*{{{*/
 
-		$ret = array();
+		$ret = [];
 
 		if ( count( $this->primary_key ) )  
 			foreach( array_keys( $this->primary_key ) as $name ) 
@@ -2695,7 +2702,7 @@ class DataObject extends Base {
 
 		$values = explode( $this->feat->key_delimiter, (string) $str_key );
 
-		$keys = array();
+		$keys = [];
 
 		$i = 0;
 
@@ -2914,7 +2921,7 @@ class DataObject extends Base {
 		if ( $this->get_flag( 'validate' ) == false ) 
 			return true;
 
-		$this->invalid_attrs = array();
+		$this->invalid_attrs = [];
 
 		// funcion simple para validar
 		$valid = true;
