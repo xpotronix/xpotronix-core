@@ -51,7 +51,8 @@
     "ext-intl": "*",
     "guzzlehttp/guzzle": "^7.2",
     "intervention/image": "^2.6",
-    "casbin/casbin": "^3.7"
+    "casbin/casbin": "^3.7",
+    "league/glide": "^2.0"
 
     },
 

@@ -10,29 +10,12 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-/* 
-
-exif orientation
-
-  1        2       3      4         5            6           7          8
-
-888888  888888      88  88      8888888888  88                  88  8888888888
-88          88      88  88      88  88      88  88          88  88      88  88
-8888      8888    8888  8888    88          8888888888  8888888888          88
-88          88      88  88
-88          88  888888  888888
-
-
-examples:
-
-$imagick->readImage('castle.jpg'); 
-$imagick->rotateImage(new \ImagickPixel(), 90)
-
-
- */
 
 namespace Xpotronix;
 
+use League\Flysystem\Local\LocalFilesystemAdapter as LocalFilesystemAdapter;
+use League\Flysystem\Filesystem as Filesystem;
+use League\Glide\ServerFactory as ServerFactory;
 
 class Thumb {
 
@@ -40,20 +23,18 @@ class Thumb {
 	var $image;
 	var $doc_root;
 	var $cache_root;
-	var $cache_key;
 	var $props;
-	var $cache_dir = 'cache';
 	var $file_pathinfo;
-	var $cache;
-	var $cache_options;
-	var $cache_pathinfo;
-	var $cached_image;
 	var $request_uri;
 	var $loaded = false;
+	var $server;
 
 	function __construct( $doc_root = null, $cache_root = null ) {/*{{{*/
 
 		global $xpdoc;
+
+		/* Setup Glide server */
+
 
 		if ( is_object( $xpdoc ) )
 		
@@ -64,26 +45,23 @@ class Thumb {
 		if ( $doc_root )
 			$this->doc_root = $doc_root;
 		else
-			$this->doc_root = '/var/www/sites/fotoshow-fotos/';
+			$this->doc_root = '/var/www/sites/fotoshow-fotos';
 
 		if ( $cache_root )
 			$this->cache_root = $cache_root;
 		else
-			$this->cache_root = $doc_root;
+			$this->cache_root = $doc_root.'/cache';
+
+
+		$this->server = ServerFactory::create([
+
+			'source' => new Filesystem(new LocalFilesystemAdapter( $this->doc_root )),
+			'cache' => new Filesystem(new LocalFilesystemAdapter( $this->cache_root )),
+			'driver' => 'imagick'
+		]);
+
 
 		$this->request_uri = htmlspecialchars_decode( $this->http->request_uri );
-
-		$this->cache_key = md5( $this->request_uri );
-
-		$this->file_pathinfo = pathinfo("{$this->doc_root}/{$this->http->src}");
-
-		$this->cache_pathinfo = pathinfo($this->http->src);
-
-		M()->debug( "request_uri: {$this->http->request_uri}, cache_key: {$this->cache_key}" );
-
-		// print_r( $this->build_hash( 'ID' ) ); exit;
-
-		$this->set_cache();
 
 	}/*}}}*/
 
@@ -100,7 +78,10 @@ class Thumb {
 			$filesize_field,
 			$last_modified_field ) = $config; */
 
-		@M()->info( "id_http_var: $id_http_var, id_key: $id_key, image_field: $image_field, mime_type_field: $mime_type_field, filesize_field: $filesize_field, last_modified_field: $last_modified_field, dirname_field: $dirname_field, basename_field: $basename_field" );
+		@M()->info( "id_http_var: $id_http_var, id_key: $id_key, image_field: $image_field, 
+			mime_type_field: $mime_type_field, filesize_field: $filesize_field, 
+			last_modified_field: $last_modified_field, dirname_field: $dirname_field, 
+			basename_field: $basename_field" );
 
 		$image_hash = $this->build_hash( $id_http_var );
 
@@ -151,12 +132,6 @@ class Thumb {
 
 		$obj->feat->blob_load = true;
 
-		if ( false and $this->get_cache( $image_hash ) ) { 
-
-			$this->output_cached_image();
-			return true;
-		} 
-
 		/* si es blob o path */
 
 		if ( $obj->load( $ID ) ) {
@@ -164,13 +139,15 @@ class Thumb {
 			if ( $obj->$image_field ) {
 
 				M()->info( "encontre BLOB" );
-				$this->read_blob( $obj->$image_field );
-			}
-			else {
+				$this->read_blob( $config, $obj );
+
+			} else {
 
 				if ( isset( $dirname_field ) and isset( $basename_field ) ) {
 					M()->info( "busco archivo" );
-					$this->load( $this->doc_root. '/'. $obj->$dirname_field. '/'. $obj->$basename_field );
+					$this->load( $obj->$dirname_field. '/'. $obj->$basename_field );
+					/* se va porque se aplican todos los filtros en la funcion de league/glide en load */
+					return;
 				} else {
 					M()->info( "no hay imagen definida" );
 					return false;
@@ -178,50 +155,6 @@ class Thumb {
 			}
 		}
 
-		if ( $this->loaded ) {	
-
-			M()->info("aplico filtros");
-
-			if ( $this->http->q )
-				$this->compress( $this->http->q );
-
-			if ( $this->http->wp or $this->http->hl )
-				$this->thumb();
-
-			if ( $this->http->ar == 'x' )
-				$this->adjust_orientation();
-
-			if ( $this->http->filtr )
-				foreach( $this->http->filtr as $f ) 
-					$this->filter( $f );
-
-			if ( isset( $force_image_format ) ) {
-				$this->setImageFormat( $force_image_format );
-				$xpdoc->header("Content-type: image/$force_image_format");
-			} else {
-			
-				$mime_type = $obj->$mime_type_field 
-					or $mime_type = 'image/jpeg';
-				$xpdoc->header("Content-type: $mime_type");
-			}
-
-			$image_length = ( isset( $filesize_field ) ) ?
-				$obj->$filesize_field:
-				$this->length();
-
-			$xpdoc->header( "Content-Length: $image_length" );
-
-			$this->cache( $image_hash );
-			$this->output( false );
-
-		} else {
-
-			M()->info( "no encontrada, envia warning.jpg" );
-			$this->readfile( null );
-			return true;
-		}
-
-		return true;
 
 	}/*}}}*/
 
@@ -275,132 +208,32 @@ class Thumb {
 		return $return;
 	}/*}}}*/
 
-	function get_cache( $arr = null ) {/*{{{*/
-
-		// $this->set_cache();
-		//
-
-		if ( is_array( $arr ) ) {
-
-			$this->cached_image = $this->cache->get( $arr['suffix'], $arr['id'] );
-		
-		} else {
-		
-			$this->cached_image = $this->cache->get( $this->cache_key );
-		}
-
-		if ( $this->cached_image ) {
-
-			M()->info( 'pagina de cache encontrada: '. $this->cache_key );
-                        return $this->cached_image;
-
-                } else 
-
-			M()->info( 'pagina de cache NO encontrada: '. $this->cache_key );
-			return null;
-
-	}/*}}}*/
-
-	function cache( $arr = null ) {/*{{{*/
-
-		$cache_filename = $this->cache_filename();
-
-		M()->info( "guardando cache en $this->cache_key con el path: $cache_filename" );
-
-		// $this->set_cache();	
-		//
-		if ( is_array( $arr ) ) {
-
-			$this->cache->save( $this->image, $arr['suffix'], $arr['id'] );
-		
-		} else {
-			$this->cache->save( $this->image, $this->cache_key );
-		}
-
-	}/*}}}*/
-
-	function cache_pathname() {/*{{{*/
-
-		$parts = array();
-
-		$t = $this->cache_root and $parts[] = $t;
-		@$t = $this->cache_pathinfo['dirname'] and $parts[] = $t;
-		$t = $this->cache_dir and $parts[] = $t;
-
-		$result = implode('/', $parts );
-		M()->info($result);
-		return $result;
-
-
-	}/*}}}*/
-
-	function cache_filename() {/*{{{*/
-
-		$parts = array();
-
-		$t = $this->cache_pathname() and $parts[] = $t;
-		$t = $this->cache_key and $parts[] = $t;
-
-		$result = implode('/', $parts );
-		M()->info($result);
-		return $result;
-
-	}/*}}}*/
-
-	function set_cache() {/*{{{*/
-
-		if ( is_object( $this->cache ) ) return;
-
-		$cache_pathname = $this->cache_pathname();
-
-		M()->info( "cache_pathname: $cache_pathname");
-
-		if ( !file_exists( $cache_pathname ) ) {
-
-			M()->info( "cache_pathname: $cache_pathname" );
-
-			mkdir( $cache_pathname, 0777, true );
-			M()->warn( "no se pudo crear el directorio de cache $cache_pathname" );
-		}
-
-                $this->cache_options = array(
-                        'caching' => true,
-                        'cacheDir' => $cache_pathname. '/',
-                        'lifeTime' => 157680000,
-                        'fileLocking' => TRUE,
-                        'writeControl' => FALSE,
-                        'readControl' => FALSE,
-                        'memoryCaching' => TRUE,
-			'automaticSerialization' => FALSE,
-			'hashedDirectoryLevel' => 0
-                );
-
-		$this->cache = new Cache($this->cache_options);
-		
-
-	}/*}}}*/
-
 	function get_abs_filename() {/*{{{*/
 
 		return implode('/', array( $this->file_pathinfo['dirname'], $this->file_pathinfo['basename'] ));
 
 	}/*}}}*/
 
+	function hotfix_image_params( $params ) {/*{{{*/
+
+		unset( $params['p'] );
+		isset( $params['pre'] ) and $params['p']=$params['pre'];
+
+		return $params;
+	}/*}}}*/
+
 	function load( $file_path = null ) {/*{{{*/
 
-		$this->image = new \Imagick; //DEBUG: era imagick en minuscula
 
-		if ( ! $file_path ) {
-			$file_path = "{$this->doc_root}/{$this->http->src}";
-		}
+		$file_path or $file_path = "{$this->http->src}";
 
 		M()->debug( "file_path: $file_path" );
 
 		try {
 
-			$this->image->readImage($file_path);
+			$this->server->outputImage( $file_path, $this->hotfix_image_params( $_GET ) );
+
 			M()->debug( "cargada la imagen $file_path" );
-			$this->get_props();
 			$this->loaded = true;
 			return $this;
 
@@ -414,29 +247,45 @@ class Thumb {
 				}
 			else {
 
-				$this->image->readImage( $err_img );
+				$image = new \Imagick;
+
+				$image->readImage( $err_img );
 				return $this;
 			}
 		}
 
 	}/*}}}*/
 
-	function read_blob( $image ) {/*{{{*/
+	function read_blob( $config, $obj ) {/*{{{*/
 
-		$this->image = new \Imagick;
+		extract( $config );
+
+		// $file_path or $file_path = "{$this->http->src}";
+
+		// M()->debug( "file_path: $file_path" );
+		//
+		//
+		//
+
+		$this->server = ServerFactory::create([
+
+			'source' => new Glade\Imageblob( $config, $obj ),
+			'cache' => new Filesystem(new LocalFilesystemAdapter( $this->cache_root )),
+			'driver' => 'imagick'
+		]);
 
 
 		try {
 
-			$this->image->readImageBlob( $image );
-			M()->debug( "cargada la imagen desde BLOB" );
-			$this->get_props();
+			$this->server->outputImage( $obj->$id_key, $this->hotfix_image_params( $_GET ) );
+
+			M()->debug( "Cargada la imagen con clave: {$obj->$id_key}" );
 			$this->loaded = true;
 			return $this;
 
 		} catch ( \Exception $e ) {
 
-			M()->error( "no se pudo cargar la imagen desde BLOB" );
+			M()->error( "No ecuentro la imagen {$obj->$id_key}" );
 
 			if ( ! file_exists( $err_img = 'images/warning.jpg' ) ) {
 				M()->error( "no encuentro $err_img en ". getcwd() );
@@ -444,71 +293,15 @@ class Thumb {
 				}
 			else {
 
-				$this->image->readImage( $err_img );
+				$image = new \Imagick;
+
+				$image->readImage( $err_img );
 				return $this;
 			}
 		}
 
-	}/*}}}*/
-
-	function thumb() {/*{{{*/
-
-		if ( $this->http->wp and $this->http->hl )
-			$this->image->thumbnailImage( $this->http->wp, $this->http->hl, true );
-
-		else if ( $this->http->wp ) 
-			$this->image->thumbnailImage( $this->http->wp, true );
-
-	}/*}}}*/
-
-	function filter( $filter ) {/*{{{*/
-
-		if ( ((int) $filter ) > 0 ) {
-
-			$this->image->setImageColorSpace( (int) $filter );
-			return;
-		}
-
-		switch ( $filter ) {
-
-			case 'color':
-			break;
-
-			case 'b/n':
-				$this->image->setImageColorSpace(\Imagick::COLORSPACE_GRAY);
-			break;
-
-			case 'sepia':
-				$this->image->sepiaToneImage(80);
-			break;
-
-			default:
-				M()->info("filtro $filter ignorado.");
 
 
-		}
-
-	}/*}}}*/
-
-	function get_props() {/*{{{*/
-
-		return $this->props = $this->image->getImageProperties();
-
-	}/*}}}*/
-
-	function get_props_txt() {/*{{{*/
-
-		$response = array();
-
-		foreach( $this->get_props() as $key => $data )
-			$response[] = "$key: $data";
-
-		return implode( "\n", $response );
-	}/*}}}*/
-
-	function __toString() {/*{{{*/
-
-		return $this->get_props_txt();
 	}/*}}}*/
 
 	function compress( $index ) {/*{{{*/
@@ -519,67 +312,10 @@ class Thumb {
 
 	}/*}}}*/
 
-	function rotate( $angle ) {/*{{{*/
-
-		M()->user( "angle $angle" );
-
-
-		switch( (int) $angle ) {
-
-			case 90:
-				$this->image->rotateImage(new \ImagickPixel(), 90);
-			break;
-
-			case 180:
-				$this->image->rotateImage(new \ImagickPixel(), 180);
-			break;
-
-			case 270:
-				$this->image->rotateImage(new \ImagickPixel(), -90);
-			break;
-
-			default:
-				$this->image->rotateImage(new \ImagickPixel(), (int) $angle );
-
-		}
-
-	}/*}}}*/
-
-	function adjust_orientation() {/*{{{*/
-
-		@$orientation = $this->props['exif:Orientation'];
-
-		switch ( $orientation ) {
-
-			case 1:
-
-			break;
-
-			case 8:
-				$this->image->rotateImage(new \ImagickPixel(), -90);
-			break;
-
-			case 3:
-				$this->image->rotateImage(new \ImagickPixel(), 180);
-			break;
-
-			case 6:
-				$this->image->rotateImage(new \ImagickPixel(), 90);
-			break;
-
-		}
-	}/*}}}*/
-
 	function output( $headers_do = true ) {/*{{{*/
 
 		$headers_do and $this->headers();
 		echo $this->image;
-	}/*}}}*/
-
-	function output_cached_image() {/*{{{*/
-
-		$this->headers();
-		echo $this->cached_image;
 	}/*}}}*/
 
 	function headers() {/*{{{*/
@@ -598,29 +334,6 @@ class Thumb {
 	
 		return strlen( $this->image );
 	
-	}/*}}}*/
-
-	function setImageFormat( $format ) {/*{{{*/
-
-		$this->image->setImageFormat( $format );
-
-	}/*}}}*/
-
-	function setImageDepth( $depth ) {/*{{{*/
-
-		$this->image->setImageDepth( $depth );
-
-	}/*}}}*/
-
-	function write( $file ) {/*{{{*/
-
-		try {
-			$this->image->writeImage( $file );
-
-		} catch( \Exception $e ) {
-
-			M()->error("no puedo guardar la imagen en $file" );
-		}
 	}/*}}}*/
 
 }
