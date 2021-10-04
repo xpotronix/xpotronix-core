@@ -16,6 +16,8 @@ namespace Xpotronix;
 use League\Flysystem\Local\LocalFilesystemAdapter as LocalFilesystemAdapter;
 use League\Flysystem\Filesystem as Filesystem;
 use League\Glide\ServerFactory as ServerFactory;
+use League\Flysystem\Memory\MemoryAdapter as MemoryAdapter;
+
 
 class Thumb {
 
