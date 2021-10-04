@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Xpotronix\Glade;
 
 use League\Flysystem\Config;
+use League\Flysystem\FilesystemAdapter;
 
-class Imageblob 
+class Imageblob implements FilesystemAdapter
 {
     /**
      */
