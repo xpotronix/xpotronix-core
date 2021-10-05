@@ -33,9 +33,6 @@ class Imageblob
 
     public function read(string $location): string
 	{
-
-		M()->user( 'en read' );
-
 		$image_field = $this->config->get('image_field');
         return $this->obj->$image_field;
     }
