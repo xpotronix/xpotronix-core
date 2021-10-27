@@ -188,19 +188,39 @@ function array_unique2($input) {/*{{{*/
 	return $newinput; 
 } /*}}}*/
 
-	function reArrayFiles($file_post) {/*{{{*/
+	function reArrayFiles($posted_vars) {/*{{{*/
 
-	    $file_ary = array();
-	    $file_count = count($file_post['name']);
-	    $file_keys = array_keys($file_post);
+		$afile = [];
 
-	    for ($i=0; $i < $file_count; $i++) {
-		foreach ($file_keys as $key) {
-		    $file_ary[$i][$key] = $file_post[$key][$i];
+		foreach( $posted_vars as $name => $file_post ) {
+
+			if ( $file_post['name'] == null ) 
+				continue;
+
+			if ( is_string( $file_post['name'] ) ) {
+
+				$file_post['var_name'] = $name;
+				$afile[] = $file_post;
+				continue;
+			}
+
+			$file_count = count( $file_post['name'] );
+
+			$file_keys = array_keys($file_post);
+
+			for ($i=0; $i < $file_count; $i++) {
+
+				$afile[$i]['var_name'] = $name;
+
+				foreach ($file_keys as $key) {
+					$afile[$i][$key] = $file_post[$key][$i];
+				}
+			}
 		}
-	    }
 
-	    return $file_ary;
+		/* echo '<pre>'; print_r( $afile ); exit; */
+
+	    return $afile;
 	}/*}}}*/
 
 function strtime_to_secs( $s ) {/*{{{*/
@@ -222,18 +242,6 @@ function microtime_float() {/*{{{*/
 
 	list($useg, $seg) = explode(" ", microtime());
 	return ((float)$useg + (float)$seg);
-}/*}}}*/
-
-   function simplexml_append(SimpleXMLElement $parent, SimpleXMLElement $child = null ){/*{{{*/
-
-	if ( $child == NULL ) return;
-        // puse estos nombres largos para entender un poco mas el DOMDocument ...
-
-      $dom_parent_node = dom_import_simplexml($parent);
-      $dom_child_node = dom_import_simplexml($child);
-      $dom_child_node_in_parent_dom = $dom_parent_node->ownerDocument->importNode($dom_child_node, true);
-      $dom_parent_node->appendChild($dom_child_node_in_parent_dom);
-
 }/*}}}*/
 
 function array2xml( $root_tag, $array ) {/*{{{*/
@@ -370,6 +378,36 @@ class array2xml {/*{{{*/
 		return $this->data->saveXML();
 	}
 }/*}}}*/
+
+   function simplexml_append(SimpleXMLElement $parent, SimpleXMLElement $child = null ){/*{{{*/
+
+	if ( $child == NULL ) return;
+        // puse estos nombres largos para entender un poco mas el DOMDocument ...
+
+      $dom_parent_node = dom_import_simplexml($parent);
+      $dom_child_node = dom_import_simplexml($child);
+      $dom_child_node_in_parent_dom = $dom_parent_node->ownerDocument->importNode($dom_child_node, true);
+      $dom_parent_node->appendChild($dom_child_node_in_parent_dom);
+
+}/*}}}*/
+
+	function string2dom( string $html_string = null ) {/*{{{*/
+
+			/* se queda solo con el texto del campo imagen */
+
+			if ( $html_string === null )
+				return null;
+
+			$htmlDom = new \DOMDocument;
+
+			//Load the HTML string into our DOMDocument object.
+
+			@$htmlDom->loadHTML( mb_convert_encoding($html_string, 'HTML-ENTITIES', 'UTF-8') );
+			// @$htmlDom->loadHTML( mb_convert_encoding($html_string, ENT_NOQUOTES, 'UTF-8') );
+	
+			return simplexml_import_dom($htmlDom);
+	}/*}}}*/
+
 
 /**
  * Splits the given string into chunks with the given length.
