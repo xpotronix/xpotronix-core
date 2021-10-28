@@ -80,10 +80,9 @@ class Thumb {
 			$filesize_field,
 			$last_modified_field ) = $config; */
 
-		@M()->info( "id_http_var: $id_http_var, id_key: $id_key, image_field: $image_field, 
-			mime_type_field: $mime_type_field, filesize_field: $filesize_field, 
-			last_modified_field: $last_modified_field, dirname_field: $dirname_field, 
-			basename_field: $basename_field" );
+		@M()->info( "id_http_var: $id_http_var, id_key: $id_key, image_field: $image_field, mime_type_field: $mime_type_field, filesize_field: $filesize_field, last_modified_field: $last_modified_field, dirname_field: $dirname_field, basename_field: $basename_field" );
+
+		/* array con el ID y el hash de la URL */
 
 		$image_hash = $this->build_hash( $id_http_var );
 
@@ -97,40 +96,49 @@ class Thumb {
 			return false;
 		}
 
-		header_remove("Pragma");
-		header_remove("Expires");
-		$xpdoc->header('Cache-Control: private, must-revalidate');
 
-		$last_modified_time = $obj->$last_modified_field; 
+		if ( $last_modified_time ) {
 
-		$etag = md5( $image_hash['id'].'@'.$image_hash['suffix'].'@'.$last_modified_time ); 
-		$gmdate = gmdate("D, d M Y H:i:s", $last_modified_time);
+			/* si esta definido el last_modified_time field
+			 * utiliza el mecanismo de ETAG
+			 * para sincronizar el cacheo */
 
-		M()->info( "last_modified_time: $last_modified_time $gmdate" );
+			header_remove("Pragma");
+			header_remove("Expires");
+			$xpdoc->header('Cache-Control: private, must-revalidate');
 
-		$xpdoc->header("Last-Modified: $gmdate GMT");
-		$xpdoc->header("Etag: $etag"); 
+			$last_modified_time = $obj->$last_modified_field; 
 
-		M()->info("Etag/Last-Modified: $etag/$gmdate");
+			$etag = md5( $image_hash['id'].'@'.$image_hash['suffix'].'@'.$last_modified_time ); 
+			$gmdate = gmdate("D, d M Y H:i:s", $last_modified_time);
 
-		if ( $use_etag = true ) {
+			M()->info( "last_modified_time: $last_modified_time $gmdate" );
 
-			$hims = @$_SERVER['HTTP_IF_MODIFIED_SINCE'];
-			$hinm = @$_SERVER['HTTP_IF_NONE_MATCH'];
+			$xpdoc->header("Last-Modified: $gmdate GMT");
+			$xpdoc->header("Etag: $etag"); 
 
-			M()->info( "HTTP_IF_MODIFIED_SINCE: $hims, HTTP_IF_NONE_MATCH: $hinm" );
+			M()->info("Etag/Last-Modified: $etag/$gmdate");
 
-			$test1 = ( $hims == $last_modified_time );
-			$test2 = ( $hinm == $etag );
+			if ( $use_etag = true ) {
 
-			if ( $test1 || $test2 ) {
+				$hims = @$_SERVER['HTTP_IF_MODIFIED_SINCE'];
+				$hinm = @$_SERVER['HTTP_IF_NONE_MATCH'];
 
-				M()->info("Not Modified $etag $gmdate");
-				header('HTTP/1.1 304 Not Modified');
-				return true;
+				M()->info( "HTTP_IF_MODIFIED_SINCE: $hims, HTTP_IF_NONE_MATCH: $hinm" );
+
+				$test1 = ( $hims == $last_modified_time );
+				$test2 = ( $hinm == $etag );
+
+				if ( $test1 || $test2 ) {
+
+					M()->info("Not Modified $etag $gmdate");
+					header('HTTP/1.1 304 Not Modified');
+					return true;
+				}
+				else 	M()->info( "Modified" );
 			}
-			else 	M()->info( "Modified" );
 		}
+
 
 		$obj->feat->blob_load = true;
 
