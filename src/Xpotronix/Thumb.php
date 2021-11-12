@@ -17,6 +17,7 @@ use Xpotronix\Glade\ServerFactory;
 use League\Flysystem\Local\LocalFilesystemAdapter as LocalFilesystemAdapter;
 use League\Flysystem\Filesystem as Filesystem;
 use League\Flysystem\Memory\MemoryAdapter as MemoryAdapter;
+use League\Flysystem\UnableToCreateDirectory as UnableToCreateDirectory;
 
 
 class Thumb {
@@ -55,13 +56,25 @@ class Thumb {
 			$this->cache_root = $doc_root.'/cache';
 
 
+		/* prueba si puede crear el fs del cache */
+
+		try {
+
+			$cache_fs = new LocalFilesystemAdapter( $this->cache_root );
+
+		} catch ( UnableToCreateDirectory $e ) {
+		
+			M()->error( "No puedo crear el directorio. Mensaje: ". $e->getMessage() );
+			return null;
+		
+		}
+
 		$this->server = ServerFactory::create([
 
-			'source' => new Filesystem(new LocalFilesystemAdapter( $this->doc_root )),
-			'cache' => new Filesystem(new LocalFilesystemAdapter( $this->cache_root )),
-			'driver' => 'imagick'
-		]);
-
+				'source' => new Filesystem(new LocalFilesystemAdapter( $this->doc_root )),
+				'cache' => new Filesystem( $cache_fs ),
+				'driver' => 'imagick'
+			]);
 
 		$this->request_uri = htmlspecialchars_decode( $this->http->request_uri );
 
@@ -93,7 +106,7 @@ class Thumb {
 
 		if ( ! $obj->loaded() ) {
 		
-			M()->info( "no encontre el objeto con ID $ID" );	
+			M()->info( "No encontre el objeto con ID $ID" );
 			return false;
 		}
 
@@ -181,13 +194,17 @@ class Thumb {
 
 	function build_hash( $key_var ) {/*{{{*/
 
+		global $xpdoc;
+
 		$request_url = $this->request_uri;
 
 		M()->info( "request_url: $request_url" );
 
-		$param_keys = ['q','ar','wp','hl','filtr'];
+		$param_keys = ['q','or','w','h','filtr'];
 		$params = parse_url( $request_url );
-		$query = $params['query'];
+		@$query = $params['query'];
+
+
 		parse_str( $query, $result );
 
 		$suffix = http_build_query( array_intersect_key( $result, array_flip( $param_keys )) );
@@ -201,7 +218,7 @@ class Thumb {
 		else
 			M()->warn( "no ecuentro la variable del request con el nombre $key_var" );
 
-		$id = $result['m'].'@'.$value_key_var;
+		$id = "{xpdoc->module}@$value_key_var";
 
 		$return = [ 'id' => $id, 'suffix' => $suffix ];
 
@@ -262,20 +279,23 @@ class Thumb {
 
 		extract( $config );
 
-		// $file_path or $file_path = "{$this->http->src}";
+		/* $file_path or $file_path = "{$this->http->src}";
+		M()->debug( "file_path: $file_path" ); */
 
-		// M()->debug( "file_path: $file_path" );
-		//
-		//
-		//
+		try {
 
-		$this->server = ServerFactory::create([
+			$this->server = ServerFactory::create([
 
-			'source' => new Glade\Imageblob( $config, $obj ),
-			'cache' => new Filesystem(new LocalFilesystemAdapter( $this->cache_root )),
-			'driver' => 'imagick'
-		]);
+				'source' => new Glade\Imageblob( $config, $obj ),
+				'cache' => new Filesystem(new LocalFilesystemAdapter( $this->cache_root )),
+				'driver' => 'imagick'
+			]);
 
+		} catch ( UnableToCreateDirectory $e ) {
+
+			M()->error( "No puedo crear el directorio. Mensaje: ". $e->getMessage() );
+			return null;
+		}
 
 		try {
 
