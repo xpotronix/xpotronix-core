@@ -718,6 +718,7 @@ class DataObject extends Base {
 			$this->data = array_shift( $objs );
 			$this->set_primary_key();
 			$this->loaded( true );
+			$this->is_new( false );
 			return $this;
 		}
 
