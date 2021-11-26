@@ -14,6 +14,36 @@ function rsearch($folder, $pattern) {
     return $fileList;
 }
 
+function json_last_error_string() {/*{{{*/
+
+    switch(json_last_error()) {
+        case JSON_ERROR_NONE:
+            $ret = 'Sin errores';
+        break;
+        case JSON_ERROR_DEPTH:
+            $ret = 'Excedido tamaño máximo de la pila';
+        break;
+        case JSON_ERROR_STATE_MISMATCH:
+            $ret = 'Desbordamiento de buffer o los modos no coinciden';
+        break;
+        case JSON_ERROR_CTRL_CHAR:
+            $ret = 'Encontrado carácter de control no esperado';
+        break;
+        case JSON_ERROR_SYNTAX:
+            $ret = 'Error de sintaxis, JSON mal formado';
+        break;
+        case JSON_ERROR_UTF8:
+            $ret = 'Caracteres UTF-8 malformados, posiblemente codificados de forma incorrecta';
+        break;
+        default:
+            $ret = 'Error desconocido';
+        break;
+	}
+
+	return $ret;
+
+}/*}}}*/
+
 function M() {/*{{{*/
 
 	static $mess;
@@ -61,6 +91,8 @@ function is_binary($str) {/*{{{*/
 }/*}}}*/
 
 function string_parse( $data, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
+
+	/* minima funcion para transformar strings con {attr del objeto} a lo template */ 
 
 	return preg_replace_callback( $pattern, 
 

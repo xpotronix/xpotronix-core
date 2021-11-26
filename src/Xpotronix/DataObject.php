@@ -112,7 +112,7 @@ class DataObject extends Base {
 
 	// sincronizacion
 
-	function table_exists( $table_name ) {/*{{{*/
+	function table_exists( string $table_name ) {/*{{{*/
 
 		$dd = NewDataDictionary( $this->db() );
 		$mt = $dd->MetaTables();
@@ -1837,13 +1837,7 @@ class DataObject extends Base {
 		return $this->bind_data( $hash, $track_modified );
 	}/*}}}*/
 
-	private function bind_data( $hash, $track_modified = false ) {/*{{{*/
-
-		if ( !is_array( $hash ) ) {
-			M()->error(  get_class( $this ) . "::bind(): el parametro no es un array" );
-			return null;
-		} 
-
+	private function bind_data( array $hash, bool $track_modified = false ) {/*{{{*/
 
 		$tm = $this->track_modified;
 
@@ -2369,6 +2363,12 @@ class DataObject extends Base {
 
 		$s = new Csv( $this );
 		return $s->serialize();
+
+	}/*}}}*/
+
+	function compose( string $template ) {/*{{{*/
+
+		return string_parse( $template, (object) $this->get_data() ); 
 
 	}/*}}}*/
 
