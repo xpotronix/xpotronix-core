@@ -2,7 +2,7 @@
 
 use Xpotronix\Messages;
 
-function rsearch($folder, $pattern) {
+function rsearch($folder, $pattern) {/*{{{*/
 
     $dir = new RecursiveDirectoryIterator($folder);
     $ite = new RecursiveIteratorIterator($dir);
@@ -12,7 +12,7 @@ function rsearch($folder, $pattern) {
         $fileList = array_merge($fileList, $file);
     }
     return $fileList;
-}
+}/*}}}*/
 
 function json_last_error_string() {/*{{{*/
 
@@ -90,23 +90,25 @@ function is_binary($str) {/*{{{*/
     return preg_match('~[^\x20-\x7E\t\r\n]~', $str) > 0;
 }/*}}}*/
 
-function string_parse( $data, $replace, $pattern = '/\{(\w+)}/' ) {/*{{{*/
+function string_parse( $str, $obj, $pattern = '/\{(\w+)}/' ) {/*{{{*/
 
 	/* minima funcion para transformar strings con {attr del objeto} a lo template */ 
+
+	$replace = (object) $obj;
 
 	return preg_replace_callback( $pattern, 
 
 		function ($match) use ( $replace ) {
 
-			/* print_r( $match ); */
+			/* print_r( $match ); exit; */
 
 			list ($_, $name) = $match;
 
-			if (isset($replace[$name])) 
-				return $replace[$name];
+			if (isset($replace->$name)) 
+				return $replace->$name;
 		}
 
-	, $data);
+	, $str );
 
 }/*}}}*/
 
