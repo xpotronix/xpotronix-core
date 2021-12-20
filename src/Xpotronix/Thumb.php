@@ -110,7 +110,7 @@ class Thumb {
 		}
 
 
-		if ( $last_modified_time ) {
+		if ( isset( $last_modified_time ) and $last_modified_time ) {
 
 			/* si esta definido el last_modified_time field
 			 * utiliza el mecanismo de ETAG
