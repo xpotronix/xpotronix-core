@@ -66,7 +66,7 @@ if ( $xpdoc->init() ) {
 } else 
 	$xpdoc->set_xdoc( $xpdoc->get_messages() );
 
-$xpdoc->transform();
+$xpdoc->transform( $xpdoc->get_view() );
 
 /* $xpdoc->tidy(); */
 

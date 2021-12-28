@@ -72,7 +72,7 @@ class Doc extends Base {
 	// var $module;
 	var $action;
 	var $query;
-	var $view;
+	private $view;
 	var $search;
 	var $req_object;
 	var $param_schema;
@@ -977,6 +977,7 @@ class Doc extends Base {
 	function get_view() {/*{{{*/
 
 		return $this->view;
+
 	}/*}}}*/
 
 	function set_view( $view = null ) {/*{{{*/
@@ -1591,19 +1592,17 @@ class Doc extends Base {
 
 	}/*}}}*/
 
-	function transform( $view = null, $xdoc = null, $params = null, $transform_type = null, $cache = true ) {/*{{{*/
+	function transform( string $view, \SimpleXMLElement $xdoc = null, array $params = null, $transform_type = null, bool $cache = true ) {/*{{{*/
 
 		$tmp_file = null;
 
 		/* null view */
 
-		$view and $this->set_view( $view );
+		$view or $view = 'xml';
 
-		$this->get_view() or $this->set_view( 'xml' );
+		M()->info( "Transform VIEW: $view" );
 
-		M()->info( 'transform view: ' . $this->get_view() );
-
-		if ( $this->view == 'csv' or $this->view == 'none' ) return;
+		if ( $view == 'csv' or $view == 'none' ) return;
 
 		/* cache */
 
@@ -1660,12 +1659,12 @@ class Doc extends Base {
 
 			fclose( $handle );
 
-		} else if ( $this->view == 'xml' ) {
+		} else if ( $view == 'xml' ) {
 
 			$this->content_type( 'text/xml' );
 			$this->output_buffer = $xdoc->asXML(); 
 
-		} else if ( $this->view == 'json' ) {
+		} else if ( $view == 'json' ) {
 
 			$this->content_type( 'text/x-json' );
 
@@ -1678,7 +1677,7 @@ class Doc extends Base {
 			else M()->warn( 'json no es ni un array ni un string, devolviendo nulo' );
 
 
-		} else  if ( $this->view == 'rss' ) {
+		} else  if ( $view == 'rss' ) {
 
 			$this->content_type( 'text/xml' );
 
@@ -1716,7 +1715,7 @@ class Doc extends Base {
 				M()->error( "No puedo crear el archivo temporal $tmp_file" ); 
 			}
 
-			$view_file = $this->get_template_file( $this->view. '.xsl' );
+			$view_file = $this->get_template_file( $view. '.xsl' );
 			M()->info( 'template seleccionado para la transformacion: '. $view_file );
 
 			/* transform */
