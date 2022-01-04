@@ -2847,9 +2847,13 @@ class DataObject extends Base {
 		if ( count( $this->metadata->primary_key ) )
 			simplexml_append( $xom, $this->metadata->primary_key );
 
-		if ( count( $this->attr ) )
-			foreach( $this->attr as $key => $attr ) 
-				simplexml_append( $xom, $attr->metadata() );
+		if ( $this->attr !== null ) {
+
+			if ( count( $this->attr ) )
+				foreach( $this->attr as $key => $attr ) 
+					simplexml_append( $xom, $attr->metadata() );
+
+		}
 
 		if ( $xof = $this->feat->get_xml() )
 			simplexml_append( $xom, $xof );

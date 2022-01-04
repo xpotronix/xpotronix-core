@@ -31,11 +31,15 @@ class Search {
 
 		$translate_operator = array( '|' => 'OR', '&' => 'AND', '!' => 'NOT' );
 
-		// echo "<pre>"; print_r( $search ); echo "</pre>"; ob_flush(); exit;
-
 		M()->info( "inicio" );
 
 		foreach ( $search as $key => $value ) {
+
+			if ( is_array( $value ) ) {
+
+				M()->warn( "el campo $key contiene un array como valor, sólo puedo buscar strings o escalares" );
+				continue;
+			}
 
 			// Paso 1: resuelvo los alias de claves empaquetadas y _label
 
@@ -425,7 +429,7 @@ class Search {
 	return $c;
 	}/*}}}*/
 
-	function tokenize( $match, $value ) {/*{{{*/
+	function tokenize( $match, string $value ) {/*{{{*/
 
 		$token_array = preg_split( $match, $value , -1,  PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE  | PREG_SPLIT_NO_EMPTY );
 
