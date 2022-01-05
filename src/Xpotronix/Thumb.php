@@ -366,6 +366,73 @@ class Thumb {
 	
 	}/*}}}*/
 
+	/* compatibilidad fotoshow */
+
+    function adjust_orientation() {/*{{{*/
+
+        @$orientation = $this->props['exif:Orientation'];
+
+        switch ( $orientation ) {
+
+            case 1:
+
+            break;
+
+            case 8:
+                $this->image->rotateImage(new \ImagickPixel(), -90);
+            break;
+
+            case 3:
+                $this->image->rotateImage(new \ImagickPixel(), 180);
+            break;
+
+            case 6:
+                $this->image->rotateImage(new \ImagickPixel(), 90);
+            break;
+
+        }
+    }/*}}}*/
+
+    function filter( $filter ) {/*{{{*/
+
+        if ( ((int) $filter ) > 0 ) {
+
+            $this->image->setImageColorSpace( (int) $filter );
+            return;
+        }
+
+        switch ( $filter ) {
+
+            case 'color':
+            break;
+
+            case 'b/n':
+                $this->image->setImageColorSpace(\Imagick::COLORSPACE_GRAY);
+            break;
+
+            case 'sepia':
+                $this->image->sepiaToneImage(80);
+            break;
+
+            default:
+                M()->info("filtro $filter ignorado.");
+
+
+        }
+
+    }/*}}}*/
+
+    function write( $file ) {/*{{{*/
+
+        try {
+            $this->image->writeImage( $file );
+
+        } catch( Exception $e ) {
+
+            M()->error("no puedo guardar la imagen en $file" );
+        }
+    }/*}}}*/
+
 }
 
 ?>
