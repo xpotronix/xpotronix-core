@@ -429,7 +429,7 @@ class Search {
 	return $c;
 	}/*}}}*/
 
-	function tokenize( $match, string $value ) {/*{{{*/
+	function tokenize( $match, string $value = null ) {/*{{{*/
 
 		$token_array = preg_split( $match, $value , -1,  PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE  | PREG_SPLIT_NO_EMPTY );
 
