@@ -30,7 +30,15 @@ if ( ! @chdir( $params['path'] ) ) {
 	exit(1);
 }
 
-require $params['path']. "/index.php";
+
+
+if ( ! file_exists( $t = $params['path']. "/index.php" ) ) {
+
+	M()->fatal( "No existe el archivo $t. Proceso cancelado" );
+	exit(1);
+}
+
+require $t;
 
 // xdebug_stop_trace();
 
