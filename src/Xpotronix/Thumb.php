@@ -55,6 +55,9 @@ class Thumb {
 		else
 			$this->cache_root = $doc_root.'/cache';
 
+		/* compatibilidad fotoshow */
+
+		$this->image = new \Imagick;
 
 		/* prueba si puede crear el fs del cache */
 
@@ -280,6 +283,12 @@ class Thumb {
 				return $this;
 			}
 		}
+
+	}/*}}}*/
+
+	function read_image( $source ) {/*{{{*/
+
+		return $this->image->readImage( $source );
 
 	}/*}}}*/
 
