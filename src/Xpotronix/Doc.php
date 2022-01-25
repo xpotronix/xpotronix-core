@@ -151,6 +151,8 @@ class Doc extends Base {
 
 		$this->http = new Http();
 
+		$this->config->base_path = $this->http->base_path;
+
 		$this->router = new Router(
 	                new YamlFileLoader($this->fileLocator),
 	                self::ROUTER_CONFIG_FILE,

@@ -33,6 +33,7 @@ class Http extends RequestContext {
 	var $context_prefix;
 	var $remote_addr;
 	var $remote_host;
+	var $base_path;
 
 	/** nombre de la variable que contiene el url encriptado, que se usa en GET */
 	
@@ -58,7 +59,7 @@ class Http extends RequestContext {
 	
 			if ( isset( $params['path'] ) ) {
 
-				@$xpdoc->config->base_path = $params['path'];
+				$this->base_path = $params['path'];
 				unset( $params['path'] );
 			}
 
