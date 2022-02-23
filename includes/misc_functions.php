@@ -442,6 +442,21 @@ class array2xml {/*{{{*/
 			return simplexml_import_dom($htmlDom);
 	}/*}}}*/
 
+	function get_html_text( string $html_string = null ) {/*{{{*/
+
+			/* se queda solo con el texto del campo imagen */
+
+			if ( $html_string === null )
+				return null;
+
+			$htmlDom = new \DOMDocument;
+
+			//Load the HTML string into our DOMDocument object.
+
+			@$htmlDom->loadHTML( mb_convert_encoding($html_string, 'HTML-ENTITIES', 'UTF-8') );
+	
+			return $htmlDom->documentElement->textContent;
+	}/*}}}*/
 
 /**
  * Splits the given string into chunks with the given length.
