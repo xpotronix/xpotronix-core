@@ -255,7 +255,7 @@ class DataObject extends Base {
 
 		if ( $this->check_vars ) {
 
-			M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
+			M()->error( "No encontre el atributo [$this->class_name::$var_name] al evaluar" );
 			M()->line(1);
 			// print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) ); exit;
 			return null;
@@ -287,7 +287,7 @@ class DataObject extends Base {
 
 		} else { 
 
-			M()->error( "no encontre el atributo [$this->class_name::$var_name]" );
+			M()->error( "No encontre el atributo [$this->class_name::$var_name] al asignar" );
 
 			// $this->debug_backtrace(); exit;
 		}
