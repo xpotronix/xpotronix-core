@@ -93,6 +93,12 @@ class Params {
 
 						foreach( $value as $val ) {
 
+							if ( ! isset( $val->property ) ) {
+							
+								M()->error( "el filterParam no tiene propiedad definida" );
+								continue;
+							}
+
 							if ( strstr( $xpdoc->controller_vars, $val->property. ';' ) ) 
 								continue; 
 

@@ -742,6 +742,8 @@ class DataObject extends Base {
 			return;
 		}
 
+		/* se asigna el this->sql */
+
 		$this->sql = $this->sql_generate();
 
 		$this->set_keys( $key );
