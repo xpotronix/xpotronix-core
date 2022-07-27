@@ -94,6 +94,7 @@ class DBDump extends Base {
 	function get_table_info( $table_name ) {/*{{{*/
 
 		$table_info = array();
+		$db_name = $this->db_name; 
 
 		$tmp = (array) $this->dd->MetaColumns( $table_name );
 
@@ -109,24 +110,21 @@ class DBDump extends Base {
 		if ( $table_name == 'audit' ) {
 			print_r( $table_info ); exit;
 		}
-		*/
+		 */
 
-		try {
 
-			/* ahora da error en lugar de null */
+		$view_data_sql = "SELECT VIEW_DEFINITION, IS_UPDATABLE 
+			FROM INFORMATION_SCHEMA.VIEWS 
+			WHERE TABLE_SCHEMA = '$db_name'
+			AND TABLE_NAME = '$table_name'";
 
-			$rs = $this->db->Execute("SHOW CREATE VIEW `$table_name`");
+		$rs = $this->db->Execute( $view_data_sql );
+			
+		if ( is_object( $rs ) and !$rs->EOF ) { 
 
-			if ( is_object( $rs ) and !$rs->EOF ) { 
-
-				$field = $rs->fields;
-				$table_info['sql_view'] = $field['Create View'];
-			}
-
-		} catch( Exception $e ) {
-		
-			/* nada :) */
-		
+			$field = $rs->fields;
+			$table_info['sql_view'] = $field['VIEW_DEFINITION'];
+			$table_info['sql_view'] = $field['IS_UPDATABLE'];
 		}
 
 
