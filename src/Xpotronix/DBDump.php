@@ -111,12 +111,22 @@ class DBDump extends Base {
 		}
 		*/
 
-		$rs = $this->db->Execute("SHOW CREATE VIEW `$table_name`");
+		try {
 
-		if ( is_object( $rs ) and !$rs->EOF ) { 
+			/* ahora da error en lugar de null */
 
-			$field = $rs->fields;
-			$table_info['sql_view'] = $field['Create View'];
+			$rs = $this->db->Execute("SHOW CREATE VIEW `$table_name`");
+
+			if ( is_object( $rs ) and !$rs->EOF ) { 
+
+				$field = $rs->fields;
+				$table_info['sql_view'] = $field['Create View'];
+			}
+
+		} catch( Exception $e ) {
+		
+			/* nada :) */
+		
 		}
 
 
