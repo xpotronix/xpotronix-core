@@ -18,11 +18,10 @@ class DBDump extends Base {
 	var $implementation;
 	var $db_name;
 	var $db;
-	var $dd; //data dictionary
+	var $encoding;
 
-	var $table_info = array();
+	var $table_info = [];
 	var $xml;
-
 
 	function __construct( $ini ) {/*{{{*/
 
@@ -31,7 +30,6 @@ class DBDump extends Base {
 	}/*}}}*/
 
 	function get_database_info() {/*{{{*/
-
 
 		global $xpdoc;
 
@@ -42,12 +40,11 @@ class DBDump extends Base {
 		M()->debug( "instancia: ". $this->db_name = (string) $this->instance['name'] );
 		M()->debug( "implementation: ". $this->implementation = (string) $this->instance->implementation );
 
-		$encoding = (string) $this->instance->encoding or
-			$encoding = 'UTF8';
+		$this->encoding = (string) $this->instance->encoding or
+			$this->encoding = 'UTF8';
 
-		M()->debug( "codificacion de la base de datos: $encoding" );
+		M()->debug( "codificacion de la base de datos: $this->encoding" );
 
-		$this->xml = new \SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"$encoding\"?><tables/>" );
 
 		M()->info( "iniciando dbdump para la base de datos {$this->db_name} con implementacion {$this->implementation}" );
 
@@ -58,9 +55,7 @@ class DBDump extends Base {
 			return false;
 		}
 
-		$this->db->Execute("set names '$encoding'");
-
-		$this->dd = NewDataDictionary( $this->db );
+		$this->db->Execute("set names '$this->encoding'");
 
 		$this->process();
 
@@ -80,53 +75,134 @@ class DBDump extends Base {
 
 	function process() {/*{{{*/
 		
-		$this->table_info = array();
-
 		M()->info();
 
-		foreach( $this->dd->MetaTables() as $table_name )
-			$this->table_info[$table_name] = $this->get_table_info( $table_name );
+		$this->db->setFetchMode( ADODB_FETCH_ASSOC );
 
-	}/*}}}*/
+		$db_name = $this->db->databaseName;
 
-	/* get_table_info */
+		$table_sql = "SELECT COLUMN_NAME AS `name`, 
+			CHARACTER_MAXIMUM_LENGTH AS max_length, 
+			DATA_TYPE as type, 
+			IS_NULLABLE as `null`, 
+			COLUMN_KEY as `key`,
+			SUBSTRING(COLUMN_TYPE,5) as `enums`,
+			COLUMN_DEFAULT AS `has_default`, 
+			EXTRA AS `extra`,
+			NUMERIC_SCALE AS scale,
+			TABLE_NAME as table_name
+			FROM INFORMATION_SCHEMA.COLUMNS
+			WHERE TABLE_SCHEMA = '$db_name'";
 
-	function get_table_info( $table_name ) {/*{{{*/
 
-		$table_info = array();
-		$db_name = $this->db_name; 
+		$rs = $this->db->Execute( $table_sql );
 
-		$tmp = (array) $this->dd->MetaColumns( $table_name );
+		foreach( $rs as $row ) {
 
-		foreach( $tmp as $field_name => $field_data )
-			$table_info['fields'][$field_name] = array_filter( (array) $field_data );
+			$data = [];
+			$table_name = $row['table_name'];
+			$field_name = $row['name'];
+			$type = $row['type'];
 
-		if ( $tmp = (array) $this->dd->MetaPrimaryKeys($table_name) )
-			$table_info['primary'] = $tmp;
+			foreach( $row as $key => $value ) {
 
-		$table_info['index'] = (array) $this->dd->MetaIndexes($table_name);
+				if ( $key == 'table_name' ) {
+					continue;
+				}
 
-		/*
-		if ( $table_name == 'audit' ) {
-			print_r( $table_info ); exit;
+				if ( $key == 'enums' ) {
+					continue;
+				}
+
+				if ( $key == 'null' ) {
+
+					$value == 'NO' && $data['not_null'] = '1';
+					continue;
+				}
+
+				if ( $key == 'scale' and $value == 0 ) continue;
+
+				if ( $key == 'key' and $value == 'PRI' )
+					$data['primary_key'] = '1';
+
+			
+				$value != '' and $data[$key] = $value;
+
+			}
+
+			if ( $type == 'enum' ) {
+
+				$data['enums'] = substr( $row['enums'], 1, -1 );
+
+			}
+
+			$this->table_info[$table_name]['fields'][$field_name] = $data;
+
 		}
-		 */
+
+		$primary_key_sql = "SELECT 
+			k.TABLE_NAME as table_name, 
+			k.COLUMN_NAME as column_name 
+			FROM information_schema.table_constraints t 
+			JOIN information_schema.key_column_usage k 
+			USING(constraint_name,table_schema,table_name) 
+			WHERE t.constraint_type='PRIMARY KEY' AND t.table_schema='$db_name'";
+
+		$rs = $this->db->Execute( $primary_key_sql );
+
+		foreach( $rs as $row ) {
+
+			$data = [];
+			$table_name = $row['table_name'];
+
+			foreach( $row as $key => $value ) {
+
+				if ( $key == 'table_name' ) {
+					continue;
+				}
+
+				$value != '' and $data[$key] = $value;
+
+			}
+
+			$this->table_info[$table_name]['primary'][] = $data['column_name'];
+
+		}
 
 
-		$view_data_sql = "SELECT VIEW_DEFINITION, IS_UPDATABLE 
+		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique 
+			FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '$db_name'";
+
+		$rs = $this->db->Execute( $index_sql );
+
+		foreach( $rs as $row ) {
+
+			$table_name = $row['table_name'];
+			$index_name = $row['index_name'];
+
+			// print "table_name: $table_name, index_name: $index_name\n";
+
+			$this->table_info[$table_name]['index'][$index_name]['columns'][] = $row['column_name'];
+			$this->table_info[$table_name]['index'][$index_name]['unique'] = ( $row['non_unique'] ) ? '0': '1';
+
+		}
+
+		$view_data_sql = "SELECT TABLE_NAME AS table_name, VIEW_DEFINITION AS sql_view, IS_UPDATABLE AS updatable
 			FROM INFORMATION_SCHEMA.VIEWS 
-			WHERE TABLE_SCHEMA = '$db_name'
-			AND TABLE_NAME = '$table_name'";
+			WHERE TABLE_SCHEMA = '$db_name'";
 
 		$rs = $this->db->Execute( $view_data_sql );
-			
-		if ( is_object( $rs ) and !$rs->EOF ) { 
 
-			$field = $rs->fields;
-			$table_info['sql_view'] = $field['VIEW_DEFINITION'];
-			$table_info['sql_view'] = $field['IS_UPDATABLE'];
+		foreach( $rs as $row ) {
+
+			$table_name = $row['table_name'];
+
+			$this->table_info[$table_name]['sql_view'] = $row['sql_view'];
+			$this->table_info[$table_name]['updatable'] = ( $row['updatable'] == 'YES' ) ? '1' : '0';
+
+			// print_r( $this->table_info[$table_name] ); exit;
+
 		}
-
 
 		/* para triggers 
 		$rs = $this->db->Execute("SELECT * FROM INFORMATION_SCHEMA.TRIGGERS where EVENT_OBJECT_SCHEMA=`{$this->db_name}` AND EVENT_OBJECT_TABLE=`$table_name`");
@@ -138,9 +214,10 @@ class DBDump extends Base {
 
 			print_r( $table_info );exit;
 		}
-		*/
+		 */
 
-		return $table_info;
+
+		return $this;
 
 	}/*}}}*/
 
@@ -148,6 +225,7 @@ class DBDump extends Base {
 
 	function serialize() {/*{{{*/
 
+		$this->xml = new \SimpleXMLElement( "<?xml version=\"1.0\" encoding=\"$this->encoding\"?><tables/>" );
 		$this->db_name and $this->xml['database'] = $this->db_name;
 
 		$xbase = $this->xml;
@@ -214,6 +292,13 @@ class DBDump extends Base {
 				$xtable->addChild( 'sql_view', $table_data['sql_view']);
 
 			}
+
+			if ( isset( $table_data['updatable'] ) ) {
+
+				$xtable->addChild( 'updatable', $table_data['updatable']);
+
+			}
+
 
 		}
 
