@@ -41,4 +41,28 @@
 
 	</code>
 </table>
+
+<file name="index.php"><![CDATA[<?php 
+
+$autoload_file = __DIR__ . '/vendor/autoload.php';
+
+if ( file_exists( $autoload_file )) {
+
+    require( $autoload_file ) ;
+}
+	else {
+
+	echo( "No encuentro el archivo $autoload_file, no se puede iniciar la aplicacion. Para ello ejecute 'composer dump' en la raiz de ". __DIR__ );
+	exit(1);
+}
+
+?>]]></file>
+
+<file name=".htaccess">
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?path=$1 [NC,L,QSA]
+</file>
+
 </code>
