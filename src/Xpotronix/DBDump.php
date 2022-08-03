@@ -81,6 +81,8 @@ class DBDump extends Base {
 
 		$db_name = $this->db->databaseName;
 
+		/* todas los campos juntos de todas las tablas */
+
 		$table_sql = "SELECT COLUMN_NAME AS `name`, 
 			CHARACTER_MAXIMUM_LENGTH AS max_length, 
 			DATA_TYPE as type, 
@@ -104,6 +106,8 @@ class DBDump extends Base {
 			$field_name = $row['name'];
 			$type = $row['type'];
 
+			/* procesa atributos */
+
 			foreach( $row as $key => $value ) {
 
 				if ( $key == 'table_name' ) {
@@ -125,6 +129,17 @@ class DBDump extends Base {
 				if ( $key == 'key' and $value == 'PRI' )
 					$data['primary_key'] = '1';
 
+				if ( $key == 'extra' and str_contains( $value, 'auto_increment' ) )
+					$data['auto_increment'] = '1';
+
+				if ( $key == 'has_default' and $value != '' ) {
+
+					$data['has_default'] = '1';
+					$data['default_value'] = $value;
+					continue;
+				}
+
+				/* default */
 			
 				$value != '' and $data[$key] = $value;
 
@@ -139,6 +154,8 @@ class DBDump extends Base {
 			$this->table_info[$table_name]['fields'][$field_name] = $data;
 
 		}
+
+		/* primary key */
 
 		$primary_key_sql = "SELECT 
 			k.TABLE_NAME as table_name, 
@@ -169,6 +186,7 @@ class DBDump extends Base {
 
 		}
 
+		/* index */
 
 		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique 
 			FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '$db_name'";
@@ -187,6 +205,8 @@ class DBDump extends Base {
 
 		}
 
+		/* views */
+
 		$view_data_sql = "SELECT TABLE_NAME AS table_name, VIEW_DEFINITION AS sql_view, IS_UPDATABLE AS updatable
 			FROM INFORMATION_SCHEMA.VIEWS 
 			WHERE TABLE_SCHEMA = '$db_name'";
@@ -203,6 +223,8 @@ class DBDump extends Base {
 			// print_r( $this->table_info[$table_name] ); exit;
 
 		}
+
+		/* triggers */
 
 		/* para triggers 
 		$rs = $this->db->Execute("SELECT * FROM INFORMATION_SCHEMA.TRIGGERS where EVENT_OBJECT_SCHEMA=`{$this->db_name}` AND EVENT_OBJECT_TABLE=`$table_name`");
