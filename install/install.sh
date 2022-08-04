@@ -6,6 +6,8 @@
 # php7.4-fpm o posterior
 # mysql8 una base de datos que sea xpay_mpf
 
+# freetds.conf para poder contectarse al MSSQL
+
 # disposicion de achivos en el sistema
 
 XPATH=/usr/share/xpotronix
