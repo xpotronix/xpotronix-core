@@ -133,7 +133,7 @@
 
 	}/*}}}*/
 
-	function regenera_contenido( $xml ) {
+	function regenera_contenido( $xml ) {<!--{{{-->
 
 		global $xpdoc;
 
@@ -202,7 +202,7 @@
 		$this->contenido = $xpdoc->transform( 'miportal/licencia/email', $xdoc, $params, 'bridge', false );
 
 		$this->update();
-	}
+	}<!--}}}-->
 
 			
 		]]></code>

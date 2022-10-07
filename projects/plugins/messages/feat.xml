@@ -11,5 +11,5 @@
 -->
 
 <feat>
-	<sms_size type="int">160</sms_size>
+	<sms_size>160</sms_size>
 </feat>

@@ -14,6 +14,6 @@
 	<application>mydns</application>
 	<page_title>My DNS database editor</page_title>
 	<base_url>http://justamente.net/mydns/</base_url>
-	<page_rows type="int">50</page_rows>
+	<page_rows>50</page_rows>
 	<default_module>soa</default_module>
 </feat>

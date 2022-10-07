@@ -17,23 +17,23 @@
 		<database/>
 		<user/>
 		<password/>
-		<persistent type="bool">false</persistent>
-		<db_cache_time type="int">0</db_cache_time>
+		<persistent>false</persistent>
+		<db_cache_time>0</db_cache_time>
 		<table_prefix/>
 	</db_instance>
 
-	<count_rows type="bool">true</count_rows>
+	<count_rows>true</count_rows>
 
-	<log_xpid type="bool">true</log_xpid>
-	<log_ip type="bool">true</log_ip>
+	<log_xpid>true</log_xpid>
+	<log_ip>true</log_ip>
 
 	<!-- borra el xpdoc generado una vez transformado -->
-	<clean_xpdoc type="bool">true</clean_xpdoc>
+	<clean_xpdoc>true</clean_xpdoc>
 
 	<cache_dir>/tmp/xpotronix/</cache_dir>
 	<log_dir>/tmp/xpotronix/</log_dir>
 
-	<app_cache_time type="int">0</app_cache_time>
-	<!-- <gacl_cache_time type="int">600</gacl_cache_time> -->
+	<app_cache_time>0</app_cache_time>
+	<!-- <gacl_cache_time>600</gacl_cache_time> -->
 
 </config>

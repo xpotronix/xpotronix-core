@@ -13,8 +13,8 @@
 <config>
         <!-- mailer internetdinamica.com
         <mailer_charset>UTF-8</mailer_charset>
-        <mailer_smtp_debug type="int">0</mailer_smtp_debug>
-        <mailer_smtp_auth type="bool">true</mailer_smtp_auth>
+        <mailer_smtp_debug>0</mailer_smtp_debug>
+        <mailer_smtp_auth>true</mailer_smtp_auth>
         <mailer_smtp_port>25</mailer_smtp_port>
         <mailer_host>mail.internetdinamica.com</mailer_host>
         <mailer_username>eduardo.spotorno.com.ar</mailer_username>
@@ -23,8 +23,8 @@
 
         <!-- mailer localhost -->
         <mailer_charset>UTF-8</mailer_charset>
-        <mailer_smtp_debug type="int">0</mailer_smtp_debug>
-        <mailer_smtp_auth type="bool">false</mailer_smtp_auth>
+        <mailer_smtp_debug>0</mailer_smtp_debug>
+        <mailer_smtp_auth>false</mailer_smtp_auth>
         <mailer_smtp_port>25</mailer_smtp_port>
         <mailer_host>localhost</mailer_host>
         <mailer_username></mailer_username>

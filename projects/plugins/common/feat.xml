@@ -25,10 +25,10 @@
 	<page_title>xpotronix Application</page_title>
 	<site_domain>red.justamente.net</site_domain>
 	<!-- <base_url>http://xpotronix.com/xpotronix/</base_url> -->
-	<crypt_url type="bool">false</crypt_url>
-        <login_window type="bool">true</login_window>
-	<menu_bar type="bool">true</menu_bar>
-	<paging_toolbar type="bool">true</paging_toolbar>
+	<crypt_url>false</crypt_url>
+        <login_window>true</login_window>
+	<menu_bar>true</menu_bar>
+	<paging_toolbar>true</paging_toolbar>
 
 	<!-- default template -->
 	<theme>/ext4/resources/ext-theme-neptune/ext-theme-neptune-all.css</theme>
@@ -36,7 +36,7 @@
 
 	<!-- codificacion base de datos -->
 
-	<force_utf8 type="bool">false</force_utf8>
+	<force_utf8>false</force_utf8>
 
 	<!-- locales -->
 	<encoding>UTF-8</encoding>
@@ -60,34 +60,34 @@
 
 	<!-- comportamiento de la aplicacion -->
 	<default_module>users</default_module>
-	<set_time_limit type="int"></set_time_limit>
+	<set_time_limit></set_time_limit>
 
 	<!-- debugging -->
-	<syslog_level type="int">10</syslog_level>
-	<messages_level type="int">-1</messages_level>
-	<debug_xml type="bool">false</debug_xml>
-	<log_changes type="bool">false</log_changes>
+	<syslog_level>10</syslog_level>
+	<messages_level>-1</messages_level>
+	<debug_xml>false</debug_xml>
+	<log_changes>false</log_changes>
 
 	<!-- acceso a base de datos -->
-	<load_full_query type="bool">true</load_full_query>
-	<add_labels type="bool">true</add_labels>
+	<load_full_query>true</load_full_query>
+	<add_labels>true</add_labels>
 	<sql_page_model>page</sql_page_model>
-	<page_rows type="int">50</page_rows>
+	<page_rows>50</page_rows>
 	<query_action>data</query_action>
-	<load_after_store type="bool">false</load_after_store>
+	<load_after_store>false</load_after_store>
 	<!-- <query_action>datab</query_action> -->
-	<remote_sort type="bool">true</remote_sort>
-	<include_dataset type="int">0</include_dataset>
-	<ignore_null_fields type="bool">true</ignore_null_fields>
-	<ignore_null_dataset type="bool">true</ignore_null_dataset>
+	<remote_sort>true</remote_sort>
+	<include_dataset>0</include_dataset>
+	<ignore_null_fields>true</ignore_null_fields>
+	<ignore_null_dataset>true</ignore_null_dataset>
 	<on_null_dataset></on_null_dataset>
-	<hide_pk type="bool">true</hide_pk>
-	<hide_fk type="bool">true</hide_fk>
-	<auto_load type="bool">false</auto_load>
+	<hide_pk>true</hide_pk>
+	<hide_fk>true</hide_fk>
+	<auto_load>false</auto_load>
 	<key_delimiter>^</key_delimiter>
 	<container_tag>c_</container_tag>
-	<try_update_on_fail type="bool">true</try_update_on_fail>
-	<blob_load type="bool">false</blob_load>
+	<try_update_on_fail>true</try_update_on_fail>
+	<blob_load>false</blob_load>
 
 	<!-- transformacion de la aplicacion -->
 
@@ -95,7 +95,7 @@
 	<default_view>ext4new/viewport</default_view>
 
 	<!-- serializacion -->
-	<envelope_tag type="bool">true</envelope_tag>
-	<expose_server_vars type="bool">false</expose_server_vars>
+	<envelope_tag>true</envelope_tag>
+	<expose_server_vars>false</expose_server_vars>
 
 </feat>

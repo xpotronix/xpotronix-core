@@ -27,7 +27,7 @@
 	<!-- <login_fn>_login_ldap</login_fn> -->
 
 	<!-- configuracion LDAP  -->
-	<!-- <ldap_allow_login type="bool">true</ldap_allow_login>
+	<!-- <ldap_allow_login>true</ldap_allow_login>
 	<ldap_host>LDAP://WEBLDAP.YOURDOMAIN.GOV.AR</ldap_host>
 	<ldap_port>389</ldap_port>
 	<ldap_version>3</ldap_version>

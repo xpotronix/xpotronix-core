@@ -19,6 +19,6 @@
         <default_module>home</default_module>
         <defaultSrc>?m=test</defaultSrc>
 
-	<page_rows type="int">50</page_rows>
-        <auto_load type="bool">true</auto_load>
+	<page_rows>50</page_rows>
+        <auto_load>true</auto_load>
 </feat>
