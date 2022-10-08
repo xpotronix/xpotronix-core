@@ -17,22 +17,32 @@ class Config {
 	private $data;
 	private $fallback;
 
-	function __construct( $param ) {/*{{{*/
+	const PREG_TEST_XML_ENTITY = "%(<.*?/>)%is";
 
+	function __construct( $param ) {/*{{{*/
 
 		// si es un simplexml, hara fallback sobre ese 
 		// si es un string, probar si es una entidad, si no, un archivo
+
 		try {
+
+			/* si es un SimpleXMLElement, va a usarlo de fallback,
+			 * esto sirve para cuando uno testea localmente los feat del modulo */
+
 			if ( is_object( $param ) and ( $entity = $param->get_xml()->getName() ) ){
 
 				$this->fallback = $param;
 				$this->data = new \SimpleXMLElement( "<$entity/>" );
 
-			} else if ( preg_match( "%(<.*?/>)%is", $param ) ) {
+			/* si es un XML en un string lo convierte */
+
+			} else if ( preg_match( self::PREG_TEST_XML_ENTITY, $param ) ) {
 
 				$this->data = new \SimpleXMLElement( $param );
 
 			} else {
+
+				/* sino busca un archivo */
 
 				if ( ! file_exists( $param ) ) {
 
@@ -47,14 +57,15 @@ class Config {
 
 				} 
 
-
 				$this->data = simplexml_load_file( $param );
 				M()->info("cargando el config desde $param" );
 			}
 
 		} catch (\Exception $e) {
 
-			M()->fatal( 'No puedo inicializar una configuracion: o no es un obejto valido o hubo errores al abrir el archivo '. $param. '. Causa: '. $e->getMessage() );
+			$msg = $e->getMessage();
+
+			M()->fatal( "No puedo inicializar una configuracion: o no es un obejto valido o hubo errores al abrir el archivo $param. Causa: $msg" );
 
 		}
 
@@ -78,46 +89,58 @@ class Config {
 
 		}
 
-		$tmp = $this->data->$var_name;
+		$var_value = $this->data->$var_name;
 
-		/*
+		/* si tiene children es un XML debe devolverlo como tal */
 
-		if ( $var_name == 'force_utf8' )  {
-			
-			print '<pre>';
-			//print $var_name. ':: '. var_dump( $tmp );
-			$values = $this->data->xpath( "//$var_name" );
-			print count( $values );
-			global $xpdoc;
-			ob_clean();
-			$xpdoc->feat->debug();
-			exit;
-		}
-		*/
-
-		if ( count( $tmp->children() ) ) {
+		if ( count( $var_value->children() ) ) {
 
 			// M()->info( "var_name: $var_name, type: XML" );
-			return $tmp;
+			return $var_value;
 
-		} else {
-
-			$tmp_type = (string) ( $tmp['type'] ? $tmp['type'] : 'string' );
-
-			// M()->info( "var_name: $var_name, type: $tmp_type, value: $tmp" );
-
-			if ( $tmp_type == 'bool' or $tmp_type == 'boolean' )
-			
-				return $tmp == 'true';
-
-			settype( $tmp, $tmp_type ) ;
-
-			return $tmp;
 		}
+
+		/* si tiene el atributo @type lo convierte a ese */
+
+		$var_type = (string) ( $var_value['type'] ? $var_value['type'] : 'string' );
+
+		if ( $var_type ) {
+		
+			// M()->info( "var_name: $var_name, type: $var_type, value: $var_value" );
+
+			if ( $var_type == 'bool' or $var_type == 'boolean' )
+		
+				return strtolower( $var_value ) == 'true';
+
+			settype( $var_value, $var_type ) ;
+
+			return $var_value;
+		
+		}
+
+		/* sino hace deteccion automatica */
+
+
+		if ( is_numeric( $var_value ) ) {
+
+			/* lo convierte automaticamente el PHP */
+			return $var_value + 0;
+		
+		}
+
+		if ( in_array( strtolower( $var_value ), ['true','false'] ) ) {
+
+			return strtolower( $var_value ) == 'true';
+		
+		}
+
+		return $var_value;
 
 	}/*}}}*/
 
 	function __set( $var_name, $var_value ) {/*{{{*/
+
+		/* solo se pueden asignar datos simples */
 
 		if ( is_object( $var_value ) or is_array( $var_value ) ) {
 
@@ -202,6 +225,34 @@ class Config {
 
 		return $this;
 
+	}/*}}}*/
+
+	function merge( SimpleXMLElement $base, SimpleXMLElement $over ) {/*{{{*/
+	
+		$xsl = new \DOMDocument;
+		$xsl->resolveExternals = true;
+		$xsl->substituteEntities = true;
+		if ( ! $xsl->load( $view_file ) ) {
+
+			M()->error( "Template de transformación [$view_file] no válido en transform/PHP" );
+			return;
+
+		}
+
+		$proc = new \XSLTProcessor;
+		$proc->importStyleSheet($xsl);
+
+		if ( is_array( $params ) ) 
+			foreach( $params as $name => $value )
+				$proc->setParameter( '', $name, $value );
+
+		$domnode = dom_import_simplexml($xdoc);
+		$dom = new \DOMDocument();
+		$domnode = $dom->importNode($domnode, true);
+		$dom->appendChild($domnode);
+
+		$this->output_buffer = $proc->transformToXML( $dom );
+	
 	}/*}}}*/
 
 }

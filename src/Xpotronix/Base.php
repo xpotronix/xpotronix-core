@@ -110,7 +110,7 @@ class Base {
 
 	/* debug */
 
-	function debug_backtrace( $data = NULL ) {/*{{{*/
+	static function debug_backtrace( $data = NULL ) {/*{{{*/
 
 		$debugb = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
 		array_shift( $debugb );
