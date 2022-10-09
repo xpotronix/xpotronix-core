@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<proxy>presencia.net:4747</proxy>
+	<db_instance>
+		<host>central2-mysql7.jusbaires.gob.ar</host>
+		<database>xpay</database>
+		<user>xpay</user>
+		<password>tXrXzHN6LxhadQ6h</password>
+		<implementation>mysqli</implementation>
+		<!-- <encoding>ISO-8859-1</encoding> -->
+	</db_instance>
+</config>

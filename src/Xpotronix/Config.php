@@ -227,31 +227,45 @@ class Config {
 
 	}/*}}}*/
 
-	function merge( SimpleXMLElement $base, SimpleXMLElement $over ) {/*{{{*/
+	function merge( $xslt_file_path, SimpleXMLElement $base, SimpleXMLElement $over ) {/*{{{*/
+
+		/* abro el documento XSL */
 	
 		$xsl = new \DOMDocument;
 		$xsl->resolveExternals = true;
 		$xsl->substituteEntities = true;
-		if ( ! $xsl->load( $view_file ) ) {
+		if ( ! $xsl->load( $xslt_file_path ) ) {
 
 			M()->error( "Template de transformación [$view_file] no válido en transform/PHP" );
 			return;
 
 		}
 
+		/* el procesador */
+
 		$proc = new \XSLTProcessor;
 		$proc->importStyleSheet($xsl);
+
+
+		/* los parametros */
 
 		if ( is_array( $params ) ) 
 			foreach( $params as $name => $value )
 				$proc->setParameter( '', $name, $value );
 
-		$domnode = dom_import_simplexml($xdoc);
+
+		/* el XML a transformar */
+
+		$domnode = dom_import_simplexml($base);
 		$dom = new \DOMDocument();
 		$domnode = $dom->importNode($domnode, true);
 		$dom->appendChild($domnode);
 
-		$this->output_buffer = $proc->transformToXML( $dom );
+		/* el resultado */
+
+		$ret = $proc->transformToXML( $dom );
+
+		return $ret;
 	
 	}/*}}}*/
 

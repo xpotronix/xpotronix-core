@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xp="http://xpotronix.com/namespace/xpotronix/functions/"
+        xmlns:ext4="http://xpotronix.com/templates/ext4/"
+        xmlns:ext="http://xpotronix.com/templates/ext/">
+   <application>xpay</application>
+   <proxy>central1-iws1.jusbaires.gob.ar:8080</proxy>
+   <db_instance>
+      <host>central2-mysql7.jusbaires.gob.ar</host>
+      <database>xpay</database>
+      <user>xpay</user>
+      <password>tXrXzHN6LxhadQ6h</password>
+      <implementation>mysqli</implementation>
+      <!-- <encoding>ISO-8859-1</encoding> --></db_instance>
+   <db_instance name="default-acl">
+      <host>central2-mysql7.jusbaires.gob.ar</host>
+      <database>xpay</database>
+      <user>xpay</user>
+      <password>tXrXzHN6LxhadQ6h</password>
+      <implementation>mysqli</implementation>
+      <table_prefix>gacl_</table_prefix>
+      <!-- <encoding>ISO-8859-1</encoding> --></db_instance>
+   <audit_silent_action>/(login)/s</audit_silent_action>
+   <log_sql>false</log_sql>
+   <peoplesoft_doc_path>/var/www/PeopleSoft/PRD/MG/Salida</peoplesoft_doc_path>
+   <anonymous_user_id>58</anonymous_user_id>
+   <trusted_host_user_id>1</trusted_host_user_id>
+   <trusted_host_ip>10.54.11.12;10.54.11.15;10.49.20.6;10.49.20.15;10.49.20.7;10.49.20.4</trusted_host_ip>
+   <app_cache_time>0</app_cache_time>
+   <gacl_cache_time>600</gacl_cache_time>
+   <login_fn>_login_ldap</login_fn>
+   <ldap_allow_login>true</ldap_allow_login>
+   <ldap_host>ldap://central1-ad1.jusbaires.gob.ar</ldap_host>
+   <ldap_default_domain>jusbaires.gob.ar</ldap_default_domain>
+   <ldap_port>389</ldap_port>
+   <ldap_version>3</ldap_version>
+   <ldap_base_dn>OU=Usuarios,OU=CMCABA,DC=ad,DC=jusbaires,DC=gob,DC=ar</ldap_base_dn>
+   <ldap_bind_format>{ldap_search_user}@jusbaires.gob.ar</ldap_bind_format>
+   <ldap_bind_format>uid={ldap_search_user},{ldap_base_dn}</ldap_bind_format>
+   <ldap_search_user/>
+   <ldap_search_pass/>
+   <ldap_user_filter>(UID={ldap_search_user})</ldap_user_filter>
+   <create_user_default_role>empleado</create_user_default_role>
+   <ADD_images_path>/var/www/webfs/DOCABA/Legajos/</ADD_images_path>
+   <legajos_base_path>/var/www/webfs/DOCABA/Legajos/</legajos_base_path>
+   <img_cert_check_md5>false</img_cert_check_md5>
+   <mailer_host>smtp.jusbaires.gob.ar</mailer_host>
+   <mailer_smtp_port>587</mailer_smtp_port>
+   <mailer_smtp_secure>tls</mailer_smtp_secure>
+   <mailer_smtp_auth>true</mailer_smtp_auth>
+   <mailer_username>srv_licencias</mailer_username>
+   <mailer_password>5p0ldttaljdCABA</mailer_password>
+   <mailer_charset>UTF-8</mailer_charset>
+   <mailer_smtp_debug>0</mailer_smtp_debug>
+   <email_licencias>licencias@jusbaires.gob.ar</email_licencias>
+   <email_presidencia>espotorno@jusbaires.gob.ar</email_presidencia>
+   <email_bcc>espotorno@jusbaires.gob.ar</email_bcc>
+   <recaptcha>false</recaptcha>
+   <recaptcha_domains>miportal.jusbaires.gob.ar</recaptcha_domains>
+   <recaptcha_version>3</recaptcha_version>
+   <recaptcha_public_key>6Ld1nbcZAAAAAICnGOXknzs9eToYDYpRRZRP-wml</recaptcha_public_key>
+   <recaptcha_private_key>6Ld1nbcZAAAAAFE69IYeVRIZSq3uzJ8x6bkTnTQp</recaptcha_private_key>
+   <recaptcha_site_verify>https://www.google.com/recaptcha/api/siteverify</recaptcha_site_verify>
+   <count_rows>true</count_rows>
+   <log_xpid>true</log_xpid>
+   <log_ip>true</log_ip>
+   <clean_xpdoc>true</clean_xpdoc>
+   <cache_dir>/tmp/xpotronix/</cache_dir>
+   <log_dir>/tmp/xpotronix/</log_dir>
+   <gacl_class>\Xpotronix\Acl</gacl_class>
+   <gacl_table_prefix>gacl_</gacl_table_prefix>
+   <self>false</self>
+   <db_instance name="payroll"><!-- para que no lo cargue cada vez que haga un request --><lazy>true</lazy>
+      <host>alem-sqls.jusbaires.gov.ar</host>
+      <database>payroll</database>
+      <user>rrll</user>
+      <password>0m3d3t0</password>
+      <!-- <host>replica-sqls1.jusbaires.gov.ar</host>
+		<database>payrollTest</database>
+		<user>payrollt</user>
+		<password>Pt..469</password>--><implementation>mssql</implementation>
+      <fetch_mode>2</fetch_mode>
+      <!-- <force_utf8>true</force_utf8> --><!-- <encoding>ISO-8859-1</encoding> --></db_instance>
+   <gacl_class/>
+   <audit_ignore_proc>/(State)/s</audit_ignore_proc>
+   <auth_method>sql</auth_method>
+   <class_user>users</class_user>
+   <apg_cmd>/usr/bin/apg -q -a 0 -M ln -n 1 -m 8 -x 8</apg_cmd>
+   <class_session>sessions</class_session>
+   <session_handling/>
+   <session_idle_time>1d</session_idle_time>
+   <session_max_lifetime>1d</session_max_lifetime>
+   <session_base_url/>
+</config>
