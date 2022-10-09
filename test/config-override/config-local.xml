@@ -2,11 +2,22 @@
 <config>
 	<proxy>presencia.net:4747</proxy>
 	<db_instance>
-		<host>central2-mysql7.jusbaires.gob.ar</host>
+		<host>HOST_LOCAL</host>
 		<database>xpay</database>
 		<user>xpay</user>
-		<password>tXrXzHN6LxhadQ6h</password>
+		<password>PASSWORD_LOCAL</password>
 		<implementation>mysqli</implementation>
 		<!-- <encoding>ISO-8859-1</encoding> -->
 	</db_instance>
+
+	<db_instance name="payroll">
+		<host>HOST_LOCAL</host>
+		<database>payroll</database>
+		<user>payroll</user>
+		<password>PASSWORD_LOCAL</password>
+		<implementation>mssql</implementation>
+		<!-- <encoding>ISO-8859-1</encoding> -->
+	</db_instance>
+
+
 </config>

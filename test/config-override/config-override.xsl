@@ -32,14 +32,10 @@
 
 			<xsl:for-each select="*">
 				<xsl:variable name="name" select="name()"/>
-				<xsl:choose>
-					<xsl:when test="not(@name) and not($overrides/config/*[name()=$name])">
-						<xsl:copy-of select="."/>
-					</xsl:when>
-					<xsl:when test="@name and not($overrides/config/*[name()=$name and @name=$name])">
-						<xsl:copy-of select="."/>
-					</xsl:when>
-				</xsl:choose>
+				<xsl:if test="(not(@name) and not($overrides/config/*[name()=$name]))
+					or (@name and not($overrides/config/*[name()=$name and @name=$name]))">
+					<xsl:copy-of select="."/>
+				</xsl:if>
 			</xsl:for-each>
 
 		</xsl:copy>
