@@ -32,7 +32,7 @@ print merge( $base, $xslt, ['override_file_path' => 'config-local.xml'] );
 
 		$ret = $proc->transformToXML( $dom );
 
-		var_dump ( $ret );
+		return $ret;
 	
 	}/*}}}*/
 

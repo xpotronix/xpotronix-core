@@ -19,5 +19,6 @@
 		<!-- <encoding>ISO-8859-1</encoding> -->
 	</db_instance>
 
+	<hello_in_arabic>متشرف بمعرفتك</hello_in_arabic>
 
 </config>

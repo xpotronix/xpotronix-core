@@ -2,7 +2,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-	<xsl:output method="xml" indent="yes"/>
+	<xsl:output method="xml" indent="yes" encoding="utf-8"/>
 
 	<!-- path de archivo overrides -->
 
@@ -24,18 +24,25 @@
 			<xsl:comment>Configuracion Local</xsl:comment>
 			<xsl:comment/>
 
-			<xsl:copy-of select="$overrides/config[1]/*"/>
+			<xsl:copy-of select="$overrides/config/*"/>
 
 			<xsl:comment/>
 			<xsl:comment>Configuracion Default</xsl:comment>
 			<xsl:comment/>
 
 			<xsl:for-each select="*">
-				<xsl:variable name="name" select="name()"/>
-				<xsl:if test="(not(@name) and not($overrides/config/*[name()=$name]))
-					or (@name and not($overrides/config/*[name()=$name and @name=$name]))">
-					<xsl:copy-of select="."/>
-				</xsl:if>
+
+				<xsl:variable name="node_name" select="name()"/>
+				<xsl:variable name="name" select="@name"/>
+				<xsl:choose>
+					<xsl:when test="not(@name) and not($overrides/config[1]/*[name()=$node_name])">
+						<xsl:copy-of select="."/>
+					</xsl:when>
+					<xsl:when test="@name and not($overrides/config[1]/*[name()=$node_name and @name=$name])">
+						<xsl:copy-of select="."/>
+					</xsl:when>
+				</xsl:choose>
+
 			</xsl:for-each>
 
 		</xsl:copy>
