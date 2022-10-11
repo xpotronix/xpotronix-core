@@ -442,6 +442,18 @@ class array2xml {/*{{{*/
 			return simplexml_import_dom($htmlDom);
 	}/*}}}*/
 
+
+function simplexml_to_dom( SimpleXMLElement $xml ) {/*{{{*/
+
+	$domnode = dom_import_simplexml($xml);
+	$dom = new \DOMDocument();
+	$domnode = $dom->importNode($domnode, true);
+	$dom->appendChild($domnode);
+
+	return $dom;
+
+}/*}}}*/
+
 	function get_html_text( string $html_string = null ) {/*{{{*/
 
 			/* se queda solo con el texto del campo imagen */

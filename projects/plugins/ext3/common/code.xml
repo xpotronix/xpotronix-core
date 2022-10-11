@@ -14,30 +14,30 @@
 <table name="contador">
 	<code type="php" mode="class_functions">
 
-                function incrementa( $nombre ) {/*{{{*/
+	function incrementa( $nombre ) {/*{{{*/
 
-                        if (!$nombre) {
+		if (!$nombre) {
 
-                                M()->error( 'debe especificar el nombre del contador' );
-                                return NULL;
+			M()->error( 'debe especificar el nombre del contador' );
+			return NULL;
 
-                        }
+		}
 
-                        if ( !$this->load( array( 'nombre' => $nombre ) ) ) {
+		if ( !$this->load( array( 'nombre' => $nombre ) ) ) {
 
-				$this->fill_primary_key();
-                                $this->nombre = $nombre;
-                                $this->numero = 1;
-                                $this->insert();
+			$this->fill_primary_key();
+			$this->nombre = $nombre;
+			$this->numero = 1;
+			$this->insert();
 
-                        } else {
+		} else {
 
-                                $this->numero ++;
-                                $this->update();
-                        }
+			$this->numero ++;
+			$this->update();
+		}
 
-                        return $this->numero;
-                }/*}}}*/
+		return $this->numero;
+	}/*}}}*/
 
 	</code>
 </table>
@@ -56,7 +56,62 @@ if ( file_exists( $autoload_file )) {
 	exit(1);
 }
 
-?>]]></file>
+	?>]]></file>
+
+<file name="conf/config-override.xsl" type="xml">
+
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+	<xsl:output method="xml" indent="yes" encoding="utf-8"/>
+
+	<!-- path de archivo overrides -->
+
+	<xsl:param name="override_file_path"/>
+
+	<xsl:variable name="overrides" select="document($override_file_path)" />
+
+	<xsl:template match="@* | node()">
+		<xsl:copy>
+			<xsl:apply-templates select="@* | node()"/>
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template match="config">
+
+		<xsl:copy>
+
+			<xsl:comment/>
+			<xsl:comment>Configuracion Local</xsl:comment>
+			<xsl:comment/>
+
+			<xsl:copy-of select="$overrides/config/*"/>
+
+			<xsl:comment/>
+			<xsl:comment>Configuracion Default</xsl:comment>
+			<xsl:comment/>
+
+			<xsl:for-each select="*">
+
+				<xsl:variable name="node_name" select="name()"/>
+				<xsl:variable name="name" select="@name"/>
+				<xsl:choose>
+					<xsl:when test="not(@name) and not($overrides/config[1]/*[name()=$node_name])">
+						<xsl:copy-of select="."/>
+					</xsl:when>
+					<xsl:when test="@name and not($overrides/config[1]/*[name()=$node_name and @name=$name])">
+						<xsl:copy-of select="."/>
+					</xsl:when>
+				</xsl:choose>
+
+			</xsl:for-each>
+
+		</xsl:copy>
+
+	</xsl:template>
+
+</xsl:stylesheet>
+
+</file>
 
 <file name=".htaccess">
 RewriteEngine on

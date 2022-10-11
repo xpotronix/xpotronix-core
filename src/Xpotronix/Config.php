@@ -227,25 +227,18 @@ class Config {
 
 	}/*}}}*/
 
-	function merge( $xslt_file_path, SimpleXMLElement $base, SimpleXMLElement $over ) {/*{{{*/
+	static function merge( SimpleXMLElement $base, SimpleXMLElement $xslt, ?array $params ) {/*{{{*/
 
 		/* abro el documento XSL */
 	
-		$xsl = new \DOMDocument;
+		$xsl = simplexml_to_dom( $xslt );
 		$xsl->resolveExternals = true;
 		$xsl->substituteEntities = true;
-		if ( ! $xsl->load( $xslt_file_path ) ) {
-
-			M()->error( "Template de transformación [$view_file] no válido en transform/PHP" );
-			return;
-
-		}
 
 		/* el procesador */
 
 		$proc = new \XSLTProcessor;
 		$proc->importStyleSheet($xsl);
-
 
 		/* los parametros */
 
@@ -253,13 +246,9 @@ class Config {
 			foreach( $params as $name => $value )
 				$proc->setParameter( '', $name, $value );
 
-
 		/* el XML a transformar */
 
-		$domnode = dom_import_simplexml($base);
-		$dom = new \DOMDocument();
-		$domnode = $dom->importNode($domnode, true);
-		$dom->appendChild($domnode);
+		$dom = simplexml_to_dom($base);
 
 		/* el resultado */
 

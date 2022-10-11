@@ -213,8 +213,21 @@ class Doc extends Base {
 		if ( $xml )
 			$this->config = $xml;
 		else {
-			M()->info( $file = (( $this->ini['paths']['config'] ) ? $this->ini['paths']['config'] . "conf/{$this->application}": "conf/" ). '/config.xml' );
-			$this->config = new Config( $file );
+
+			$config_path = (( $t = $this->ini['paths']['config'] ) ? "$t/conf/{$this->application}": "conf/" );
+
+			$config_file_path = "$config_path/config.xml";
+			$config_file_path_local = "$config_path/config-local.xml";
+			$config_file_path_final = "$config_path/config-final.xml";
+
+			if ( file_exists( $config_file_path_local ) ) {
+			
+				$this->config = new Config( $config_file_path_local );
+			
+			}
+
+			M()->info( "$config_path, $config_file_path, $config_file_path_local, $config_file_path_final" );
+
 		}
 
 		M()->info('OK');
