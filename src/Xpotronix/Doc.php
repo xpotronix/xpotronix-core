@@ -210,23 +210,64 @@ class Doc extends Base {
 
 	function load_config( $xml = null ) {/*{{{*/
 
-		if ( $xml )
+		if ( $xml ) {
+		
 			$this->config = $xml;
-		else {
+		
+		} else {
 
-			$config_path = (( $t = $this->ini['paths']['config'] ) ? "$t/conf/{$this->application}": "conf/" );
+			$path = (( $t = $this->ini['paths']['config'] ) ? "$t/conf/{$this->application}": "conf/" );
 
-			$config_file_path = "$config_path/config.xml";
-			$config_file_path_local = "$config_path/config-local.xml";
-			$config_file_path_final = "$config_path/config-final.xml";
+			$file_path = "$path/config.xml";
+			$file_path_local = "$path/config-local.xml";
+			$file_path_final = "$path/config-final.xml";
 
-			if ( file_exists( $config_file_path_local ) ) {
+			if ( file_exists( $file_path_local ) ) {
+
+				M()->info( "$path, $file_path, $file_path_local, $file_path_final" );
+
+				/* si tiene un archivo local de configuracion */
+
+				$file_mtime = filemtime( $file_path );
+				$file_mtime_local = filemtime( $file_path_local );
+				$file_mtime_final = filemtime( $file_path_final );
+
+				M()->info( "mtimes: $file_mtime, $file_mtime_local, $file_mtime_final" );
+
+				if ( $file_mtime_final > max( $file_mtime, $file_mtime_local ) ) {
+
+					/* si el archivo final es mas nuevo que el resto */
+
+					M()->info( "cargando archivo $file_path_final" );
+				
+					$this->config = new Config( $file_path_final );
+				
+				} else {
+
+					/* si el archivo final esta desactualizado (alguno de los dos es mas nuevo) regenera el final */
+
+					M()->info( "regenerando archivo" );
+				
+					$base = simplexml_load_file( $file_path );
+					$xslt = simplexml_load_file( "conf/config-override.xsl" );
+
+					$ret = Config::transform( $base, $xslt, ['override_file_path' => $file_path_local ] );
+
+					$final = simplexml_load_string( $ret );
+
+					$this->config = $final;
+
+					/* trata de grabarlo para no regenerarlo la proxima vez */
+
+					$final->asXML( $file_path_final );
+
+				}
+
+			} else {
 			
-				$this->config = new Config( $config_file_path_local );
-			
+				$this->config = new Config( $file_path );
+
 			}
-
-			M()->info( "$config_path, $config_file_path, $config_file_path_local, $config_file_path_final" );
 
 		}
 

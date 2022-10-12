@@ -34,14 +34,9 @@
 
 				<xsl:variable name="node_name" select="name()"/>
 				<xsl:variable name="name" select="@name"/>
-				<xsl:choose>
-					<xsl:when test="not(@name) and not($overrides/config[1]/*[name()=$node_name])">
+					<xsl:if test="(not(@name) and not($overrides/config[1]/*[name()=$node_name])) or (@name and not($overrides/config[1]/*[name()=$node_name and @name=$name]))">
 						<xsl:copy-of select="."/>
-					</xsl:when>
-					<xsl:when test="@name and not($overrides/config[1]/*[name()=$node_name and @name=$name])">
-						<xsl:copy-of select="."/>
-					</xsl:when>
-				</xsl:choose>
+					</xsl:if>
 
 			</xsl:for-each>
 

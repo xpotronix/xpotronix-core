@@ -227,7 +227,7 @@ class Config {
 
 	}/*}}}*/
 
-	static function merge( SimpleXMLElement $base, SimpleXMLElement $xslt, ?array $params ) {/*{{{*/
+	static function transform( \SimpleXMLElement $base, \SimpleXMLElement $xslt, ?array $params ) {/*{{{*/
 
 		/* abro el documento XSL */
 	
