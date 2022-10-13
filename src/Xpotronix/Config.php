@@ -19,10 +19,12 @@ class Config {
 
 	const PREG_TEST_XML_ENTITY = "%(<.*?/>)%is";
 
-	function __construct( $param ) {/*{{{*/
+	function __construct( $param = null ) {/*{{{*/
 
 		// si es un simplexml, hara fallback sobre ese 
 		// si es un string, probar si es una entidad, si no, un archivo
+		//
+		if ( is_null( $param ) ) return $this;
 
 		try {
 
@@ -165,6 +167,14 @@ class Config {
 		}
 
 		return $var_value;
+
+	}/*}}}*/
+
+	function set_xml( $xml ) {/*{{{*/
+		
+		$this->data = $xml;
+
+		return $this;
 
 	}/*}}}*/
 

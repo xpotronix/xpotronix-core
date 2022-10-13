@@ -212,7 +212,7 @@ class Doc extends Base {
 
 		if ( $xml ) {
 		
-			$this->config = $xml;
+			$this->config->set_xml( $xml );
 		
 		} else {
 
@@ -255,11 +255,19 @@ class Doc extends Base {
 
 					$final = simplexml_load_string( $ret );
 
-					$this->config = $final;
+					$this->config = new Config;
+					$this->config->set_xml( $final );
 
 					/* trata de grabarlo para no regenerarlo la proxima vez */
 
-					$final->asXML( $file_path_final );
+					if ( ! $final->asXML( $file_path_final ) ) {
+
+						// var_dump( $this->config ); 
+						
+						M()->warn( "No pude generar el archivo final de configuracion en $file_path_final" );
+					
+					}
+
 
 				}
 
