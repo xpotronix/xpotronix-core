@@ -118,7 +118,7 @@ class Doc extends Base {
 
 	/* construct */
 
-	function  __construct( Config|string $config_file = null, Config|string $feat_file = null ) {/*{{{*/
+	function  __construct( $config_file = null, $feat_file = null ) {/*{{{*/
 
 		$xpid = $this->xpid( $this->get_hash() );
 
@@ -208,7 +208,7 @@ class Doc extends Base {
 
 	}/*}}}*/
 
-	function load_config( Config|string|null $xml ) {/*{{{*/
+	function load_config( $xml ) {/*{{{*/
 
 		if ( $xml instanceof Config ) {
 
