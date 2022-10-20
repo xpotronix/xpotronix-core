@@ -104,7 +104,7 @@ class Config {
 
 		/* si tiene el atributo @type lo convierte a ese */
 
-		$var_type = (string) ( $var_value['type'] ? $var_value['type'] : 'string' );
+		$var_type = (string) ( $var_value['type'] ? $var_value['type'] : null );
 
 		if ( $var_type ) {
 		
@@ -122,20 +122,22 @@ class Config {
 
 		/* sino hace deteccion automatica */
 
-
-		if ( is_numeric( $var_value ) ) {
-
-			/* lo convierte automaticamente el PHP */
-			return $var_value + 0;
-		
-		}
-
 		if ( in_array( strtolower( $var_value ), ['true','false'] ) ) {
 
+			settype( $var_value, 'boolean' );
 			return strtolower( $var_value ) == 'true';
 		
 		}
 
+		if ( is_numeric( $var_value ) ) {
+
+			/* lo convierte automaticamente el PHP */
+			settype( $var_value, 'string' );
+			return $var_value;
+		
+		}
+
+		settype( $var_value, 'string' );
 		return $var_value;
 
 	}/*}}}*/
