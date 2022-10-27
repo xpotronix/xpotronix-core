@@ -270,7 +270,7 @@ class Sync {
 				if ( ( $attr->type == 'xpdate' or $attr->type == 'xpdatetime' )
 					and ( substr( $so->$key, 0, 4 ) == '3000' or substr( $so->$key, 0, 4 ) == '1900' ) ) {
 
-						$this->obj->$key = '';
+						$this->obj->$key = null;
 
 				} else if ( $attr->type == 'xpdatetime' ) {
 
