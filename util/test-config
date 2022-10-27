@@ -1,0 +1,44 @@
+#!/usr/bin/php
+<?php
+
+// ini_set( 'xdebug.profiler_enable_trigger', 0 );
+// ini_set( 'xdebug.collect_params', 2 );
+// ini_set( 'xdebug.show_mem_delta', 1); 
+// xdebug_start_trace('/tmp/xpotronix-trace.xt');
+
+
+//ini_set( 'display_errors', 0 );
+//ini_set( 'log_errors', 1 );
+//ini_set( 'error_log', 'syslog' );
+
+//ini_set( 'include_path', ini_get( 'include_path' ). ':/usr/share/php/adodb' );
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Xpotronix\Doc;
+use Xpotronix\Messages;
+use Xpotronix\Config;
+use Xpotronix\Xpotronize;
+use Xpotronix\DBDump;
+
+$ini = parse_ini_file( '/etc/xpotronix/xpotronix.ini', true);
+
+$x = new Xpotronize;
+$x->check_params_xpotronize();
+
+$xconfig = new Config( "/etc/xpotronix/conf/xpay/config.xml" );
+
+$xml = simplexml_load_file( "/etc/xpotronix/conf/xpay/config.xml" );
+
+// var_dump( $xml ); exit;
+
+foreach( $xml as $key => $data ) {
+
+	$value = $xconfig->$key;
+
+	print( "$key: xml: $data, value: {$value}\n" );
+
+}
+
+
+?>

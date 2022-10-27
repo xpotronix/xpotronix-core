@@ -120,11 +120,13 @@ class Config {
 		
 		}
 
+		/* es un xml son todos strings */
+		$var_value = (string) $var_value;
+
 		/* sino hace deteccion automatica */
 
 		if ( in_array( strtolower( $var_value ), ['true','false'] ) ) {
 
-			settype( $var_value, 'boolean' );
 			return strtolower( $var_value ) == 'true';
 		
 		}
@@ -132,12 +134,12 @@ class Config {
 		if ( is_numeric( $var_value ) ) {
 
 			/* lo convierte automaticamente el PHP */
-			settype( $var_value, 'string' );
+			settype( $var_value, 'int' );
 			return $var_value;
 		
 		}
 
-		settype( $var_value, 'string' );
+		$var_value and settype( $var_value, 'string' );
 		return $var_value;
 
 	}/*}}}*/
@@ -209,6 +211,7 @@ class Config {
 		ob_flush();
 
 		exit;
+
 	}/*}}}*/
 
 	function get_xml() {/*{{{*/
