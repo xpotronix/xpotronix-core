@@ -189,7 +189,7 @@
 		<field name="id" translate="id" validate=""/>
 		<field name="allow" type="xpboolean" translate="Permitir"/>
 		<field name="enabled" type="xpboolean" translate="Activo"/>
-		<field name="section_value" translate="section_value" validate="empty" eh="acl_section_value"/>
+		<field name="section_value" translate="section_value" eh="acl_section_value"/>
 		<field name="return_value" translate="return_value" validate=""/>
 		<field name="note" translate="note" validate="empty"/>
 		<field name="updated_date" translate="updated_date" validate=""/>

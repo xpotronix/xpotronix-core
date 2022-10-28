@@ -41,6 +41,18 @@
 	}/*}}}*/
 
 	</code>
+     </table>
+
+<table name="gacl_acl">
+	<code type="php" mode="class_functions">
+
+	   function defaults() {/*{{{*/
+
+	   	$this->section_value or $this->section_value = 'Application';
+
+           }/*}}}*/
+
+	</code>
 </table>
 
 <table name="gacl_aro_groups">
