@@ -132,6 +132,8 @@ use PHPMailer\PHPMailer\Exception;
 		$this->mail->Host       = $xpdoc->config->mailer_host or M()->error( 'host no definido');
 		$this->mail->Port       = $xpdoc->config->mailer_smtp_port or M()->error( 'port no definido');
 
+		$this->mail->SMTPAutoTLS = $xpdoc->config->mailer_smtp_auto_tls;
+
 
 		/* DEBUG: estas opciones
 
