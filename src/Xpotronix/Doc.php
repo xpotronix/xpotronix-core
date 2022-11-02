@@ -1162,7 +1162,7 @@ class Doc extends Base {
 		$test_role = [];
 
 		foreach( $this->roles as $role )
-			$test_role[] = $role['value'];
+			$test_role[] = $role;
 
 		return (bool) count( array_intersect( $test_role, $arr_role ) );
 
@@ -1175,10 +1175,9 @@ class Doc extends Base {
 		foreach( $this->roles as $role ) {
 
 			$role_xml = $roles->addChild( "role" );
-			$role_xml['id'] = $role['id'];
-			$role_xml['name'] = $role['name'];
-			$role_xml['value'] = $role['value'];
-			$role_xml['parent_id'] = $role['parent_id'];
+			$role_xml['id'] = $role;
+			$role_xml['name'] = $role;
+			$role_xml['value'] = $role;
 		}
 
 		return $roles;
