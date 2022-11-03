@@ -14,7 +14,6 @@ Adaptado para xpotronix, Eduardo Spotorno
 
  */
 
-
 namespace Xpotronix;
 
 use Casbin\EnforceContext;
@@ -71,12 +70,31 @@ class Acl {
 
 		$res = [];
 
-		foreach( $t = $this->enforcer->getPermissionsForUser( $this->username ) as $perm ) {
 
-			$res[$perm[2]] = true;
+		if ( in_array( 'administrator', $this->enforcer->getRolesForUser( $this->username ) ) ) {
+		
+			$res = ['add'=>true,'edit'=>true,'access'=>true,'list'=>true,'delete'=>true,'view'=>true];
+
+		
+		} else {
+		
+			foreach( $t = $this->enforcer->getPermissionsForUser( $this->username ) as $perm ) {
+
+				$res[$perm[2]] = true;
+			}
 		}
 
-		echo "<Pre>"; print_r( $t ); exit;
+
+		/*
+
+		$t = $this->enforcer->getAllRoles();
+		$t = $this->enforcer->getPermissionsForUser( "administrator" );
+		$t = $this->enforcer->getRolesForUser( "espotorno" );
+		$t = $this->enforcer->getAllObjects();
+
+		echo "<Pre> $this->username: "; print_r( $t ); exit;
+
+		 */
 
 		return $res;
 

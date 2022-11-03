@@ -18,4 +18,27 @@
 	<gacl_class>\Xpotronix\Acl</gacl_class>
 	<gacl_table_prefix>gacl_</gacl_table_prefix>
 	<gacl_cache_time>0</gacl_cache_time>
+
+
+	<acl_schema name="default"><![CDATA[
+
+	[request_definition]
+	r = sub, obj, act
+
+	[policy_definition]
+	p = sub, obj, act
+
+	[role_definition]
+	g = _, _
+	g2 = _, _
+
+	[policy_effect]
+	e = some(where (p.eft == allow))
+
+	[matchers]
+	m = g(r.sub, p.sub) && g2(r.obj, p.obj) && r.act == p.act || r.sub == "administrator"
+
+	]]></acl_schema>
+
+
 </config>
