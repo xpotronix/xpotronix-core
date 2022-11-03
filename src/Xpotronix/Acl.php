@@ -29,18 +29,40 @@ class Acl {
 	private $enforcer;
 	private $modelAndPolicyPath = "conf";
 
-	function __construct() {
+	function __construct() {/*{{{*/
 
 		$this->enforcer = new Enforcer($this->modelAndPolicyPath . '/rbac_model.conf', 
 			$this->modelAndPolicyPath . '/rbac_policy.csv');
 
 		return $this;
-	}
+	}/*}}}*/
+
+	function has_role() {/*{{{*/
+
+                global $xpdoc;
+                return $xpdoc->has_role( func_get_args() );
+
+        }/*}}}*/
 
 	function checkLogin() {/*{{{*/
 
 		return true;
 	
+	}/*}}}*/
+
+	function acl_check( $subject, $object, $action ) {/*{{{*/
+
+		M()->user( "args: subject: $subject, object: $object, action: $action" ); 
+
+		if ( $this->has_role( "administrator" ) ) {
+		
+			return true;
+		} else {
+		
+			return $this->enforcer->enforce( $this->username, $object, $action );	
+		
+		}
+
 	}/*}}}*/
 
 	function setUserId( $user_id = null ) {/*{{{*/

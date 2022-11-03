@@ -72,7 +72,7 @@ class Menu {
 
 					M()->debug( "access: $access, value: $value" );
 
-					$item['access'] = $xpdoc->perms->acl_check( 'application', $access, 'user', $xpdoc->session->user_id, 'app', $value );
+					$item['access'] = $xpdoc->perms->acl_check( $access, $xpdoc->session->user_id, $value );
 
 					M()->debug( "ACL :: elem: $name, nombre: {$item['n']}, requiere: $access, value: $value, permite: {$item['access']}" );
 				}
