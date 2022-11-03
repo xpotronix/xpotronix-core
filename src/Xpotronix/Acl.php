@@ -1,16 +1,7 @@
 <?php
 /**
 
-Codigo original de 
-
- * Copyright 2005, the dotProject Team.
- *
- * This file is part of dotProject and is released under the same license.
- * Check the file index.php in the top level dotproject directory for license
- * details.  If you cannot find this file, or a LICENSE or COPYING file,
- * please email the author for details.
-
-Adaptado para xpotronix, Eduardo Spotorno
+Conector de casbin para xpotronix
 
  */
 
