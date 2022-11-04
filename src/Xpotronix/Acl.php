@@ -43,16 +43,11 @@ class Acl {
 
 	function acl_check( $subject, $object, $action ) {/*{{{*/
 
-		M()->user( "args: subject: $subject, object: $object, action: $action" ); 
+		$ret = ( $this->has_role( "administrator" ) ) ? 
+			true : 
+			$this->enforcer->enforce( $this->username, $object, $action );
 
-		if ( $this->has_role( "administrator" ) ) {
-		
-			return true;
-		} else {
-		
-			return $this->enforcer->enforce( $this->username, $object, $action );	
-		
-		}
+		M()->user( "args: subject: $subject, object: $object, action: $action >> result: $ret" ); 
 
 	}/*}}}*/
 
@@ -60,11 +55,19 @@ class Acl {
 
 		global $xpdoc;
 
-		if ( $user_id === null ) 
+		if ( $user_id === null or $user_id === $xpdoc->user->user_id ) {
+
 			$user_id = $xpdoc->user->user_id;
+			$this->username = $xpdoc->user->user_username;
+		
+		} else {
 
-		$this->username = $xpdoc->user->user_username;
+			/* DEBUG: hay que resolver esto */
+			M()->warn( "cambiando el id de usuario a $user_id" );
+		}
 
+
+		M()->info( "setUserId: $user_id" );
 		return $this->user_id = $user_id;
 
 	}/*}}}*/
@@ -83,7 +86,6 @@ class Acl {
 
 		$res = [];
 
-
 		if ( in_array( 'administrator', $this->enforcer->getRolesForUser( $this->username ) ) ) {
 		
 			$res = ['add'=>true,'edit'=>true,'access'=>true,'list'=>true,'delete'=>true,'view'=>true];
@@ -97,6 +99,7 @@ class Acl {
 			}
 		}
 
+		M()->info( "user: $this->username, id: $this->user_id, perm: ". json_encode( $res ) );
 
 		/*
 
