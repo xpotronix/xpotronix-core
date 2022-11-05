@@ -87,6 +87,8 @@ class Acl {
 		$res = [];
 
 		if ( in_array( 'administrator', $this->enforcer->getRolesForUser( $this->username ) ) ) {
+
+			M()->info( "es administrador $this->username" );
 		
 			$res = ['add'=>true,'edit'=>true,'access'=>true,'list'=>true,'delete'=>true,'view'=>true];
 
@@ -94,6 +96,11 @@ class Acl {
 		} else {
 		
 			foreach( $t = $this->enforcer->getPermissionsForUser( $this->username ) as $perm ) {
+
+				M()->info( "getPermissionsForUser ". json_encode( $t ) );
+
+				echo "<pre>";
+				print_r( $t ); exit;
 
 				$res[$perm[2]] = true;
 			}
