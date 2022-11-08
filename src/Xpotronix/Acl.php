@@ -28,26 +28,27 @@ class Acl {
 		return $this;
 	}/*}}}*/
 
-	function has_role() {/*{{{*/
+        public function has_role() {/*{{{*/
 
-                global $xpdoc;
-                return $xpdoc->has_role( func_get_args() );
+                $arr_role = array_flatten( func_get_args() );
+
+                return (bool) count( array_intersect( $this->enforcer->getRolesForUser( $this->username ), $arr_role ) );
 
         }/*}}}*/
 
-	function checkLogin() {/*{{{*/
+	public function checkLogin() {/*{{{*/
 
 		return true;
 	
 	}/*}}}*/
 
-	function acl_check( $subject, $object, $action ) {/*{{{*/
+	function acl_check( $sub, $obj, $eft ) {/*{{{*/
 
-		$ret = ( $this->has_role( "administrator" ) ) ? 
-			true : 
-			$this->enforcer->enforce( $this->username, $object, $action );
+		$ret = $this->enforcer->enforce( $this->username, $obj, $eft );
 
-		M()->user( "args: subject: $subject, object: $object, action: $action >> result: $ret" ); 
+		M()->user( "args: sub: $sub, obj: $obj, eft: $eft >> result: $ret" ); 
+
+		return $ret;
 
 	}/*}}}*/
 
@@ -82,42 +83,29 @@ class Acl {
 
 	}/*}}}*/
 
-	function get_module_permissions($module, $user_id = null) {/*{{{*/
+	function get_module_permissions($module, $username = null) {/*{{{*/
 
 		$res = [];
 
-		if ( in_array( 'administrator', $this->enforcer->getRolesForUser( $this->username ) ) ) {
+		$username or $username = $this->username;
 
-			M()->info( "es administrador $this->username" );
+		foreach( ['add','edit','access','list','delete','view'] as $eft ) {
 		
-			$res = ['add'=>true,'edit'=>true,'access'=>true,'list'=>true,'delete'=>true,'view'=>true];
-
-		
-		} else {
-		
-			foreach( $t = $this->enforcer->getPermissionsForUser( $this->username ) as $perm ) {
-
-				M()->info( "getPermissionsForUser ". json_encode( $t ) );
-
-				echo "<pre>";
-				print_r( $t ); exit;
-
-				$res[$perm[2]] = true;
-			}
+			$res[$eft] = $this->enforcer->enforce( $username, $module, $eft );
 		}
 
-		M()->info( "user: $this->username, id: $this->user_id, perm: ". json_encode( $res ) );
+		M()->info( "user: $this->username, id: $this->user_id, module: $module, perm: ". json_encode( $res ) );
 
 		/*
-
-		$t = $this->enforcer->getAllRoles();
-		$t = $this->enforcer->getPermissionsForUser( "administrator" );
-		$t = $this->enforcer->getRolesForUser( "espotorno" );
-		$t = $this->enforcer->getAllObjects();
-
+		 *
+		 *
+		$t = $this->enforcer->enforce('espotorno', '_empleado', 'lisst');
 		echo "<Pre> $this->username: "; print_r( $t ); exit;
 
-		 */
+		$t = $this->enforcer->getAllRoles();
+		$t = $this->enforcer->getRolesForUser( "espotorno" );
+		$t = $this->enforcer->getAllObjects();
+		*/
 
 		return $res;
 

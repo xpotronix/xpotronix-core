@@ -467,8 +467,11 @@ class Doc extends Base {
 			} else 
 				M()->info( "la sesion existe [$sid]" );
 		}
-		
+
+		$this->user->set_flag( 'main_sql', false );	
 		$this->user->load( $this->session->user_id );
+		$this->user->set_flag( 'main_sql', true );
+
 		$this->user->attr( '_anon' )->set( 'virtual', true )->set( 'type' , 'int' )->set( 'value', $this->user->user_id == $this->config->anonymous_user_id );
 
 		$this->user->set_flag('set_global_search',true);
@@ -1158,13 +1161,9 @@ class Doc extends Base {
 
 	function has_role() {/*{{{*/
 
-		$arr_role = array_flatten( func_get_args() );
-		$test_role = [];
+		M()->user( "has_role: ". json_encode( func_get_args() ) );
 
-		foreach( $this->roles as $role )
-			$test_role[] = $role;
-
-		return (bool) count( array_intersect( $test_role, $arr_role ) );
+		return $this->perms->has_role( func_get_args() );
 
 	}/*}}}*/
 

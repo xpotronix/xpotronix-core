@@ -472,7 +472,7 @@ class DataObject extends Base {
 
 		if ( $xpdoc->perms ) {
 
-			$this->acl = $xpdoc->perms->get_module_permissions( $this->class_name, $xpdoc->user->user_id );
+			$this->acl = $xpdoc->perms->get_module_permissions( $this->class_name, $xpdoc->user->user_username );
 
 			$message = [];
 			foreach( $this->acl as $action => $value) {
