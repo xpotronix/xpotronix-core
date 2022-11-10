@@ -1818,22 +1818,32 @@ class Doc extends Base {
 
 				case 'system':
 
-					$saxon_command = "exec java -classpath ".$this->ini['java']['saxon_jar']." net.sf.saxon.Transform -novw ";
+					$saxon_jar_path = $this->ini['java']['saxon_jar'];
 
+					$saxon_command = "exec java -classpath $saxon_jar_path net.sf.saxon.Transform -novw ";
 
 					if ( $params ) {
-						$sparam = null;
+
+						$sparam = '';
 						foreach( $params as $pr => $prv )
-							$sparam += "$pr='$prv' ";
+							$sparam .= "$pr='$prv' ";
 					}
 
-					$retval = 0;
-					ob_start();
 					$param_template = ( $this->template ) ? "-it {$this->template}" : NULL;
-					system( "$saxon_command $param_template $tmp_file $view_file 2>&1", $retval );
+					$system_command = "$saxon_command $param_template $tmp_file $view_file $sparam 2>&1";
+					$retval = 0;
+
+					ob_start();
+					system( $system_command, $retval );
+
+					M()->info( $system_command );
+
 					$msgs = ob_get_clean();
 
-					$msgs and M()->warn( $mgsg );
+					if ( $msgs ) 
+						$this->output_buffer = $msgs;
+					else
+						M()->warn( "el comando no genero salida alguna" );
 
 					if ( $retval == 2 ) {
 
@@ -1842,7 +1852,6 @@ class Doc extends Base {
 						$this->output_buffer = sprintf( "<h1>Error en la transformaci&oacute;n:</h1><pre>%s</pre>", $msgs );
 
 					} else {
-
 						$this->content_type( 'application/xhtml+xml' );
 						$this->content_type( 'text/html' );
 					}
