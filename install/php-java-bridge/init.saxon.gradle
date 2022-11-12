@@ -1,5 +1,5 @@
 /*
-Gradle init script to add mysql jdbc connector dependencies to the build
+Gradle init script to add json-io dependencies to the build
 */
 
 initscript {
@@ -10,11 +10,12 @@ initscript {
     }
 }
 
+
+/*
 allprojects {
     apply plugin: 'java'
     dependencies {
-	// https://mvnrepository.com/artifact/net.sf.saxon/Saxon-HE
-	// compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '10.3'
-	compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.5.1-5'
+        runtime group: 'net.sf.saxon', name:'Saxon-B', version:'9.1.0.8'
     }
 }
+*/
