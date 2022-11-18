@@ -159,6 +159,7 @@ class Base {
 
 	function saxon_bridge_transform( $xml_file, $xsl_file, $params = null ) {/*{{{*/
 
+
 		M()->info("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
 		try {
@@ -180,13 +181,13 @@ class Base {
 			$oXslSource = $ba->java("javax.xml.transform.stream.StreamSource", $xsl_file);
 
 
-			$oFeatureKeys = $ba->javaClass("net.sf.saxon.FeatureKeys");
+			// $oFeatureKeys = $ba->javaClass("net.sf.saxon.FeatureKeys");
 
 			$oTransformerFactory = $ba->java("net.sf.saxon.TransformerFactoryImpl");
 
 			// $oTransformerFactory->setAttribute($oFeatureKeys->SCHEMA_VALIDATION, 4);
 
-			$oTransformerFactory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
+			// $oTransformerFactory->setAttribute($oFeatureKeys->ALLOW_EXTERNAL_FUNCTIONS, true);
 
 			$oTransFormer = $oTransformerFactory->newTransformer($oXslSource);
 
@@ -199,6 +200,9 @@ class Base {
 			if ( is_array( $params ) )
 				foreach( $params as $key => $value )
 					$oTransFormer->setParameter( $key, $value );
+
+			/* $oTransFormer->setParameter( 'BaseOutputUri', 'file:///' );
+			print $oTransFormer->getParameter( 'BaseOutputUri' ); exit; */
 
 
 			$oTransFormer->transform($oXmlSource, $oResultStream );

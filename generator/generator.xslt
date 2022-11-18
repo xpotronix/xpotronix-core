@@ -9,7 +9,7 @@
 	<!-- output -->
 	<!-- -->
 
-	<xsl:output method="text" encoding="UTF-8" indent="yes"/>
+	<xsl:output method="text" encoding="UTF-8" indent="yes" standalone="yes"/>
 	<xsl:strip-space elements="*"/>
 
 	<!-- -->
