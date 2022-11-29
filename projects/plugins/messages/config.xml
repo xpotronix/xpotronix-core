@@ -11,15 +11,6 @@
 -->
 
 <config>
-        <!-- mailer internetdinamica.com
-        <mailer_charset>UTF-8</mailer_charset>
-        <mailer_smtp_debug>0</mailer_smtp_debug>
-        <mailer_smtp_auth>true</mailer_smtp_auth>
-        <mailer_smtp_port>25</mailer_smtp_port>
-        <mailer_host>mail.internetdinamica.com</mailer_host>
-        <mailer_username>eduardo.spotorno.com.ar</mailer_username>
-        <mailer_password>estaeslaclave</mailer_password>
-	-->
 
         <!-- mailer localhost -->
         <mailer_charset>UTF-8</mailer_charset>
@@ -28,6 +19,8 @@
         <mailer_smtp_port>25</mailer_smtp_port>
         <mailer_host>localhost</mailer_host>
         <mailer_username></mailer_username>
-        <mailer_password></mailer_password>
+	<mailer_password></mailer_password>
+
+	<mailer_smtp_auto_tls>true</mailer_smtp_auto_tls>
  
 </config>
