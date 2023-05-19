@@ -79,7 +79,9 @@ class DBDump extends Base {
 
 		$this->db->setFetchMode( ADODB_FETCH_ASSOC );
 
-		$db_name = $this->db->databaseName;
+		$db_name = $this->db->query('select database()')->fetchColumn();
+
+		M()->user( "database name: $db_name" );
 
 		/* todas los campos juntos de todas las tablas */
 
@@ -348,7 +350,8 @@ class DBDump extends Base {
 
 	function close() {/*{{{*/
 
-		$this->db->Close();
+		$this->db = null;
+
 	}/*}}}*/
 
 }

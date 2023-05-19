@@ -132,9 +132,6 @@ class Gacl {
 			}
 		}
 
-		require_once( ADODB_DIR .'/adodb.inc.php');
-		require_once( ADODB_DIR .'/adodb-pager.inc.php');
-
 		if (is_object($this->_db)) {
 			$this->db = &$this->_db;
 		} else {
