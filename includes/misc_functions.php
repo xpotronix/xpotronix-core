@@ -2,6 +2,22 @@
 
 use Xpotronix\Messages;
 
+/**
+ * Checks if a command exist on a typical Linux system
+ * @param mixed $command_name 
+ * @return bool 
+ */
+
+function command_exists($command_name) {
+
+   return (null === shell_exec("command -v $command_name")) ? false : true;
+}
+
+function mssql_query( $conn, $sql ) {
+
+	return sqlsrv_query( $conn, $sql );
+}
+
 function rsearch($folder, $pattern) {/*{{{*/
 
     $dir = new RecursiveDirectoryIterator($folder);

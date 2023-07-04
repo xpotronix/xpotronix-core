@@ -23,10 +23,9 @@
     ],
 
     "require": {
-    "php": ">=7.2",
+    "php": ">=7.4",
     "monolog/monolog": "1.0.*",
     "psr/log": "^1.1",
-    "adodb/adodb-php": "^5.20",
     "pear/cache_lite": "^1.8",
     "endroid/qr-code": "^3.7",
     "symfony/routing": "^4.4",
@@ -53,7 +52,9 @@
     "intervention/image": "^2.6",
     "casbin/casbin": "^3.7",
     "league/glide": "^2.0",
-    "league/flysystem-memory": "^2.0"
+    "league/flysystem-memory": "^2.0",
+    "casbin/database-adapter": "^1.8",
+    "adodb/adodb-php": "^5.22"
 
     },
 
