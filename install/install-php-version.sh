@@ -22,6 +22,6 @@ echo "deb https://packages.sury.org/php/ stretch main" | sudo tee /etc/apt/sourc
 cd /etc/apt/sources.list.d/
 sudo mv ondrej-ubuntu* /tmp
 sudo apt -y update
-sudo apt install php7.2
+sudo apt install php7.4
 
 

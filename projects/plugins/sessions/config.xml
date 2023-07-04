@@ -16,7 +16,7 @@
 
 	<!-- manejo de sesiones -->
 	<session_handling></session_handling>
-	<session_idle_time>1d</session_idle_time>
-	<session_max_lifetime>1d</session_max_lifetime>
+	<session_idle_time>4h</session_idle_time>
+	<session_max_lifetime>4h</session_max_lifetime>
 	<session_base_url></session_base_url>
 </config>
