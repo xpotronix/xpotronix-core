@@ -1193,8 +1193,11 @@ class Doc extends Base {
 		$d = new \DOMDocument;
 		$x = simplexml_import_dom( $d->createElementNs(self::NAMESPACE_URI, "xpotronix:session") );
 
-		if ( $this->feat->expose_server_vars )
+		if ( $this->feat->expose_server_vars && $this->http->v != 'xml' ) {
+		
 			simplexml_append( $x, $this->http->get_SERVER_xml() );
+		
+		}
 
 		simplexml_append( $x, $this->http->get_xml() );
 
