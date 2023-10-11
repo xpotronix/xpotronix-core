@@ -30,6 +30,10 @@ ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
 ini_set( 'error_log', 'syslog' );
 
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 1);
+
 global $xpdoc;
 
 $t_start = microtime_float();
