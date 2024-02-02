@@ -77,8 +77,6 @@ class DBDump extends Base {
 		
 		M()->info();
 
-		$this->db->setFetchMode( ADODB_FETCH_ASSOC );
-
 		$db_name = $this->db->query('select database()')->fetchColumn();
 
 		M()->user( "database name: $db_name" );
