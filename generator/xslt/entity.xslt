@@ -66,7 +66,7 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Entity;
+namespace App\Entity\Main;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
