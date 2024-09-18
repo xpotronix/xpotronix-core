@@ -103,13 +103,37 @@ class <xsl:value-of select="$class_name"/>
 </xsl:if>
 
 <xsl:for-each select="$table_metadata/obj/attr">
+
+	<xsl:variable name="options">
+
+		<xsl:if test="@dbtype=('char','longchar')">
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'fixed'"/>
+				<xsl:attribute name="value" select="'true'"/>
+			</xsl:element>
+		</xsl:if>
+
+		<!-- has_default="1" default_value="0" -->
+
+		<xsl:if test="@has_default='1'">
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'default'"/>
+				<xsl:attribute name="value">'<xsl:value-of select="@value"/>'</xsl:attribute>
+			</xsl:element>
+		</xsl:if>
+
+	</xsl:variable>
+
+	<xsl:variable name="options_decl"><xsl:for-each select="$options/*:option">'<xsl:value-of select="@key"/>'=&gt;<xsl:value-of select="@value"/><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each></xsl:variable>
 	
 	<xsl:if test="$table_metadata/obj/@persistent='1'">
 
-		<xsl:variable name="is_primary_key" select="count($table_metadata/obj/primary_key/primary[@name=current()/@name])"/>
+	<xsl:variable name="is_primary_key" select="count($table_metadata/obj/primary_key/primary[@name=current()/@name])"/>
 
 	<xsl:variable name="ORMColumnDef">
-	#[ORM\Column(name: '<xsl:value-of select="@name"/>', type: '<xsl:value-of select="@doctrineType"/>'
+		#[ORM\Column(name: '<xsl:value-of select="@name"/>'
+		, type: '<xsl:value-of select="@doctrineType"/>'
+	<xsl:if test="count($options/*:option)">, options:[<xsl:value-of select="$options_decl"/>]</xsl:if>
 	<xsl:if test="@doctrineType='string'">, length: <xsl:value-of select="@length"/></xsl:if>
 	<xsl:if test="@not_null=1">, nullable: false</xsl:if>)]</xsl:variable>
 
