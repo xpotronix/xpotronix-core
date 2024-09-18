@@ -47,11 +47,11 @@
 		<type name="blob" doctrineType="blob"/>
 		<type name="longblob" doctrineType="blob"/>
 	</xtype>
-	<xtype name="xpboolean" class="xpBoolean" type="numeric">
+	<xtype name="xpboolean" class="xpBoolean" type="boolean">
 		<type name="tinyint" doctrineType="boolean"/>
 		<type name="bit" doctrineType="boolean"/>
 	</xtype>
-	<xtype name="xpint" class="xpInt" type="numeric">
+	<xtype name="xpint" class="xpInt" type="integer">
 		<type name="int" doctrineType="integer"/>
 		<type name="int unsigned" doctrineType="integer"/>
 		<type name="smallint" doctrineType="smallint"/>

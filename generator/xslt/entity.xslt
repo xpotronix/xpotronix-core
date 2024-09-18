@@ -68,19 +68,28 @@
 
 namespace App\Entity\Main;
 
+<xsl:if test="$table_metadata/obj/@persistent='1'">
+
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+
+</xsl:if>
 
 /**
 * <xsl:value-of select="$class_name"/>
 */
+
+
+<xsl:if test="$table_metadata/obj/@persistent='1'">
 #[ORM\Table(name: '<xsl:value-of select="$table_name"/>')]<xsl:for-each select="$table_collection//table[@name=$table_name]/index[@name!='PRIMARY']">
-#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: ['<xsl:value-of select="."/>'])]</xsl:for-each>
+#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: [<xsl:apply-templates select="." mode="index_columns"/>])]</xsl:for-each>
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
+</xsl:if>
 class <xsl:value-of select="$class_name"/>
 {
 
+<xsl:if test="$table_metadata/obj/@persistent='1'">
     #[ORM\PreUpdate]
 	public function PreUpdate() {
 		// $this->setAgregado( new \DateTime() );
@@ -91,29 +100,32 @@ class <xsl:value-of select="$class_name"/>
 		// $this->setAgregado( new \DateTime() );
 		// $this->setModificado( new \DateTime() );
 	}
+</xsl:if>
 
-    /**
-     * @var string
-     */
-    #[ORM\Column(name: 'ID', type: 'string', length: 32, nullable: false, options: ['fixed' => true])]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
-	private $id;
+<xsl:for-each select="$table_metadata/obj/attr">
+	
+	<xsl:if test="$table_metadata/obj/@persistent='1'">
 
-<!-- <xsl:message><xsl:copy-of select="$table_metadata/obj/attr[@name='ID']"/></xsl:message> -->
-
-<xsl:for-each select="$table_metadata/obj/attr[not(@primary_key='1')]">
+		<xsl:variable name="is_primary_key" select="count($table_metadata/obj/primary_key/primary[@name=current()/@name])"/>
 
 	<xsl:variable name="ORMColumnDef">
-	@ORM\Column(type="<xsl:value-of select="@doctrineType"/>"
-	<xsl:if test="@doctrineType='string'">, length=<xsl:value-of select="@length"/></xsl:if>
-	<xsl:if test="@not_null=1">, nullable=false</xsl:if>)
-	</xsl:variable>
+	#[ORM\Column(name: '<xsl:value-of select="@name"/>', type: '<xsl:value-of select="@doctrineType"/>'
+	<xsl:if test="@doctrineType='string'">, length: <xsl:value-of select="@length"/></xsl:if>
+	<xsl:if test="@not_null=1">, nullable: false</xsl:if>)]</xsl:variable>
 
-	/**
-	* <xsl:value-of select="normalize-space($ORMColumnDef)"/>
-    */
+
+<xsl:text>	</xsl:text><xsl:value-of select="normalize-space($ORMColumnDef)"/>
+	<xsl:if test="@primary_key='1' or $is_primary_key">
+	#[ORM\Id]
+	<xsl:if test="@dbtype='char' and @length='32'">
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+	#[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
+	</xsl:if>
+
+</xsl:if>
+
+</xsl:if>
+
 	private $<xsl:value-of select="@name"/>;
 
 </xsl:for-each>
@@ -121,6 +133,11 @@ class <xsl:value-of select="$class_name"/>
 }
 
 ?></xsl:template>
+
+
+<xsl:template match="index" mode="index_columns">
+	<xsl:for-each select="tokenize(.,',')">'<xsl:value-of select="."/>'<xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>
+</xsl:template>
 
 
 </xsl:stylesheet>
