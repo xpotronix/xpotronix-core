@@ -81,8 +81,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 <xsl:if test="$table_metadata/obj/@persistent='1'">
-#[ORM\Table(name: '<xsl:value-of select="$table_name"/>')]<xsl:for-each select="$table_collection//table[@name=$table_name]/index[@name!='PRIMARY']">
-#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: [<xsl:apply-templates select="." mode="index_columns"/>])]</xsl:for-each>
+#[ORM\Table(name: '<xsl:value-of select="$table_name"/>')]
+<xsl:apply-templates select="$table_collection//table[@name=$table_name]/index[@name!='PRIMARY']" mode="index_decl"/>
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 </xsl:if>
@@ -158,9 +158,22 @@ class <xsl:value-of select="$class_name"/>
 
 ?></xsl:template>
 
+<xsl:template match="index" mode="index_decl">
+	<xsl:variable name="lengths">
+		<xsl:if test="contains(.,'(')">
+			<xsl:for-each select="tokenize(.,',')">
+				<xsl:element name="length"><xsl:value-of select="substring-after(substring-before(.,')'),'(')"/></xsl:element>
+			</xsl:for-each>
+		</xsl:if>
+	</xsl:variable>
+	#[ORM\Index(name: '<xsl:value-of select="@name"/>'
+	, columns: [<xsl:apply-templates select="." mode="index_columns"/>]
+	<xsl:if test="count($lengths/*:length)">, options:['lengths'=>[<xsl:for-each select="$lengths/*:length"><xsl:choose><xsl:when test=".!=''"><xsl:value-of select="."/></xsl:when><xsl:otherwise><xsl:text>null</xsl:text></xsl:otherwise></xsl:choose><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>]]</xsl:if>
+	)]
+</xsl:template>
 
 <xsl:template match="index" mode="index_columns">
-	<xsl:for-each select="tokenize(.,',')">'<xsl:value-of select="."/>'<xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>
+	<xsl:for-each select="tokenize(.,',')">'<xsl:choose><xsl:when test="contains(.,'(')"><xsl:value-of select="substring-before(.,'(')"/></xsl:when><xsl:otherwise><xsl:value-of select="."/></xsl:otherwise></xsl:choose>'<xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>
 </xsl:template>
 
 
