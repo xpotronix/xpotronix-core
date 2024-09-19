@@ -188,8 +188,8 @@ class DBDump extends Base {
 
 		/* index */
 
-		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique 
-			FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '$db_name'";
+		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique, SEQ_IN_INDEX as seq_in_index, SUB_PART as sub_part
+			FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '$db_name' ORDER BY SEQ_IN_INDEX ASC";
 
 		$rs = $this->db->Execute( $index_sql );
 
@@ -199,8 +199,10 @@ class DBDump extends Base {
 			$index_name = $row['index_name'];
 
 			// print "table_name: $table_name, index_name: $index_name\n";
+			//
+			$sub_part = $row['sub_part'] ? '('. $row['sub_part']. ')' : '';
 
-			$this->table_info[$table_name]['index'][$index_name]['columns'][] = $row['column_name'];
+			$this->table_info[$table_name]['index'][$index_name]['columns'][] = $row['column_name']. $sub_part;
 			$this->table_info[$table_name]['index'][$index_name]['unique'] = ( $row['non_unique'] ) ? '0': '1';
 
 		}
