@@ -132,10 +132,10 @@ class DBDump extends Base {
 				if ( $key == 'extra' and str_contains( $value, 'auto_increment' ) )
 					$data['auto_increment'] = '1';
 
-				if ( $key == 'has_default' and $value != '' ) {
+				if ( $key == 'has_default' and $value !== null ) {
 
 					$data['has_default'] = '1';
-					$data['default_value'] = $value;
+					$data['default_value'] = ( $type == 'integer' ) ? '0' : $value ;
 					continue;
 				}
 
