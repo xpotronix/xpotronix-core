@@ -163,7 +163,8 @@ class DBDump extends Base {
 			FROM information_schema.table_constraints t 
 			JOIN information_schema.key_column_usage k 
 			USING(constraint_name,table_schema,table_name) 
-			WHERE t.constraint_type='PRIMARY KEY' AND t.table_schema='$db_name'";
+			WHERE t.constraint_type='PRIMARY KEY' AND t.table_schema='$db_name'
+			ORDER BY k.ORDINAL_POSITION";
 
 		$rs = $this->db->Execute( $primary_key_sql );
 
