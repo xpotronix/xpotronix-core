@@ -33,13 +33,13 @@
 	<xtype name="xpjson" class="xpJson" type="json">
 		<type name="json" doctrineType="json"/>
 	</xtype>
-	<xtype name="xptext" class="xpText" type="string">
-		<type name="text" doctrineType="string"/>
-		<type name="tinytext" doctrineType="string"/>
-		<type name="smalltext" doctrineType="string"/>
-		<type name="mediumtext" doctrineType="string"/>
-		<type name="largetext" doctrineType="string"/>
-		<type name="longtext" doctrineType="string"/>
+	<xtype name="xptext" class="xpText" type="text">
+		<type name="text" doctrineType="text"/>
+		<type name="tinytext" doctrineType="text"/>
+		<type name="smalltext" doctrineType="text"/>
+		<type name="mediumtext" doctrineType="text"/>
+		<type name="largetext" doctrineType="text"/>
+		<type name="longtext" doctrineType="text"/>
 	</xtype>
 	<xtype name="xpblob" class="xpBlob" type="string">
 		<type name="tinyblob" doctrineType="blob"/>

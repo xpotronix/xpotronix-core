@@ -134,7 +134,7 @@ class <xsl:value-of select="$class_name"/>
 		#[ORM\Column(name: '<xsl:value-of select="@name"/>'
 		, type: '<xsl:value-of select="@doctrineType"/>'
 	<xsl:if test="count($options/*:option)">, options:[<xsl:value-of select="$options_decl"/>]</xsl:if>
-	<xsl:if test="@doctrineType='string'">, length: <xsl:value-of select="@length"/></xsl:if>
+	<xsl:if test="@doctrineType=('string','text')">, length: <xsl:value-of select="@length"/></xsl:if>
 	<xsl:if test="@not_null=1">, nullable: false</xsl:if>)]</xsl:variable>
 
 
