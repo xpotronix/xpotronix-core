@@ -79,7 +79,7 @@ use App\Entity\<xsl:value-of select="$class_name"/>;
 * <xsl:value-of select="$class_name"/> Repository
 */
 
-class <xsl:value-of select="$class_name"/>Repository extends ServiceEntityRepository
+class <xsl:value-of select="$class_name"/>Repository extends ServiceEntityRepository {
 
 	use FilterBuilder;
 
