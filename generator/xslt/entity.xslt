@@ -104,6 +104,8 @@ class <xsl:value-of select="$class_name"/>
 
 <xsl:for-each select="$table_metadata/obj/attr">
 
+<!-- options del Column/field/attr -->
+
 	<xsl:variable name="options">
 
 		<xsl:if test="@dbtype=('char','longchar')">
@@ -140,12 +142,19 @@ class <xsl:value-of select="$class_name"/>
 
 <xsl:text>	</xsl:text><xsl:value-of select="normalize-space($ORMColumnDef)"/>
 	<xsl:if test="@primary_key='1' or $is_primary_key">
-	#[ORM\Id]
-	<xsl:if test="@dbtype='char' and @length='32'">
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-	#[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
-	</xsl:if>
-
+		#[ORM\Id]
+		<xsl:choose>
+			<xsl:when test="@auto_increment='1'">
+			#[ORM\GeneratedValue(strategy: 'AUTO')]
+			</xsl:when>
+			<xsl:when test="@dbtype='char' and @length='32'">
+			#[ORM\GeneratedValue(strategy: 'CUSTOM')]
+			#[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
+			</xsl:when>
+			<xsl:otherwise>
+			#[ORM\GeneratedValue(strategy: 'NONE')]
+			</xsl:otherwise>
+		</xsl:choose>
 </xsl:if>
 
 </xsl:if>

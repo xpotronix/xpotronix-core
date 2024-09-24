@@ -19,6 +19,7 @@
 	<xsl:include href="globals.xslt"/>
 	<xsl:include href="xslt/metadata.xslt"/>
 	<xsl:include href="xslt/entity.xslt"/>
+	<xsl:include href="xslt/repository.xslt"/>
 	<xsl:include href="xslt/class.xslt"/>
 	<xsl:include href="xslt/field.xslt"/>
 	<xsl:include href="xslt/model.xslt"/>
@@ -100,7 +101,10 @@
 				<xsl:apply-templates select="$model_collection/table" mode="views"/>
 				<xsl:apply-templates select="$code_collection/table" mode="js_code"/>
 
+				<!-- Symfony 7.x Decl -->
+
 				<xsl:apply-templates select="$model_collection/table" mode="entity"/>
+				<xsl:apply-templates select="$model_collection/table" mode="repository"/>
 
 			</xsl:when>
 
