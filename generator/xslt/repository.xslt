@@ -73,7 +73,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use App\Repository\Common\FilterBuilder;
-use App\Entity\<xsl:value-of select="$class_name"/>;
+use App\Entity\Main\<xsl:value-of select="$class_name"/>;
 
 /**
 * <xsl:value-of select="$class_name"/> Repository
@@ -88,7 +88,7 @@ class <xsl:value-of select="$class_name"/>Repository extends ServiceEntityReposi
 
     public function __construct(ManagerRegistry $registry, TranslatorInterface $translator)
     {/*{{{*/
-        parent::__construct($registry, Address::class);
+        parent::__construct($registry, <xsl:value-of select="$class_name"/>::class);
 		$this->translator = $translator;
 		$this->locale = $translator->getLocale();
     }/*}}}*/

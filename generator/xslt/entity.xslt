@@ -73,6 +73,8 @@ namespace App\Entity\Main;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use App\Repository\Main\<xsl:value-of select="$class_name"/>Repository;
+
 </xsl:if>
 
 /**
