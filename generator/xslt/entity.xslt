@@ -9,6 +9,10 @@
 	exclude-result-prefixes="saxon">
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
+	<xsl:variable name="mapping_path_suffix" select="$config_collection/*:config/mapping_path_suffix"/>
+	<xsl:variable name="single_quote"><xsl:text>'</xsl:text></xsl:variable>
+	<xsl:variable name="double_quote"><xsl:text>"</xsl:text></xsl:variable>
+
 	<!-- -->
 	<!-- class -->
 	<!-- -->
@@ -24,12 +28,13 @@
 			<xsl:value-of select="concat($application_path,'/src/Entity/')"/>
 		</xsl:variable>
 
+
 		<xsl:variable name="class_name">
 			<xsl:value-of select="@name"/>
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.php')"/>
+		<xsl:variable name="class_file_name" select="concat($path_prefix,'/',$mapping_path_suffix,'/',$class_name,'.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -66,14 +71,14 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Entity\Main;
+namespace App\Entity\<xsl:value-of select="$mapping_path_suffix"/>;
 
 <xsl:if test="$table_metadata/obj/@persistent='1'">
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-use App\Repository\Main\<xsl:value-of select="$class_name"/>Repository;
+use App\Repository\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
 
 </xsl:if>
 
@@ -104,7 +109,7 @@ class <xsl:value-of select="$class_name"/>
 	}
 </xsl:if>
 
-<xsl:for-each select="$table_metadata/obj/attr">
+<xsl:for-each select="$table_metadata/obj/attr[not(@alias_of) and not(@extra='NO_SQL')]">
 
 <!-- options del Column/field/attr -->
 
@@ -122,8 +127,25 @@ class <xsl:value-of select="$class_name"/>
 		<xsl:if test="@has_default='1'">
 			<xsl:element name="option">
 				<xsl:attribute name="key" select="'default'"/>
-				<xsl:attribute name="value">'<xsl:value-of select="@value"/>'</xsl:attribute>
+				<xsl:attribute name="value">'<xsl:value-of select="@default_value"/>'</xsl:attribute>
+				<xsl:attribute name="extra">'<xsl:value-of select="@extra"/>'</xsl:attribute>
 			</xsl:element>
+		</xsl:if>
+
+		<xsl:if test="@comment">
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'comment'"/>
+				<xsl:attribute name="value">'<xsl:value-of select="@comment"/>'</xsl:attribute>
+			</xsl:element>
+		</xsl:if>
+
+		<xsl:if test="contains(@dbtype,'unsigned')">
+
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'unsigned'"/>
+				<xsl:attribute name="value">true</xsl:attribute>
+			</xsl:element>
+
 		</xsl:if>
 
 	</xsl:variable>
@@ -137,7 +159,12 @@ class <xsl:value-of select="$class_name"/>
 	<xsl:variable name="ORMColumnDef">
 		#[ORM\Column(name: '<xsl:value-of select="@name"/>'
 		, type: '<xsl:value-of select="@doctrineType"/>'
+
+	<xsl:if test="@precision">, precision: <xsl:value-of select="@precision"/></xsl:if>
+	<xsl:if test="@scale">, scale: <xsl:value-of select="@scale"/></xsl:if>
 	<xsl:if test="count($options/*:option)">, options:[<xsl:value-of select="$options_decl"/>]</xsl:if>
+	<xsl:if test="@dbtype=('enum')">, columnDefinition: "ENUM(<xsl:value-of select="@enums"/>)"</xsl:if>
+	<!-- xsl:if test="@dbtype=('enum')">, columnDefinition: 'ENUM(<xsl:value-of select="replace(@enums, $single_quote, $double_quote)"/>)'</xsl:if -->
 	<xsl:if test="@doctrineType=('string','text')">, length: <xsl:value-of select="@length"/></xsl:if>
 	, nullable: <xsl:choose><xsl:when test="@not_null=1">false</xsl:when><xsl:otherwise>true</xsl:otherwise></xsl:choose>)]</xsl:variable>
 

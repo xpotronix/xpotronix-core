@@ -65,7 +65,7 @@
 	<xtype name="xpdecimal" class="xpDecimal" type="float">
 		<type name="float" doctrineType="float"/>
 		<type name="double" doctrineType="float"/>
-		<type name="decimal" doctrineType="float"/>
+		<type name="decimal" doctrineType="decimal"/>
 		<!-- mssql -->
 		<type name="money" doctrineType="float"/>
 	</xtype>

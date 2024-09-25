@@ -83,15 +83,42 @@ class DBDump extends Base {
 
 		/* todas los campos juntos de todas las tablas */
 
+/*
+		           TABLE_CATALOG: def
+            TABLE_SCHEMA: xpay
+              TABLE_NAME: _t_licencia
+             COLUMN_NAME: cuenta
+        ORDINAL_POSITION: 24
+          COLUMN_DEFAULT: NULL
+             IS_NULLABLE: YES
+               DATA_TYPE: int
+CHARACTER_MAXIMUM_LENGTH: NULL
+  CHARACTER_OCTET_LENGTH: NULL
+       NUMERIC_PRECISION: 10
+           NUMERIC_SCALE: 0
+      DATETIME_PRECISION: NULL
+      CHARACTER_SET_NAME: NULL
+          COLLATION_NAME: NULL
+             COLUMN_TYPE: int
+              COLUMN_KEY: MUL
+                   EXTRA:
+              PRIVILEGES: select,insert,update,references
+          COLUMN_COMMENT:
+		GENERATION_EXPRESSION:
+ */
+
 		$table_sql = "SELECT COLUMN_NAME AS `name`, 
 			CHARACTER_MAXIMUM_LENGTH AS max_length, 
-			DATA_TYPE as type, 
 			IS_NULLABLE as `null`, 
+			COLUMN_TYPE as column_type, 
+			DATA_TYPE as type, 
 			COLUMN_KEY as `key`,
 			SUBSTRING(COLUMN_TYPE,5) as `enums`,
 			COLUMN_DEFAULT AS `has_default`, 
 			EXTRA AS `extra`,
+			NUMERIC_PRECISION AS `precision`,
 			NUMERIC_SCALE AS scale,
+			COLUMN_COMMENT AS comment,
 			TABLE_NAME as table_name
 			FROM INFORMATION_SCHEMA.COLUMNS
 			WHERE TABLE_SCHEMA = '$db_name'";
@@ -109,6 +136,14 @@ class DBDump extends Base {
 			/* procesa atributos */
 
 			foreach( $row as $key => $value ) {
+
+				if ( $key == 'type' ) {
+
+					if ( $row['column_type'] == 'bigint unsigned' )
+						$value = 'bigint unsigned'; 
+
+				}
+					
 
 				if ( $key == 'table_name' ) {
 					continue;
