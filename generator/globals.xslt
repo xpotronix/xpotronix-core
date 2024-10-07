@@ -105,6 +105,8 @@
 
 	</xsl:variable><!--}}}-->
 
+	<xsl:variable name="mapping_path_suffix" select="$config_collection/*:config/mapping_path_suffix"/>
+
 	<!-- all files -->
 
 	<xsl:variable name="datatypes" select="document('datatypes.xml')"/>

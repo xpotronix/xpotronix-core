@@ -5,11 +5,11 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:fn="http://www.w3.org/2005/04/xpath-functions" 
 	xmlns:saxon="http://saxon.sf.net/" 
+	xmlns:local="http://localhost/" 
 	extension-element-prefixes="saxon" 
 	exclude-result-prefixes="saxon">
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
 
-	<xsl:variable name="mapping_path_suffix" select="$config_collection/*:config/mapping_path_suffix"/>
 	<xsl:variable name="single_quote"><xsl:text>'</xsl:text></xsl:variable>
 	<xsl:variable name="double_quote"><xsl:text>"</xsl:text></xsl:variable>
 
@@ -72,20 +72,18 @@
 */
 
 namespace App\Entity\<xsl:value-of select="$mapping_path_suffix"/>;
-
 <xsl:if test="$table_metadata/obj/@persistent='1'">
-
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-
 use App\Repository\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
-
+<xsl:if test="@Trait">
+use App\Entity\<xsl:value-of select="$mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
+</xsl:if>
 </xsl:if>
 
 /**
 * <xsl:value-of select="$class_name"/>
 */
-
 
 <xsl:if test="$table_metadata/obj/@persistent='1'">
 #[ORM\Table(name: '<xsl:value-of select="$table_name"/>')]
@@ -95,13 +93,14 @@ use App\Repository\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of s
 </xsl:if>
 class <xsl:value-of select="$class_name"/>
 {
-
+<xsl:if test="@Trait">
+use <xsl:value-of select="$class_name"/>Trait;
+</xsl:if>
 <xsl:if test="$table_metadata/obj/@persistent='1'">
     #[ORM\PreUpdate]
 	public function PreUpdate() {
 		// $this->setAgregado( new \DateTime() );
 	}
-
     #[ORM\PrePersist]
 	public function PrePersist() {
 		// $this->setAgregado( new \DateTime() );
@@ -157,9 +156,7 @@ class <xsl:value-of select="$class_name"/>
 	<xsl:variable name="is_primary_key" select="count($table_metadata/obj/primary_key/primary[@name=current()/@name])"/>
 
 	<xsl:variable name="ORMColumnDef">
-		#[ORM\Column(name: '<xsl:value-of select="@name"/>'
-		, type: '<xsl:value-of select="@doctrineType"/>'
-
+		#[ORM\Column(name: '<xsl:value-of select="@name"/>', type: '<xsl:value-of select="@doctrineType"/>'
 	<xsl:if test="@precision">, precision: <xsl:value-of select="@precision"/></xsl:if>
 	<xsl:if test="@scale">, scale: <xsl:value-of select="@scale"/></xsl:if>
 	<xsl:if test="count($options/*:option)">, options:[<xsl:value-of select="$options_decl"/>]</xsl:if>
@@ -167,31 +164,39 @@ class <xsl:value-of select="$class_name"/>
 	<!-- xsl:if test="@dbtype=('enum')">, columnDefinition: 'ENUM(<xsl:value-of select="replace(@enums, $single_quote, $double_quote)"/>)'</xsl:if -->
 	<xsl:if test="@doctrineType=('string','text')">, length: <xsl:value-of select="@length"/></xsl:if>
 	, nullable: <xsl:choose><xsl:when test="@not_null=1">false</xsl:when><xsl:otherwise>true</xsl:otherwise></xsl:choose>)]</xsl:variable>
-
-
 <xsl:text>	</xsl:text><xsl:value-of select="normalize-space($ORMColumnDef)"/>
 	<xsl:if test="@primary_key='1' or $is_primary_key">
-		#[ORM\Id]
+	#[ORM\Id]
 		<xsl:choose>
 			<xsl:when test="@auto_increment='1'">
-			#[ORM\GeneratedValue(strategy: 'AUTO')]
+	#[ORM\GeneratedValue(strategy: 'AUTO')]
 			</xsl:when>
 			<xsl:when test="@dbtype='char' and @length='32'">
-			#[ORM\GeneratedValue(strategy: 'CUSTOM')]
-			#[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
+	#[ORM\GeneratedValue(strategy: 'CUSTOM')]
+	#[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
 			</xsl:when>
 			<xsl:otherwise>
-			#[ORM\GeneratedValue(strategy: 'NONE')]
+	#[ORM\GeneratedValue(strategy: 'NONE')]
 			</xsl:otherwise>
 		</xsl:choose>
+	</xsl:if>
 </xsl:if>
-
-</xsl:if>
-
 	private $<xsl:value-of select="@name"/>;
-
 </xsl:for-each>
 
+<!-- constructor (puede ser definido via Trait) -->
+
+<!-- getters/setters -->
+<xsl:for-each select="$table_metadata/obj/attr">
+	<xsl:variable name="camelized" select="local:snake2camel(concat('',(@name)))"/>
+    public function get<xsl:value-of select="$camelized"/>(): ?string {/*{{{*/
+        return $this-><xsl:value-of select="@name"/>;
+    }/*}}}*/
+    public function set<xsl:value-of select="$camelized"/>(string $<xsl:value-of select="@name"/>): static {/*{{{*/
+        $this-><xsl:value-of select="@name"/> = $<xsl:value-of select="@name"/>;
+        return $this;
+    }/*}}}*/
+</xsl:for-each>
 }
 
 ?></xsl:template>
@@ -203,16 +208,26 @@ class <xsl:value-of select="$class_name"/>
 				<xsl:element name="length"><xsl:value-of select="substring-after(substring-before(.,')'),'(')"/></xsl:element>
 			</xsl:for-each>
 		</xsl:if>
-	</xsl:variable>
-	#[ORM\Index(name: '<xsl:value-of select="@name"/>'
-	, columns: [<xsl:apply-templates select="." mode="index_columns"/>]
-	<xsl:if test="count($lengths/*:length)">, options:['lengths'=>[<xsl:for-each select="$lengths/*:length"><xsl:choose><xsl:when test=".!=''"><xsl:value-of select="."/></xsl:when><xsl:otherwise><xsl:text>null</xsl:text></xsl:otherwise></xsl:choose><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>]]</xsl:if>
-	)]
+	</xsl:variable>#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: [<xsl:apply-templates select="." mode="index_columns"/>]<xsl:if test="count($lengths/*:length)">, options:['lengths'=>[<xsl:for-each select="$lengths/*:length"><xsl:choose><xsl:when test=".!=''"><xsl:value-of select="."/></xsl:when><xsl:otherwise><xsl:text>null</xsl:text></xsl:otherwise></xsl:choose><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>]]</xsl:if>)]
 </xsl:template>
 
 <xsl:template match="index" mode="index_columns">
 	<xsl:for-each select="tokenize(.,',')">'<xsl:choose><xsl:when test="contains(.,'(')"><xsl:value-of select="substring-before(.,'(')"/></xsl:when><xsl:otherwise><xsl:value-of select="."/></xsl:otherwise></xsl:choose>'<xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>
 </xsl:template>
+
+
+<xsl:function name="local:snake2camel">
+
+    <xsl:param name="columnName"/>
+    <xsl:value-of select="
+	concat(
+		upper-case(substring($columnName, 1, 1)),
+		substring(string-join(for $word in tokenize($columnName, '_')
+			return concat(
+			upper-case(substring($word, 1, 1)),
+			substring($word, 2)), '')
+	, 2))" />
+</xsl:function>
 
 
 </xsl:stylesheet>
