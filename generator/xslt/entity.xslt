@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	xpotronix 0.98 - Areco
+	make:entity en xpotronix
 -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:fn="http://www.w3.org/2005/04/xpath-functions" 
@@ -185,6 +185,19 @@ use <xsl:value-of select="$class_name"/>Trait;
 </xsl:for-each>
 
 <!-- constructor (puede ser definido via Trait) -->
+
+
+<!-- getters egrep: 
+
+     10  ?array
+     46  ?float
+    164  ?\DateTimeInterface
+    514  ?int
+    733  ?string
+
+-->
+
+
 
 <!-- getters/setters -->
 <xsl:for-each select="$table_metadata/obj/attr">
