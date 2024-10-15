@@ -29,6 +29,8 @@
 	<xtype name="xpstring" class="xpString" type="string">
 		<type name="char" doctrineType="string"/>
 		<type name="varchar" doctrineType="string"/>
+		<type name="nchar" doctrineType="string"/>
+		<type name="nvarchar" doctrineType="string"/>
 	</xtype>
 	<xtype name="xpjson" class="xpJson" type="json">
 		<type name="json" doctrineType="json"/>

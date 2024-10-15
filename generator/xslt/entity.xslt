@@ -200,7 +200,7 @@ use <xsl:value-of select="$class_name"/>Trait;
 
 
 <!-- getters/setters -->
-<xsl:for-each select="$table_metadata/obj/attr">
+<xsl:for-each select="$table_metadata/obj/attr[not(@alias_of) and not(@extra='NO_SQL')]">
 
 	<xsl:variable name="returnType">
 		<xsl:choose>
