@@ -201,11 +201,25 @@ use <xsl:value-of select="$class_name"/>Trait;
 
 <!-- getters/setters -->
 <xsl:for-each select="$table_metadata/obj/attr">
+
+	<xsl:variable name="returnType">
+		<xsl:choose>
+			<xsl:when test="@doctrineType='integer'">int</xsl:when>
+			<xsl:when test="@doctrineType='boolean'">bool</xsl:when>
+			<xsl:when test="@doctrineType='decimal'">string</xsl:when>
+			<xsl:when test="@doctrineType='json'">array</xsl:when>
+			<xsl:when test="@doctrineType=('date','datetime','time')">\DateTimeInterface</xsl:when>
+			<xsl:otherwise><xsl:value-of select="@doctrineType"/></xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+
+	<xsl:variable name="nullableSign"><xsl:choose><xsl:when test="@not_null=1"></xsl:when><xsl:otherwise>?</xsl:otherwise></xsl:choose></xsl:variable>
+
 	<xsl:variable name="camelized" select="local:snake2camel(concat('',(@name)))"/>
-    public function get<xsl:value-of select="$camelized"/>(): ?string {/*{{{*/
+    public function get<xsl:value-of select="$camelized"/>(): ?<xsl:value-of select="$returnType"/> {/*{{{*/
         return $this-><xsl:value-of select="@name"/>;
     }/*}}}*/
-    public function set<xsl:value-of select="$camelized"/>(string $<xsl:value-of select="@name"/>): static {/*{{{*/
+    public function set<xsl:value-of select="$camelized"/>(<xsl:value-of select="$nullableSign"/><xsl:value-of select="$returnType"/><xsl:text> </xsl:text>$<xsl:value-of select="@name"/>): static {/*{{{*/
         $this-><xsl:value-of select="@name"/> = $<xsl:value-of select="@name"/>;
         return $this;
     }/*}}}*/
