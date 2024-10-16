@@ -97,15 +97,15 @@ class <xsl:value-of select="$class_name"/>
 use <xsl:value-of select="$class_name"/>Trait;
 </xsl:if>
 <xsl:if test="$table_metadata/obj/@persistent='1'">
-    #[ORM\PreUpdate]
-	public function PreUpdate() {
-		// $this->setAgregado( new \DateTime() );
-	}
-    #[ORM\PrePersist]
-	public function PrePersist() {
-		// $this->setAgregado( new \DateTime() );
-		// $this->setModificado( new \DateTime() );
-	}
+#[ORM\PreUpdate]
+public function PreUpdate() {
+	property_exists($this, 'agregado') and $this->setAgregado( new \DateTime() );
+}
+#[ORM\PrePersist]
+public function PrePersist() {
+	property_exists($this, 'agregado') and $this->setAgregado( new \DateTime() );
+	property_exists($this, 'modificado') and $this->setModificado( new \DateTime() );
+}
 </xsl:if>
 
 <xsl:for-each select="$table_metadata/obj/attr[not(@alias_of) and not(@extra='NO_SQL')]">
