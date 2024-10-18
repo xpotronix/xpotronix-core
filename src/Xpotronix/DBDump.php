@@ -175,7 +175,7 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 
 						if ( $value !== null ) {
 							$data['has_default'] = '1';
-							$data['default_value'] = ( $value === '' ) ? "''" : $value ;
+							$data['default_value'] = ( $value === '' ) ? '' : $value ;
 						}
 						continue 2;
 
@@ -187,12 +187,15 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 						break;
 
 					case 'precision':
-						if ( in_array( $type, ['int', 'tinyint', 'bigint'] ) )
-						continue 2;
+						if ( false and in_array( $type, ['int', 'tinyint', 'bigint', 'integer'] ) )
+							continue 2;
+						break;
 
 					case 'scale':
 						if ( $value == 0 )
 							continue 2;
+
+						break;
 
 				}
 

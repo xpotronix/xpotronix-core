@@ -160,7 +160,7 @@ public function PrePersist() {
 	<xsl:if test="@precision">, precision: <xsl:value-of select="@precision"/></xsl:if>
 	<xsl:if test="@scale">, scale: <xsl:value-of select="@scale"/></xsl:if>
 	<xsl:if test="count($options/*:option)">, options:[<xsl:value-of select="$options_decl"/>]</xsl:if>
-	<xsl:if test="@dbtype=('enum')">, columnDefinition: "ENUM(<xsl:value-of select="@enums"/>)"</xsl:if>
+	<!-- <xsl:if test="@dbtype=('enum')">, columnDefinition: "ENUM(<xsl:value-of select="@enums"/>)"</xsl:if> -->
 	<!-- xsl:if test="@dbtype=('enum')">, columnDefinition: 'ENUM(<xsl:value-of select="replace(@enums, $single_quote, $double_quote)"/>)'</xsl:if -->
 	<xsl:if test="@doctrineType=('string','text')">, length: <xsl:value-of select="@length"/></xsl:if>
 	, nullable: <xsl:choose><xsl:when test="@not_null=1">false</xsl:when><xsl:otherwise>true</xsl:otherwise></xsl:choose>)]</xsl:variable>
