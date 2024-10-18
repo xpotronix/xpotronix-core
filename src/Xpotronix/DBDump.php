@@ -109,24 +109,27 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 
 		$table_sql = "SELECT COLUMN_NAME AS `name`, 
 			CHARACTER_MAXIMUM_LENGTH AS max_length, 
-			IS_NULLABLE as `null`, 
+			IS_NULLABLE as `nullable`, 
 			COLUMN_TYPE as column_type, 
 			DATA_TYPE as type, 
 			COLUMN_KEY as `key`,
 			SUBSTRING(COLUMN_TYPE,5) as `enums`,
-			COLUMN_DEFAULT AS `has_default`, 
+			COLUMN_DEFAULT AS `column_default`, 
 			EXTRA AS `extra`,
 			NUMERIC_PRECISION AS `precision`,
 			NUMERIC_SCALE AS scale,
 			COLUMN_COMMENT AS comment,
 			TABLE_NAME as table_name
 			FROM INFORMATION_SCHEMA.COLUMNS
-			WHERE TABLE_SCHEMA = '$db_name'";
+			WHERE TABLE_SCHEMA = '$db_name'
+			ORDER BY ORDINAL_POSITION";
 
 
 		$rs = $this->db->Execute( $table_sql );
 
 		foreach( $rs as $row ) {
+
+			// print_r ( $row );
 
 			$data = [];
 			$table_name = $row['table_name'];
@@ -137,54 +140,66 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 
 			foreach( $row as $key => $value ) {
 
-				if ( $key == 'type' ) {
+				switch( $key ) {
 
-					if ( $row['column_type'] == 'bigint unsigned' )
-						$value = 'bigint unsigned'; 
+					case 'column_type':
+					case 'table_name':
+						continue 2;
+
+					case 'type': 
+	
+						if ( $row['column_type'] == 'bigint unsigned' ) {
+							$value = 'bigint unsigned';
+						}
+
+						$data['type'] = $value;
+						break;
+
+					case 'nullable':
+						if ( $value == 'NO' ) {
+							$data['not_null'] = '1';
+						}  
+						continue 2;
+
+					case 'key':
+						if ( $value == 'PRI' )
+							$data['primary_key'] = '1';
+						break;
+
+					case 'extra': 
+						if( str_contains( $value, 'auto_increment' ) )
+							$data['auto_increment'] = '1';
+						break;
+
+					case 'column_default':
+
+						if ( $value !== null ) {
+							$data['has_default'] = '1';
+							$data['default_value'] = ( $value === '' ) ? "''" : $value ;
+						}
+						continue 2;
+
+					case 'enums':
+						if ( $type != 'enum' )
+							continue 2;
+						else 
+							$value = substr( $value, 1, strlen($value) -2 );
+						break;
+
+					case 'precision':
+						if ( in_array( $type, ['int', 'tinyint', 'bigint'] ) )
+						continue 2;
+
+					case 'scale':
+						if ( $value == 0 )
+							continue 2;
 
 				}
-					
 
-				if ( $key == 'table_name' ) {
-					continue;
-				}
-
-				if ( $key == 'enums' ) {
-					continue;
-				}
-
-				if ( $key == 'null' ) {
-
-					$value == 'NO' && $data['not_null'] = '1';
-					continue;
-				}
-
-				if ( $key == 'scale' and $value == 0 ) continue;
-
-				if ( $key == 'key' and $value == 'PRI' )
-					$data['primary_key'] = '1';
-
-				if ( $key == 'extra' and str_contains( $value, 'auto_increment' ) )
-					$data['auto_increment'] = '1';
-
-				if ( $key == 'has_default' and $value !== null ) {
-
-					$data['has_default'] = '1';
-					$data['default_value'] = ( $type == 'integer' ) ? '0' : $value ;
-					continue;
-				}
-
-				/* default */
-			
-				$value != '' and $data[$key] = $value;
+				$value != null and $data[$key] = $value;
 
 			}
 
-			if ( $type == 'enum' ) {
-
-				$data['enums'] = substr( $row['enums'], 1, -1 );
-
-			}
 
 			$this->table_info[$table_name]['fields'][$field_name] = $data;
 
