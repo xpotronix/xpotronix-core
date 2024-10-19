@@ -14,7 +14,7 @@
 	<xsl:param name="xpotronix_path"/>
 	<xsl:param name="project_path"/>
 	<xsl:param name="config_path"/>
-	<xsl:param name="application_path"/>
+    <!-- <xsl:param name="application_path"/> -->
 	<!-- default template directory -->
 	<xsl:param name="config_file" select="string(concat($project_path,'/config.xml'))"/>
 	<xsl:param name="feat_file" select="string(concat($project_path,'/feat.xml'))"/>

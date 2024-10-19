@@ -314,65 +314,55 @@ class Base {
 
 	function saxon_transform( $xml_file, $xsl_file, $params = null, $validation = false ) {/*{{{*/
 
-		M()->info("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
+		M()->user("recibi parametros: $xml_file, $xsl_file ". json_encode( $params ) );
 
 		/* procesador */
 
-		$saxonProc = new \Saxon\SaxonProcessor(true);
-		$proc = $saxonProc->newXsltProcessor();
-		$version = $saxonProc->version();
+		$return = null;
 
-		/* config Properties */
+		try {
 
-		$validation and $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/schema-validation', 'preserve' ); // preserve: 4
+			$saxonProc = new \Saxon\SaxonProcessor(true);
+			$proc = $saxonProc->newXslt30Processor();
+			$version = $saxonProc->version();
 
-		// $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/allow-external-functions', true );
+			/* config Properties */
 
-		$proc->setSourceFromFile( $xml_file );
-		M()->debug( "xml_file: $xml_file" );
+			$validation and $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/schema-validation', 'preserve' ); // preserve: 4
 
-		$proc->compileFromFile( $xsl_file );
-		M()->debug( "xsl_file: $xsl_file" );
+			// $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/allow-external-functions', true );
 
-		if ( is_array( $params ) ) {
+			$inputNode = $saxonProc->parseXmlFromFile( $xml_file );
+			M()->debug( "xml_file: $xml_file" );
 
-			foreach( $params as $name => $value ) {
+			$executable = $proc->compileFromFile( $xsl_file );
+			M()->debug( "xsl_file: $xsl_file" );
 
-				M()->debug( "setParameter $name: $value" );
-				$proc->setParameter( $name, $saxonProc->createAtomicValue($value) );
+			if ( is_array( $params ) ) {
+
+				foreach( $params as $name => $value ) {
+
+					M()->debug( "setParameter $name: $value" );
+					$executable->setParameter( $name, $saxonProc->createAtomicValue($value) );
+				}
 			}
+
+			M()->debug( "transformacion con Saxon/C" );
+
+			$result = $executable->transformToString($inputNode);
+
+		} catch ( Exception $e ) {
+
+			$errMessage = $e->getMessage();
+		
+			M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> Cod: $errCode, Mensaje: $errMessage" );
+		
 		}
 
-		M()->debug( "transformacion con Saxon/C" );
+        $executable->clearParameters();
+        $executable->clearProperties();
 
-                $result = $proc->transformToString();
-                
-                if( $result == NULL ) {
-
-			$errCount = $proc->getExceptionCount();
-
-			if( $errCount > 0 ) { 
-
-				for( $i = 0; $i < $errCount; $i++ ) {
-
-					$errCode = $proc->getErrorCode(intval($i));
-					$errMessage = $proc->getErrorMessage(intval($i));
-					M()->warn( "Hubo mensajes en la tranformacion del archivo $xml_file con el template $xsl_file<br/> Cod: $errCode, Mensaje: $errMessage" );
-
-   				}
-
-				$proc->exceptionClear();	
-
-			} else {
-
-				M()->error( 'Hubo mensajes en la transformacion pero no han sido reportados por el procesador' );
-			}
-		}
-
-            	$proc->clearParameters();
-		$proc->clearProperties();
-
-                return $result;
+		return $result;
 
 	}/*}}}*/
 
