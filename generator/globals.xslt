@@ -35,11 +35,11 @@
 
 		<collection>
 
-			<xsl:for-each select="collection(concat($project_path,'?select=*.xml'))">
+			<xsl:for-each select="collection(concat('file:///',$project_path,'?select=*.xml;stable=yes'))">
 				<doc type="{*/name()}" href="{document-uri(.)}"/>
 			</xsl:for-each>
 
-			<xsl:for-each select="collection(concat($project_path,'/templates/',$default_template,'/?select=*.xml'))">
+			<xsl:for-each select="collection(concat($project_path,'/templates/',$default_template,'/?select=*.xml;stable=yes'))">
 				<doc type="{*/name()}" href="{document-uri(.)}"/>
 			</xsl:for-each>
 
@@ -49,13 +49,13 @@
 
 					<xsl:when test="unparsed-text-available(concat($project_path,'/',@path))">
 
-						<xsl:for-each select="collection(concat($project_path,'/',@path,'?select=*.xml'))">
+						<xsl:for-each select="collection(concat($project_path,'/',@path,'?select=*.xml;stable=yes'))">
 							<doc type="{*/name()}" href="{document-uri(.)}"/>
 						</xsl:for-each>
 
 						<xsl:if test="unparsed-text-available(concat($project_path,'/',@path,'/templates/',$default_template,'/'))">
 
-							<xsl:for-each select="collection(concat($project_path,'/',@path,'/templates/',$default_template,'/?select=*.xml'))">
+							<xsl:for-each select="collection(concat($project_path,'/',@path,'/templates/',$default_template,'/?select=*.xml;stable=yes'))">
 								<doc type="{*/name()}" href="{document-uri(.)}"/>
 							</xsl:for-each>
 
@@ -65,13 +65,13 @@
 
 					<xsl:when test="unparsed-text-available(concat($xpotronix_path,'/',@path))">
 
-						<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'?select=*.xml'))">
+						<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'?select=*.xml;stable=yes'))">
 							<doc type="{*/name()}" href="{document-uri(.)}"/>
 						</xsl:for-each>
 
 						<xsl:if test="unparsed-text-available(concat($xpotronix_path,'/',@path,'/templates/',$default_template,'/'))">
 
-							<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'/templates/',$default_template,'/?select=*.xml'))">
+							<xsl:for-each select="collection(concat($xpotronix_path,'/',@path,'/templates/',$default_template,'/?select=*.xml;stable=yes'))">
 								<doc type="{*/name()}" href="{document-uri(.)}"/>
 							</xsl:for-each>
 

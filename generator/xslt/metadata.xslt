@@ -20,7 +20,7 @@
 		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,$file_type)"/>
 
 		<!-- <xsl:message>Creando archivo <xsl:value-of select="$class_file_name"/></xsl:message> -->
-		<xsl:result-document method="xml" omit-xml-declaration="no" encoding="UTF-8" cdata-section-elements="renderer" href="{$class_file_name}">
+		<xsl:result-document method="xml" omit-xml-declaration="no" encoding="UTF-8" cdata-section-elements="renderer" href="file:///{$class_file_name}">
 			<xsl:element name="application">
 				<xsl:apply-templates select=".|.//table" mode="get_metadata"/>
 			</xsl:element>

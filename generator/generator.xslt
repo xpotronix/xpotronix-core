@@ -32,6 +32,11 @@
 
 	<xsl:template match="/"><!--{{{-->
 
+		<!--
+		<xsl:message terminate="yes"><xsl:copy-of select="collection(concat($project_path,'?select=*.xml'))"/></xsl:message>
+			<xsl:message terminate="yes"><xsl:copy-of select="$documents_collection"/></xsl:message>
+		-->
+
 		<xsl:if test="$debug">
 			<xsl:apply-templates select="." mode="debug"/>
 		</xsl:if>

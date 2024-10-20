@@ -39,7 +39,7 @@
 		<xsl:result-document method="xml" 
 			omit-xml-declaration="no" 
 			encoding="utf-8" 
-			href="{$class_file_name}">
+		href="file:///{$class_file_name}">
 
 			<xsl:apply-templates select="." mode="get_model"/>
 
