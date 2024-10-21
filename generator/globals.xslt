@@ -199,6 +199,15 @@
 
 	</xsl:variable><!--}}}-->
 
+	<xsl:variable name="enums_collection"><!--{{{-->
+
+		<xsl:element name="enums">
+			<xsl:sequence select="$all_documents/enums/@*"/>
+			<xsl:sequence select="$all_documents/enums/*"/>
+		</xsl:element>
+
+	</xsl:variable><!--}}}-->
+
 	<xsl:variable name="views_collection"><!--{{{-->
 
 		<xsl:sequence select="$all_documents/views/table"/>

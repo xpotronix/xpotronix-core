@@ -271,6 +271,10 @@
 			<xsl:attribute name="name" select="$field_name"/>
 			<xsl:attribute name="type" select="$type"/>
 
+			<xsl:if test="not(current()/@enums) and $enums_collection/enums/enum[@table=current()/../@name and @field=current()/@name]/@values">
+				<xsl:attribute name="enums" select="$enums_collection/enums/enum[@table=current()/../@name and @field=current()/@name]/@values"/>
+			</xsl:if>
+
 			<xsl:message><xsl:value-of select="$tb_field"/></xsl:message>
 
 			<xsl:if test="$tb_field/@type">

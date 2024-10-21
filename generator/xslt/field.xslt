@@ -32,6 +32,9 @@
 	<xsl:template match="field" mode="get_type"><!--{{{-->
 		<xsl:variable name="type">
 			<xsl:choose>
+				<xsl:when test="$enums_collection/enums/enum[@table=current()/../@name and @field=current()/@name]">
+					<xsl:value-of select="'enum'"/>
+				</xsl:when>
 				<xsl:when test="contains(@type,'(')">
 					<xsl:value-of select="substring-before(@type,'(')"/>
 				</xsl:when>

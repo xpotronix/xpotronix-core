@@ -89,7 +89,6 @@
 		<xsl:apply-templates select="$config_collection/config" mode="config"/>
 		<xsl:apply-templates select="$menu_collection/menu" mode="menu"/>
 
-
 		<xsl:choose>
 			<xsl:when test="$module=''">
 				<xsl:message>transformando todos los modulos</xsl:message>
