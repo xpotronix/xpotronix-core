@@ -83,23 +83,53 @@ class DBDump extends Base {
 
 		/* todas los campos juntos de todas las tablas */
 
+/*
+		           TABLE_CATALOG: def
+            TABLE_SCHEMA: xpay
+              TABLE_NAME: _t_licencia
+             COLUMN_NAME: cuenta
+        ORDINAL_POSITION: 24
+          COLUMN_DEFAULT: NULL
+             IS_NULLABLE: YES
+               DATA_TYPE: int
+CHARACTER_MAXIMUM_LENGTH: NULL
+  CHARACTER_OCTET_LENGTH: NULL
+       NUMERIC_PRECISION: 10
+           NUMERIC_SCALE: 0
+      DATETIME_PRECISION: NULL
+      CHARACTER_SET_NAME: NULL
+          COLLATION_NAME: NULL
+             COLUMN_TYPE: int
+              COLUMN_KEY: MUL
+                   EXTRA:
+              PRIVILEGES: select,insert,update,references
+          COLUMN_COMMENT:
+		GENERATION_EXPRESSION:
+ */
+
 		$table_sql = "SELECT COLUMN_NAME AS `name`, 
 			CHARACTER_MAXIMUM_LENGTH AS max_length, 
+			IS_NULLABLE as `nullable`, 
+			COLUMN_TYPE as column_type, 
 			DATA_TYPE as type, 
-			IS_NULLABLE as `null`, 
 			COLUMN_KEY as `key`,
 			SUBSTRING(COLUMN_TYPE,5) as `enums`,
-			COLUMN_DEFAULT AS `has_default`, 
+			COLUMN_DEFAULT AS `column_default`, 
 			EXTRA AS `extra`,
+			NUMERIC_PRECISION AS `precision`,
 			NUMERIC_SCALE AS scale,
+			COLUMN_COMMENT AS comment,
 			TABLE_NAME as table_name
 			FROM INFORMATION_SCHEMA.COLUMNS
-			WHERE TABLE_SCHEMA = '$db_name'";
+			WHERE TABLE_SCHEMA = '$db_name'
+			ORDER BY ORDINAL_POSITION";
 
 
 		$rs = $this->db->Execute( $table_sql );
 
 		foreach( $rs as $row ) {
+
+			// print_r ( $row );
 
 			$data = [];
 			$table_name = $row['table_name'];
@@ -110,46 +140,69 @@ class DBDump extends Base {
 
 			foreach( $row as $key => $value ) {
 
-				if ( $key == 'table_name' ) {
-					continue;
+				switch( $key ) {
+
+					case 'column_type':
+					case 'table_name':
+						continue 2;
+
+					case 'type': 
+	
+						if ( $row['column_type'] == 'bigint unsigned' ) {
+							$value = 'bigint unsigned';
+						}
+
+						$data['type'] = $value;
+						break;
+
+					case 'nullable':
+						if ( $value == 'NO' ) {
+							$data['not_null'] = '1';
+						}  
+						continue 2;
+
+					case 'key':
+						if ( $value == 'PRI' )
+							$data['primary_key'] = '1';
+						break;
+
+					case 'extra': 
+						if( str_contains( $value, 'auto_increment' ) )
+							$data['auto_increment'] = '1';
+						break;
+
+					case 'column_default':
+
+						if ( $value !== null ) {
+							$data['has_default'] = '1';
+							$data['default_value'] = ( $value === '' ) ? '' : $value ;
+						}
+						continue 2;
+
+					case 'enums':
+						if ( $type != 'enum' )
+							continue 2;
+						else 
+							$value = substr( $value, 1, strlen($value) -2 );
+						break;
+
+					case 'precision':
+						if ( false and in_array( $type, ['int', 'tinyint', 'bigint', 'integer'] ) )
+							continue 2;
+						break;
+
+					case 'scale':
+						if ( $value == 0 )
+							continue 2;
+
+						break;
+
 				}
 
-				if ( $key == 'enums' ) {
-					continue;
-				}
-
-				if ( $key == 'null' ) {
-
-					$value == 'NO' && $data['not_null'] = '1';
-					continue;
-				}
-
-				if ( $key == 'scale' and $value == 0 ) continue;
-
-				if ( $key == 'key' and $value == 'PRI' )
-					$data['primary_key'] = '1';
-
-				if ( $key == 'extra' and str_contains( $value, 'auto_increment' ) )
-					$data['auto_increment'] = '1';
-
-				if ( $key == 'has_default' and $value != '' ) {
-
-					$data['has_default'] = '1';
-					$data['default_value'] = $value;
-					continue;
-				}
-
-				/* default */
-			
-				$value != '' and $data[$key] = $value;
+				$value != null and $data[$key] = $value;
 
 			}
 
-			if ( $type == 'enum' ) {
-
-				$data['enums'] = substr( $row['enums'], 1, -1 );
-
-			}
 
 			$this->table_info[$table_name]['fields'][$field_name] = $data;
 
@@ -163,7 +216,8 @@ class DBDump extends Base {
 			FROM information_schema.table_constraints t 
 			JOIN information_schema.key_column_usage k 
 			USING(constraint_name,table_schema,table_name) 
-			WHERE t.constraint_type='PRIMARY KEY' AND t.table_schema='$db_name'";
+			WHERE t.constraint_type='PRIMARY KEY' AND t.table_schema='$db_name'
+			ORDER BY k.ORDINAL_POSITION";
 
 		$rs = $this->db->Execute( $primary_key_sql );
 
@@ -188,8 +242,8 @@ class DBDump extends Base {
 
 		/* index */
 
-		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique 
-			FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '$db_name'";
+		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique, SEQ_IN_INDEX as seq_in_index, SUB_PART as sub_part
+			FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '$db_name' ORDER BY SEQ_IN_INDEX ASC";
 
 		$rs = $this->db->Execute( $index_sql );
 
@@ -199,8 +253,10 @@ class DBDump extends Base {
 			$index_name = $row['index_name'];
 
 			// print "table_name: $table_name, index_name: $index_name\n";
+			//
+			$sub_part = $row['sub_part'] ? '('. $row['sub_part']. ')' : '';
 
-			$this->table_info[$table_name]['index'][$index_name]['columns'][] = $row['column_name'];
+			$this->table_info[$table_name]['index'][$index_name]['columns'][] = $row['column_name']. $sub_part;
 			$this->table_info[$table_name]['index'][$index_name]['unique'] = ( $row['non_unique'] ) ? '0': '1';
 
 		}

@@ -12,61 +12,63 @@
 
 <types>
 	<xtype name="xpdate" class="xpDate" type="time">
-		<type name="date"/>
+		<type name="date" doctrineType="date"/>
 	</xtype>
 	<xtype name="xpdatetime" class="xpDateTime" type="time">
-		<type name="datetime"/>
-		<type name="timestamp"/>
+		<type name="datetime" doctrineType="datetime"/>
+		<type name="timestamp" doctrineType="datetime"/>
 	</xtype>
 	<xtype name="xptime" class="xpTime" type="time">
-		<type name="time"/>
+		<type name="time" doctrineType="time"/>
 	</xtype>
 
 	<xtype name="xpenum" class="xpEnum" type="string">
-		<type name="enum"/>
+		<type name="enum" doctrineType="string"/>
 	</xtype>
 
 	<xtype name="xpstring" class="xpString" type="string">
-		<type name="char"/>
-		<type name="varchar"/>
+		<type name="char" doctrineType="string"/>
+		<type name="varchar" doctrineType="string"/>
+		<type name="nchar" doctrineType="string"/>
+		<type name="nvarchar" doctrineType="string"/>
 	</xtype>
 	<xtype name="xpjson" class="xpJson" type="json">
-		<type name="json"/>
+		<type name="json" doctrineType="json"/>
 	</xtype>
-	<xtype name="xptext" class="xpText" type="string">
-		<type name="text"/>
-		<type name="tinytext"/>
-		<type name="smalltext"/>
-		<type name="mediumtext"/>
-		<type name="largetext"/>
-		<type name="longtext"/>
+	<xtype name="xptext" class="xpText" type="text">
+		<type name="text" doctrineType="text"/>
+		<type name="tinytext" doctrineType="text"/>
+		<type name="smalltext" doctrineType="text"/>
+		<type name="mediumtext" doctrineType="text"/>
+		<type name="largetext" doctrineType="text"/>
+		<type name="longtext" doctrineType="text"/>
 	</xtype>
 	<xtype name="xpblob" class="xpBlob" type="string">
-		<type name="tinyblob"/>
-		<type name="mediumblob"/>
-		<type name="blob"/>
-		<type name="longblob"/>
+		<type name="tinyblob" doctrineType="blob"/>
+		<type name="mediumblob" doctrineType="blob"/>
+		<type name="blob" doctrineType="blob"/>
+		<type name="longblob" doctrineType="blob"/>
 	</xtype>
-	<xtype name="xpboolean" class="xpBoolean" type="numeric">
-		<type name="tinyint"/>
-		<type name="bit"/>
+	<xtype name="xpboolean" class="xpBoolean" type="boolean">
+		<type name="tinyint" doctrineType="boolean"/>
+		<type name="bit" doctrineType="boolean"/>
 	</xtype>
-	<xtype name="xpint" class="xpInt" type="numeric">
-		<type name="int"/>
-		<type name="int unsigned"/>
-		<type name="smallint"/>
-		<type name="longint"/>
-		<type name="bigint"/>
-		<type name="bigint unsigned"/>
-		<type name="year"/>
+	<xtype name="xpint" class="xpInt" type="integer">
+		<type name="int" doctrineType="integer"/>
+		<type name="int unsigned" doctrineType="integer"/>
+		<type name="smallint" doctrineType="smallint"/>
+		<type name="longint" doctrineType="bigint"/>
+		<type name="bigint" doctrineType="bigint"/>
+		<type name="bigint unsigned" doctrineType="bigint"/>
+		<type name="year" doctrineType="smallint"/>
 		<!-- mssql -->
-		<type name="numeric"/>
+		<type name="numeric" doctrineType="integer"/>
 	</xtype>
-	<xtype name="xpdecimal" class="xpDecimal" type="numeric">
-		<type name="float"/>
-		<type name="double"/>
-		<type name="decimal"/>
+	<xtype name="xpdecimal" class="xpDecimal" type="float">
+		<type name="float" doctrineType="float"/>
+		<type name="double" doctrineType="float"/>
+		<type name="decimal" doctrineType="decimal"/>
 		<!-- mssql -->
-		<type name="money"/>
+		<type name="money" doctrineType="float"/>
 	</xtype>
 </types>

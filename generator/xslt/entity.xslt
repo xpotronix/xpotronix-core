@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-	xpotronix 0.98 - Areco
+	make:entity en xpotronix
 -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:fn="http://www.w3.org/2005/04/xpath-functions" 
 	xmlns:saxon="http://saxon.sf.net/" 
+	xmlns:local="http://localhost/" 
 	extension-element-prefixes="saxon" 
 	exclude-result-prefixes="saxon">
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
+
+	<xsl:variable name="single_quote"><xsl:text>'</xsl:text></xsl:variable>
+	<xsl:variable name="double_quote"><xsl:text>"</xsl:text></xsl:variable>
 
 	<!-- -->
 	<!-- class -->
@@ -24,19 +28,25 @@
 			<xsl:value-of select="concat($application_path,'/src/Entity/')"/>
 		</xsl:variable>
 
+
 		<xsl:variable name="class_name">
 			<xsl:value-of select="@name"/>
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-		<xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.php')"/>
+		<xsl:variable name="class_file_name" select="concat($path_prefix,'/',$mapping_path_suffix,'/',$class_name,'.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
+
+		<xsl:variable name="table_metadata">
+			<xsl:apply-templates select="." mode="get_metadata"/>
+		</xsl:variable>
 
 		<xsl:variable name="source">
 			<xsl:apply-templates select="." mode="generate_entity">
 				<xsl:with-param name="class_name" select="$class_name"/>
 				<xsl:with-param name="table_name" select="$table_name"/>
+				<xsl:with-param name="table_metadata" select="$table_metadata"/>
 				<xsl:with-param name="class_file_name" select="$class_file_name"/>
 			</xsl:apply-templates>
 		</xsl:variable>
@@ -50,189 +60,201 @@
 	</xsl:template>
 
 	<xsl:template match="table" mode="generate_entity">
+
 		<xsl:param name="class_name"/>
 		<xsl:param name="table_name"/>
+		<xsl:param name="table_metadata"/>
 		<xsl:param name="class_file_name"/>
+
 		<xsl:variable name="license" select="$all_documents/license"/>&lt;?php
 /*
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Entity;
-
+namespace App\Entity\<xsl:value-of select="$mapping_path_suffix"/>;
+<xsl:if test="$table_metadata/obj/@persistent='1'">
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
+<xsl:if test="@Trait">
+use App\Entity\<xsl:value-of select="$mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
+</xsl:if>
+</xsl:if>
 
 /**
 * <xsl:value-of select="$class_name"/>
 */
-#[ORM\Table(name: '<xsl:value-of select="$table_name"/>')]<xsl:for-each select="$table_collection//table[@name=$table_name]/index[@name!='PRIMARY']">
-#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: ['<xsl:value-of select="."/>'])]</xsl:for-each>
-#[ORM\Entity]
+
+<xsl:if test="$table_metadata/obj/@persistent='1'">
+#[ORM\Table(name: '<xsl:value-of select="$table_name"/>')]
+<xsl:apply-templates select="$table_collection//table[@name=$table_name]/index[@name!='PRIMARY']" mode="index_decl"/>
+#[ORM\Entity(repositoryClass: <xsl:value-of select="$class_name"/>Repository::class)]
 #[ORM\HasLifecycleCallbacks]
+</xsl:if>
 class <xsl:value-of select="$class_name"/>
 {
+<xsl:if test="@Trait">
+use <xsl:value-of select="$class_name"/>Trait;
+</xsl:if>
+<xsl:if test="$table_metadata/obj/@persistent='1'">
+#[ORM\PreUpdate]
+public function PreUpdate() {
+	property_exists($this, 'agregado') and $this->setAgregado( new \DateTime() );
+}
+#[ORM\PrePersist]
+public function PrePersist() {
+	property_exists($this, 'agregado') and $this->setAgregado( new \DateTime() );
+	property_exists($this, 'modificado') and $this->setModificado( new \DateTime() );
+}
+</xsl:if>
 
-    #[ORM\PreUpdate]
-	public function PreUpdate() {
-		// $this->setAgregado( new \DateTime() );
-	}
+<xsl:for-each select="$table_metadata/obj/attr[not(@alias_of) and not(@extra='NO_SQL')]">
 
-    #[ORM\PrePersist]
-	public function PrePersist() {
-		// $this->setAgregado( new \DateTime() );
-		// $this->setModificado( new \DateTime() );
-	}
+<!-- options del Column/field/attr -->
+
+	<xsl:variable name="options">
+
+		<xsl:if test="@dbtype=('char','longchar')">
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'fixed'"/>
+				<xsl:attribute name="value" select="'true'"/>
+			</xsl:element>
+		</xsl:if>
+
+		<!-- has_default="1" default_value="0" -->
+
+		<xsl:if test="@has_default='1'">
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'default'"/>
+				<xsl:attribute name="value">'<xsl:value-of select="@default_value"/>'</xsl:attribute>
+				<xsl:attribute name="extra">'<xsl:value-of select="@extra"/>'</xsl:attribute>
+			</xsl:element>
+		</xsl:if>
+
+		<xsl:if test="@comment">
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'comment'"/>
+				<xsl:attribute name="value">'<xsl:value-of select="@comment"/>'</xsl:attribute>
+			</xsl:element>
+		</xsl:if>
+
+		<xsl:if test="contains(@dbtype,'unsigned')">
+
+			<xsl:element name="option">
+				<xsl:attribute name="key" select="'unsigned'"/>
+				<xsl:attribute name="value">true</xsl:attribute>
+			</xsl:element>
+
+		</xsl:if>
+
+	</xsl:variable>
+
+	<xsl:variable name="options_decl"><xsl:for-each select="$options/*:option">'<xsl:value-of select="@key"/>'=&gt;<xsl:value-of select="@value"/><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each></xsl:variable>
+	
+	<xsl:if test="$table_metadata/obj/@persistent='1'">
+
+	<xsl:variable name="is_primary_key" select="count($table_metadata/obj/primary_key/primary[@name=current()/@name])"/>
+
+	<xsl:variable name="ORMColumnDef">
+		#[ORM\Column(name: '<xsl:value-of select="@name"/>', type: '<xsl:value-of select="@doctrineType"/>'
+	<xsl:if test="@precision">, precision: <xsl:value-of select="@precision"/></xsl:if>
+	<xsl:if test="@scale">, scale: <xsl:value-of select="@scale"/></xsl:if>
+	<xsl:if test="count($options/*:option)">, options:[<xsl:value-of select="$options_decl"/>]</xsl:if>
+	<!-- <xsl:if test="@dbtype=('enum')">, columnDefinition: "ENUM(<xsl:value-of select="@enums"/>)"</xsl:if> -->
+	<!-- xsl:if test="@dbtype=('enum')">, columnDefinition: 'ENUM(<xsl:value-of select="replace(@enums, $single_quote, $double_quote)"/>)'</xsl:if -->
+	<xsl:if test="@doctrineType=('string','text')">, length: <xsl:value-of select="@length"/></xsl:if>
+	, nullable: <xsl:choose><xsl:when test="@not_null=1">false</xsl:when><xsl:otherwise>true</xsl:otherwise></xsl:choose>)]</xsl:variable>
+<xsl:text>	</xsl:text><xsl:value-of select="normalize-space($ORMColumnDef)"/>
+	<xsl:if test="@primary_key='1' or $is_primary_key">
+	#[ORM\Id]
+		<xsl:choose>
+			<xsl:when test="@auto_increment='1'">
+	#[ORM\GeneratedValue(strategy: 'AUTO')]
+			</xsl:when>
+			<xsl:when test="@dbtype='char' and @length='32'">
+	#[ORM\GeneratedValue(strategy: 'CUSTOM')]
+	#[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
+			</xsl:when>
+			<xsl:otherwise>
+	#[ORM\GeneratedValue(strategy: 'NONE')]
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:if>
+</xsl:if>
+	private $<xsl:value-of select="@name"/>;
+</xsl:for-each>
+
+<!-- constructor (puede ser definido via Trait) -->
 
 
-	<xsl:apply-templates select="." mode="get_properties"/>
+<!-- getters egrep: 
 
+     10  ?array
+     46  ?float
+    164  ?\DateTimeInterface
+    514  ?int
+    733  ?string
+
+-->
+
+
+
+<!-- getters/setters -->
+<xsl:for-each select="$table_metadata/obj/attr[not(@alias_of) and not(@extra='NO_SQL')]">
+
+	<xsl:variable name="returnType">
+		<xsl:choose>
+			<xsl:when test="@doctrineType='integer'">int</xsl:when>
+			<xsl:when test="@doctrineType='boolean'">bool</xsl:when>
+			<xsl:when test="@doctrineType='decimal'">string</xsl:when>
+			<xsl:when test="@doctrineType='json'">array</xsl:when>
+			<xsl:when test="@doctrineType=('date','datetime','time')">\DateTimeInterface</xsl:when>
+			<xsl:otherwise><xsl:value-of select="@doctrineType"/></xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+
+	<xsl:variable name="nullableSign"><xsl:choose><xsl:when test="@not_null=1"></xsl:when><xsl:otherwise>?</xsl:otherwise></xsl:choose></xsl:variable>
+
+	<xsl:variable name="camelized" select="local:snake2camel(concat('',(@name)))"/>
+    public function get<xsl:value-of select="$camelized"/>(): ?<xsl:value-of select="$returnType"/> {/*{{{*/
+        return $this-><xsl:value-of select="@name"/>;
+    }/*}}}*/
+    public function set<xsl:value-of select="$camelized"/>(<xsl:value-of select="$nullableSign"/><xsl:value-of select="$returnType"/><xsl:text> </xsl:text>$<xsl:value-of select="@name"/>): static {/*{{{*/
+        $this-><xsl:value-of select="@name"/> = $<xsl:value-of select="@name"/>;
+        return $this;
+    }/*}}}*/
+</xsl:for-each>
 }
 
 ?></xsl:template>
 
-	<xsl:template match="table" mode="get_properties"><!--{{{-->
+<xsl:template match="index" mode="index_decl">
+	<xsl:variable name="lengths">
+		<xsl:if test="contains(.,'(')">
+			<xsl:for-each select="tokenize(.,',')">
+				<xsl:element name="length"><xsl:value-of select="substring-after(substring-before(.,')'),'(')"/></xsl:element>
+			</xsl:for-each>
+		</xsl:if>
+	</xsl:variable>#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: [<xsl:apply-templates select="." mode="index_columns"/>]<xsl:if test="count($lengths/*:length)">, options:['lengths'=>[<xsl:for-each select="$lengths/*:length"><xsl:choose><xsl:when test=".!=''"><xsl:value-of select="."/></xsl:when><xsl:otherwise><xsl:text>null</xsl:text></xsl:otherwise></xsl:choose><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>]]</xsl:if>)]
+</xsl:template>
 
-		<xsl:variable name="table_name" select="@name"/>
-		<xsl:variable name="ui_table" select="$model_collection/table[@name=$table_name]"/>
-		<xsl:variable name="tb_table" select="$table_collection/table[@name=$table_name]"/>
-		<xsl:variable name="db_table" select="$database_collection/table[@name=$table_name]"/>
-		<xsl:variable name="cd_table" select="$code_collection/table[@name=$table_name]"/>
-
-
-		<xsl:element name="obj">
-
-			<xsl:attribute name="name" select="@name"/>
-			<xsl:attribute name="database" select="../@name"/>
-
-			<xsl:sequence select="@*"/>
-			<xsl:sequence select="$tb_table/@*"/>
-			<xsl:sequence select="$db_table/@*"/>
-			<xsl:sequence select="$model_collection/table[@name=$table_name]/@*"/>
-
-			<xsl:choose>
-				<xsl:when test="not($tb_table)">
-				<xsl:attribute name="virtual" select="1"/>
-				</xsl:when>
-			     	<xsl:otherwise>
-					<xsl:attribute name="persistent" select="1"/>
-				</xsl:otherwise>
-			</xsl:choose>
-
-			<xsl:sequence select="$ui_table/sync"/>
-			<xsl:sequence select="$ui_table/dbi"/>
+<xsl:template match="index" mode="index_columns">
+	<xsl:for-each select="tokenize(.,',')">'<xsl:choose><xsl:when test="contains(.,'(')"><xsl:value-of select="substring-before(.,'(')"/></xsl:when><xsl:otherwise><xsl:value-of select="."/></xsl:otherwise></xsl:choose>'<xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>
+</xsl:template>
 
 
-    /**
-     * @var string
-     */
-    #[ORM\Column(name: 'ID', type: 'string', length: 32, nullable: false, options: ['fixed' => true])]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class:"App\Common\Generator\IdGenerator")]
+<xsl:function name="local:snake2camel">
 
-	private $id;
-
-
-			<!-- primary_key -->
-			<xsl:apply-templates select="." mode="get_primary_key"/>
-
-			<!-- fields -->
-			<xsl:variable name="field_collection">
-				<xsl:apply-templates select="." mode="field_collection"/>
-			</xsl:variable>
-
-			<xsl:apply-templates select="$field_collection//field" mode="property_definition">
-				<xsl:with-param name="tb_table" select="$tb_table"/>
-			</xsl:apply-templates>
-
-			<!-- index -->
-			<xsl:sequence select="$tb_table/index"/>
-
-		</xsl:element>
-
-	</xsl:template><!--}}}-->
-
-
-	<xsl:template match="field" mode="property_definition"><!--{{{-->
-		<xsl:param name="tb_table"/>
-
-		<!-- DEBUG: aca cambia el espacio de nombres de field a attr -->
-
-		<xsl:variable name="table_name" select="../@name"/>
-		<xsl:variable name="field_name" select="@name"/>
-		<xsl:variable name="tb_field" select="$table_collection//table[@name=$table_name]/field[@name=$field_name]"/>
-
-		<xsl:variable name="type">
-			<xsl:choose>
-				<xsl:when test="@type">
-                        		<xsl:apply-templates select="." mode="get_type"/>
-				</xsl:when>
-				<xsl:when test="$tb_field">
-                        		<xsl:apply-templates select="$tb_field" mode="get_type"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="'xpstring'"/>
-				</xsl:otherwise>
-			</xsl:choose>
-                </xsl:variable>
-
-		<!-- <xsl:message>@type: <xsl:value-of select="@type"/> $type <xsl:value-of select="$type"/></xsl:message> -->
-
-                <xsl:variable name="length">
-			<xsl:choose>
-				<xsl:when test="@length">
-					<xsl:value-of select="@length"/>
-				</xsl:when>
-				<xsl:when test="$tb_field">
-                        		<xsl:apply-templates select="$tb_field" mode="get_length"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="0"/>
-				</xsl:otherwise>
-			</xsl:choose>
-                </xsl:variable>
-
-		<xsl:variable name="eh_name" select="@eh"/>
-
-		<!-- toma el primer query de la transformacion, el resto son ignorados -->
-		<xsl:variable name="query" select="$queries_collection//query[@name=$eh_name][1]"/>
-
-		<xsl:element name="attr">
-			<xsl:sequence select="@*"/>
-
-			<xsl:attribute name="table" select="$table_name"/>
-			<xsl:attribute name="name" select="$field_name"/>
-			<xsl:attribute name="type" select="$type"/>
-			<xsl:if test="$tb_field/@type">
-				<xsl:attribute name="dbtype" select="$tb_field/@type"/>
-			</xsl:if>
-
-			<xsl:attribute name="length" select="$length"/>
-
-			<xsl:if test="$eh_name!=''">
-				<xsl:attribute name="entry_help"><xsl:value-of select="$eh_name"/></xsl:attribute>
-				<!-- DEBUG: fix para que tome el nombre relativo de la tabla, no el absoluto cuando tiene el nombre de la base de datos delante -->
-
-				<xsl:choose>
-					<xsl:when test="contains($query/from,'.')">
-						<xsl:attribute name="entry_help_table"><xsl:value-of select="substring-after($query/from,'.')"/></xsl:attribute>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:attribute name="entry_help_table"><xsl:value-of select="$query/from"/></xsl:attribute>
-					</xsl:otherwise>
-				</xsl:choose>
-			</xsl:if>
-			<xsl:if test="not($tb_field)">
-				<xsl:if test="$tb_table">
-					<xsl:message>atributo virtual: <xsl:value-of select="concat($table_name,'/',$field_name)"/></xsl:message>
-				</xsl:if>
-				<xsl:attribute name="virtual" select="1"/>
-			</xsl:if>
-			<xsl:sequence select="./*"/>
-		</xsl:element>
-
-	</xsl:template><!--}}}--> 
+    <xsl:param name="columnName"/>
+    <xsl:value-of select="
+	concat(
+		upper-case(substring($columnName, 1, 1)),
+		substring(string-join(for $word in tokenize($columnName, '_')
+			return concat(
+			upper-case(substring($word, 1, 1)),
+			substring($word, 2)), '')
+	, 2))" />
+</xsl:function>
 
 
 </xsl:stylesheet>

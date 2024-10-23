@@ -210,37 +210,54 @@
 
 		<xsl:variable name="table_name" select="../@name"/>
 		<xsl:variable name="field_name" select="@name"/>
-		<xsl:variable name="tb_field" select="$table_collection//table[@name=$table_name]/field[@name=$field_name]"/>
+		<xsl:variable name="tb_field" 
+			select="$table_collection//table[@name=$table_name]/field[@name=$field_name]"/>
 
-                <xsl:variable name="type">
+		<xsl:variable name="type">
 			<xsl:choose>
 				<xsl:when test="@type">
-                        		<xsl:apply-templates select="." mode="get_type"/>
+                  		<xsl:apply-templates select="." mode="get_type"/>
 				</xsl:when>
 				<xsl:when test="$tb_field">
-                        		<xsl:apply-templates select="$tb_field" mode="get_type"/>
+                   		<xsl:apply-templates select="$tb_field" mode="get_type"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="'xpstring'"/>
 				</xsl:otherwise>
 			</xsl:choose>
-                </xsl:variable>
+		</xsl:variable>
+
+		<xsl:variable name="doctrineType">
+			<xsl:choose>
+				<xsl:when test="@type">
+                  		<xsl:apply-templates select="." mode="get_doctrineType"/>
+				</xsl:when>
+				<xsl:when test="$tb_field">
+                   		<xsl:apply-templates select="$tb_field" mode="get_doctrineType"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'string'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
+
 
 		<!-- <xsl:message>@type: <xsl:value-of select="@type"/> $type <xsl:value-of select="$type"/></xsl:message> -->
 
-                <xsl:variable name="length">
+		<xsl:variable name="length">
 			<xsl:choose>
 				<xsl:when test="@length">
 					<xsl:value-of select="@length"/>
 				</xsl:when>
 				<xsl:when test="$tb_field">
-                        		<xsl:apply-templates select="$tb_field" mode="get_length"/>
+					<xsl:apply-templates select="$tb_field" mode="get_length"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="0"/>
 				</xsl:otherwise>
 			</xsl:choose>
-                </xsl:variable>
+		</xsl:variable>
 
 		<xsl:variable name="eh_name" select="@eh"/>
 
@@ -253,9 +270,26 @@
 			<xsl:attribute name="table" select="$table_name"/>
 			<xsl:attribute name="name" select="$field_name"/>
 			<xsl:attribute name="type" select="$type"/>
+
+			<xsl:if test="not(current()/@enums) and $enums_collection/enums/enum[@table=current()/../@name and @field=current()/@name]/@values">
+				<xsl:attribute name="enums" select="$enums_collection/enums/enum[@table=current()/../@name and @field=current()/@name]/@values"/>
+			</xsl:if>
+
+			<xsl:message><xsl:value-of select="$tb_field"/></xsl:message>
+
 			<xsl:if test="$tb_field/@type">
 				<xsl:attribute name="dbtype" select="$tb_field/@type"/>
 			</xsl:if>
+
+			<xsl:choose>
+				<xsl:when test="$datatypes//type[@name=$tb_field/@type]/@doctrineType!=''">
+					<xsl:attribute name="doctrineType" select="$datatypes//type[@name=$tb_field/@type]/@doctrineType"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="doctrineType" select="$datatypes//xtype[@name=$type]/@type"/>
+				</xsl:otherwise>
+			</xsl:choose>
+
 
 			<xsl:attribute name="length" select="$length"/>
 
@@ -271,7 +305,9 @@
 						<xsl:attribute name="entry_help_table"><xsl:value-of select="$query/from"/></xsl:attribute>
 					</xsl:otherwise>
 				</xsl:choose>
+
 			</xsl:if>
+
 			<xsl:if test="not($tb_field)">
 				<xsl:if test="$tb_table">
 					<xsl:message>atributo virtual: <xsl:value-of select="concat($table_name,'/',$field_name)"/></xsl:message>
