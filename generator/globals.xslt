@@ -105,7 +105,7 @@
 
 	</xsl:variable><!--}}}-->
 
-	<xsl:variable name="mapping_path_suffix" select="$config_collection/*:config/mapping_path_suffix"/>
+	<xsl:variable name="mapping_path_suffix" select="$config_collection/config/mapping_path_suffix"/>
 
 	<!-- all files -->
 
