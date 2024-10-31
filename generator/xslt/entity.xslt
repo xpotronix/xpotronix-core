@@ -235,7 +235,7 @@ public function PrePersist() {
 				<xsl:element name="length"><xsl:value-of select="substring-after(substring-before(.,')'),'(')"/></xsl:element>
 			</xsl:for-each>
 		</xsl:if>
-	</xsl:variable>#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: [<xsl:apply-templates select="." mode="index_columns"/>]<xsl:if test="count($lengths/*:length)">, options:['lengths'=>[<xsl:for-each select="$lengths/*:length"><xsl:choose><xsl:when test=".!=''"><xsl:value-of select="."/></xsl:when><xsl:otherwise><xsl:text>null</xsl:text></xsl:otherwise></xsl:choose><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>]]</xsl:if>)]
+		</xsl:variable>#[ORM\Index(name: '<xsl:value-of select="@name"/>', columns: [<xsl:apply-templates select="." mode="index_columns"/>]<xsl:if test="@type='FULLTEXT'">,'flags'=>['fulltext']</xsl:if><xsl:if test="count($lengths/*:length)">, options:['lengths'=>[<xsl:for-each select="$lengths/*:length"><xsl:choose><xsl:when test=".!=''"><xsl:value-of select="."/></xsl:when><xsl:otherwise><xsl:text>null</xsl:text></xsl:otherwise></xsl:choose><xsl:if test="position()!=last()">,</xsl:if></xsl:for-each>]]</xsl:if>)]
 </xsl:template>
 
 <xsl:template match="index" mode="index_columns">

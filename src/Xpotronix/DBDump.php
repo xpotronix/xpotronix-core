@@ -242,7 +242,7 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 
 		/* index */
 
-		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique, SEQ_IN_INDEX as seq_in_index, SUB_PART as sub_part
+		$index_sql = "SELECT TABLE_NAME AS table_name, INDEX_NAME AS index_name, COLUMN_NAME AS column_name, NON_UNIQUE as non_unique, SEQ_IN_INDEX as seq_in_index, SUB_PART as sub_part, INDEX_TYPE as index_type
 			FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '$db_name' ORDER BY SEQ_IN_INDEX ASC";
 
 		$rs = $this->db->Execute( $index_sql );
@@ -258,8 +258,11 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 
 			$this->table_info[$table_name]['index'][$index_name]['columns'][] = $row['column_name']. $sub_part;
 			$this->table_info[$table_name]['index'][$index_name]['unique'] = ( $row['non_unique'] ) ? '0': '1';
+			$this->table_info[$table_name]['index'][$index_name]['type'] = $row['index_type'];
 
 		}
+
+		// print_r( $this->table_info );
 
 		/* views */
 
@@ -359,6 +362,10 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 
 						if ( $keys['unique'] )
 							$xindex['unique'] = 1;
+
+						if ( $keys['type'] != 'BTREE' )
+							$xindex['type'] = $keys['type'];
+
 
 					} else M()->warn( "indice $index sin columnas en la tabla $table_name" );
 
