@@ -335,6 +335,10 @@ class Search {
 
 			$c->search_type = 'numeric';
 
+		} else if ( $c->attr->get_simple_type() == 'text' ) {
+
+			$c->search_type = 'match';
+
 		} else if ( $attr->get_simple_type() == 'string' ) {
 
 			M()->debug( 'simple_type: string' );
@@ -410,7 +414,7 @@ class Search {
 		'compare' => "$c->sql_var $c->operator '$c->value'",
 		'like' => "$c->sql_var $c->operator '$c->value'",
 		'numeric' => "$c->sql_var $c->operator $c->value",
-		'match' => "MATCH('$c->value') AGAINST ('$c->sql_var' IN BOOLEAN MODE)",
+		'match' => "MATCH($c->sql_var) AGAINST ( '$c->value'IN BOOLEAN MODE)",
 		'to_date' => "DATE($c->sql_var) $c->operator '$c->value'",
 		'to_date_mssql' => "DATEADD(dd, 0, DATEDIFF(dd, 0, $c->sql_var)) $c->operator '$c->value'" );
 
