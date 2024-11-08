@@ -71,7 +71,7 @@ namespace App\Controller\<xsl:value-of select="$mapping_path_suffix"/>;
 
 use App\Entity\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
 use App\Repository\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
-use App\Form\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Type;
+use App\Form\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>FormType;
 
 use App\Controller\Common\MetadataBuilder;
 
@@ -133,14 +133,14 @@ class <xsl:value-of select="$class_name"/>Controller extends AbstractController 
 	#[Route(path: '/new', name: '<xsl:value-of select="$class_name"/>_new', methods: ['GET', 'POST'])]
     public function new(Request $request, <xsl:value-of select="$class_name"/>Repository $repository): Response
 	{/*{{{*/
-		return $this->editor( $request, new <xsl:value-of select="$class_name"/>(), $repository, <xsl:value-of select="$class_name"/>Type::class );
+		return $this->editor( $request, new <xsl:value-of select="$class_name"/>(), $repository, <xsl:value-of select="$class_name"/>FormType::class );
     }/*}}}*/
 
 	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>/edit', name: '<xsl:value-of select="$class_name"/>_edit', methods: ['GET', 'POST'])]
 	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>', name: '<xsl:value-of select="$class_name"/>_show', methods: ['GET', 'POST', 'DELETE'])]
     public function edit(Request $request, <xsl:value-of select="$class_name"/> $entity, <xsl:value-of select="$class_name"/>Repository $repository): Response
 	{/*{{{*/
-		return $this->editor( $request, $entity, $repository, <xsl:value-of select="$class_name"/>Type::class );
+		return $this->editor( $request, $entity, $repository, <xsl:value-of select="$class_name"/>FormType::class );
     }/*}}}*/
 
 }

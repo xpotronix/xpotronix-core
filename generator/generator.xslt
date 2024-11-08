@@ -21,6 +21,7 @@
 	<xsl:include href="xslt/entity.xslt"/>
 	<xsl:include href="xslt/repository.xslt"/>
 	<xsl:include href="xslt/controller.xslt"/>
+	<xsl:include href="xslt/FormType.xslt"/>
 	<xsl:include href="xslt/class.xslt"/>
 	<xsl:include href="xslt/field.xslt"/>
 	<xsl:include href="xslt/model.xslt"/>
@@ -106,6 +107,7 @@
 				<xsl:apply-templates select="$model_collection/table" mode="entity"/>
 				<xsl:apply-templates select="$model_collection/table" mode="repository"/>
 				<xsl:apply-templates select="$model_collection/table" mode="controller"/>
+				<xsl:apply-templates select="$model_collection/table" mode="FormType"/>
 
 			</xsl:when>
 
