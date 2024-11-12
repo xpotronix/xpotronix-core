@@ -98,7 +98,7 @@ $builder
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Actor::class,
+            'data_class' => <xsl:value-of select="$class_name"/>::class,
         ]);
     }
 
@@ -106,11 +106,6 @@ $builder
 }
 
 ?></xsl:template>
-
-<xsl:template match="primary_key" mode="generate_route_keys">
-	<xsl:for-each select="primary">{<xsl:value-of select="@name"/>}<xsl:if test="position()!=last()">/</xsl:if></xsl:for-each>
-</xsl:template>
-
 
 </xsl:stylesheet>
 <!--  vim600: fdm=marker sw=3 ts=8 ai:

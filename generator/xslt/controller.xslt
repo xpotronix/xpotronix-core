@@ -88,6 +88,7 @@ use Knp\Component\Pager\PaginatorInterface;
 * <xsl:value-of select="$class_name"/> Controller
 */
 
+#[Route('/<xsl:value-of select="$class_name"/>')]
 class <xsl:value-of select="$class_name"/>Controller extends AbstractController {
 
 	use MetadataBuilder;
