@@ -96,8 +96,19 @@ class <xsl:value-of select="$class_name"/>Repository extends ServiceEntityReposi
 	public function getListQuery() 
 	{/*{{{*/
 
-		$qb = $this->createQueryBuilder('<xsl:value-of select="$class_name"/>');
-		$qb->select('<xsl:value-of select="$class_name"/>');
+		$qb = $this->createQueryBuilder('<xsl:value-of select="$class_name"/>')
+		// $qb->select('<xsl:value-of select="$class_name"/>');
+
+		<xsl:choose>
+			<xsl:when test="count($table_metadata/obj/attr[not(@alias_of) and not(@extra='NO_SQL')])">
+			<xsl:for-each select="$table_metadata/obj/attr[not(@alias_of) and not(@extra='NO_SQL')]">
+				-&gt;addSelect( "<xsl:value-of select="$class_name"/>.<xsl:value-of select="@name"/> AS <xsl:value-of select="@name"/>" )<xsl:if test="position()=last()">;</xsl:if></xsl:for-each>
+			</xsl:when>
+			<xsl:otherwise>
+				-&gt;addSelect( "<xsl:value-of select="$class_name"/>" );
+			</xsl:otherwise>
+		</xsl:choose>
+
 		return $qb;
 
 	}/*}}}*/
