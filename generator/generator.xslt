@@ -9,6 +9,8 @@
 	<!-- output -->
 	<!-- -->
 
+	<xsl:param name="application_path"/>
+
 	<xsl:output method="text" encoding="UTF-8" indent="yes"/>
 	<xsl:strip-space elements="*"/>
 
@@ -32,6 +34,11 @@
 	<!-- -->
 
 	<xsl:template match="/"><!--{{{-->
+
+		<!--
+		<xsl:message terminate="yes"><xsl:copy-of select="collection(concat($project_path,'?select=*.xml'))"/></xsl:message>
+			<xsl:message terminate="yes"><xsl:copy-of select="$documents_collection"/></xsl:message>
+		-->
 
 		<xsl:if test="$debug">
 			<xsl:apply-templates select="." mode="debug"/>
@@ -133,12 +140,12 @@
 			<xsl:variable name="file_name" select="concat($application_path,'/',@name)"/>
 			<xsl:choose>
 				<xsl:when test="@type='xml'">
-					<xsl:result-document method="xml" encoding="UTF-8" href="{$file_name}">
+					<xsl:result-document method="xml" encoding="UTF-8" href="file:///{$file_name}">
 						<xsl:sequence select="./*"/>
 					</xsl:result-document>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:result-document method="text" encoding="UTF-8" href="{$file_name}">
+					<xsl:result-document method="text" encoding="UTF-8" href="file:///{$file_name}">
 						<xsl:value-of select="." />
 					</xsl:result-document>
 				</xsl:otherwise>
@@ -153,7 +160,7 @@
 		<!-- <xsl:message terminate="yes"><xsl:copy-of select="$href"/></xsl:message>
 		<xsl:message terminate="yes"><xsl:copy-of select="$all_documents/*:ui|$all_documents/*:processes"/></xsl:message> -->
 
-		<xsl:result-document method="xml" encoding="UTF-8" href="{$href}">
+		<xsl:result-document method="xml" encoding="UTF-8" href="file:///{$href}">
 			<xsl:element name="{$default_template}:application" namespace="{concat('http://xpotronix.com/templates/',$default_template,'/')}">
 			<xsl:sequence select="$all_documents/*:ui"/>
 			<xsl:sequence select="$all_documents/*:processes"/>
@@ -165,7 +172,7 @@
 	<xsl:template name="datatypes"><!--{{{-->
 
 		<xsl:variable name="href" select="concat($application_path,'/conf/datatypes.xml')"/>
-		<xsl:result-document method="xml" encoding="UTF-8" href="{$href}">
+		<xsl:result-document method="xml" encoding="UTF-8" href="file:///{$href}">
 			<xsl:sequence select="$datatypes" />
 		</xsl:result-document>
 
@@ -194,7 +201,7 @@
 
 			<xsl:variable name="file_name" select="concat($application_path,'/modules/',$table_name, '/',$mode,'.js')"/>
 			<xsl:message>Creando archivo <xsl:value-of select="$file_name"/></xsl:message>
-			<xsl:result-document method="text" encoding="UTF-8" href="{$file_name}">
+			<xsl:result-document method="text" encoding="UTF-8" href="file:///{$file_name}">
 				<xsl:sequence select="$code_collection//table[@name=$table_name]/code[@type='js' and @mode=$mode]"/>
 			</xsl:result-document>
 
@@ -207,7 +214,7 @@
 	<xsl:template match="table" mode="processes"><!--{{{-->
 		<xsl:variable name="table_name" select="@name"/>
 		<xsl:result-document method="xml" encoding="UTF-8" 
-			href="{concat($application_path,'/modules/',@name,'/',@name,'.processes.xml' )}">
+			href="file:///{concat($application_path,'/modules/',@name,'/',@name,'.processes.xml' )}">
 			<xsl:element name="processes">
 				<xsl:attribute name="name" select="@name"/>
 				<xsl:sequence select="$processes_collection/table[@name=$table_name]/process"/>
@@ -220,7 +227,7 @@
 	<xsl:template match="table" mode="views"><!--{{{-->
 		<xsl:variable name="table_name" select="@name"/>
 		<xsl:result-document method="xml" encoding="UTF-8" 
-			href="{concat($application_path,'/modules/',@name,'/',@name,'.views.xml' )}">
+			href="file:///{concat($application_path,'/modules/',@name,'/',@name,'.views.xml' )}">
 			<xsl:element name="views">
 				<xsl:attribute name="name" select="@name"/>
 				<xsl:sequence select="$views_collection//table[@name=$table_name]/view"/>
@@ -229,7 +236,7 @@
 	</xsl:template><!--}}}-->
 
 	<xsl:template match="menu" mode="menu"><!--{{{-->
-		<xsl:result-document method="xml" encoding="UTF-8" indent="yes" href="{concat($application_path,'/conf/menu.xml')}">
+		<xsl:result-document method="xml" encoding="UTF-8" indent="yes" href="file:///{concat($application_path,'/conf/menu.xml')}">
 			<xsl:sequence select="."/>
 		</xsl:result-document>
 	</xsl:template><!--}}}-->
@@ -240,7 +247,7 @@
 			<!-- <xsl:message terminate="yes"><xsl:value-of select="concat($config_path,'/conf/',$application_name,'/config.xml')"/></xsl:message> -->
 		<xsl:variable name="output_file" select="concat($config_path,'/conf/',$application_name,'/config.xml')"/>
 		<xsl:message>generando archivo de configuracion en <xsl:value-of select="$output_file"/></xsl:message>
-		<xsl:result-document method="xml" encoding="UTF-8" indent="yes" href="{$output_file}">
+		<xsl:result-document method="xml" encoding="UTF-8" indent="yes" href="file:///{$output_file}">
 			<xsl:sequence select="."/>
 		</xsl:result-document>
 	</xsl:template><!--}}}-->
@@ -248,7 +255,7 @@
 	<xsl:template match="feat" mode="feat"><!--{{{-->
 		<xsl:variable name="feats" select="."/>
 
-		<xsl:result-document 	method="xml" encoding="UTF-8" indent="yes" href="{concat($application_path,'/conf/feat.xml')}">
+		<xsl:result-document 	method="xml" encoding="UTF-8" indent="yes" href="file:///{concat($application_path,'/conf/feat.xml')}">
 			<feat>
 			<xsl:for-each-group select="./*" group-by="name()">
 				<!-- <xsl:sort select="name()"/> -->
