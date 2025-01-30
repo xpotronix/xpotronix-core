@@ -36,7 +36,7 @@
 		<collection>
 
 			<xsl:for-each select="collection(concat('file:///',$project_path,'?select=*.xml;stable=yes'))">
-				<doc type="{*/name()}" href="{document-uri(.)}"/>
+				<doc type="{*/name()}" href="{base-uri(.)}"/>
 			</xsl:for-each>
 
 			<xsl:for-each select="collection(concat($project_path,'/templates/',$default_template,'/?select=*.xml;stable=yes'))">
