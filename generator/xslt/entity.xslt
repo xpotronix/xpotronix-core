@@ -34,7 +34,7 @@
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-		<xsl:variable name="class_file_name" select="concat($path_prefix,'/',$mapping_path_suffix,'/',$class_name,'.php')"/>
+		<xsl:variable name="class_file_name" select="concat($path_prefix,'/',$final_mapping_path_suffix,'/',$class_name,'.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -71,13 +71,13 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Entity\<xsl:value-of select="$mapping_path_suffix"/>;
+namespace App\Entity\<xsl:value-of select="$final_mapping_path_suffix"/>;
 <xsl:if test="$table_metadata/obj/@persistent='1'">
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
+use App\Repository\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
 <xsl:if test="@Trait">
-use App\Entity\<xsl:value-of select="$mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
+use App\Entity\<xsl:value-of select="$final_mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
 </xsl:if>
 </xsl:if>
 

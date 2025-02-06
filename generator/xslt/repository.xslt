@@ -29,7 +29,7 @@
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-        <xsl:variable name="class_file_name" select="concat($path_prefix,'/',$mapping_path_suffix,'/',$class_name,'Repository.php')"/>
+        <xsl:variable name="class_file_name" select="concat($path_prefix,'/',$final_mapping_path_suffix,'/',$class_name,'Repository.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -66,14 +66,14 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Repository\<xsl:value-of select="$mapping_path_suffix"/>;
+namespace App\Repository\<xsl:value-of select="$final_mapping_path_suffix"/>;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use App\Repository\Common\FilterBuilder;
-use App\Entity\<xsl:value-of select="$mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
+use App\Entity\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
 
 /**
 * <xsl:value-of select="$class_name"/> Repository
