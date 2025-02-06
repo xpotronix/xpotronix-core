@@ -66,12 +66,12 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Controller\<xsl:value-of select="$final_mapping_path_suffix"/>;
+namespace App\Controller<xsl:value-of select="$final_mapping_path_suffix"/>;
 
 
-use App\Entity\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
-use App\Repository\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
-use App\Form\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>FormType;
+use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
+use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
+use App\Form<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>FormType;
 
 use App\Controller\Common\MetadataBuilder;
 
