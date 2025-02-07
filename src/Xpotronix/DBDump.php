@@ -147,6 +147,8 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 					break;
 
 					case 'column_type':
+					break;
+
 					case 'table_name':
 						continue 2;
 

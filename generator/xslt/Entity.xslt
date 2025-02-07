@@ -137,7 +137,7 @@ public function PrePersist() {
 			</xsl:element>
 		</xsl:if>
 
-		<xsl:if test="contains(@dbtype,'unsigned')">
+		<xsl:if test="contains(@column_type,'unsigned')">
 
 			<xsl:element name="option">
 				<xsl:attribute name="key" select="'unsigned'"/>
@@ -203,7 +203,7 @@ public function PrePersist() {
 
 	<xsl:variable name="returnType">
 		<xsl:choose>
-			<xsl:when test="@doctrineType=('bigint','integer')">int</xsl:when>
+			<xsl:when test="@doctrineType=('integer')">int</xsl:when>
 			<xsl:when test="@doctrineType='boolean'">bool</xsl:when>
 			<xsl:when test="@doctrineType=('varchar','char','text','mediumtext', 'longtext','decimal')">string</xsl:when>
 			<xsl:when test="@doctrineType='json'">array</xsl:when>
