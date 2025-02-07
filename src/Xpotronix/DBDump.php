@@ -142,6 +142,10 @@ CHARACTER_MAXIMUM_LENGTH: NULL
 
 				switch( $key ) {
 
+					case 'comment':
+						$value = addslashes($value);
+					break;
+
 					case 'column_type':
 					case 'table_name':
 						continue 2;
