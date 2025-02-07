@@ -1,5 +1,9 @@
 {
 
+    "config": {
+        "process-timeout": 900
+    },
+
   "name": "xpotronix/xpotronix-core",
   "description": "xpotronix Core Libraries",
   "keywords": ["application","development"],

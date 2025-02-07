@@ -28,13 +28,12 @@
 			<xsl:value-of select="concat($application_path,'/src/Entity/')"/>
 		</xsl:variable>
 
-
 		<xsl:variable name="class_name">
-			<xsl:value-of select="@name"/>
+			<xsl:value-of select="local:snake2camel(@name)"/>
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-		<xsl:variable name="class_file_name" select="concat($path_prefix,'/',$final_mapping_path_suffix,'/',$class_name,'.php')"/>
+		<xsl:variable name="class_file_name" select="concat($path_prefix,$final_mapping_path,'/',$class_name,'.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -71,13 +70,13 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Entity\<xsl:value-of select="$final_mapping_path_suffix"/>;
+namespace App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>;
 <xsl:if test="$table_metadata/obj/@persistent='1'">
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
+use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
 <xsl:if test="@Trait">
-use App\Entity\<xsl:value-of select="$final_mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
+use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
 </xsl:if>
 </xsl:if>
 
@@ -245,11 +244,11 @@ public function PrePersist() {
 
 <xsl:function name="local:snake2camel">
 
-    <xsl:param name="columnName"/>
+    <xsl:param name="varName"/>
     <xsl:value-of select="
 	concat(
-		upper-case(substring($columnName, 1, 1)),
-		substring(string-join(for $word in tokenize($columnName, '_')
+		upper-case(substring($varName, 1, 1)),
+		substring(string-join(for $word in tokenize($varName, '_')
 			return concat(
 			upper-case(substring($word, 1, 1)),
 			substring($word, 2)), '')

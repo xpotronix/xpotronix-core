@@ -113,6 +113,13 @@
 		</xsl:if>
 	</xsl:variable>
 
+	<xsl:variable name="final_mapping_path" >
+		<xsl:if test="$mapping_path_suffix!=''">
+			<xsl:value-of select="concat('/',$mapping_path_suffix)"/>
+		</xsl:if>
+	</xsl:variable>
+
+
 	<!-- all files -->
 
 	<xsl:variable name="datatypes" select="document('datatypes.xml')"/>

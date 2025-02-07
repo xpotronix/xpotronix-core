@@ -29,7 +29,7 @@
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-        <xsl:variable name="class_file_name" select="concat($path_prefix,'/',$final_mapping_path_suffix,'/',$class_name,'FormType.php')"/>
+        <xsl:variable name="class_file_name" select="concat($path_prefix,$final_mapping_path,'/',$class_name,'FormType.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -66,11 +66,11 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Form\<xsl:value-of select="$final_mapping_path_suffix"/>;
+namespace App\Form<xsl:value-of select="$final_mapping_path_suffix"/>;
 
 
-use App\Entity\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
-use App\Repository\<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
+use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
+use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

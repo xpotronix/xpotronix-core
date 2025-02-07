@@ -20,13 +20,16 @@
 
 	<xsl:include href="globals.xslt"/>
 	<xsl:include href="xslt/metadata.xslt"/>
-	<xsl:include href="xslt/entity.xslt"/>
-	<xsl:include href="xslt/repository.xslt"/>
-	<xsl:include href="xslt/controller.xslt"/>
-	<xsl:include href="xslt/FormType.xslt"/>
 	<xsl:include href="xslt/class.xslt"/>
 	<xsl:include href="xslt/field.xslt"/>
 	<xsl:include href="xslt/model.xslt"/>
+
+	<!-- templates symfony -->
+	<xsl:include href="xslt/Entity.xslt"/>
+	<xsl:include href="xslt/Repository.xslt"/>
+	<xsl:include href="xslt/Controller.xslt"/>
+	<xsl:include href="xslt/FormType.xslt"/>
+
 	<xsl:include href="debug.xslt"/>
 
 	<!-- -->

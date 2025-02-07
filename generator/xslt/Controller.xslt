@@ -5,6 +5,7 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:fn="http://www.w3.org/2005/04/xpath-functions" 
 	xmlns:saxon="http://saxon.sf.net/" 
+	xmlns:local="http://localhost/" 
 	extension-element-prefixes="saxon" 
 	exclude-result-prefixes="saxon">
 	<xsl:output method="text" version="1.0" encoding="UTF-8" indent="yes"/>
@@ -25,11 +26,11 @@
 		</xsl:variable>
 
 		<xsl:variable name="class_name">
-			<xsl:value-of select="@name"/>
+			<xsl:value-of select="local:snake2camel(@name)"/>
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-        <xsl:variable name="class_file_name" select="concat($path_prefix,'/',$final_mapping_path_suffix,'/',$class_name,'Controller.php')"/>
+        <xsl:variable name="class_file_name" select="concat($path_prefix,$final_mapping_path,'/',$class_name,'Controller.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -88,7 +89,7 @@ use Knp\Component\Pager\PaginatorInterface;
 * <xsl:value-of select="$class_name"/> Controller
 */
 
-#[Route('/<xsl:value-of select="$class_name"/>')]
+#[Route('/<xsl:value-of select="$table_name"/>')]
 class <xsl:value-of select="$class_name"/>Controller extends AbstractController {
 
 	use MetadataBuilder;
@@ -100,7 +101,7 @@ class <xsl:value-of select="$class_name"/>Controller extends AbstractController 
 		$this->translator = $translator;
 	}
 
-    #[Route('/', name: 'app_<xsl:value-of select="$class_name"/>_index', methods: ['GET'])]
+    #[Route('/', name: 'app_<xsl:value-of select="$table_name"/>_index', methods: ['GET'])]
 	public function index(
         Request $request,
         <xsl:value-of select="$class_name"/>Repository $repository,
@@ -119,26 +120,26 @@ class <xsl:value-of select="$class_name"/>Controller extends AbstractController 
 
     }/*}}}*/
 
-	#[Route(path: '/export', name: '<xsl:value-of select="$class_name"/>_export', methods: ['GET'])]
+	#[Route(path: '/export', name: '<xsl:value-of select="$table_name"/>_export', methods: ['GET'])]
     public function exportData(Request $request, <xsl:value-of select="$class_name"/>Service $service )
 	{/*{{{*/
 		return $this->doExportData($request, $service);
     }/*}}}*/
 
-	#[Route(path: '/ajax/list', name: '<xsl:value-of select="$class_name"/>_ajax_list', methods: ['GET'])]
+	#[Route(path: '/ajax/list', name: '<xsl:value-of select="$table_name"/>_ajax_list', methods: ['GET'])]
     public function ajaxList(Request $request, PaginatorInterface $paginator, <xsl:value-of select="$class_name"/>Repository $repository)
 	{/*{{{*/
 		return $this->getAjaxList($request, $paginator, $repository);
 	}/*}}}*/
 
-	#[Route(path: '/new', name: '<xsl:value-of select="$class_name"/>_new', methods: ['GET', 'POST'])]
+	#[Route(path: '/new', name: '<xsl:value-of select="$table_name"/>_new', methods: ['GET', 'POST'])]
     public function new(Request $request, <xsl:value-of select="$class_name"/>Repository $repository): Response
 	{/*{{{*/
 		return $this->editor( $request, new <xsl:value-of select="$class_name"/>(), $repository, <xsl:value-of select="$class_name"/>FormType::class );
     }/*}}}*/
 
-	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>/edit', name: '<xsl:value-of select="$class_name"/>_edit', methods: ['GET', 'POST'])]
-	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>', name: '<xsl:value-of select="$class_name"/>_show', methods: ['GET', 'POST', 'DELETE'])]
+	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>/edit', name: '<xsl:value-of select="$table_name"/>_edit', methods: ['GET', 'POST'])]
+	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>', name: '<xsl:value-of select="$table_name"/>_show', methods: ['GET', 'POST', 'DELETE'])]
     public function edit(Request $request, <xsl:value-of select="$class_name"/> $entity, <xsl:value-of select="$class_name"/>Repository $repository): Response
 	{/*{{{*/
 		return $this->editor( $request, $entity, $repository, <xsl:value-of select="$class_name"/>FormType::class );
