@@ -1659,7 +1659,7 @@ class Doc extends Base {
 
 	}/*}}}*/
 
-	function transform( string $view, \SimpleXMLElement $xdoc = null, array $params = null, $transform_type = null, bool $cache = true ) {/*{{{*/
+	function transform( string $view = null, \SimpleXMLElement $xdoc = null, array $params = null, $transform_type = null, bool $cache = true ) {/*{{{*/
 
 		$tmp_file = null;
 
