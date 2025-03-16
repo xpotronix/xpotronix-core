@@ -49,6 +49,11 @@
                         <command name="reset_password" for="process_start"/>
                </process>
 
+               <process name="validate_code" translate="validate_code" view="json" display="hide">
+                        <acl action="permit" role="anon"/>
+                        <command name="validate_code" for="process_start"/>
+               </process>
+
                <process name="register" translate="register" view="json" display="hide">
                         <acl action="permit" role="anon"/>
                         <command name="register" for="process_start"/>

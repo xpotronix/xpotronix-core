@@ -16,6 +16,10 @@ class users extends DataObject {
 	/* var def */
 
 
+	const DECL_GUARDADA_OK = "La declaración ha sido guardada";
+	const NOTIFICACION_REGISTRO= "%s: solicitud código de autentificación";
+	const NOTIFICACION_ACCESO= "%s: Acceso cedido";
+
 		private $ldap_host;
 		private $ldap_port;
 		private $ldap_version;
@@ -115,87 +119,171 @@ class users extends DataObject {
 		return true;
 	}/*}}}*/
 
-	function add_login( $xml ) {/*{{{*/
-
-		// de ejemplo, no usar , falta agregar a un grupo
-
-		global $xpdoc;
-		@$xml['ID'] and $this->load( $xml['ID'] ) and $xpdoc->perms->addLogin($this->user_id, $this->user_username);
-		return $this;
-	}/*}}}*/
-
         function default_prefs() {/*{{{*/
 
                 $this->load_prefs( 0 );
 
         }/*}}}*/ 
 
-        function change_password() {/*{{{*/
+	/* notificacion */
 
-                global $xpdoc;
-
-                $pass1 = $xpdoc->http->password;
-                $pass2 = $xpdoc->http->password_repeat;
-
-		$this->push_privileges( array( 'edit' => true ) );
-
-		if ( !$pass1 or !$pass2 ) {
-
-			M()->error( "Debe ingresar una clave válida" );
-
-		} else if ( $pass1 != $pass2 ) {
-
-			M()->error( "La claves difieren entre si, por favor, reingrese" );
-	
-		} else if ( ! $this->load( $this->user_id ) ) {
-
-			M()->error( "Usuario Inexistente" );
-
-		} else if ( $xpdoc->user->_anon )  {
-
-			M()->error( "Debe ingresar primero para cambiar la clave" );
-
-		} else if ( $this->user_password == $this->crypt( $pass1 ) ) {
-
-			M()->error( "Debe ingresar una clave diferente a la anterior" );
-
-		} else {
-
-			$this->is_new( false );
-			$this->user_password = $this->crypt( $pass1 ) ;
-			$this->update();
-		}
-
-		$this->pop_privileges();
-
-		$result = array();
-		$result["errors"]["reason"] = implode( '; ', M()->get() );
-		$result["success"] = ( M()->status() == 'ERR' ) ? 0 : 1;
-
-		return $result;
-
-        }/*}}}*/ 
-
-        function login( $user, $pass ) {/*{{{*/
+	function proc_genera_notificacion( $xml ) {/*{{{*/
 
 		global $xpdoc;
 
-		$user = strtolower(trim($user));
+		/* ID via URL o $xml */
 
-		$this->set_flag('main_sql', false);
+		$ID = $xpdoc->http->ID or $ID = $xml['ID'];
+		$this->feat->blob_load = true;
 
-                if ( ( $r = $this->$login_fn( $user, $pass ) ) ) {
+		if ( !$this->load( $ID ) ) {
 
-			$xpdoc->session->set_user_session( $xpdoc->user->user_id );
-			M()->info("ingreso usuario $user" );
+			M()->error( "No encuentro la declaracion con el ID [$ID]" );
+			M()->status( 'ERR' );
 
-		} else {
+			return null;
 
-			M()->info("fallo ingreso usuario $user" );
-                }
+		}
 
-		$this->set_flag('main_sql',true);
-		return $r;
+		$legajo = $xpdoc->user->legajo; 
+	
+		M()->status('OK');
+
+		/* genera_notificacion si el empleado existe */
+
+		$empleado = $xpdoc->get_instance('v_empleado_min');
+
+		if ( $empleado->load( $this->legajo )->loaded() ) {
+
+			$titulo = $this->compose( sprintf( self::NOTIFICACION_REGISTRO, $this->feat->page_title ) );
+
+			$this->genera_notificacion( [
+				'titulo' => $titulo,
+				'legajo' => $this->legajo,
+				'flow_ID' => $this->ID,
+				'email' => $empleado->usuario,
+				'seccion' => 'pase_a_borrador' ] );
+		}
+
+	}/*}}}*/
+
+	function genera_notificacion( array $params ) {/*{{{*/
+
+		global $xpdoc;
+
+		@$legajo = $params['legajo'];
+		@$email = $params['email'];
+
+		/* default domain */
+
+		isset( $params['default_domain'] ) 
+			or $params['default_domain'] = $xpdoc->feat->default_domain;
+
+		if ( !$email ) {
+
+			if ( $legajo ) {
+
+				$email = $xpdoc->get_instance('v_empleado_min')->load($legajo)->usuario;
+
+			} else {
+
+				M()->error( "no hay ni email ni legajos definidos!" );
+			}
+		}
+
+		$params['base_url'] = "{$xpdoc->http->request_scheme}://{$xpdoc->http->http_host}{$xpdoc->http->context_prefix}";
+
+		M()->info( "base_url: ". $params['base_url'] );
+
+		/* genera la notificacion */
+
+		$n = $xpdoc->get_instance( 'notificacion' );
+		$n->reset();
+
+		/* datos de la notificacion */
+
+		$xdoc = $this->serialize_row( \Xpotronix\Serialize::DS_ANY );
+
+		$n->xml_data	= $xdoc->asXML();
+
+		// $this->debug_object(); exit;
+
+		$n->remitente = 'miPortal';
+		isset( $params['remitente'] ) or $params['remitente'] = $n->remitente;
+
+		$n->contenido 	= $xpdoc->transform( 'miportal/licencia/email', $xdoc, $params, 'bridge', false );
+		$n->module 	= $xpdoc->module;
+		$n->key 	= $this->pack_primary_key();
+		$n->titulo 	= $params['titulo'];
+		$n->flow_ID	= $params['flow_ID'];
+
+		$n->legajo	= $legajo;
+		$n->email 	= $email;
+		$n->seccion	= $params['seccion'];
+
+		/* si recibe notificaciones via email segun configuracion perfil */
+		$p = $xpdoc->get_instance( 'perfil' );
+		$p->load( [ 'legajo' => $legajo ] );
+
+		/* si tiene perfil cargado y no quiere recibir emails */
+		$n->enviar_email = ! ( $p->loaded() and $p->recibe_email == false );
+
+		$n->get_attr('fecha_hora')->now();
+		$n->fill_primary_key();
+		$n->push_privileges( [ 'add' => 1 ] );
+		$n->store_xml_response();
+
+		return $n;
+
+	}	/*}}}*/
+
+	/* actions */
+
+	function change_password() {/*{{{*/
+
+			/* oldie, renovar */
+
+			global $xpdoc;
+
+			$pass1 = $xpdoc->http->password;
+			$pass2 = $xpdoc->http->password_repeat;
+
+			$this->push_privileges( array( 'edit' => true ) );
+
+			if ( !$pass1 or !$pass2 ) {
+
+				M()->error( "Debe ingresar una clave válida" );
+
+			} else if ( $pass1 != $pass2 ) {
+
+				M()->error( "La claves difieren entre si, por favor, reingrese" );
+		
+			} else if ( ! $this->load( $this->user_id ) ) {
+
+				M()->error( "Usuario Inexistente" );
+
+			} else if ( $xpdoc->user->_anon )  {
+
+				M()->error( "Debe ingresar primero para cambiar la clave" );
+
+			} else if ( $this->user_password == $this->crypt( $pass1 ) ) {
+
+				M()->error( "Debe ingresar una clave diferente a la anterior" );
+
+			} else {
+
+				$this->is_new( false );
+				$this->user_password = $this->crypt( $pass1 ) ;
+				$this->update();
+			}
+
+			$this->pop_privileges();
+
+			$result = array();
+			$result["errors"]["reason"] = implode( '; ', M()->get() );
+			$result["success"] = ( M()->status() == 'ERR' ) ? 0 : 1;
+
+			return $result;
 
         }/*}}}*/ 
 
@@ -221,6 +309,274 @@ class users extends DataObject {
 		return $ret;
 
 	}/*}}}*/
+
+	/* security procedure */
+
+	function register( $user = null, $pass = null ) {/*{{{*/
+
+		global $xpdoc;
+
+		$xpdoc->set_view( 'json' );
+
+		$result = [];
+
+		if ( ! $this->recaptcha_validate() ) {
+
+			   $result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
+			   $result["success"] = false;
+			   M()->user("fallo ingreso usuario $user" );
+
+		} else {
+
+
+			/*
+            [path] => register
+            [a] => register
+            [v] => json
+            [email] => eduardo@spotorno.com.ar
+            [password] => tirulito
+            [passwordConfirm] => tirulito
+            [nombre] => eduardo 
+            [apellido] => spotorno
+            [genero] => M
+            [fechaNacimiento] => aaaa
+            [dni] => aaaaa
+			[method] => POST
+			 */
+
+			extract( $xpdoc->http->var );
+
+			$empleado = $xpdoc->instance('_empleado');
+
+			$result['success'] = false;
+			$errors = [];
+
+			if ( ! $empleado->bind_post_vars() ) {
+
+				$xpdoc->json = [ 'status' => 'ERR', 'msg' => M()->get() ];
+				return;
+			}
+
+			if ( ! filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+				$errors[] = "Debe especificar un correo electrónico válido";
+			}
+
+			if ( strlen($RUT) < 11 ) {
+				$errors[] = "Debe especificar un RUT válido";
+			}
+
+
+			if ( $password !== $passwordConfirm ) {
+				$errors[] = 'Las claves deben coincidir';
+			}
+
+			$uppercase   = preg_match('@[A-Z]@', $password);
+			$lowercase   = preg_match('@[a-z]@', $password);
+			$number      = preg_match('@[0-9]@', $password);
+			$specialChars = preg_match('@[^\w]@', $password);
+
+			// sin restriccion
+			$uppercase = 1;
+			$lowercase =1;
+			$number =1;
+			$specialChars=1;
+
+			if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) {
+				$errors[] = 'La clave debe contener al menos 8 caracteres e incluir al menos una mayúscula, un número y un caracter especial';
+			}
+
+			if(!$nombre || !$apellido || !$genero || !$RUT || !$f_nac || !$tel_celular ) {
+
+				$errors[] = 'debe ingresar todos los campos';
+
+			}
+
+			if ( count( $errors ) ) {
+			
+				$result["errors"]["reason"] = $errors;
+				$result["success"] = false;
+
+				return $result;
+
+			
+			} else {
+
+				/* datos validos, defaults */			
+
+				$empleado->usuario = $empleado->email;
+				$empleado->fh_ingreso = $empleado->agregado;
+				$empleado->nac = 'ar';
+				$empleado->legajo = $empleado->RUT;
+				$empleado->canal = 'web';
+				$empleado->estado = 'B';
+
+
+				// $empleado->debug_object(); exit;
+
+				$empleado->push_privileges(['add'=>1,'edit'=>1]);
+				$r = $empleado->store();
+
+				/* si efectivamente inserta */
+				if ( $r == INSERT_OP or $r == UPDATE_OP ) {
+
+					$titulo = $empleado->compose( sprintf( self::NOTIFICACION_REGISTRO, $this->feat->page_title ) );
+
+					/* Crea el usuario, asignacion temporal de permisos */
+
+					if ( (bool) ( $user = $this->create( $email, $password, false ) ) ) { /* sin roles */
+
+						M()->info( "usuario $email creado" );
+
+						$user->validation_code = $test = sprintf('%06d', rand(1, 1000000));
+						$user->get_attr( 'validation_code_start_dt' )->now();
+						$user->validation_code_action = 'register';
+
+						$user->update();
+
+						$this->genera_notificacion( [
+						'titulo' => $titulo,
+						'legajo' => $empleado->legajo,
+						'flow_ID' => $empleado->legajo,
+						'email' => $empleado->usuario,
+						'seccion' => 'register' ] );
+					
+						$result["success"] = true;
+
+
+					} else {
+
+						$this->genera_notificacion( [
+						'titulo' => 'ERROR '. $titulo,
+						'legajo' => $empleado->legajo,
+						'flow_ID' => $empleado->legajo,
+						'email' => 'espotorno@jusbaires.gob.ar', /* para test por si falla */
+						'seccion' => 'register' ] );
+					
+						$result["errors"]["reason"] = M()->get();
+						$result["success"] = false;
+						
+					}
+
+				}
+
+				return $result;
+			}
+
+
+		}
+
+   }/*}}}*/ 
+
+
+	function validate_code() {/*{{{*/
+
+		global $xpdoc;
+
+		$xpdoc->set_view( 'json' );
+
+		$result = [];
+
+		if ( ! $this->recaptcha_validate() ) {
+
+			   $result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
+			   $result["success"] = false;
+			   M()->user("fallo ingreso usuario $user" );
+
+		} else {
+
+			// echo "<pre>"; print_r( $xpdoc->http->var ); 
+
+			extract( $xpdoc->http->var );
+
+
+			$result['success'] = false;
+			$errors = [];
+
+			$user = $xpdoc->instance('users');
+
+			$user->set_flag('main_sql',false);
+
+			if ( ( $len = strlen($validation_code) ) != 6 ) {
+
+				$errors[] = "El código de autentificación debe tener 6 dígitos y tiene $len";
+
+			} else if( ! $user->load(['validation_code'=>$validation_code]) ) {
+
+				$errors[] = "Código de autentificación $validation_code inexistente";
+
+			} else if( ! $user->validation_code_start_dt ) {
+
+				$errors[] = "El código de autentificación ha caducado: Solicite un cambio de clave para renovar el acceso";
+			}
+
+			if ( count( $errors ) ) {
+			
+				$result["errors"]["reason"] = $errors;
+				$result["success"] = false;
+
+				return $result;
+			
+			} else {
+
+
+				/* si efectivamente obtiene el rol */
+
+				if ( $user->add_role($user->user_username) ) {
+
+					$empleado = $xpdoc->instance('_empleado');
+					$empleado->set_flag('main_query', false );
+
+					$empleado->load( ['email'=>$user->user_username] );
+
+					$titulo = $empleado->compose( sprintf( self::NOTIFICACION_ACCESO, $this->feat->page_title ) );
+
+					M()->info( "rol cedido a $email" );
+
+					$user->get_attr( 'validation_code_end_dt' )->now();
+
+					$user->update();
+
+					$user->genera_notificacion( [
+					'titulo' => $titulo,
+					'legajo' => $empleado->legajo,
+					'flow_ID' => $empleado->legajo,
+					'email' => $empleado->usuario,
+					'seccion' => 'validate-code' ] );
+				
+					$result["success"] = true;
+
+				}
+
+				return $result;
+			}
+		}
+
+   }/*}}}*/ 
+
+	/* login's */
+
+        function login( $user, $pass ) {/*{{{*/
+
+		global $xpdoc;
+
+		$user = strtolower(trim($user));
+
+		$this->set_flag('main_sql', false);
+
+                if ( ( $r = $this->$login_fn( $user, $pass ) ) ) {
+
+			$xpdoc->session->set_user_session( $xpdoc->user->user_id );
+			M()->info("ingreso usuario $user" );
+
+		} else {
+
+			M()->info("fallo ingreso usuario $user" );
+                }
+
+		$this->set_flag('main_sql',true);
+		return $r;
+
+        }/*}}}*/ 
 
 	function POST_login( $user = null, $pass = null ) {/*{{{*/
 
@@ -485,7 +841,7 @@ class users extends DataObject {
 
 				M()->info( "login exitoso" );
 
-		                $this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+	                $this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
 
 				if ( $this->user_exists( $username ) ) {
 
@@ -498,7 +854,7 @@ class users extends DataObject {
 
 					// DEBUG: mmm le estoy dando permisos al anon para crear usuarios por un segundo, revisar
 
-			                $this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+	                $this->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
 
 					M()->info( "el usuario no existe, creando uno" );
 
@@ -556,37 +912,6 @@ class users extends DataObject {
 
         }/*}}}*/
 
-        function send_password() {/*{{{*/
-
-	}/*}}}*/
-
-	function set_locale() {/*{{{*/
-
-		// DEBUG: cargar los locales del usuario
-	}/*}}}*/
-
-	function is_logged() {/*{{{*/
-
-		return ($this->user_id < 0) ? true : false;
-	}/*}}}*/
-
-	function get_pref( $name ) {/*{{{*/
-
-		return @$this->user_prefs[$name];
-	}/*}}}*/
-
-	function set_pref( $name, $val ) {/*{{{*/
-
-		$this->user_prefs[$name] = $val;
-	}/*}}}*/
-
-	function load_prefs( $user_id=0 ) {/*{{{*/
-
-		$this->user_prefs = new \App\user_preferences;
-		$this->user_prefs->load( $user_id );
-
-	}/*}}}*/
-
  	function authenticate( $username, $password ) {/*{{{*/
 
 		$username = $this->sanitize( $username );
@@ -608,21 +933,10 @@ class users extends DataObject {
 
 	}/*}}}*/
 
-	function user_id( $username ) {/*{{{*/
 
-                if ( $user = $this->load( array( 'user_username' => $username ) ) ) 
-                        return $user->user_id;
-                return NULL;
+	/* user / role mgmt */
 
-	}/*}}}*/
-
-	function user_exists( $username ) {/*{{{*/
-
-		return (bool) $this->user_id( $username ); 
-
-	}/*}}}*/
-
-	 function create( $username, $password, $groups = null) {/*{{{*/
+	 function create( $username, $password, $roles = null) {/*{{{*/
 
 		// recibe el id del grupo (aro_group.id)
 
@@ -634,7 +948,7 @@ class users extends DataObject {
 
 		if ( $this->load( array( 'user_username' => $username ) ) ) {
 
-			M()->user( "El usuario $username ya existe" );
+			M()->user( "El usuario $username ya existe, recupere su clave" );
 			$this->set_flag('main_sql', true );
 			return null;
 		}
@@ -647,7 +961,13 @@ class users extends DataObject {
 
 		if ( $this->store() ) {
 
-			$this->add_role( $username, $groups );
+			if ( $roles !== false ) 
+
+				$this->add_role( $username, $roles );
+
+			else
+
+				M()->info( "usuario $username creado sin roles" );
 
 		} else {
 
@@ -706,20 +1026,20 @@ class users extends DataObject {
 		$ggam = $xpdoc->instance( 'gacl_groups_aro_map' );
 		$gag = $xpdoc->instance( 'gacl_aro_groups' );
 
-                $ggam->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
+		$ggam->push_privileges( array( 'edit' => true, 'add' => true, 'list' => true, 'view' => true ) );
 
 		foreach( $roles as $role ) {
 
-                        if ( ! is_numeric( $role ) ) {
+			if ( ! is_numeric( $role ) ) {
 
-                                if ( ! $gag->load( array( 'value' => $role ) ) ) {
+            	if ( ! $gag->load( array( 'value' => $role ) ) ) {
 
-                                        M()->user( "Rol $role inexistente, ignorado. Revise la configuracion" );
-                                        continue;
+                    M()->user( "Rol $role inexistente, ignorado. Revise la configuracion" );
+                      continue;
 
-                                } else $role_id = $gag->id;
+                } else $role_id = $gag->id;
 
-                        } else $role_id = $role;
+			} else $role_id = $role;
 
 			$io = $ggam->bind_store( array( 'group_id' => $role_id, 'aro_id' => $gacl_aro_id ) );
 
@@ -736,6 +1056,50 @@ class users extends DataObject {
 		$ggam->pop_privileges();
 
 		return $this;
+
+	}/*}}}*/
+
+
+	/* misc */
+
+	function set_locale() {/*{{{*/
+
+		// DEBUG: cargar los locales del usuario
+	}/*}}}*/
+
+	function is_logged() {/*{{{*/
+
+		return ($this->user_id < 0) ? true : false;
+	}/*}}}*/
+
+	function get_pref( $name ) {/*{{{*/
+
+		return @$this->user_prefs[$name];
+	}/*}}}*/
+
+	function set_pref( $name, $val ) {/*{{{*/
+
+		$this->user_prefs[$name] = $val;
+	}/*}}}*/
+
+	function load_prefs( $user_id=0 ) {/*{{{*/
+
+		$this->user_prefs = new \App\user_preferences;
+		$this->user_prefs->load( $user_id );
+
+	}/*}}}*/
+
+	function user_id( $username ) {/*{{{*/
+
+                if ( $user = $this->load( array( 'user_username' => $username ) ) ) 
+                        return $user->user_id;
+                return NULL;
+
+	}/*}}}*/
+
+	function user_exists( $username ) {/*{{{*/
+
+		return (bool) $this->user_id( $username ); 
 
 	}/*}}}*/
 

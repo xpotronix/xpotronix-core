@@ -1565,6 +1565,12 @@ class Doc extends Base {
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
+			case 'validate-code':
+
+				$this->json = $this->user->validate_code();
+				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
+				break;
+
 			case 'logout':
 
 				$this->json = $this->user->logout();
