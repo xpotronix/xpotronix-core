@@ -1279,15 +1279,13 @@ class users extends DataObject {
 	
 		} else {
 
-			$uppercase   = preg_match('@[A-Z]@', $password);
-			$lowercase   = preg_match('@[a-z]@', $password);
-			$number      = preg_match('@[0-9]@', $password);
-			#$specialChars = preg_match('@[^\w]@', $password);
+			preg_match('@[A-Z]@', $password) or $errors[] = "debe incluir al menos una mayúscula";
+			preg_match('@[a-z]@', $password) or $errors[] = "debe incluir al menos una minúscula";
+			preg_match('@[0-9]@', $password) or $errors[] = "debe incluir al menos un número";
+			#preg_match('@[^\w]@', $password) or $errors[] = "debe incluir al menos una caracter especial";
 		}
 
-		if( !$uppercase || !$lowercase || !$number || strlen($password) < 8 ) {
-			$errors[] = 'La clave debe contener al menos 8 caracteres e incluir al menos una mayúscula, un número y un caracter especial';
-		}
+		count( $errors ) and $errors[] = "Clave inválida";
 
 		return $errors;
 
