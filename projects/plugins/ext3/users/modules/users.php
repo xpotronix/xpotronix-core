@@ -17,23 +17,25 @@ class users extends DataObject {
 
 
 	const DECL_GUARDADA_OK = "La declaración ha sido guardada";
-	const NOTIFICACION_REGISTRO= "%s: solicitud código de autentificación";
+	const NOTIFICACION_REGISTRO= "%s: Código de autentificación";
 	const NOTIFICACION_ACCESO= "%s: Acceso cedido";
+	const NOTIFICACION_RESETEO_CLAVE= "%s: Solicitud de reseteo de clave de acceso";
+	const NOTIFICACION_RENOVACION_CLAVE= "%s: Solicitud de renovación de clave de acceso";
 
-		private $ldap_host;
-		private $ldap_port;
-		private $ldap_version;
-		private $ldap_base_dn;
-		private $ldap_search_user;
-		private $ldap_search_pass;	
-		private $ldap_default_domain;	
-		private $ldap_bind_format;	
-		private $ldap_user_filter;
-		private $username;
-		private $fallback;
+	private $ldap_host;
+	private $ldap_port;
+	private $ldap_version;
+	private $ldap_base_dn;
+	private $ldap_search_user;
+	private $ldap_search_pass;	
+	private $ldap_default_domain;	
+	private $ldap_bind_format;	
+	private $ldap_user_filter;
+	private $username;
+	private $fallback;
 
-		var $state;
-		var $user_prefs;
+	var $state;
+	var $user_prefs;
 
 	
 	/* class functions */
@@ -239,53 +241,53 @@ class users extends DataObject {
 
 	/* actions */
 
-	function change_password() {/*{{{*/
+	function change_password_old() {/*{{{*/
 
-			/* oldie, renovar */
+		/* oldie, renovar */
 
-			global $xpdoc;
+		global $xpdoc;
 
-			$pass1 = $xpdoc->http->password;
-			$pass2 = $xpdoc->http->password_repeat;
+		$pass1 = $xpdoc->http->password;
+		$pass2 = $xpdoc->http->password_repeat;
 
-			$this->push_privileges( array( 'edit' => true ) );
+		$this->push_privileges( array( 'edit' => true ) );
 
-			if ( !$pass1 or !$pass2 ) {
+		if ( !$pass1 or !$pass2 ) {
 
-				M()->error( "Debe ingresar una clave válida" );
+			M()->error( "Debe ingresar una clave válida" );
 
-			} else if ( $pass1 != $pass2 ) {
+		} else if ( $pass1 != $pass2 ) {
 
-				M()->error( "La claves difieren entre si, por favor, reingrese" );
-		
-			} else if ( ! $this->load( $this->user_id ) ) {
+			M()->error( "La claves difieren entre si, por favor, reingrese" );
+	
+		} else if ( ! $this->load( $this->user_id ) ) {
 
-				M()->error( "Usuario Inexistente" );
+			M()->error( "Usuario Inexistente" );
 
-			} else if ( $xpdoc->user->_anon )  {
+		} else if ( $xpdoc->user->_anon )  {
 
-				M()->error( "Debe ingresar primero para cambiar la clave" );
+			M()->error( "Debe ingresar primero para cambiar la clave" );
 
-			} else if ( $this->user_password == $this->crypt( $pass1 ) ) {
+		} else if ( $this->user_password == $this->crypt( $pass1 ) ) {
 
-				M()->error( "Debe ingresar una clave diferente a la anterior" );
+			M()->error( "Debe ingresar una clave diferente a la anterior" );
 
-			} else {
+		} else {
 
-				$this->is_new( false );
-				$this->user_password = $this->crypt( $pass1 ) ;
-				$this->update();
-			}
+			$this->is_new( false );
+			$this->user_password = $this->crypt( $pass1 ) ;
+			$this->update();
+		}
 
-			$this->pop_privileges();
+		$this->pop_privileges();
 
-			$result = array();
-			$result["errors"]["reason"] = implode( '; ', M()->get() );
-			$result["success"] = ( M()->status() == 'ERR' ) ? 0 : 1;
+		$result = array();
+		$result["errors"]["reason"] = implode( '; ', M()->get() );
+		$result["success"] = ( M()->status() == 'ERR' ) ? 0 : 1;
 
-			return $result;
+		return $result;
 
-        }/*}}}*/ 
+	}/*}}}*/ 
 
 	function recaptcha_validate() {/*{{{*/
 
@@ -329,21 +331,6 @@ class users extends DataObject {
 		} else {
 
 
-			/*
-            [path] => register
-            [a] => register
-            [v] => json
-            [email] => eduardo@spotorno.com.ar
-            [password] => tirulito
-            [passwordConfirm] => tirulito
-            [nombre] => eduardo 
-            [apellido] => spotorno
-            [genero] => M
-            [fechaNacimiento] => aaaa
-            [dni] => aaaaa
-			[method] => POST
-			 */
-
 			extract( $xpdoc->http->var );
 
 			$empleado = $xpdoc->instance('_empleado');
@@ -357,6 +344,8 @@ class users extends DataObject {
 				return;
 			}
 
+			$email = trim($email);
+
 			if ( ! filter_var($email, FILTER_VALIDATE_EMAIL) ) {
 				$errors[] = "Debe especificar un correo electrónico válido";
 			}
@@ -365,30 +354,11 @@ class users extends DataObject {
 				$errors[] = "Debe especificar un RUT válido";
 			}
 
-
-			if ( $password !== $passwordConfirm ) {
-				$errors[] = 'Las claves deben coincidir';
-			}
-
-			$uppercase   = preg_match('@[A-Z]@', $password);
-			$lowercase   = preg_match('@[a-z]@', $password);
-			$number      = preg_match('@[0-9]@', $password);
-			$specialChars = preg_match('@[^\w]@', $password);
-
-			// sin restriccion
-			$uppercase = 1;
-			$lowercase =1;
-			$number =1;
-			$specialChars=1;
-
-			if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) {
-				$errors[] = 'La clave debe contener al menos 8 caracteres e incluir al menos una mayúscula, un número y un caracter especial';
-			}
-
-			if(!$nombre || !$apellido || !$genero || !$RUT || !$f_nac || !$tel_celular ) {
+			$errors = [...$errors, ...$this->check_password_pair( $password, $passwordConfirm ) ];
+			
+			if( ! ( $nombre and $apellido and $genero and $RUT and $f_nac and $tel_celular ) ) {
 
 				$errors[] = 'debe ingresar todos los campos';
-
 			}
 
 			if ( count( $errors ) ) {
@@ -414,6 +384,7 @@ class users extends DataObject {
 				// $empleado->debug_object(); exit;
 
 				$empleado->push_privileges(['add'=>1,'edit'=>1]);
+
 				$r = $empleado->store();
 
 				/* si efectivamente inserta */
@@ -423,9 +394,14 @@ class users extends DataObject {
 
 					/* Crea el usuario, asignacion temporal de permisos */
 
-					if ( (bool) ( $user = $this->create( $email, $password, false ) ) ) { /* sin roles */
+					$user = $xpdoc->instance('users');
 
-						M()->info( "usuario $email creado" );
+					$user->push_privileges(['edit'=>1,'add'=>1]);
+
+					M()->info( "creando usuario $email ..." );
+
+					if ( (bool) ( $user->create( $email, $password, false ) ) ) { /* sin roles */
+
 
 						$user->validation_code = $test = sprintf('%06d', rand(1, 1000000));
 						$user->get_attr( 'validation_code_start_dt' )->now();
@@ -433,7 +409,7 @@ class users extends DataObject {
 
 						$user->update();
 
-						$this->genera_notificacion( [
+						$user->genera_notificacion( [
 						'titulo' => $titulo,
 						'legajo' => $empleado->legajo,
 						'flow_ID' => $empleado->legajo,
@@ -445,11 +421,11 @@ class users extends DataObject {
 
 					} else {
 
-						$this->genera_notificacion( [
+						$user->genera_notificacion( [
 						'titulo' => 'ERROR '. $titulo,
 						'legajo' => $empleado->legajo,
 						'flow_ID' => $empleado->legajo,
-						'email' => 'espotorno@jusbaires.gob.ar', /* para test por si falla */
+						'email' => $this->feat->test_email, /* para test por si falla */
 						'seccion' => 'register' ] );
 					
 						$result["errors"]["reason"] = M()->get();
@@ -466,7 +442,6 @@ class users extends DataObject {
 		}
 
    }/*}}}*/ 
-
 
 	function validate_code() {/*{{{*/
 
@@ -495,6 +470,8 @@ class users extends DataObject {
 			$user = $xpdoc->instance('users');
 
 			$user->set_flag('main_sql',false);
+
+			$validation_code = trim($validation_code);
 
 			if ( ( $len = strlen($validation_code) ) != 6 ) {
 
@@ -530,7 +507,7 @@ class users extends DataObject {
 
 					$titulo = $empleado->compose( sprintf( self::NOTIFICACION_ACCESO, $this->feat->page_title ) );
 
-					M()->info( "rol cedido a $email" );
+					M()->info( "rol cedido a $user->username" );
 
 					$user->get_attr( 'validation_code_end_dt' )->now();
 
@@ -552,6 +529,170 @@ class users extends DataObject {
 		}
 
    }/*}}}*/ 
+
+	function reset_password() {/*{{{*/
+
+		global $xpdoc;
+
+		$result = [];
+
+		if ( ! $this->recaptcha_validate() ) {
+
+			   $result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
+			   $result["success"] = false;
+			   M()->user("fallo ingreso usuario $user" );
+
+		} else {
+
+			// echo "<pre>"; print_r( $xpdoc->http->var ); 
+
+			extract( $xpdoc->http->var );
+
+			$result['success'] = false;
+			$errors = [];
+
+			$user = $xpdoc->instance('users');
+
+			if ( ! filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+				$errors[] = "Debe especificar un correo electrónico válido";
+			}
+
+			$user->set_flag('main_sql',false);
+
+			if ( ! $user->load( ['user_username'=>$email] ) ) {
+			
+				$errors[] = "El email $email no esta registrado, utilice la opción de registro";
+			
+			}
+
+			if ( count( $errors ) ) {
+			
+				$result["errors"]["reason"] = $errors;
+				$result["success"] = false;
+
+				return $result;
+			
+			} else {
+
+				if ( $user->add_role($user->user_username) ) {
+
+					$titulo = $user->compose( sprintf( self::NOTIFICACION_RESETEO_CLAVE, $this->feat->page_title ) );
+
+					/* Crea el usuario, asignacion temporal de permisos */
+
+					$user->push_privileges(['edit'=>1,'add'=>1]);
+
+					$user->validation_code = $test = sprintf('%06d', rand(1, 1000000));
+					$user->get_attr( 'validation_code_start_dt' )->now();
+					$user->validation_code_action = 'change-password';
+
+					$user->update();
+
+					$empleado = $xpdoc->instance('_empleado');
+					$empleado->set_flag('main_query', false );
+
+					$empleado->load( ['email'=>$user->user_username] );
+
+					$user->genera_notificacion( [
+					'titulo' => $titulo,
+					'legajo' => $empleado->legajo,
+					'flow_ID' => $empleado->legajo,
+					'email' => $empleado->usuario,
+					'seccion' => 'reset-password' ] );
+				
+					$result["success"] = true;
+				}
+
+				return $result;
+			}
+		}
+
+   }/*}}}*/ 
+
+	function change_password() {/*{{{*/
+
+		global $xpdoc;
+
+		$xpdoc->set_view( 'json' );
+
+		$result = [];
+
+		if ( ! $this->recaptcha_validate() ) {
+
+			   $result["errors"]["reason"] = "No se pudo validar el CAPTCHA";
+			   $result["success"] = false;
+			   M()->user("fallo ingreso usuario $user" );
+
+		} else {
+
+			// echo "<pre>"; print_r( $xpdoc->http->var ); 
+
+			extract( $xpdoc->http->var );
+
+
+			$result['success'] = false;
+
+			$user = $xpdoc->instance('users');
+
+			$user->set_flag('main_sql',false);
+
+			$errors = $user->check_password_pair( $password, $passwordConfirm );
+
+			$validation_code = trim($validation_code);
+
+			if ( ( $len = strlen($validation_code) ) != 6 ) {
+
+				$errors[] = "El código de autentificación debe tener 6 dígitos y tiene $len";
+
+			} else if( ! $user->load(['validation_code'=>$validation_code]) ) {
+
+				$errors[] = "Código de autentificación $validation_code inexistente";
+
+			} else if( ! $user->validation_code_start_dt ) {
+
+				$errors[] = "El código de autentificación ha caducado: Solicite un cambio de clave para renovar el acceso";
+			}
+
+			if ( count( $errors ) ) {
+			
+				$result["errors"]["reason"] = $errors;
+				$result["success"] = false;
+
+				return $result;
+			
+			} else {
+
+
+				$empleado = $xpdoc->instance('_empleado');
+				$empleado->set_flag('main_query', false );
+
+				$empleado->load( ['email'=>$user->user_username] );
+
+				$titulo = $empleado->compose( sprintf( self::NOTIFICACION_RENOVACION_CLAVE, $this->feat->page_title ) );
+
+				$user->user_password = $this->crypt( $password ) ;
+				$user->push_privileges(['edit'=>1,'add'=>1]);
+				$user->update();
+
+				$user->get_attr( 'validation_code_end_dt' )->now();
+
+				$user->update();
+
+				$user->genera_notificacion( [
+				'titulo' => $titulo,
+				'legajo' => $empleado->legajo,
+				'flow_ID' => $empleado->legajo,
+				'email' => $empleado->usuario,
+				'seccion' => 'change-password' ] );
+			
+				$result["success"] = true;
+
+				return $result;
+			}
+		}
+
+   }/*}}}*/ 
+
 
 	/* login's */
 
@@ -961,13 +1102,14 @@ class users extends DataObject {
 
 		if ( $this->store() ) {
 
-			if ( $roles !== false ) 
-
+			if ( $roles !== false ) {
+			
 				$this->add_role( $username, $roles );
-
-			else
-
+			} else {
+			
 				M()->info( "usuario $username creado sin roles" );
+			
+			}
 
 		} else {
 
@@ -1105,7 +1247,7 @@ class users extends DataObject {
 
 	function crypt( $string ) {/*{{{*/
 
-		M()->debug( 'llamo a crypt con el valor: '. $string );
+		// M()->debug( 'llamo a crypt con el valor: '. $string );
 		return md5( $this->sanitize( $string ) );
 
 	}/*}}}*/
@@ -1118,7 +1260,37 @@ class users extends DataObject {
 
 	}/*}}}*/
 
+	function check_password_pair( $password, $passwordConfirm, $weak = false ) {/*{{{*/
 
+		$errors = [];
+	
+		if ( $password !== $passwordConfirm ) {
+			$errors[] = 'Las claves deben coincidir';
+		}
+
+		if ( $weak ) {
+
+			// sin restriccion
+			$uppercase = 1;
+			$lowercase =1;
+			$number =1;
+			$specialChars=1;
+	
+		} else {
+
+			$uppercase   = preg_match('@[A-Z]@', $password);
+			$lowercase   = preg_match('@[a-z]@', $password);
+			$number      = preg_match('@[0-9]@', $password);
+			#$specialChars = preg_match('@[^\w]@', $password);
+		}
+
+		if( !$uppercase || !$lowercase || !$number || strlen($password) < 8 ) {
+			$errors[] = 'La clave debe contener al menos 8 caracteres e incluir al menos una mayúscula, un número y un caracter especial';
+		}
+
+		return $errors;
+
+	}/*}}}*/
 
 }
 
