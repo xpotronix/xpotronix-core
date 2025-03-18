@@ -574,34 +574,32 @@ class users extends DataObject {
 			
 			} else {
 
-				if ( $user->add_role($user->user_username) ) {
 
-					$titulo = $user->compose( sprintf( self::NOTIFICACION_RESETEO_CLAVE, $this->feat->page_title ) );
+				$titulo = $user->compose( sprintf( self::NOTIFICACION_RESETEO_CLAVE, $this->feat->page_title ) );
 
-					/* Crea el usuario, asignacion temporal de permisos */
+				/* Crea el usuario, asignacion temporal de permisos */
 
-					$user->push_privileges(['edit'=>1,'add'=>1]);
+				$user->push_privileges(['edit'=>1,'add'=>1]);
 
-					$user->validation_code = $test = sprintf('%06d', rand(1, 1000000));
-					$user->get_attr( 'validation_code_start_dt' )->now();
-					$user->validation_code_action = 'change-password';
+				$user->validation_code = $test = sprintf('%06d', rand(1, 1000000));
+				$user->get_attr( 'validation_code_start_dt' )->now();
+				$user->validation_code_action = 'change-password';
 
-					$user->update();
+				$user->update();
 
-					$empleado = $xpdoc->instance('_empleado');
-					$empleado->set_flag('main_query', false );
+				$empleado = $xpdoc->instance('_empleado');
+				$empleado->set_flag('main_query', false );
 
-					$empleado->load( ['email'=>$user->user_username] );
+				$empleado->load( ['email'=>$user->user_username] );
 
-					$user->genera_notificacion( [
-					'titulo' => $titulo,
-					'legajo' => $empleado->legajo,
-					'flow_ID' => $empleado->legajo,
-					'email' => $empleado->usuario,
-					'seccion' => 'reset-password' ] );
-				
-					$result["success"] = true;
-				}
+				$user->genera_notificacion( [
+				'titulo' => $titulo,
+				'legajo' => $empleado->legajo,
+				'flow_ID' => $empleado->legajo,
+				'email' => $empleado->usuario,
+				'seccion' => 'reset-password' ] );
+			
+				$result["success"] = true;
 
 				return $result;
 			}
