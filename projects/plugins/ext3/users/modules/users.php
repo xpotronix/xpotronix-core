@@ -662,6 +662,7 @@ class users extends DataObject {
 			
 			} else {
 
+				$user->add_role($user->user_username); /* agrega el rol por default */
 
 				$empleado = $xpdoc->instance('_empleado');
 				$empleado->set_flag('main_query', false );
