@@ -334,6 +334,7 @@ class users extends DataObject {
 			extract( $xpdoc->http->var );
 
 			$empleado = $xpdoc->instance('_empleado');
+			$user = $xpdoc->instance('users');
 
 			$result['success'] = false;
 			$errors = [];
@@ -350,8 +351,17 @@ class users extends DataObject {
 				$errors[] = "Debe especificar un correo electrónico válido";
 			}
 
+			$user->set_flag('main_sql',false);
+			if( $user->load( ['user_username'=>$email] ) ) {
+				$errors[] = "El usuario $email ya está registrado, recupere su clave";
+			}
+
 			if ( strlen($RUT) < 11 ) {
 				$errors[] = "Debe especificar un RUT válido";
+			}
+
+			if( $empleado->load( ['RUT'=>$RUT] ) ) {
+				$errors[] = "El RUT/CUIL/CUIT $RUT ya está registrado";
 			}
 
 			$errors = [...$errors, ...$this->check_password_pair( $password, $passwordConfirm ) ];
@@ -373,10 +383,10 @@ class users extends DataObject {
 
 				/* datos validos, defaults */			
 
-				$empleado->usuario = $empleado->email;
-				$empleado->fh_ingreso = $empleado->agregado;
+				$empleado->usuario = trim($empleado->email);
+				$empleado->fh_ingreso = trim($empleado->agregado);
 				$empleado->nac = 'ar';
-				$empleado->legajo = $empleado->RUT;
+				$empleado->legajo = trim($empleado->RUT);
 				$empleado->canal = 'web';
 				$empleado->estado = 'B';
 
@@ -394,7 +404,6 @@ class users extends DataObject {
 
 					/* Crea el usuario, asignacion temporal de permisos */
 
-					$user = $xpdoc->instance('users');
 
 					$user->push_privileges(['edit'=>1,'add'=>1]);
 
@@ -498,31 +507,29 @@ class users extends DataObject {
 
 				/* si efectivamente obtiene el rol */
 
-				if ( $user->add_role($user->user_username) ) {
+				$user->add_role($user->user_username);
 
-					$empleado = $xpdoc->instance('_empleado');
-					$empleado->set_flag('main_query', false );
+				$empleado = $xpdoc->instance('_empleado');
+				$empleado->set_flag('main_query', false );
 
-					$empleado->load( ['email'=>$user->user_username] );
+				$empleado->load( ['email'=>$user->user_username] );
 
-					$titulo = $empleado->compose( sprintf( self::NOTIFICACION_ACCESO, $this->feat->page_title ) );
+				$titulo = $empleado->compose( sprintf( self::NOTIFICACION_ACCESO, $this->feat->page_title ) );
 
-					M()->info( "rol cedido a $user->username" );
+				M()->info( "rol cedido a $user->username" );
 
-					$user->get_attr( 'validation_code_end_dt' )->now();
+				$user->get_attr( 'validation_code_end_dt' )->now();
 
-					$user->update();
+				$user->update();
 
-					$user->genera_notificacion( [
-					'titulo' => $titulo,
-					'legajo' => $empleado->legajo,
-					'flow_ID' => $empleado->legajo,
-					'email' => $empleado->usuario,
-					'seccion' => 'validate-code' ] );
-				
-					$result["success"] = true;
-
-				}
+				$user->genera_notificacion( [
+				'titulo' => $titulo,
+				'legajo' => $empleado->legajo,
+				'flow_ID' => $empleado->legajo,
+				'email' => $empleado->usuario,
+				'seccion' => 'validate-code' ] );
+			
+				$result["success"] = true;
 
 				return $result;
 			}
