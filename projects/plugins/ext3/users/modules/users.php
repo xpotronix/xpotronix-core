@@ -383,12 +383,20 @@ class users extends DataObject {
 
 				/* datos validos, defaults */			
 
-				$empleado->usuario = trim($empleado->email);
-				$empleado->fh_ingreso = trim($empleado->agregado);
+				$empleado->usuario = trim($email);
+				$empleado->email = trim($email);
+				$empleado->get_attr( 'fh_ingreso' )->now();
 				$empleado->nac = 'ar';
-				$empleado->legajo = trim($empleado->RUT);
+				$empleado->legajo = trim($RUT);
 				$empleado->canal = 'web';
 				$empleado->estado = 'B';
+
+				$empleado->nombre = $nombre;
+				$empleado->apellido = $apellido;
+				$empleado->genero = $genero;
+				$empleado->RUT = $RUT;
+				$empleado->f_nac = $f_nac;
+				$empleado->tel_celular = $tel_celular;
 
 
 				// $empleado->debug_object(); exit;
@@ -403,7 +411,6 @@ class users extends DataObject {
 					$titulo = $empleado->compose( sprintf( self::NOTIFICACION_REGISTRO, $this->feat->page_title ) );
 
 					/* Crea el usuario, asignacion temporal de permisos */
-
 
 					$user->push_privileges(['edit'=>1,'add'=>1]);
 
