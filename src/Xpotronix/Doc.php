@@ -1554,22 +1554,45 @@ class Doc extends Base {
 
 			case 'login':
 
-				// $this->set_view( 'json' );
 				$this->json = $this->user->POST_login();
+				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
+				break;
+
+
+			case 'login-email':
+
+				$this->json = $this->user->POST_email_login();
+				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
+				break;
+
+			case 'validate-code':
+
+				$this->json = $this->user->validate_code();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
 			case 'logout':
 
-				// $this->set_view( 'json' );
 				$this->json = $this->user->logout();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
 			case 'change_password':
+			case 'change-password':
 
-				// $this->set_view( 'json' );
 				$this->json = $this->user->change_password();
+				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
+				break;
+
+			case 'reset-password':
+
+				$this->json = $this->user->reset_password();
+				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
+				break;
+
+			case 'register':
+
+				$this->json = $this->user->register();
 				if ( ( $audit = $this->instance('audit') ) ) $audit->record();
 				break;
 
@@ -1659,7 +1682,7 @@ class Doc extends Base {
 
 	}/*}}}*/
 
-	function transform( string $view, \SimpleXMLElement $xdoc = null, array $params = null, $transform_type = null, bool $cache = true ) {/*{{{*/
+	function transform( string $view = null, \SimpleXMLElement $xdoc = null, array $params = null, $transform_type = null, bool $cache = true ) {/*{{{*/
 
 		$tmp_file = null;
 
