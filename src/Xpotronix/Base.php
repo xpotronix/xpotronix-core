@@ -328,9 +328,8 @@ class Base {
 
 			/* config Properties */
 
-			$validation and $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/schema-validation', 'preserve' ); // preserve: 4
-
-			// $proc->setConfigurationProperty( 'http://saxon.sf.net/feature/allow-external-functions', true );
+			$validation and $saxonProc->setConfigurationProperty( 'http://saxon.sf.net/feature/schema-validation', 'preserve' );
+			$saxonProc->setConfigurationProperty( 'http://saxon.sf.net/feature/allow-external-functions', true );
 
 			$inputNode = $saxonProc->parseXmlFromFile( $xml_file );
 			M()->debug( "xml_file: $xml_file" );
