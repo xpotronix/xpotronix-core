@@ -26,7 +26,14 @@
 		</xsl:variable>
 
 		<xsl:variable name="class_name">
-			<xsl:value-of select="local:snake2camel(@name)"/>
+			<xsl:choose>
+				<xsl:when test="$camelize_class">
+					<xsl:value-of select="local:snake2camel(@name)"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="@name"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->

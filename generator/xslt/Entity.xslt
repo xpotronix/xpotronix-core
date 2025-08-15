@@ -29,8 +29,17 @@
 		</xsl:variable>
 
 		<xsl:variable name="class_name">
-			<xsl:value-of select="local:snake2camel(@name)"/>
+			<xsl:choose>
+				<xsl:when test="$camelize_class">
+					<xsl:value-of select="local:snake2camel(@name)"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="@name"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:variable>
+
+
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
 		<xsl:variable name="class_file_name" select="concat($path_prefix,$final_mapping_path,'/',$class_name,'.php')"/>
@@ -244,16 +253,26 @@ public function PrePersist() {
 
 <xsl:function name="local:snake2camel">
 
-    <xsl:param name="varName"/>
+    <xsl:param name="input"/>
+    <xsl:value-of select="string-join( 
+							for $part in tokenize($input, '_')
+  								return concat( upper-case(substring($part, 1, 1)), substring($part, 2) )
+							, '')" />
+</xsl:function>
+
+<xsl:function name="local:snake2camel2">
+
+    <xsl:param name="input"/>
     <xsl:value-of select="
 	concat(
-		upper-case(substring($varName, 1, 1)),
-		substring(string-join(for $word in tokenize($varName, '_')
+		upper-case(substring($input, 1, 1)),
+		substring(string-join(for $word in tokenize($input, '_')
 			return concat(
 			upper-case(substring($word, 1, 1)),
 			substring($word, 2)), '')
 	, 2))" />
 </xsl:function>
+
 
 
 </xsl:stylesheet>

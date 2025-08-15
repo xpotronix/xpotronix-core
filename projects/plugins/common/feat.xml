@@ -91,7 +91,7 @@
 
 	<!-- transformacion de la aplicacion -->
 
-	<transform>bridge</transform>
+	<transform>saxon</transform>
 	<default_view>ext4new/viewport</default_view>
 
 	<!-- serializacion -->

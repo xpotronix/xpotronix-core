@@ -26,7 +26,14 @@
 		</xsl:variable>
 
 		<xsl:variable name="class_name">
-			<xsl:value-of select="local:snake2camel(@name)"/>
+			<xsl:choose>
+				<xsl:when test="$camelize_class">
+					<xsl:value-of select="local:snake2camel(@name)"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="@name"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
@@ -83,6 +90,11 @@ use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of 
 class <xsl:value-of select="$class_name"/>Repository extends ServiceEntityRepository {
 
 	use FilterBuilder;
+
+<xsl:if test="@RepositoryTrait">
+use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
+</xsl:if>
+
 
 	private $translator;
 	private $locale;

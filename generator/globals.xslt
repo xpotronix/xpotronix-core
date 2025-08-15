@@ -107,9 +107,11 @@
 
 	<xsl:variable name="mapping_path_suffix" select="$config_collection/config/mapping_path_suffix"/>
 
+	<xsl:variable name="camelize_class" select="$config_collection/config/camelize_class"/>
+
 	<xsl:variable name="final_mapping_path_suffix" >
 		<xsl:if test="$mapping_path_suffix!=''">
-			<xsl:value-of select="concat('\\',$mapping_path_suffix)"/>
+			<xsl:value-of select="concat('\',$mapping_path_suffix)"/>
 		</xsl:if>
 	</xsl:variable>
 
