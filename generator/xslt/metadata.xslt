@@ -50,7 +50,7 @@
 			<xsl:choose>
 				<xsl:when test="not($tb_table)">
 				<xsl:attribute name="virtual" select="1"/>
-				<xsl:message>la tabla <xsl:value-of select="$table_name"/> no esta definida en tables.xml</xsl:message>
+				<!--<xsl:message>la tabla <xsl:value-of select="$table_name"/> no esta definida en tables.xml</xsl:message> -->
 				</xsl:when>
 			     	<xsl:otherwise>
 					<xsl:attribute name="persistent" select="1"/>
@@ -310,7 +310,7 @@
 
 			<xsl:if test="not($tb_field)">
 				<xsl:if test="$tb_table">
-					<xsl:message>atributo virtual: <xsl:value-of select="concat($table_name,'/',$field_name)"/></xsl:message>
+					<!-- <xsl:message>atributo virtual: <xsl:value-of select="concat($table_name,'/',$field_name)"/></xsl:message> -->
 				</xsl:if>
 				<xsl:attribute name="virtual" select="1"/>
 			</xsl:if>
@@ -330,7 +330,7 @@
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:if test="$all_documents/tables/table[@name=$table_name]">
-                      		<xsl:message>La tabla <xsl:value-of select="$table_name"/> no tiene clave primaria definida</xsl:message>
+						<!-- <xsl:message>La tabla <xsl:value-of select="$table_name"/> no tiene clave primaria definida</xsl:message> -->
 					</xsl:if>
 				</xsl:otherwise>
 			</xsl:choose>
