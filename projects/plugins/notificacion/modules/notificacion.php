@@ -200,7 +200,7 @@ class notificacion extends DataObject {
 
 		$xdoc = $obj->serialize_row( \Xpotronix\Serialize::DS_ANY );
 
-		$this->contenido = $xpdoc->transform( 'miportal/licencia/email', $xdoc, $params, 'bridge', false );
+		$this->contenido = $xpdoc->transform( 'miportal/licencia/email', $xdoc, $params, 'saxon', false );
 
 		$this->update();
 	}

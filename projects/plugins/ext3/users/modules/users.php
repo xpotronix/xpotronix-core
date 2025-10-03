@@ -213,7 +213,7 @@ class users extends DataObject {
 		$n->remitente = 'miPortal';
 		isset( $params['remitente'] ) or $params['remitente'] = $n->remitente;
 
-		$n->contenido 	= $xpdoc->transform( 'miportal/licencia/email', $xdoc, $params, 'bridge', false );
+		$n->contenido 	= $xpdoc->transform( 'miportal/licencia/email', $xdoc, $params, 'saxon', false );
 		$n->module 	= $xpdoc->module;
 		$n->key 	= $this->pack_primary_key();
 		$n->titulo 	= $params['titulo'];
