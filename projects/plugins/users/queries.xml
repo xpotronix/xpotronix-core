@@ -11,10 +11,11 @@
 -->
 
 <queries>
-  <query name="user_id">
-	 <id>users.user_id</id>
-	 <label>users.user_username</label>
-	 <from>users</from>
- <order>users.user_username</order>
-  </query>
+	<query name="user_id">
+		<id>us.user_id</id>
+		<label>us.user_username</label>
+		<from>users</from>
+		<alias>us</alias>
+		<order>us.user_username</order>
+	</query>
 </queries>

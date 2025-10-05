@@ -12,23 +12,26 @@
 
 <queries>
   <query name="acl_id">
-	 <id>gacl_acl.id</id>
-	 <label>concat( gacl_acl.note, ': permite ', gacl_acl.allow, ', activado ', gacl_acl.enabled)</label>
+	 <id>ga.id</id>
+	 <label>concat( ga.note, ': permite ', ga.allow, ', activado ', ga.enabled)</label>
 	 <from>gacl_acl</from>
+	 <alias>ga</alias>
   </query>
 
   <query name="acl_section_value">
-	 <id>gacl_acl_sections.value</id>
-	 <label>gacl_acl_sections.name</label>
+	 <id>gas.value</id>
+	 <label>gas.name</label>
 	 <from>gacl_acl_sections</from>
-	 <order_by>order_value</order_by>
+	 <alias>gas</alias>
+	 <order_by>gas.order_value</order_by>
   </query>
 
   <query name="aco_section_value">
-	 <id>gacl_aco_sections.value</id>
-	 <label>gacl_aco_sections.name</label>
+	 <id>gas.value</id>
+	 <label>gas.name</label>
 	 <from>gacl_aco_sections</from>
-	 <order_by>order_value</order_by>
+	 <alias>gas</alias>
+	 <order_by>gas.order_value</order_by>
   </query>
 
   <query name="aro_section_value">
