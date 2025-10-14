@@ -94,7 +94,7 @@ class Sync {
 		exit;
 		*/
 
-		$this->obj->execute( $sql_create );
+		$this->obj->execute( $sql_create )->fetch();
 
 		if ( $this->obj->table_exists( $table_name ) !== false ) 
 			M()->user( "la tabla $table_name fue creada con exito" );
