@@ -81,7 +81,10 @@ use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of 
 use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
 use App\Form<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>FormType;
 
-use App\Controller\Common\MetadataBuilder;
+use App\Form\ImportType;
+
+use XpotronixUtilsBundle\Controller\Common\MetadataBuilder;
+use XpotronixUtilsBundle\Service\Common\XpotronixService;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -91,6 +94,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
 * <xsl:value-of select="$class_name"/> Controller
@@ -101,56 +110,65 @@ class <xsl:value-of select="$class_name"/>Controller extends AbstractController 
 
 	use MetadataBuilder;
 
-	private $em;
+    function __construct( private EntityManagerInterface $em, 
+        private TranslatorInterface $translator) {}
 
-	function __construct( EntityManagerInterface $em , TranslatorInterface $translator) {
-		$this->em = $em;
-		$this->translator = $translator;
-	}
-
-    #[Route('/', name: 'app_<xsl:value-of select="$table_name"/>_index', methods: ['GET'])]
+    #[Route('/', name: 'app_<xsl:value-of select="$table_name"/>_index', methods: ['GET','POST'])]
 	public function index(
         Request $request,
         <xsl:value-of select="$class_name"/>Repository $repository,
-        TranslatorInterface $translator
+        XpotronixService $service
 	): Response
-	{/*{{{*/
+        {/*{{{*/
 
-        $qb = $repository->getListQuery( $request->getLocale() );
+		$entity = new Alumno();
 
-        return $this->render('default/index.html.twig', [
-            'gridConfig' => [
-                $repository->getEntityNameSneak() =>
-                    $this->getGridConfig($repository, $qb)
-            ]
-		]);
+		return $this->gridWithForm( $request, $repository, $service, $entity);
 
     }/*}}}*/
 
 	#[Route(path: '/export', name: '<xsl:value-of select="$table_name"/>_export', methods: ['GET'])]
-    public function exportData(Request $request, <xsl:value-of select="$class_name"/>Service $service )
+    public function exportData(Request $request, <xsl:value-of select="$class_name"/>Repository $repository, XpotronixService $service )
 	{/*{{{*/
-		return $this->doExportData($request, $service);
+		return $this->doExportData($request, $repository, $service);
     }/*}}}*/
 
-	#[Route(path: '/ajax/list', name: '<xsl:value-of select="$table_name"/>_ajax_list', methods: ['GET'])]
-    public function ajaxList(Request $request, PaginatorInterface $paginator, <xsl:value-of select="$class_name"/>Repository $repository)
+    #[Route(path: '/ajax/list', name: '<xsl:value-of select="$table_name"/>_ajax_list', methods: ['GET'])]
+    public function ajaxList(XpotronixService $service, Request $request, PaginatorInterface $paginator, <xsl:value-of select="$class_name"/> $repository)
 	{/*{{{*/
-		return $this->getAjaxList($request, $paginator, $repository);
+		return $this->getAjaxList($request, $paginator, $repository, $service);
 	}/*}}}*/
 
-	#[Route(path: '/new', name: '<xsl:value-of select="$table_name"/>_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, <xsl:value-of select="$class_name"/>Repository $repository): Response
+	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>/edit', name: '<xsl:value-of select="$table_name"/>_edit', methods: ['GET', 'POST'])]
+    public function edit( XpotronixService $service, Request $request, <xsl:value-of select="$class_name"/> $entity, <xsl:value-of select="$class_name"/>Repository $repository): Response
 	{/*{{{*/
-		return $this->editor( $request, new <xsl:value-of select="$class_name"/>(), $repository, <xsl:value-of select="$class_name"/>FormType::class );
+		return $this->editorAjax( $request, $entity, $repository, $service );
     }/*}}}*/
 
-	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>/edit', name: '<xsl:value-of select="$table_name"/>_edit', methods: ['GET', 'POST'])]
-	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>', name: '<xsl:value-of select="$table_name"/>_show', methods: ['GET', 'POST', 'DELETE'])]
-    public function edit(Request $request, <xsl:value-of select="$class_name"/> $entity, <xsl:value-of select="$class_name"/>Repository $repository): Response
+	#[Route(path: '/new', name: '<xsl:value-of select="$table_name"/>_new', methods: ['GET', 'POST'])]
+	public function new( XpotronixService $service, Request $request, <xsl:value-of select="$class_name"/>Repository $repository): Response
 	{/*{{{*/
-		return $this->editor( $request, $entity, $repository, <xsl:value-of select="$class_name"/>FormType::class );
+		$entity = new <xsl:value-of select="$class_name"/>();
+		return $this->editorAjax( $request, $entity, $repository, $service );
     }/*}}}*/
+
+	#[Route(path: '/show/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>', name: '<xsl:value-of select="$table_name"/>_show', methods: ['GET', 'POST'])]
+	public function show(XpotronixService $service, Request $request, <xsl:value-of select="$class_name"/> $entity, <xsl:value-of select="$class_name"/>Repository $repository): Response
+	{/*{{{*/
+		return $this->editor( $request, $entity, $repository, $service );
+	}/*}}}*/
+
+	#[Route(path: '/delete', name: '<xsl:value-of select="$table_name"/>_delete_many', methods: ['POST'])]
+	public function deleteMany( Request $request, <xsl:value-of select="$class_name"/>Repository $repository ): Response
+	{/*{{{*/
+		return $this->deleterAjax($request, $repository);
+	}/*}}}*/
+
+	#[Route(path: '/<xsl:apply-templates select="$table_metadata/obj/primary_key" mode="generate_route_keys"/>/{child}', name: '<xsl:value-of select="$table_name"/>_children', methods: ['GET', 'POST'])]
+	public function children( XpotronixService $service, Request $request, <xsl:value-of select="$class_name"/> $entity, string $child )
+	{/*{{{*/
+		return $this->getJsonChild( $request, $entity, $child, $service ); 
+	}/*}}}*/
 
 }
 
