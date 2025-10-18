@@ -16,6 +16,18 @@ class xpString extends xpText {
 
 // filtros de validacion especificas para xpstring
 
+    function obfuscate( $value = NULL ) {/*{{{*/
+
+		if ( $value === NULL ) $value = $this->value;
+
+        if ( in_array( $this->name, ['nombre', 'usuario', 'ap_nom', 'email_alternativo', 'email_laboral', 'apellido'] ) ) {
+            $value = preg_replace('/[A-Za-z]/xms', '▓', $value);
+        }
+	
+		return ( $this->escape ) ? htmlspecialchars( $value ): $value;
+
+	}/*}}}*/
+
 	function unique() {/*{{{*/
 
 		global $xpdoc;
