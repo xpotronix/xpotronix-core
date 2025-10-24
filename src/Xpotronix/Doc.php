@@ -1884,8 +1884,8 @@ class Doc extends Base {
 
 					break;
 
-				case 'fo':
-				case 'fop':
+				case 'fo-bridge':
+				case 'fop-bridge':
 
 					$tmp_pdf_file = "$tmp_path/$tmp_filename.pdf";
 
@@ -1921,8 +1921,10 @@ class Doc extends Base {
 						$this->output_buffer = $this->get_messages()->asXML(); 
 					}
 
-					break;
+                    break;
 
+				case 'fo':
+				case 'fop':
 				case 'system_fop':
 
 					$tmp_pdf_file = "$tmp_path/$tmp_filename.pdf";

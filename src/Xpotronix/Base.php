@@ -215,7 +215,7 @@ class Base {
 
 	function fop_transform( $xml_file, $xsl_file, $params = null, $output_path, $output_file ) {/*{{{*/
 
-		M()->user("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
+		M()->info("recibi parametros: $xml_file, $xsl_file ". serialize( $params ) );
 
 		try {
 			$options = [
@@ -314,7 +314,7 @@ class Base {
 
 	function saxon_transform( $xml_file, $xsl_file, $params = null, $validation = false ) {/*{{{*/
 
-		M()->user("recibi parametros: $xml_file, $xsl_file ". json_encode( $params ) );
+		M()->info("recibi parametros: $xml_file, $xsl_file ". json_encode( $params ) );
 
 		/* procesador */
 
