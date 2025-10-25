@@ -29,7 +29,7 @@
 		</xsl:variable>
 
 		<!-- <xsl:variable name="class_file_name" select="concat($path_prefix,$class_name,'.class.php')"/> -->
-        <xsl:variable name="class_file_name" select="concat($path_prefix,$final_mapping_path,'/',$class_name,'FormType.php')"/>
+        <xsl:variable name="class_file_name" select="concat($path_prefix,$final_mapping_path,'/',$class_name,'Type.php')"/>
 
 		<xsl:variable name="table_name" select="@name"/>
 
@@ -79,10 +79,10 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
 /**
-* <xsl:value-of select="$class_name"/> FormType
+* <xsl:value-of select="$class_name"/>Type
 */
 
-class <xsl:value-of select="$class_name"/>FormType extends AbstractType {
+class <xsl:value-of select="$class_name"/>Type extends AbstractType {
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

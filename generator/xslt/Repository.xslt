@@ -80,7 +80,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-use App\Repository\Common\FilterBuilder;
+use XpotronixUtilsBundle\Repository\Common\FilterBuilder;
 use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
 
 /**
