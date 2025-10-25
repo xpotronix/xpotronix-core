@@ -212,7 +212,7 @@ public function PrePersist() {
 
 	<xsl:variable name="returnType">
 		<xsl:choose>
-			<xsl:when test="@doctrineType=('integer')">int</xsl:when>
+			<xsl:when test="@doctrineType=('integer','bigint')">int</xsl:when>
 			<xsl:when test="@doctrineType='boolean'">bool</xsl:when>
 			<xsl:when test="@doctrineType=('varchar','char','text','mediumtext', 'longtext','decimal')">string</xsl:when>
 			<xsl:when test="@doctrineType='json'">array</xsl:when>
