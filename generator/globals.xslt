@@ -105,19 +105,19 @@
 
 	</xsl:variable><!--}}}-->
 
-	<xsl:variable name="mapping_path_suffix" select="$config_collection/config/mapping_path_suffix"/>
+	<xsl:variable name="mapping_path_prefix" select="$config_collection/config/mapping_path_prefix"/>
 
 	<xsl:variable name="camelize_class" select="$config_collection/config/camelize_class"/>
 
-	<xsl:variable name="final_mapping_path_suffix" >
-		<xsl:if test="$mapping_path_suffix!=''">
-			<xsl:value-of select="concat('\',$mapping_path_suffix)"/>
+	<xsl:variable name="final_mapping_path_prefix" >
+		<xsl:if test="$mapping_path_prefix!=''">
+			<xsl:value-of select="concat('\',$mapping_path_prefix)"/>
 		</xsl:if>
 	</xsl:variable>
 
 	<xsl:variable name="final_mapping_path" >
-		<xsl:if test="$mapping_path_suffix!=''">
-			<xsl:value-of select="concat('/',$mapping_path_suffix)"/>
+		<xsl:if test="$mapping_path_prefix!=''">
+			<xsl:value-of select="concat('/',$mapping_path_prefix)"/>
 		</xsl:if>
 	</xsl:variable>
 

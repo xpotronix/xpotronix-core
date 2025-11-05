@@ -74,14 +74,14 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>;
+namespace App\Repository<xsl:value-of select="$final_mapping_path_prefix"/>;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use XpotronixUtilsBundle\Repository\Common\FilterBuilder;
-use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
+use App\Entity<xsl:value-of select="$final_mapping_path_prefix"/>\<xsl:value-of select="$class_name"/>;
 
 /**
 * <xsl:value-of select="$class_name"/> Repository
@@ -92,7 +92,7 @@ class <xsl:value-of select="$class_name"/>Repository extends ServiceEntityReposi
 	use FilterBuilder;
 
 <xsl:if test="@RepositoryTrait">
-use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
+use App\Repository<xsl:value-of select="$final_mapping_path_prefix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
 </xsl:if>
 
 

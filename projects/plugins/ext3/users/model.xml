@@ -14,7 +14,7 @@
 
 	<!-- Usuarios del Sistema -->
 
-	<table name="users" translate="Usuarios del Sistema" source="../../plugins/ext3/users/modules/users.php"><!--{{{-->
+    <table name="users" translate="Usuarios del Sistema" source="plugins/ext3/users/modules/users.php"><!--{{{-->
 		<panel type="xpGrid"/>
 		<panel type="xpForm" display="hide"/>
 

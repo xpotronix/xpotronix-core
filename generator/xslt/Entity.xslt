@@ -79,13 +79,13 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>;
+namespace App\Entity<xsl:value-of select="$final_mapping_path_prefix"/>;
 <xsl:if test="$table_metadata/obj/@persistent='1'">
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
+use App\Repository<xsl:value-of select="$final_mapping_path_prefix"/>\<xsl:value-of select="$class_name"/>Repository;
 <xsl:if test="@Trait">
-use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
+use App\Entity<xsl:value-of select="$final_mapping_path_prefix"/>\Common\<xsl:value-of select="$class_name"/>Trait;
 </xsl:if>
 </xsl:if>
 

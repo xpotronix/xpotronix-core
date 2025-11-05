@@ -74,12 +74,12 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Controller<xsl:value-of select="$final_mapping_path_suffix"/>;
+namespace App\Controller<xsl:value-of select="$final_mapping_path_prefix"/>;
 
 
-use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
-use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
-use App\Form<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Type;
+use App\Entity<xsl:value-of select="$final_mapping_path_prefix"/>\<xsl:value-of select="$class_name"/>;
+use App\Repository<xsl:value-of select="$final_mapping_path_prefix"/>\<xsl:value-of select="$class_name"/>Repository;
+use App\Form<xsl:value-of select="$final_mapping_path_prefix"/>\<xsl:value-of select="$class_name"/>Type;
 
 use App\Form\ImportType;
 
@@ -134,7 +134,7 @@ class <xsl:value-of select="$class_name"/>Controller extends AbstractController 
     }/*}}}*/
 
     #[Route(path: '/ajax/list', name: '<xsl:value-of select="$table_name"/>_ajax_list', methods: ['GET'])]
-    public function ajaxList(XpotronixService $service, Request $request, PaginatorInterface $paginator, <xsl:value-of select="$class_name"/> $repository)
+    public function ajaxList(XpotronixService $service, Request $request, PaginatorInterface $paginator, <xsl:value-of select="$class_name"/>Repository $repository)
 	{/*{{{*/
 		return $this->getAjaxList($request, $paginator, $repository, $service);
 	}/*}}}*/

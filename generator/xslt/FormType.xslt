@@ -66,11 +66,11 @@
 * Archivo: <xsl:value-of select="$class_file_name"/>
 */
 
-namespace App\Form<xsl:value-of select="$final_mapping_path_suffix"/>;
+namespace App\Form<xsl:value-of select="$final_mapping_path_prefix"/>;
 
 
-use App\Entity<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>;
-use App\Repository<xsl:value-of select="$final_mapping_path_suffix"/>\<xsl:value-of select="$class_name"/>Repository;
+use App\Entity<xsl:value-of select="$final_mapping_path_prefix"/>\<xsl:value-of select="$class_name"/>;
+use App\Repository<xsl:value-of select="$final_mapping_path_prefix"/>\<xsl:value-of select="$class_name"/>Repository;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
