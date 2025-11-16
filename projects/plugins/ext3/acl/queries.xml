@@ -12,102 +12,112 @@
 
 <queries>
   <query name="acl_id">
-	 <id>ga.id</id>
-	 <label>concat( ga.note, ': permite ', ga.allow, ', activado ', ga.enabled)</label>
+	 <id>gacl.id</id>
+	 <label>concat( gacl.note, ': permite ', gacl.allow, ', activado ', gacl.enabled)</label>
 	 <from>gacl_acl</from>
-	 <alias>ga</alias>
+	 <alias>gacl</alias>
   </query>
 
   <query name="acl_section_value">
-	 <id>gas.value</id>
-	 <label>gas.name</label>
+	 <id>gacls.value</id>
+	 <label>gacls.name</label>
 	 <from>gacl_acl_sections</from>
-	 <alias>gas</alias>
-	 <order_by>gas.order_value</order_by>
+	 <alias>gacls</alias>
+	 <order_by>gacls.order_value</order_by>
   </query>
 
   <query name="aco_section_value">
-	 <id>gas.value</id>
-	 <label>gas.name</label>
+	 <id>gacos.value</id>
+	 <label>gacos.name</label>
 	 <from>gacl_aco_sections</from>
-	 <alias>gas</alias>
-	 <order_by>gas.order_value</order_by>
+	 <alias>gacos</alias>
+	 <order_by>gacos.order_value</order_by>
   </query>
 
   <query name="aro_section_value">
-	 <id>gacl_aro_sections.value</id>
-	 <label>gacl_aro_sections.name</label>
-	 <from>gacl_aro_sections</from>
-	 <order_by>order_value</order_by>
+	 <id>garos.value</id>
+	 <label>garos.name</label>
+     <from>gacl_aro_sections</from>
+     <alias>garos</alias>
+	 <order_by>garos.order_value</order_by>
   </query>
 
   <query name="axo_section_value">
-	 <id>gacl_axo_sections.value</id>
-	 <label>gacl_axo_sections.name</label>
-	 <from>gacl_axo_sections</from>
-	 <order_by>order_value</order_by>
+	 <id>gaxos.value</id>
+	 <label>gaxos.name</label>
+     <from>gacl_axo_sections</from>
+     <alias>gaxos</alias>
+	 <order_by>gaxos.order_value</order_by>
   </query>
 
 <query name="aro_groups">
-	 <id>gacl_aro_groups.id</id>
-	 <label>gacl_aro_groups.name</label>
+	 <id>garog.id</id>
+	 <label>garog.name</label>
 	 <from>gacl_aro_groups</from>
+	 <alias>garog</alias>
 </query>
 
 <query name="axo_groups">
-	 <id>gacl_axo_groups.id</id>
-	 <label>gacl_axo_groups.name</label>
+	 <id>gaxog.id</id>
+	 <label>gaxog.name</label>
 	 <from>gacl_axo_groups</from>
-</query>
-
-<query name="aco_id">
-	 <id>gacl_aco.id</id>
-	 <label>gacl_aco.name</label>
-	 <from>gacl_aco</from>
-	 <order_by>order_value</order_by>
+	 <alias>gaxog</alias>
 </query>
 
 <query name="aro_id">
-	 <id>gacl_aro.value</id>
-	 <label>gacl_aro.value</label>
+	 <id>garo.value</id>
+	 <label>garo.value</label>
 	 <from>gacl_aro</from>
-	 <order_by>value</order_by>
+     <alias>garo</alias>
+	 <order_by>garo.value</order_by>
 </query>
 
 <query name="aro_name">
-	 <id>gacl_aro.id</id>
-	 <label>gacl_aro.name</label>
+	 <id>garo.id</id>
+	 <label>garo.name</label>
 	 <from>gacl_aro</from>
-	 <order_by>name</order_by>
-</query>
-
-
-<query name="axo_id">
-	 <id>gacl_axo.id</id>
-	 <label>gacl_axo.value</label>
-	 <from>gacl_axo</from>
-	 <order_by>value</order_by>
+     <alias>garo</alias>
+	 <order_by>garo.name</order_by>
 </query>
 
 <query name="aro_value">
-	 <id>gacl_aro.value</id>
-	 <label>gacl_aro.value</label>
+	 <id>garo.value</id>
+	 <label>garo.value</label>
 	 <from>gacl_aro</from>
-	 <order_by>value</order_by>
+     <alias>garo</alias>
+	 <order_by>garo.value</order_by>
+</query>
+
+<query name="axo_id">
+	 <id>gaxo.id</id>
+	 <label>gaxo.value</label>
+	 <from>gacl_axo</from>
+     <alias>gaxo</alias>
+	 <order_by>gaxo.value</order_by>
 </query>
 
 <query name="axo_value">
-	 <id>gacl_axo.value</id>
-	 <label>gacl_axo.value</label>
+	 <id>gaxo.value</id>
+	 <label>gaxo.value</label>
 	 <from>gacl_axo</from>
-	 <order_by>value</order_by>
+     <alias>gaxo</alias>
+	 <order_by>gaxo.value</order_by>
+</query>
+
+<query name="aco_id">
+	 <id>gaco.id</id>
+	 <label>gaco.name</label>
+     <from>gacl_aco</from>
+     <alias>gaco</alias>
+	 <order_by>gaco.order_value</order_by>
 </query>
 
 <query name="aco_value">
-	 <id>gacl_aco.value</id>
-	 <label>gacl_aco.value</label>
+	 <id>gaco.value</id>
+	 <label>gaco.value</label>
 	 <from>gacl_aco</from>
-	 <order_by>value</order_by>
+     <alias>gaco</alias>
+	 <order_by>gaco.value</order_by>
 </query>
 
 </queries>
